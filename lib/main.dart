@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
+class Moa
+{
+  final bool gigachad = true;
+}
+
 void main() {
   runApp(const MyApp());
+  Moa M = Moa();
 }
 
 class MyApp extends StatelessWidget {
