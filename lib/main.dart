@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -40,7 +41,8 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: val.getTheme,
                 title: "GigaChat",
-                home: auth.isLoggedIn ? Home() : TempPage(),
+                //home: auth.isLoggedIn ? Home() : TempPage(),
+                home: LoginPage()
               );
             },
           );
