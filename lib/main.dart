@@ -41,6 +41,8 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: val.getTheme,
                 title: "GigaChat",
+
+                // TODO: uncomment this line - for testing my work -
                 //home: auth.isLoggedIn ? Home() : TempPage(),
                 home: LoginPage()
               );
