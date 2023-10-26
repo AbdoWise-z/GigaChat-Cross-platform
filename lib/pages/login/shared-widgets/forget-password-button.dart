@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 
 ButtonStyle leftButtonStyle()
 {
-  return ElevatedButton.styleFrom(
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.black,
-      side: const BorderSide(width: 1.1, color: Colors.white),
+  return OutlinedButton.styleFrom(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20)
       )
@@ -21,7 +19,7 @@ class ForgetPasswordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
           Navigator.push(
@@ -31,7 +29,11 @@ class ForgetPasswordButton extends StatelessWidget {
                         username: username,
                       )));
         },
-        child: const Text("Forget password?"));
+        child: Text("Forget password?",
+          style: TextStyle(
+            color: ThemeProvider.getInstance(context).getTheme.textTheme.labelSmall!.color,
+          ),
+        ));
   }
 }
 
@@ -40,12 +42,17 @@ class CancelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
           Navigator.pushNamed(context, LoginPage.pageRoute);
         },
-        child: const Text("Cancel"));
+        child: Text("Cancel",
+          style: TextStyle(
+            color: ThemeProvider.getInstance(context).getTheme.textTheme.labelSmall!.color,
+          ),
+        ),
+    );
   }
 }
 
@@ -54,7 +61,7 @@ class BackButtonBottom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
           Navigator.pop(context);

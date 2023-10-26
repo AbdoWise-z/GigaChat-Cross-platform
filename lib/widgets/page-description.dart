@@ -10,7 +10,6 @@ class PageDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(description,
       style: const TextStyle(
-        color: Colors.white70,
         fontSize: 17
     ),);
   }

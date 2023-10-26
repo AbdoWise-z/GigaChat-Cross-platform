@@ -12,7 +12,7 @@ class PageTitle extends StatelessWidget
       style: const TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w600,
-          color: Colors.white),
+          ),
     );
   }
 }

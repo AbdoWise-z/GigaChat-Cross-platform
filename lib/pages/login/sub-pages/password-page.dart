@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/login/controllers/password-controller.dart';
 import 'package:gigachat/pages/login/shared-widgets/forget-password-button.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
@@ -12,9 +13,9 @@ import '../../../widgets/username-input-field.dart';
 
 
 class PasswordLoginPage extends StatefulWidget {
-  String? username;
+  String username;
 
-  PasswordLoginPage({this.username,super.key});
+  PasswordLoginPage({required this.username,super.key});
 
 
   @override
@@ -22,14 +23,13 @@ class PasswordLoginPage extends StatefulWidget {
 }
 
 class _LoginPasswordPageState extends State<PasswordLoginPage> {
-  String? username = "";
+
   String? password;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    username = widget.username;
     password = "";
   }
 
@@ -37,44 +37,56 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
   Widget build(BuildContext context) {
 
 
-    return Theme(
-        data: ThemeData(
-            brightness: Brightness.dark,
-          disabledColor: const Color(0xffFAFAFA)
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          appBar: LoginAppBar(),
-          body: Padding(
-            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+    return Scaffold(
+
+      appBar: LoginAppBar(context),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // page Title
+          Padding(
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // page Title
                 const PageTitle(title: PASSWORD_PAGE_DESCRIPTION),
 
                 // empty space
                 const SizedBox(height: 30),
 
                 // username input field - disabled -
-                TextDataFormField(onChange: (email){}, value: username, isEnabled: false),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey,width: 0.5),
+                          borderRadius: const BorderRadius.all(Radius.circular(4)),
+                        ),
+                        child: Text(widget.username,),
+                      ),
+                    ),
+                  ],
+                ),
 
                 // empty space
                 const SizedBox(height: 20),
 
                 // password field
                 PasswordFormField(
-                    onChanged: (value) {password = value;},
-                    validator: (value){return value.length > 5;},
-                    label: "Password",
+                  onChanged: (value) {password = value;},
+                  validator: (value){return value.length > 5;},
+                  label: "Password",
                 ),
-                const Expanded(child: SizedBox()),
-
-                LoginFooter(proceedButtonName: "Log in",username: username)
               ],
             ),
           ),
-        )
+          const Expanded(child: SizedBox()),
+
+          LoginFooter(proceedButtonName: "Log in",username: widget.username)
+        ],
+      ),
     );
   }
 }

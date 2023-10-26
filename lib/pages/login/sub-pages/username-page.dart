@@ -27,40 +27,46 @@ class _UsernamePageState extends State<UsernameLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: LoginAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: Column(
-          children: [
-            // Page Title
-            const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
-            // Empty Space
-            const SizedBox(height: 20),
-            // Username Input Field
-            TextDataFormField(onChange: (editedUsername) {
-              setState(() {
-                username = editedUsername;
-              });
-            }),
-            // Empty Space
-            const Expanded(child: SizedBox()),
-            // Page Footer
-            LoginFooter(proceedButtonName: "Next",onPressed: () async {
-              bool verified = await verifyUsername(username);
-              if (verified)
-              {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder:
-                            (context)=>
-                            PasswordLoginPage(username: username)
-                    )
-                );
-              }
-            },)
-          ],
-        ),
+      appBar: LoginAppBar(context),
+      body: Column(
+        children: [
+          // Page Title
+          Padding(
+              padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
+                // Empty Space
+                const SizedBox(height: 20),
+                // Username Input Field
+                TextDataFormField(onChange: (editedUsername) {
+                  setState(() {
+                    username = editedUsername;
+                  });
+                }),
+
+
+              ],
+            ),
+          ),
+          // Empty Space
+          const Expanded(child: SizedBox()),
+          // Page Footer
+          LoginFooter(proceedButtonName: "Next",onPressed: () async {
+            bool verified = await verifyUsername(username);
+            if (verified)
+            {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder:
+                          (context)=>
+                          PasswordLoginPage(username: username!)
+                  )
+              );
+            }
+          },)
+        ],
       ),
     );
   }

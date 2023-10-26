@@ -30,16 +30,98 @@ class ThemeProvider extends ChangeNotifier {
     _updateTheme();
   }
 
+  bool isDark(){
+    return _themeName == "dark";
+  }
   void _updateTheme(){
     if (_themeName == "dark"){
       _theme = ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        appBarTheme: ThemeData.dark().appBarTheme.copyWith(
-          backgroundColor: Colors.black
-        ),
+          scaffoldBackgroundColor: Colors.black,
+          inputDecorationTheme: const InputDecorationTheme(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.blueGrey
+              )
+            )
+          ),
+          appBarTheme: ThemeData.dark().appBarTheme.copyWith(
+            backgroundColor: Colors.black,
+            titleTextStyle: const TextStyle(
+                color: Colors.white
+            ),
+            elevation: 0,
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                splashFactory: NoSplash.splashFactory,
+                textStyle: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                )
+              ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              side: const BorderSide(
+                color: Colors.white,
+              )
+            ),
+          ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Colors.black,
+        )
       );
     }else if (_themeName == "light"){
-      _theme = ThemeData.light();
+      _theme = ThemeData.light().copyWith(
+        scaffoldBackgroundColor: Colors.white,
+        inputDecorationTheme: const InputDecorationTheme(
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: Colors.blueGrey
+                )
+            )
+        ),
+        appBarTheme: ThemeData.light().appBarTheme.copyWith(
+          backgroundColor: Colors.white,
+          titleTextStyle: const TextStyle(
+            color: Colors.black
+          ),
+          elevation: 0,
+          iconTheme: const IconThemeData(
+            color: Colors.black,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              splashFactory: NoSplash.splashFactory,
+              textStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              )
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.black,
+              side: const BorderSide(
+                color: Colors.black,
+              )
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Colors.white,
+        ),
+      );
     }
   }
 

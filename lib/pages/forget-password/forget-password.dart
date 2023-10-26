@@ -15,7 +15,20 @@ List<ContactMethod> getUserContactMethods(String email)
   // TODO: move this function to its folder & implement dealing with api
   // TODO: email must be hidden by stars
   return [
-    ContactMethod(contactWay: "Send an email to", contactTarget: email)
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+    ContactMethod(contactWay: "Send an email to", contactTarget: email),
+
+
   ];
 }
 
@@ -44,8 +57,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: LoginAppBar(),
-      backgroundColor: Colors.black,
+      appBar: LoginAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
         child: Column(
@@ -67,7 +79,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
             LoginFooter(proceedButtonName: "Next",
                 onPressed: (){
-                  Navigator.push(context,
+                  Navigator.pushReplacement(context,
                       //MaterialPageRoute(builder: (context)=> ConfirmEmailPage(username: "a",))
                       MaterialPageRoute(
                           builder: (context)=> VerificationMethodPage(methods: getUserContactMethods("koko"))

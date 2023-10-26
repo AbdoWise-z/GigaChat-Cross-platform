@@ -31,8 +31,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
     late String email;
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: LoginAppBar(),
+      appBar: LoginAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
         child: Column(

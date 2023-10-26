@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 
 
 class PasswordFormField extends StatefulWidget {
@@ -77,6 +78,8 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
                         return Colors.transparent;
                       },
                     ),
+                    elevation: MaterialStateProperty.all(0),
+                    iconColor: MaterialStateProperty.all(ThemeProvider.getInstance(context).getTheme.textTheme.labelSmall!.color)
                   ),
                   child: Icon(passwordState)
               ),

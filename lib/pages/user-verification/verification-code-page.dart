@@ -22,8 +22,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: LoginAppBar(),
-      backgroundColor: Colors.black,
+      appBar: LoginAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
         child: Column(
@@ -47,11 +46,11 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
               showBackButton: true,
               onPressed: (){
                 // TODO: check for the code here
-                Navigator.push(context,
+                Navigator.pushReplacement(context,
                     MaterialPageRoute(
                         builder:
                             (context)=>
-                            NewPasswordPage()
+                            const NewPasswordPage()
                     )
                 );
               },
