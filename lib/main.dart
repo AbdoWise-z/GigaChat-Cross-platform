@@ -46,7 +46,7 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
 
                 // TODO: uncomment this line - for testing my work -
-                //home: auth.isLoggedIn ? Home() : TempPage(),
+                // home: auth.isLoggedIn ? Home() : TempPage(),
                 initialRoute: LoginPage.pageRoute,
                 routes: {
                   LoginPage.pageRoute : (context) => LoginPage(),

@@ -19,7 +19,7 @@ class ThemeProvider extends ChangeNotifier {
     return _themeName;
   }
 
-  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "dark" {
+  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "light" {
     init();
   }
 
@@ -32,7 +32,12 @@ class ThemeProvider extends ChangeNotifier {
 
   void _updateTheme(){
     if (_themeName == "dark"){
-      _theme = ThemeData.dark();
+      _theme = ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: ThemeData.dark().appBarTheme.copyWith(
+          backgroundColor: Colors.black
+        ),
+      );
     }else if (_themeName == "light"){
       _theme = ThemeData.light();
     }

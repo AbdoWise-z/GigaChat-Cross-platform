@@ -26,45 +26,42 @@ class _UsernamePageState extends State<UsernameLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-        data: ThemeData(brightness: Brightness.dark),
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          appBar: LoginAppBar(),
-          body: Padding(
-            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-            child: Column(
-              children: [
-                // Page Title
-                const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
-                // Empty Space
-                const SizedBox(height: 20),
-                // Username Input Field
-                TextDataFormField(onChange: (editedUsername) {
-                  setState(() {
-                    username = editedUsername;
-                  });
-                }),
-                // Empty Space
-                const Expanded(child: SizedBox()),
-                // Page Footer
-                LoginFooter(proceedButtonName: "Next",onPressed: () async {
-                  bool verified = await verifyUsername(username);
-                  if (verified)
-                  {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder:
-                                (context)=>
-                                PasswordLoginPage(username: username)
-                        )
-                    );
-                  }
-                },)
-              ],
-            ),
-          ),
-        ));
+    return Scaffold(
+      appBar: LoginAppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+        child: Column(
+          children: [
+            // Page Title
+            const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
+            // Empty Space
+            const SizedBox(height: 20),
+            // Username Input Field
+            TextDataFormField(onChange: (editedUsername) {
+              setState(() {
+                username = editedUsername;
+              });
+            }),
+            // Empty Space
+            const Expanded(child: SizedBox()),
+            // Page Footer
+            LoginFooter(proceedButtonName: "Next",onPressed: () async {
+              bool verified = await verifyUsername(username);
+              if (verified)
+              {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder:
+                            (context)=>
+                            PasswordLoginPage(username: username)
+                    )
+                );
+              }
+            },)
+          ],
+        ),
+      ),
+    );
   }
 }
