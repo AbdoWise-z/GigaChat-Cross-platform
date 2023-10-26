@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/login/controllers/password-controller.dart';
 import 'package:gigachat/pages/login/shared-widgets/forget-password-button.dart';
-import 'package:gigachat/pages/login/shared-widgets/login-app-bar.dart';
-import 'package:gigachat/pages/login/shared-widgets/page-footer.dart';
+import 'package:gigachat/widgets/login-app-bar.dart';
+import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/page-title.dart';
 
-import '../shared-widgets/username-input-field.dart';
+import '../../../widgets/username-input-field.dart';
 
 
 class PasswordLoginPage extends StatefulWidget {
@@ -47,19 +48,12 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
           backgroundColor: Colors.black,
           appBar: LoginAppBar(),
           body: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // page description
-                const Text(PASSWORD_PAGE_DESCRIPTION,
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white
-                  ),
-                  textAlign: TextAlign.left,
-                ),
+                // page Title
+                const PageTitle(title: PASSWORD_PAGE_DESCRIPTION),
 
                 // empty space
                 const SizedBox(height: 30),
@@ -125,7 +119,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
                 const Expanded(child: SizedBox()),
 
-                LoginFooter(proceedButtonName: "Log in",username: this.username)
+                LoginFooter(proceedButtonName: "Log in",username: username)
               ],
             ),
           ),
