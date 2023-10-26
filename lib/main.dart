@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home.dart';
-import 'package:gigachat/pages/register/create-account.dart';
+import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
+
+import 'pages/user-verification/verification-code-page.dart';
 
 
 void main(){
@@ -41,7 +44,15 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: val.getTheme,
                 title: "GigaChat",
-                home: auth.isLoggedIn ? Home() : CreateAccount(),
+
+                // TODO: uncomment this line - for testing my work -
+                //home: auth.isLoggedIn ? Home() : TempPage(),
+                initialRoute: LoginPage.pageRoute,
+                routes: {
+                  LoginPage.pageRoute : (context) => LoginPage(),
+                  ForgetPassword.pageRoute : (context) => ForgetPassword(),
+                  VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
+                },
               );
             },
           );
