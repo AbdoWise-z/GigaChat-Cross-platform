@@ -9,3 +9,6 @@ const String PASSWORD_PAGE_DESCRIPTION =
   "Enter your password";
 const String USERNAME_INPUT_LABEL = "Phone, email or username";
 const String PASSWORD_INPUT_LABEL = "Password";
+const String FORGET_PASSWORD_TITLE = "Find your GIGACHAT account";
+const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
+    "username associated with your account to change the password.";

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/login/controllers/password-controller.dart';
+import 'package:gigachat/pages/login/shared-widgets/forget-password-button.dart';
+import 'package:gigachat/pages/login/shared-widgets/login-app-bar.dart';
+import 'package:gigachat/pages/login/shared-widgets/page-footer.dart';
+
+import '../shared-widgets/username-input-field.dart';
 
 
 class PasswordLoginPage extends StatefulWidget {
@@ -40,22 +45,13 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
         ),
         child: Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBar(
-            centerTitle: true,
-            backgroundColor: Colors.black,
-            title: Text(
-              APP_NAME.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          appBar: LoginAppBar(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // page description
                 const Text(PASSWORD_PAGE_DESCRIPTION,
                   style: TextStyle(
                       fontSize: 30,
@@ -65,19 +61,16 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
                   textAlign: TextAlign.left,
                 ),
 
+                // empty space
                 const SizedBox(height: 30),
 
-                TextFormField(
-                  onChanged: (email){},
-                  initialValue: username,
-                  enabled: false,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                  ),
-                ),
+                // username input field - disabled -
+                UsernameFormField(onChange: (email){}, value: username, isEnabled: false),
 
+                // empty space
                 const SizedBox(height: 20),
 
+                // password field
                 TextFormField(
                   onChanged: (editedPassword){
                     setState(() {
@@ -118,8 +111,13 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
                             ),
 
                             // verification Icon
-                            renderVerificationIcon(password),
-
+                            Visibility(
+                              visible: password!.length >= 5,
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Icon(Icons.check_circle_rounded,color: Colors.green),
+                              ),
+                            )
                           ],
                         ),
                       ),
@@ -127,42 +125,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
                 const Expanded(child: SizedBox()),
 
-                Container(
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          top: BorderSide(color: Color(0xff303030))
-                      )
-                  ),
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.black,
-                              side: const BorderSide(width:1.1,color:Colors.white),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-                          ),
-                          onPressed: (){},
-                          child: const Text("Forget password?")
-                      ),
-
-                      const Expanded(child: SizedBox()),
-
-
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.grey[900],
-                              backgroundColor: Colors.white70,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-                          ),
-                          onPressed: (){},
-                          child: const Text("Next")
-                      ),
-                    ]
-                    ,
-                  ),
-                )
+                LoginFooter(proceedButtonName: "Log in",username: this.username)
               ],
             ),
           ),

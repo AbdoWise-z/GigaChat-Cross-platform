@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/pages/login/forget-password.dart';
 import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -44,7 +45,11 @@ class _GigaChatState extends State<GigaChat> {
 
                 // TODO: uncomment this line - for testing my work -
                 //home: auth.isLoggedIn ? Home() : TempPage(),
-                home: LoginPage()
+                initialRoute: LoginPage.pageRoute,
+                routes: {
+                  LoginPage.pageRoute : (context) => LoginPage(),
+                  ForgetPassword.pageRoute : (context) => ForgetPassword()
+                },
               );
             },
           );

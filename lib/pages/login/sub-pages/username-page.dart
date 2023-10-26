@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/login/controllers/username-controller.dart';
+import 'package:gigachat/pages/login/shared-widgets/login-app-bar.dart';
+import 'package:gigachat/pages/login/shared-widgets/page-footer.dart';
+import 'package:gigachat/pages/login/shared-widgets/username-input-field.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
+import '../shared-widgets/forget-password-button.dart';
 
 class UsernameLoginPage extends StatefulWidget {
   const UsernameLoginPage({super.key});
@@ -11,7 +15,6 @@ class UsernameLoginPage extends StatefulWidget {
 }
 
 class _UsernamePageState extends State<UsernameLoginPage> {
-
   String? username;
 
   @override
@@ -24,103 +27,55 @@ class _UsernamePageState extends State<UsernameLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: ThemeData(
-            brightness: Brightness.dark
-        ),
+        data: ThemeData(brightness: Brightness.dark),
         child: Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBar(
-            centerTitle: true,
-            backgroundColor: Colors.black,
-            title: Text(
-              APP_NAME.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          appBar: LoginAppBar(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                const Text(LOGIN_PAGE_DESCRIPTION,
+
+                // Page Description
+                const Text(
+                  LOGIN_PAGE_DESCRIPTION,
                   style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white70
-                  ),
+                      color: Colors.white70),
                 ),
 
+                // Empty Space
                 const SizedBox(height: 20),
 
-                TextFormField(
-                  onChanged: (editedUsername){
-                    setState(() {
-                      username = editedUsername;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                      label:  Text(USERNAME_INPUT_LABEL),
-                      border: OutlineInputBorder()
-                  ),
-                ),
+                // Username Input Field
+                UsernameFormField(onChange: (editedUsername) {
+                  setState(() {
+                    username = editedUsername;
+                  });
+                }),
 
+                // Empty Space
                 const Expanded(child: SizedBox()),
 
-                Container(
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          top: BorderSide(color: Color(0xff303030))
-                      )
-                  ),
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.black,
-                              side: const BorderSide(width:1.1,color:Colors.white),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-                          ),
-                          onPressed: (){},
-                          child: const Text("Forget password?")
-                      ),
-
-                      const Expanded(child: SizedBox()),
-
-
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.grey[900],
-                              backgroundColor: Colors.white70,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-                          ),
-                          onPressed: () async {
-                              bool verified = await verifyUsername(username);
-                              if (verified)
-                              {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder:
-                                            (context)=>
-                                                PasswordLoginPage(username: username)
-                                    )
-                                );
-                              }
-                          },
-                          child: const Text("Next")
-                      ),
-                    ]
-                    ,
-                  ),
-                )
+                // Page Footer
+                LoginFooter(proceedButtonName: "Next",onPressed: () async {
+                  bool verified = await verifyUsername(username);
+                  if (verified)
+                  {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder:
+                                (context)=>
+                                PasswordLoginPage(username: username)
+                        )
+                    );
+                  }
+                },)
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 }
