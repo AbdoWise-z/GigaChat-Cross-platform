@@ -40,7 +40,7 @@ class _UsernamePageState extends State<UsernameLoginPage> {
                 // Empty Space
                 const SizedBox(height: 20),
                 // Username Input Field
-                UsernameFormField(onChange: (editedUsername) {
+                TextDataFormField(onChange: (editedUsername) {
                   setState(() {
                     username = editedUsername;
                   });

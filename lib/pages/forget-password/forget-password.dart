@@ -59,7 +59,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
             const SizedBox(height: 20),
 
-            UsernameFormField(onChange: (email){
+            TextDataFormField(onChange: (email){
               this.email = email;
             }, value: username),
 

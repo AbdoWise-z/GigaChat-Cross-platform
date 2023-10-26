@@ -28,6 +28,8 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
 
   @override
   Widget build(BuildContext context) {
+    late String email;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: LoginAppBar(),
@@ -44,7 +46,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
 
             const SizedBox(height: 20),
 
-            UsernameFormField(onChange: (){},label: "Email"),
+            TextDataFormField(onChange: (value){},label: "Email"),
 
             const Expanded(child: SizedBox()),
 

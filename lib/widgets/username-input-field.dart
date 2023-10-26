@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import '../base.dart';
 
-Widget UsernameFormField({
-  required Function onChange,
+Widget TextDataFormField({
+  required void Function(String) onChange,
   String? value,
   bool? isEnabled,
   String? label
@@ -11,7 +11,7 @@ Widget UsernameFormField({
 {
   // TODO: email verifications required
   return TextFormField(
-    onChanged: (username){onChange(username);},
+    onChanged: onChange,
     initialValue: value ?? "",
     enabled: isEnabled ?? true,
     decoration: InputDecoration(

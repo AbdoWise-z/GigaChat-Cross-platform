@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/forget-password/sub-pages/change-password.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
@@ -16,6 +17,8 @@ class VerificationCodePage extends StatefulWidget {
 }
 
 class _VerificationCodePageState extends State<VerificationCodePage> {
+  late String code;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,13 +33,28 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
             const SizedBox(height: 15),
             const PageDescription(description: CODE_VERIFICATION_DESCRIPTION),
             const SizedBox(height: 20),
-            UsernameFormField(label: "Enter your code",onChange: (){}),
+            TextDataFormField(
+                label: "Enter your code",
+                onChange: (value){
+                  code = value;
+                }
+            ),
             const Expanded(child: SizedBox()),
             LoginFooter(
               proceedButtonName: "Next",
               showCancelButton: false,
               showForgetPassword: false,
               showBackButton: true,
+              onPressed: (){
+                // TODO: check for the code here
+                Navigator.push(context,
+                    MaterialPageRoute(
+                        builder:
+                            (context)=>
+                            NewPasswordPage()
+                    )
+                );
+              },
             )
 
           ],

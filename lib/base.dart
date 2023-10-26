@@ -25,6 +25,12 @@ const String CODE_VERIFICATION_TITLE = "We sent you a code";
 const String CODE_VERIFICATION_DESCRIPTION = "Check your email to get your confirmation"
     " code. if you need to request a new code, go back and reselect confirmation";
 
+// static strings for new password page
+const String NEW_PASSWORD_TITLE = "Choose a new password";
+const String NEW_PASSWORD_DESCRIPTION = "Make sure your new password is 8 characters or more. "
+    "Try including numbers, letters, and punctuation marks for a strong password"
+    "\n\nYou'll be logged out of all active " + APP_NAME + " sessions after your password is changed.";
+
 
 // global constants
 const double LOGIN_PAGE_PADDING = 10.0;

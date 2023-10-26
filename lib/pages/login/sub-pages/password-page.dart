@@ -5,8 +5,10 @@ import 'package:gigachat/pages/login/shared-widgets/forget-password-button.dart'
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
+import 'package:gigachat/widgets/password-input-field.dart';
 
 import '../../../widgets/username-input-field.dart';
+
 
 
 class PasswordLoginPage extends StatefulWidget {
@@ -21,7 +23,6 @@ class PasswordLoginPage extends StatefulWidget {
 
 class _LoginPasswordPageState extends State<PasswordLoginPage> {
   String? username = "";
-  bool passwordVisible = false;
   String? password;
 
   @override
@@ -34,10 +35,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    IconData passwordState =
-    passwordVisible ?
-    Icons.visibility_outlined :
-    Icons.visibility_off_outlined;
+
 
     return Theme(
         data: ThemeData(
@@ -59,64 +57,17 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
                 const SizedBox(height: 30),
 
                 // username input field - disabled -
-                UsernameFormField(onChange: (email){}, value: username, isEnabled: false),
+                TextDataFormField(onChange: (email){}, value: username, isEnabled: false),
 
                 // empty space
                 const SizedBox(height: 20),
 
                 // password field
-                TextFormField(
-                  onChanged: (editedPassword){
-                    setState(() {
-                      password = editedPassword;
-                    });
-                  },
-                  obscureText: ! passwordVisible,
-                  autocorrect: false,
-                  enableSuggestions: false,
-
-                  decoration: InputDecoration(
-                      label:  const Text(PASSWORD_INPUT_LABEL),
-                      border: const OutlineInputBorder(),
-                      suffixIcon:
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // hide and show password
-                            SizedBox(
-                              width:50,
-                              child: ElevatedButton(
-                                  onPressed: (){
-                                    setState(() {
-                                      passwordVisible = ! passwordVisible;
-                                    });
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
-                                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                                          (Set<MaterialState> states) {
-                                             return Colors.transparent;
-                                          },
-                                    ),
-                                  ),
-                                  child: Icon(passwordState)
-                              ),
-                            ),
-
-                            // verification Icon
-                            Visibility(
-                              visible: password!.length >= 5,
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Icon(Icons.check_circle_rounded,color: Colors.green),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                  ),
-
+                PasswordFormField(
+                    onChanged: (value) {password = value;},
+                    validator: (value){return value.length > 5;},
+                    label: "Password",
+                ),
                 const Expanded(child: SizedBox()),
 
                 LoginFooter(proceedButtonName: "Log in",username: username)
