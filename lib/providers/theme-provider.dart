@@ -37,6 +37,9 @@ class ThemeProvider extends ChangeNotifier {
     if (_themeName == "dark"){
       _theme = ThemeData.dark().copyWith(
           scaffoldBackgroundColor: Colors.black,
+          drawerTheme: ThemeData.dark().drawerTheme.copyWith(
+            backgroundColor: Colors.black,
+          ),
           inputDecorationTheme: const InputDecorationTheme(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
@@ -81,6 +84,9 @@ class ThemeProvider extends ChangeNotifier {
     }else if (_themeName == "light"){
       _theme = ThemeData.light().copyWith(
         scaffoldBackgroundColor: Colors.white,
+        drawerTheme: ThemeData.dark().drawerTheme.copyWith(
+          backgroundColor: Colors.white,
+        ),
         inputDecorationTheme: const InputDecorationTheme(
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(

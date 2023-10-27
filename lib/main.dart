@@ -34,28 +34,19 @@ class _GigaChatState extends State<GigaChat> {
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
       ],
-      child: Consumer<Auth>(
-        builder: (BuildContext context, value, Widget? child) {
-          //create main routes here ..
-          print("frame updated");
-          var auth = Provider.of<Auth>(context);
-          return Consumer<ThemeProvider>(
-            builder: (_ , val , __) {
-              print("theme updated");
-              return MaterialApp(
-                theme: val.getTheme,
-                title: "GigaChat",
-
-                // TODO: uncomment this line - for testing my work -
-                // home: auth.isLoggedIn ? Home() : TempPage(),
-                initialRoute: LoginPage.pageRoute,
-                routes: {
-                  LoginPage.pageRoute : (context) => LoginPage(),
-                  ForgetPassword.pageRoute : (context) => ForgetPassword(),
-                  VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
-                  CreateAccount.pageRoute : (context) => CreateAccount(),
-                },
-              );
+      child: Consumer<ThemeProvider>(
+        builder: (_ , val , __) {
+          print("theme updated");
+          return MaterialApp(
+            theme: val.getTheme,
+            title: "GigaChat",
+            initialRoute: Home.pageRoute,
+            routes: {
+              Home.pageRoute : (context) => Home(),
+              LoginPage.pageRoute : (context) => LoginPage(),
+              ForgetPassword.pageRoute : (context) => ForgetPassword(),
+              VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
+              CreateAccount.pageRoute : (context) => CreateAccount(),
             },
           );
         },

@@ -2,39 +2,33 @@
 import "package:gigachat/base.dart";
 
 class User {
-  String _name;
-  String _email;
-  String _id;
-  String? _auth;
+  String name;
+  String email;
+  int followers;
+  int following;
+  String iconLink;
+  String id;
+  String? auth;
 
   bool get isLocalUser {
-    return _auth != null;
+    return auth != null;
   }
 
-  String get name {
-    return _name;
-  }
-
-  String get email {
-    return _email;
-  }
-
-  String get id {
-    return _id;
-  }
-
-  User(String name , String email , String id , String auth)
-      : _name = name ,
-        _email = email ,
-        _id = id ,
-        _auth = auth;
+  User({
+    this.name = "Abdo",
+    this.email = "test@gmail.com",
+    this.followers = 0,
+    this.following = 1,
+    this.iconLink = "https://i.imgur.com/7SbtKvw.png",
+    this.id = "Abdo1654",
+    this.auth,
+  });
 
 }
 
 Future<User?> apiLogin(String userName , String password) async {
   //TODO: do some API request
-
-  return User("test", userName, "test_123", "auth key");
+  return User();
 }
 
 Future<bool> apiLogout(User u) async {
