@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/temp.dart';
@@ -47,6 +48,7 @@ class _GigaChatState extends State<GigaChat> {
               ForgetPassword.pageRoute : (context) => ForgetPassword(),
               VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
               CreateAccount.pageRoute : (context) => CreateAccount(),
+              LoadingPage.pageRoute : (context) => LoadingPage(),
             },
           );
         },

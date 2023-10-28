@@ -30,8 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  email_validator: '^2.1.16'
+  email_validator: ^2.1.17
   intl: ^0.18.1
+  loading_indicator: ^3.1.1
 
 
 
