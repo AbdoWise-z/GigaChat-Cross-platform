@@ -46,7 +46,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                         controller: accountData["Name"],
                         readOnly: true,
                         onTap: (){
-                          Navigator.pop(context);
+                          Navigator.pop(context,"Name tapped"); //return back to create account with name in focus
                         },
                         decoration:  const InputDecoration(
                           labelText: "Name",
@@ -59,7 +59,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                         controller: accountData["Email"],
                         readOnly: true,
                         onTap: (){
-                          Navigator.pop(context);
+                          Navigator.pop(context,"Email tapped"); //return back to create account with email in focus
                         },
                         decoration: const InputDecoration(
                           labelText: "Email",
@@ -72,7 +72,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                         controller: accountData["DOB"],
                         readOnly: true,
                         onTap: (){
-                          Navigator.pop(context);
+                          Navigator.pop(context,"DOB tapped");  //return back to create account with date in focus
                         },
                         decoration: const InputDecoration(
                           labelText: "Date of birth",
@@ -102,7 +102,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                             TextSpan(text: "Cookie Use",style: GoogleFonts.dmSans(
                                 textStyle: const TextStyle(color: Colors.blue)
                             )),
-                            TextSpan(text: ". Twitter may use your contact information,"
+                            TextSpan(text: ". Gigachat may use your contact information,"
                                 " including your email address and phone number for purposes outlined"
                                 " in our Privacy Policy, like keeping your account secure and personalizing our services, including ads. ",
                                 style: GoogleFonts.dmSans(
@@ -126,7 +126,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                         height: 40,
                         child: TextButton(
                             onPressed: (){
-                              //TODO:
+                              Navigator.pop(context,"Confirmed");  //user confirmed his inputs
                             },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.blue,

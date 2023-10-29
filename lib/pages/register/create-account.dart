@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
+import 'package:gigachat/pages/user-verification/verification-code-page.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +15,7 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
+
   //input controllers
   TextEditingController inputName = TextEditingController();
   TextEditingController inputEmail = TextEditingController();
@@ -25,7 +27,10 @@ class _CreateAccountState extends State<CreateAccount> {
   bool emailIsError = false;
   final formKey = GlobalKey<FormState>();
 
-  FocusNode dateFocusNode = FocusNode();  //to check for date text_field focus
+  FocusNode nameFocusNode = FocusNode();
+  FocusNode emailFocusNode = FocusNode();
+  FocusNode dateFocusNode = FocusNode();
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +82,7 @@ class _CreateAccountState extends State<CreateAccount> {
                             children: [
                               TextFormField(
                                 controller: inputName,
+                                focusNode: nameFocusNode,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator: (String? input){
                                   if(input == null || input.isEmpty){
@@ -110,6 +116,7 @@ class _CreateAccountState extends State<CreateAccount> {
                               const SizedBox(height: 24,),
                               TextFormField(
                                 controller: inputEmail,
+                                focusNode: emailFocusNode,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator: (String? input){
                                   if(input == null || input.isEmpty){
@@ -175,11 +182,10 @@ class _CreateAccountState extends State<CreateAccount> {
               padding: const EdgeInsets.fromLTRB(0,10,10,0),
               child: ElevatedButton(
 
-                onPressed: isButtonDisabled? null : (){
+                onPressed: isButtonDisabled? null : () async {
                   if(formKey.currentState!.validate()){
                     //TODO: back-end post request
-                    //TODO: Navigate to other pages
-                    Navigator.pushNamed(context,
+                    final result = await Navigator.pushNamed(context,
                       ConfirmCreateAccount.pageRoute,
                       arguments: {
                         "Name" : inputName,
@@ -187,6 +193,21 @@ class _CreateAccountState extends State<CreateAccount> {
                         "DOB" : inputDOB,
                       }
                     );
+                    print(result);
+                    if(result == "Name tapped"){
+                      nameFocusNode.requestFocus();
+                    }
+                    else if(result == "Email tapped"){
+                      emailFocusNode.requestFocus();
+                    }
+                    else if(result == "DOB tapped"){
+                     setState(() {
+                       dateFocusNode.requestFocus();
+                     });
+                    }else if(result == "Confirmed"){
+                      if(!context.mounted) return;
+                      Navigator.pushNamed(context, VerificationCodePage.pageRoute);
+                    }
                   }
                 },
                 style: ButtonStyle(
