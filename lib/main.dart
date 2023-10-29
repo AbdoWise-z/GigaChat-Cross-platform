@@ -5,6 +5,7 @@ import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -41,7 +42,7 @@ class _GigaChatState extends State<GigaChat> {
           return MaterialApp(
             theme: val.getTheme,
             title: "GigaChat",
-            initialRoute: Home.pageRoute,
+            initialRoute: CreateAccount.pageRoute,
             routes: {
               Home.pageRoute : (context) => Home(),
               LoginPage.pageRoute : (context) => LoginPage(),
@@ -49,6 +50,7 @@ class _GigaChatState extends State<GigaChat> {
               VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
               CreateAccount.pageRoute : (context) => CreateAccount(),
               LoadingPage.pageRoute : (context) => LoadingPage(),
+              ConfirmCreateAccount.pageRoute : (context) => ConfirmCreateAccount(),
             },
           );
         },

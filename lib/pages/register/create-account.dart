@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
@@ -36,14 +37,13 @@ class _CreateAccountState extends State<CreateAccount> {
       appBar: AppBar(
         toolbarHeight: 40,
         elevation: 0,
-        title: Center(
-          child: SizedBox(
-            height: 40,
-            width: 40,
-            child: Image.asset(
-                ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-              ),
-          ),
+        centerTitle: true,
+        title: SizedBox(
+          height: 40,
+          width: 40,
+          child: Image.asset(
+              ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
+            ),
         ),
       ),
       body: Column(
@@ -179,8 +179,13 @@ class _CreateAccountState extends State<CreateAccount> {
                   if(formKey.currentState!.validate()){
                     //TODO: back-end post request
                     //TODO: Navigate to other pages
-                    showDialog(context: context,
-                        builder: (context) => const Text("Noice")
+                    Navigator.pushNamed(context,
+                      ConfirmCreateAccount.pageRoute,
+                      arguments: {
+                        "Name" : inputName,
+                        "Email" : inputEmail,
+                        "DOB" : inputDOB,
+                      }
                     );
                   }
                 },
