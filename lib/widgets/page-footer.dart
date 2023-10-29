@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/login/shared-widgets/forget-password-button.dart';
+import 'package:gigachat/pages/login/widgets/forget-password-button.dart';
 
 
 class LoginFooter extends StatelessWidget {

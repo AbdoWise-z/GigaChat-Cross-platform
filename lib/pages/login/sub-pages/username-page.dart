@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/login/controllers/username-controller.dart';
+import 'package:gigachat/services/input-verifications.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
@@ -14,8 +14,11 @@ class UsernameLoginPage extends StatefulWidget {
   State<UsernameLoginPage> createState() => _UsernamePageState();
 }
 
+const String LOGIN_PAGE_DESCRIPTION =
+    "To get started, first enter your phone, email, or @username";
+
 class _UsernamePageState extends State<UsernameLoginPage> {
-  String? username;
+  late String username;
 
   @override
   void initState() {
@@ -32,7 +35,7 @@ class _UsernamePageState extends State<UsernameLoginPage> {
         children: [
           // Page Title
           Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
             child: Column(
               children: [
                 const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
@@ -53,8 +56,7 @@ class _UsernamePageState extends State<UsernameLoginPage> {
           const Expanded(child: SizedBox()),
           // Page Footer
           LoginFooter(proceedButtonName: "Next",onPressed: () async {
-            bool verified = await verifyUsername(username);
-            if (verified)
+            if (InputVerification.verifyUsername(username))
             {
               Navigator.pushReplacement(
                   context,

@@ -41,7 +41,7 @@ class _GigaChatState extends State<GigaChat> {
           return MaterialApp(
             theme: val.getTheme,
             title: "GigaChat",
-            initialRoute: Home.pageRoute,
+            initialRoute: LoginPage.pageRoute,
             routes: {
               Home.pageRoute : (context) => Home(),
               LoginPage.pageRoute : (context) => LoginPage(),

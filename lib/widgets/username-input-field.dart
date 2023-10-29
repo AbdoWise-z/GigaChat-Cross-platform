@@ -15,7 +15,7 @@ Widget TextDataFormField({
     initialValue: value ?? "",
     enabled: isEnabled ?? true,
     decoration: InputDecoration(
-        label:  Text(label ?? USERNAME_INPUT_LABEL),
+        label:  Text(label ?? "Phone, email or username"),
         border: const OutlineInputBorder()
     ),
   );

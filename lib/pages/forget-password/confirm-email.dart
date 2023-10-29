@@ -6,6 +6,8 @@ import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
 import 'package:gigachat/widgets/username-input-field.dart';
 
+const String CONFIRM_EMAIL_PAGE_DESCRIPTION = "Verify your identity by entering"
+    " the email address associated with your " + APP_NAME + " account.";
 
 class ConfirmEmailPage extends StatefulWidget {
   final String username;
@@ -37,7 +39,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children:[
-            const PageTitle(title: CONFIRM_EMAIL_PAGE_TITLE),
+            const PageTitle(title: "Confirm your email"),
 
             const SizedBox(height: 15),
 
