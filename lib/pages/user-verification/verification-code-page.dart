@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
+import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
@@ -21,6 +22,15 @@ class VerificationCodePage extends StatefulWidget {
 
 class _VerificationCodePageState extends State<VerificationCodePage> {
   late String code;
+  late bool valid;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    code = "";
+    valid = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +48,15 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
             TextDataFormField(
                 label: "Enter your code",
                 onChange: (value){
-                  code = value;
+                  setState(() {
+                    code = value;
+                    valid = InputValidations.isValidCode(value) == null;
+                  });
                 }
             ),
             const Expanded(child: SizedBox()),
             LoginFooter(
+              disableNext: !valid,
               proceedButtonName: "Next",
               showCancelButton: false,
               showForgetPassword: false,
@@ -50,11 +64,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
               onPressed: (){
                 // TODO: check for the code here
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(
-                        builder:
-                            (context)=>
-                            const NewPasswordPage()
-                    )
+                    MaterialPageRoute(builder: (context)=> const NewPasswordPage())
                 );
               },
             )

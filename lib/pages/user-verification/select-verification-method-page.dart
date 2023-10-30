@@ -77,6 +77,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         ),
       ),
       bottomSheet:  LoginFooter(
+        disableNext: false,
         proceedButtonName: "Next",
         showForgetPassword: false,
         showCancelButton: true,

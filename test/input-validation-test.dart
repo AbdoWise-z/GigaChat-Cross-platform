@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gigachat/services/input-verifications.dart';
+import 'package:gigachat/services/input-validations.dart';
 
 
 
@@ -25,7 +25,7 @@ void main() {
   group("password verification tests", () {
     for (int i = 0; i < numberOfPasswords; i++) {
       test("password verfication: test number #" + i.toString(), () {
-        expect(InputVerification.verifyPassword(passwordTestVectors[i][0]), passwordTestVectors[i][1]);
+        expect(InputValidations.verifyPassword(passwordTestVectors[i][0]), passwordTestVectors[i][1]);
       });
     }
   });

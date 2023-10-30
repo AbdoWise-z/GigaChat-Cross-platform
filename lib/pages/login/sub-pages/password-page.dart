@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
 import 'package:gigachat/widgets/password-input-field.dart';
-
-import '../../../widgets/username-input-field.dart';
 
 
 
@@ -22,6 +21,7 @@ class PasswordLoginPage extends StatefulWidget {
 class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
   String? password;
+  bool isValid = false;
 
   @override
   void initState() {
@@ -32,7 +32,6 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
 
     return Scaffold(
 
@@ -72,8 +71,13 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
                 // password field
                 PasswordFormField(
-                  onChanged: (value) {password = value;},
-                  validator: (value){return value.length > 5;},
+                  onChanged: (value) {
+                    setState(() {
+                      password = value;
+                      isValid = InputValidations.verifyPassword(password) == null;
+                    });
+                    },
+                  validator: InputValidations.verifyPassword,
                   label: "Password",
                 ),
               ],
@@ -81,7 +85,11 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
           ),
           const Expanded(child: SizedBox()),
 
-          LoginFooter(proceedButtonName: "Log in",username: widget.username)
+          LoginFooter(
+              disableNext: !isValid,
+              proceedButtonName: "Log in",
+              username: widget.username
+          )
         ],
       ),
     );

@@ -51,7 +51,12 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
 
             const Expanded(child: SizedBox()),
 
-            LoginFooter(proceedButtonName: "Next",onPressed: (){},showForgetPassword: false)
+            LoginFooter(
+                disableNext: false,
+                proceedButtonName: "Next",
+                onPressed: (){},
+                showForgetPassword: false
+            )
 
           ]
         ),

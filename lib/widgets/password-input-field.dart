@@ -5,7 +5,7 @@ import 'package:gigachat/providers/theme-provider.dart';
 
 class PasswordFormField extends StatefulWidget {
   void Function(String) onChanged;
-  bool Function(String) validator;
+  String? Function(String?) validator;
   String label;
   PasswordFormField({
     super.key,
@@ -20,7 +20,7 @@ class PasswordFormField extends StatefulWidget {
 
 class _PasswordFormFieldState extends State<PasswordFormField> {
   late void Function(String) onChanged;
-  late bool Function(String) validator;
+  late String? Function(String?) validator;
   late String label;
 
   late bool passwordVisible;
@@ -46,7 +46,8 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
     return TextFormField(
       onChanged: (value){
         setState(() {
-          valid = validator(value);
+          valid = validator(value) == null;
+          print(validator(value));
           onChanged(value);
         });
       },

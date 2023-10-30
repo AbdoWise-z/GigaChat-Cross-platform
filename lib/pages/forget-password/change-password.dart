@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
@@ -18,6 +19,19 @@ class NewPasswordPage extends StatefulWidget {
 }
 
 class _NewPasswordPageState extends State<NewPasswordPage> {
+  late String newPassword;
+  late String confirmPassword;
+  late bool validInput;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    newPassword = "";
+    confirmPassword = "";
+    validInput = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,16 +47,28 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
               const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
               const SizedBox(height: 20),
               PasswordFormField(
-                onChanged: (value){},
-                validator: (value){return value.length > 5;},
+                onChanged: (value){
+                  setState(() {
+                    newPassword = value;
+                    validInput = InputValidations.verifyPassword(value) == null;
+                    validInput = validInput && newPassword == confirmPassword;
+                  });
+                },
+                validator: InputValidations.verifyPassword,
+                //validator: (value){return value.length > 5;},
                 label: "Password",
               ),
               const SizedBox(height: 20),
               PasswordFormField(
+                  validator: InputValidations.verifyPassword,
                   onChanged: (value){
-                // TODO: check if the password is the same
-              },
-                validator: (value){return value.length > 5;},
+                    setState(() {
+                      confirmPassword = value;
+                      validInput = InputValidations.verifyPassword(value) == null;
+                      validInput = validInput && newPassword == confirmPassword;
+                    });
+                  },
+                //validator: (value){return value.length > 5;},
                 label: "Confirm password",
               ),
             ],
@@ -50,6 +76,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         ),
       ),
       bottomSheet: LoginFooter(
+        disableNext: !validInput,
         proceedButtonName: "Change password",
         showBackButton: false,
         showForgetPassword: false,
