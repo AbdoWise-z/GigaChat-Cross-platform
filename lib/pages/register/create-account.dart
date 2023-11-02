@@ -35,7 +35,7 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
 
-    bool isButtonDisabled = inputDOB.text.isEmpty || inputName.text.isEmpty || inputEmail.text.isEmpty;
+    bool isButtonDisabled = !nameIsValid || !emailIsValid || inputDOB.text.isEmpty;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -193,7 +193,6 @@ class _CreateAccountState extends State<CreateAccount> {
                         "DOB" : inputDOB,
                       }
                     );
-                    print(result);
                     if(result == "Name tapped"){
                       nameFocusNode.requestFocus();
                     }

@@ -7,6 +7,8 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
+import 'package:gigachat/pages/setup-profile/choose-username.dart';
+import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -42,7 +44,7 @@ class _GigaChatState extends State<GigaChat> {
           return MaterialApp(
             theme: val.getTheme,
             title: "GigaChat",
-            initialRoute: CreateAccount.pageRoute,
+            initialRoute: PickProfilePicture.pageRoute,
             routes: {
               Home.pageRoute : (context) => Home(),
               LoginPage.pageRoute : (context) => LoginPage(),
@@ -51,6 +53,8 @@ class _GigaChatState extends State<GigaChat> {
               CreateAccount.pageRoute : (context) => CreateAccount(),
               LoadingPage.pageRoute : (context) => LoadingPage(),
               ConfirmCreateAccount.pageRoute : (context) => ConfirmCreateAccount(),
+              PickProfilePicture.pageRoute : (context) => PickProfilePicture(),
+              ChooseUsername.pageRoute : (context) => ChooseUsername(),
             },
           );
         },
