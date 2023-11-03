@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/forget-password/sub-pages/confirm-email.dart';
-import 'package:gigachat/services/helper-classes/contact-method.dart';
+import 'package:gigachat/pages/forget-password/confirm-email.dart';
+import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
@@ -32,6 +32,8 @@ List<ContactMethod> getUserContactMethods(String email)
   ];
 }
 
+const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
+    "username associated with your account to change the password.";
 
 
 class ForgetPassword extends StatefulWidget {
@@ -63,7 +65,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageTitle(title: FORGET_PASSWORD_TITLE),
+            const PageTitle(title: "Find your GIGACHAT account"),
 
             const SizedBox(height: 10),
 

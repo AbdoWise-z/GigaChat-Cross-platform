@@ -5,6 +5,11 @@ import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
 import 'package:gigachat/widgets/password-input-field.dart';
+
+const String NEW_PASSWORD_DESCRIPTION = "Make sure your new password is 8 characters or more. "
+    "Try including numbers, letters, and punctuation marks for a strong password"
+    "\n\nYou'll be logged out of all active " + APP_NAME + " sessions after your password is changed.";
+
 class NewPasswordPage extends StatefulWidget {
   const NewPasswordPage({super.key});
 
@@ -23,7 +28,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const PageTitle(title: NEW_PASSWORD_TITLE),
+              const PageTitle(title: "Choose a new password"),
               const SizedBox(height: 20),
               const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
               const SizedBox(height: 20),

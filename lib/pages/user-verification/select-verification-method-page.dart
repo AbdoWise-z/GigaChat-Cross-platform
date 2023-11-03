@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/user-verification/verification-code-page.dart';
-import 'package:gigachat/services/helper-classes/contact-method.dart';
+import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
 
+const String CONFIRMATION_METHOD_TITLE = "Where should we send a confirmation code?";
+const String CONFIRMATION_METHOD_DESCRIPTION = "Before you can change your password,"
+    " we need to make sure it's really you \n \nStart by choosing where to send a confirmation code";
 
 class VerificationMethodPage extends StatefulWidget {
   String pageRoute = "/test";

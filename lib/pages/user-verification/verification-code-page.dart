@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/forget-password/sub-pages/change-password.dart';
+import 'package:gigachat/pages/forget-password/change-password.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
 import 'package:gigachat/widgets/username-input-field.dart';
 
+
+const String CODE_VERIFICATION_DESCRIPTION = "Check your email to get your confirmation"
+    " code. if you need to request a new code, go back and reselect confirmation";
 
 class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
@@ -28,7 +31,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageTitle(title: CODE_VERIFICATION_TITLE),
+            const PageTitle(title: "We sent you a code"),
             const SizedBox(height: 15),
             const PageDescription(description: CODE_VERIFICATION_DESCRIPTION),
             const SizedBox(height: 20),

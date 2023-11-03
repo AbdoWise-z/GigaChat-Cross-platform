@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/login/controllers/password-controller.dart';
-import 'package:gigachat/pages/login/shared-widgets/forget-password-button.dart';
-import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
@@ -49,7 +46,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const PageTitle(title: PASSWORD_PAGE_DESCRIPTION),
+                const PageTitle(title: "Enter your password"),
 
                 // empty space
                 const SizedBox(height: 30),
