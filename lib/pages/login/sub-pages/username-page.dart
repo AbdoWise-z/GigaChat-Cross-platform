@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/login/controllers/username-controller.dart';
+import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/page-title.dart';
@@ -14,14 +14,19 @@ class UsernameLoginPage extends StatefulWidget {
   State<UsernameLoginPage> createState() => _UsernamePageState();
 }
 
+const String LOGIN_PAGE_DESCRIPTION =
+    "To get started, first enter your phone, email, or @username";
+
 class _UsernamePageState extends State<UsernameLoginPage> {
-  String? username;
+  late String username;
+  late bool isValid;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     username = "";
+    isValid = false;
   }
 
   @override
@@ -32,36 +37,40 @@ class _UsernamePageState extends State<UsernameLoginPage> {
         children: [
           // Page Title
           Padding(
-              padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
             child: Column(
               children: [
                 const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
                 // Empty Space
                 const SizedBox(height: 20),
                 // Username Input Field
-                TextDataFormField(onChange: (editedUsername) {
-                  setState(() {
-                    username = editedUsername;
-                  });
-                }),
-
-
+                TextDataFormField(
+                    validator: InputValidations.verifyUsername,
+                    onChange: (editedUsername) {
+                      setState(() {
+                        username = editedUsername;
+                        isValid = InputValidations.verifyUsername(username) == null;
+                      });
+                    }
+                ),
               ],
             ),
           ),
           // Empty Space
           const Expanded(child: SizedBox()),
           // Page Footer
-          LoginFooter(proceedButtonName: "Next",onPressed: () async {
-            bool verified = await verifyUsername(username);
-            if (verified)
+          LoginFooter(
+            disableNext: !isValid,
+            proceedButtonName: "Next",
+            onPressed: () async {
+            if (InputValidations.verifyUsername(username) == null)
             {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder:
                           (context)=>
-                          PasswordLoginPage(username: username!)
+                          PasswordLoginPage(username: username)
                   )
               );
             }

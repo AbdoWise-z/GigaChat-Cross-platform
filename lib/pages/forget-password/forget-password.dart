@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/forget-password/sub-pages/confirm-email.dart';
-import 'package:gigachat/services/helper-classes/contact-method.dart';
+import 'package:gigachat/pages/forget-password/confirm-email.dart';
+import 'package:gigachat/services/input-validations.dart';
+import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
 import 'package:gigachat/widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
@@ -12,7 +13,7 @@ import '../user-verification/select-verification-method-page.dart';
 
 List<ContactMethod> getUserContactMethods(String email)
 {
-  // TODO: move this function to its folder & implement dealing with api
+  // TODO: move this function to Auth provider
   // TODO: email must be hidden by stars
   return [
     ContactMethod(contactWay: "Send an email to", contactTarget: email),
@@ -32,6 +33,8 @@ List<ContactMethod> getUserContactMethods(String email)
   ];
 }
 
+const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
+    "username associated with your account to change the password.";
 
 
 class ForgetPassword extends StatefulWidget {
@@ -45,13 +48,15 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
-  String? username;
-  String? email;
+  late String email;
+  late bool valid;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    username = widget.username;
+    email = widget.username ?? "";
+    valid = false;
   }
 
   @override
@@ -63,7 +68,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PageTitle(title: FORGET_PASSWORD_TITLE),
+            const PageTitle(title: "Find your GIGACHAT account"),
 
             const SizedBox(height: 10),
 
@@ -71,19 +76,24 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
             const SizedBox(height: 20),
 
-            TextDataFormField(onChange: (email){
-              this.email = email;
-            }, value: username),
+            TextDataFormField(onChange: (value){
+              setState(() {
+                email = value;
+                valid = InputValidations.verifyUsername(email) == null;
+              });
+            }, value: email),
 
             const Expanded(child: SizedBox()),
 
-            LoginFooter(proceedButtonName: "Next",
+            LoginFooter(
+                disableNext: !valid,
+                proceedButtonName: "Next",
                 onPressed: (){
-                  Navigator.pushReplacement(context,
-                      //MaterialPageRoute(builder: (context)=> ConfirmEmailPage(username: "a",))
-                      MaterialPageRoute(
-                          builder: (context)=> VerificationMethodPage(methods: getUserContactMethods("koko"))
-                      )
+                  Navigator.pushReplacement(context,MaterialPageRoute(
+                  builder: (context)=>
+                      InputValidations.isValidEmail(email) == null ?
+                      VerificationMethodPage(methods: getUserContactMethods(email)) :
+                      ConfirmEmailPage(username: email))
                   );
                 },
                 showForgetPassword: false)

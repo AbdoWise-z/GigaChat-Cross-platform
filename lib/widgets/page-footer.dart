@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../pages/login/shared-widgets/forget-password-button.dart';
+import 'package:gigachat/pages/login/widgets/forget-password-button.dart';
 
 
 class LoginFooter extends StatelessWidget {
   final String proceedButtonName;
   void Function()? onPressed;
+  bool disableNext;
   bool? showForgetPassword = true;
   bool? showCancelButton = true;
   bool? showBackButton = true;
@@ -14,6 +15,7 @@ class LoginFooter extends StatelessWidget {
     required this.proceedButtonName,
     super.key,
     this.onPressed,
+    required this.disableNext,
     this.username,
     this.showForgetPassword,
     this.showCancelButton,
@@ -56,7 +58,7 @@ class LoginFooter extends StatelessWidget {
 
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
                     ),
-                    onPressed: onPressed ?? (){},
+                    onPressed: disableNext ? null : onPressed ?? (){},
                     child: Text(proceedButtonName,),
                 ),
               ]
