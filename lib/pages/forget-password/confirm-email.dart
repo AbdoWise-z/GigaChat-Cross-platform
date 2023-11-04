@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-description.dart';
+import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
-import 'package:gigachat/widgets/username-input-field.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
+import 'package:gigachat/widgets/input-fields/username-input-field.dart';
 
 const String CONFIRM_EMAIL_PAGE_DESCRIPTION = "Verify your identity by entering"
     " the email address associated with your " + APP_NAME + " account.";

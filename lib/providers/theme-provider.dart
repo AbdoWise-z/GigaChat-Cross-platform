@@ -19,7 +19,7 @@ class ThemeProvider extends ChangeNotifier {
     return _themeName;
   }
 
-  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "light" {
+  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "dark" {
     init();
   }
 

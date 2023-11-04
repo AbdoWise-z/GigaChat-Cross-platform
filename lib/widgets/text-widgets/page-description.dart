@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../base.dart';
+import '../../base.dart';
 
 
 class PageDescription extends StatelessWidget {

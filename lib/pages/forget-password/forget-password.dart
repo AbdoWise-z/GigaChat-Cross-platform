@@ -4,10 +4,10 @@ import 'package:gigachat/pages/forget-password/confirm-email.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-description.dart';
+import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
-import 'package:gigachat/widgets/username-input-field.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
+import 'package:gigachat/widgets/input-fields/username-input-field.dart';
 import '../user-verification/select-verification-method-page.dart';
 
 
@@ -56,7 +56,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     // TODO: implement initState
     super.initState();
     email = widget.username ?? "";
-    valid = false;
+    valid = InputValidations.isValidEmail(email) == null;
   }
 
   @override
