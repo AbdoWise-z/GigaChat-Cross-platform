@@ -1,10 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/widgets/app-bar.dart';
+import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
+import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../api/account-requests.dart';
 
 class Home extends StatefulWidget {
   static const String pageRoute = "/";
@@ -15,449 +18,135 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with TickerProviderStateMixin {
+  TabController? _controller;
+  bool _hidBottomControls = false;
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 0;
+  //TODO: @Osama @Adel , replace with your pages
+  final List<HomePageTab> _pages = [
+    DummyPage(),
+    DummyPage(),
+    DummyPage(),
+    DummyPage(),
+    DummyPage(),
+  ];
 
-  Widget createHeader(User? user){
-    if (user == null){
-      return Column(
-        children: [
-          const Text(
-            "Join GigaChat today",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 10,),
-          const Text(
-            "Create an official GigaChat account to get the full experoence.",
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 20,),
-          SizedBox(
-            height: 45,
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                // TODO : goto landing page with register in focus
-              },
-              style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
-                    const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
-                    ),
-                  ),
-                  backgroundColor: MaterialStateProperty.all(Colors.blue)
-              ),
-              child: const Text(
-                "Create Account",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 15,),
-          SizedBox(
-            height: 45,
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                // TODO : goto landing page with login in focus
-              },
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
-                ),
-              ),
-              child: const Text(
-                "Log in",
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                child: Icon(
-                  Icons.ac_unit_sharp,
-                  size: 34,
-                ),
-              ),
-              const Expanded(child: SizedBox()),
-              IconButton(onPressed: () {
-                //TODO : handle account menu
-              },
-                icon: const Icon(
-                  Icons.format_list_bulleted_outlined,
-                  size: 14,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5,),
-          Text(
-            user.name,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            "@${user.id}",
-            style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-          ),
-          const SizedBox(height: 15,),
-          Row(
-            children: [
-              Text(
-                  "${user.following} ",
-              ),
-              Text(
-                  "Following  ",
-                  style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-              ),
-              Text(
-                "${user.followers} ",
-              ),
-              Text(
-                  "Followers",
-                  style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-              ),
-            ],
-          ),
-        ],
+  void setPage(int p){
+    _controller = null;
+    AppBarTabs? tabs = _pages[p].getTabs(context);
+    if (tabs != null && tabs.tabs.isNotEmpty){
+      _controller = TabController(
+        initialIndex: _pages[p].getInitialTab(context),
+        length: tabs.tabs.length,
+        vsync: this,
       );
     }
+
+    setState(() {
+      //the controller is ready .. lesgo
+      _currentPage = p;
+    });
   }
 
-  bool _settingsMenuOpen = false;
-  bool _proToolsMenuOpen = false;
+  @override
+  void initState() {
+    super.initState();
+    setPage(0);
+    _scrollController.addListener(() {
+      if (_scrollController.position.atEdge && _scrollController.offset > 0){
+        //we are hitting the bottom edge --> hide the bottom sheet and FAB
+        setState(() {
+          _hidBottomControls = true;
+        });
+      }else{
+        if (_hidBottomControls){
+          setState(() {
+            _hidBottomControls = false;
+          });
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<Auth>(
       builder: (BuildContext context, value, Widget? child) {
         bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
-        return Scaffold(
-          drawerDragStartBehavior: DragStartBehavior.start,
-          drawer: Drawer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 32 , vertical: 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              createHeader(Auth.getInstance(context).getCurrentUser()),
-                              const SizedBox(height: 30,),
-                              const Divider(height: 1,thickness: 1,),
-                              const SizedBox(height: 30,),
-                              Theme(
-                                data: ThemeProvider.getInstance(context).getTheme.copyWith(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                ),
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      onTap: () {
-                                        //TODO : handle on click
-                                      },
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(Icons.person_outline),
-                                      title: const Text(
-                                        "Profile",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
+        return SafeArea(
+          child: Scaffold(
+            drawerDragStartBehavior: DragStartBehavior.start,
+            drawer: const NavDrawer(),
+            body: NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
+                buildAppBar(
+                  ctx,
+                  _pages[_currentPage].isAppBarPinned(context),
+                  isLoggedIn ? value.getCurrentUser()!.iconLink : null,
+                  _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search */
+                  _pages[_currentPage].getSearchBar(context),
+                  _pages[_currentPage].getActions(context),
+                  _controller,
+                  _pages[_currentPage].getTabs(context),
 
-                                    Visibility(
-                                      visible: isLoggedIn,
-                                      child: ListTile(
-                                        onTap: () {
-                                          //TODO : handle on click
-                                        },
-                                        horizontalTitleGap: 8,
-                                        leading: SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: Image.asset(
-                                            ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-                                          ),
-                                        ),
-                                        title: const Text(
-                                          "Premium",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    ListTile(
-                                      onTap: () {
-                                        //TODO : handle on click
-                                      },
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(Icons.bookmark_border_outlined),
-                                      title: const Text(
-                                        "Bookmarks",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-
-                                    ListTile(
-                                      onTap: () {
-                                        //TODO : handle on click
-                                      },
-                                      horizontalTitleGap: 8,
-                                      leading: const Icon(Icons.list_alt),
-                                      title: const Text(
-                                        "Lists",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-
-                                    Visibility(
-                                      visible: isLoggedIn,
-                                      child: ListTile(
-                                        onTap: () {
-                                          //TODO : handle on click
-                                        },
-                                        horizontalTitleGap: 8,
-                                        leading: const Icon(Icons.mic_none_sharp),
-                                        title: const Text(
-                                          "Spaces",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    Visibility(
-                                      visible: isLoggedIn,
-                                      child: ListTile(
-                                        onTap: () {
-                                          //TODO : handle on click
-                                        },
-                                        horizontalTitleGap: 8,
-                                        leading: const Icon(Icons.attach_money),
-                                        title: const Text(
-                                          "Monetization",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Visibility(
-                          visible: isLoggedIn,
-                          child: Column(
-                            children: [
-                              ListTile(
-                                horizontalTitleGap: 0,
-                                leading: const SizedBox(width: 0,),
-                                title: const Text(
-                                  "Professional Tools",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                trailing: Icon(
-                                  _proToolsMenuOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                                  color: _proToolsMenuOpen ? Colors.blue : null,
-                                ),
-                                onTap: () {
-                                  setState(() {
-                                    _proToolsMenuOpen = !_proToolsMenuOpen;
-                                  });
-                                },
-                              ),
-                              Visibility(
-                                visible: _proToolsMenuOpen,
-                                child: Theme(
-                                  data: ThemeProvider.getInstance(context).getTheme.copyWith(
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      //TODO : there is literally no tools in the app it self ...
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        ListTile(
-                          horizontalTitleGap: 0,
-                          leading: const SizedBox(width: 0,),
-                          title: const Text(
-                            "Settings & Support",
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          trailing: Icon(
-                            _settingsMenuOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                            color: _settingsMenuOpen ? Colors.blue : null,
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _settingsMenuOpen = !_settingsMenuOpen;
-                            });
-                          },
-                        ),
-                        Visibility(
-                          visible: _settingsMenuOpen,
-                          child: Theme(
-                            data: ThemeProvider.getInstance(context).getTheme.copyWith(
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
-                            ),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: () {
-                                    //TODO : sub-menu action 1
-                                  },
-                                  horizontalTitleGap: 24,
-                                  leading: const Padding(
-                                    padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
-                                    child: Icon(Icons.settings , size: 20,),
-                                  ),
-                                  title: const Text(
-                                    "Settings and privacy",
-                                  ),
-                                ),
-                                ListTile(
-                                  onTap: () {
-                                    //TODO : sub-menu action 2
-                                  },
-                                  horizontalTitleGap: 24,
-                                  leading: const Padding(
-                                    padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
-                                    child: Icon(Icons.info_outline , size: 20,),
-                                  ),
-                                  title: const Text(
-                                    "Help Center",
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: IconButton(onPressed: () {
-                      ThemeProvider tp = ThemeProvider.getInstance(context);
-                      if (tp.getThemeName == "dark"){
-                        tp.setTheme("light");
-                      }else{
-                        tp.setTheme("dark");
-                      }
-                    }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
-                  ),
-                ],
-              )
-          ),
-
-          appBar: AppBar(
-            leading: Builder(
-              builder: (ctx) => IconButton(
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
-                icon: const Icon(
-                    Icons.person_outline_outlined
-                ),),
+                ),
+              ],
+              body: _controller != null ? TabBarView(
+                controller: _controller,
+                children: _pages[_currentPage].getTabsWidgets(context)!,
+              ) : _pages[_currentPage].getPage(context)!,
             ),
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: SizedBox(
-                height: 40,
-                child: TextFormField(
-                  textAlignVertical: TextAlignVertical.bottom,
-                  decoration: InputDecoration(
-                    hintText: "Search",
-                    contentPadding: const EdgeInsets.fromLTRB(15, 0, 15, 16), //why 16 ? I have no idea ..
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(
-                        color: Colors.blueGrey,
-                        width: 0.2, // <-- looks really bad on the emulator .. but it should work fine on phone
-                      ),
+            floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),
+            bottomNavigationBar: AnimatedContainer(
+              height: _hidBottomControls ? 0 : 50,
+              duration: const Duration(milliseconds: 100),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
+                child: Row(
+                  children: [
+
+                    BottomBarItem(
+                      icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
+                      click: () => setPage(0),
+                      notify: _pages[0].enableVisualNotification(context),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(
-                        color: Colors.blueGrey,
-                        width: 0.2,
-                      ),
+
+                    const Expanded(child: SizedBox()),
+
+                    BottomBarItem(
+                      icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
+                      click: () => setPage(1),
+                      notify: _pages[1].enableVisualNotification(context),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(
-                        color: Colors.blueGrey,
-                        width: 0.2,
-                      ),
+
+                    const Expanded(child: SizedBox()),
+
+                    BottomBarItem(
+                      icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
+                      click: () => setPage(2),
+                      notify: _pages[2].enableVisualNotification(context),
                     ),
-                    filled: true,
-                    fillColor: ThemeProvider.getInstance(context).isDark() ? const Color.fromARGB(30, 200, 255, 235) : const Color.fromARGB(30, 100, 155, 135),
-                  ),
+
+                    const Expanded(child: SizedBox()),
+
+                    BottomBarItem(
+                      icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
+                      click: () => setPage(3),
+                      notify: _pages[3].enableVisualNotification(context),
+                    ),
+
+                    const Expanded(child: SizedBox()),
+
+                    BottomBarItem(
+                      icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
+                      click: () => setPage(4),
+                      notify: _pages[4].enableVisualNotification(context),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
-            ],
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("This is the home page !"),
-                ElevatedButton(onPressed: () {
-                  if (isLoggedIn) {
-                    Auth.getInstance(context).logout();
-                  } else {
-                    Auth.getInstance(context).login("username", "password");
-                  }
-
-                }, child: const Text("Toggle Login")),
-              ],
             ),
           ),
         );
@@ -465,3 +154,37 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+
+class BottomBarItem extends StatelessWidget {
+  final void Function() click;
+  final IconData icon;
+  final bool notify;
+
+  const BottomBarItem({super.key , required this.icon , required this.click , required this.notify});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 50,
+      height: 50,
+      child: Stack(
+        children: [
+          IconButton(
+            onPressed: click,
+            icon: Icon(icon,),
+            iconSize: 32,
+          ),
+          Visibility(
+            visible: notify,
+            child: const Padding(
+              padding: EdgeInsets.only(left: 30 , top: 10),
+              child: Icon(Icons.circle , color: Colors.blueAccent, size: 10,),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
