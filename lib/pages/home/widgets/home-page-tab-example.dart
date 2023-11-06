@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/app-bar.dart';
 
 import 'menu-fab.dart';
@@ -72,20 +73,92 @@ class DummyPage with HomePageTab{
 
   @override
   Widget? getFloatingActionButton(BuildContext context) {
-    return ExpandableFab(
-      distance: 112,
-      children: [
-        ActionButton(
-          onPressed: () => _showAction(context, 0),
-          icon: const Icon(Icons.format_size),
+    return FloatingActionMenu(
+      icon: const Icon(Icons.add),
+      tappedIcon: const Icon(Icons.arrow_back),
+      title: const Padding(
+        padding: EdgeInsets.only(right: 25),
+        child: Text(
+          "Main Title" ,
+          style: TextStyle(
+            fontSize: 22,
+            color: Colors.white,
+          ),
         ),
-        ActionButton(
-          onPressed: () => _showAction(context, 1),
-          icon: const Icon(Icons.insert_photo),
+      ),
+      onTab: () {
+        print("you clicked me ?");
+      } ,
+      items: [
+        FloatingActionMenuItem(
+          icon: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: IconButton(
+              splashRadius: 25,
+              color: Colors.blue,
+              icon: const Icon(Icons.accessible_forward_outlined),
+              onPressed: () {
+                print("that worked !");
+              },
+            ),
+          ),
+          title: const Padding(
+            padding: EdgeInsets.only(right: 25),
+            child: Text(
+              "life" ,
+              style: TextStyle(
+                fontSize: 22,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
-        ActionButton(
-          onPressed: () => _showAction(context, 2),
-          icon: const Icon(Icons.videocam),
+        FloatingActionMenuItem(
+          icon: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: IconButton(
+              splashRadius: 25,
+              color: Colors.blue,
+              icon: const Icon(Icons.account_tree_sharp),
+              onPressed: () {
+                print("that worked !");
+              },
+            ),
+          ),
+          title: const Padding(
+            padding: EdgeInsets.only(right: 25),
+            child: Text(
+              "my" ,
+              style: TextStyle(
+                fontSize: 22,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+
+        FloatingActionMenuItem(
+          icon: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: IconButton(
+              splashRadius: 25,
+              color: Colors.blue,
+              icon: const Icon(Icons.access_alarm_outlined),
+              onPressed: () {
+                print("that worked !");
+              },
+            ),
+          ),
+          title: const Padding(
+            padding: EdgeInsets.only(right: 25),
+            child: Text(
+              "fk" ,
+              style: TextStyle(
+                fontSize: 22,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ],
     );

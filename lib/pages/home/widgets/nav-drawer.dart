@@ -11,7 +11,7 @@ class NavDrawer extends StatefulWidget {
 }
 
 class _NavDrawerState extends State<NavDrawer> {
-  Widget createHeader(User? user){
+  Widget _createHeader(User? user){
     if (user == null){
       return Column(
         children: [
@@ -150,117 +150,111 @@ class _NavDrawerState extends State<NavDrawer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        createHeader(Auth.getInstance(context).getCurrentUser()),
+                        _createHeader(Auth.getInstance(context).getCurrentUser()),
                         const SizedBox(height: 30,),
                         const Divider(height: 1,thickness: 1,),
                         const SizedBox(height: 30,),
-                        Theme(
-                          data: ThemeProvider.getInstance(context).getTheme.copyWith(
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
+                        Column(
+                          children: [
+                            ListTile(
+                              onTap: () {
+                                //TODO : handle on click
+                              },
+                              horizontalTitleGap: 8,
+                              leading: const Icon(Icons.person_outline),
+                              title: const Text(
+                                "Profile",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+
+                            Visibility(
+                              visible: isLoggedIn,
+                              child: ListTile(
                                 onTap: () {
                                   //TODO : handle on click
                                 },
                                 horizontalTitleGap: 8,
-                                leading: const Icon(Icons.person_outline),
+                                leading: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Image.asset(
+                                    ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
+                                  ),
+                                ),
                                 title: const Text(
-                                  "Profile",
+                                  "Premium",
                                   style: TextStyle(
                                     fontSize: 20,
                                   ),
                                 ),
                               ),
+                            ),
 
-                              Visibility(
-                                visible: isLoggedIn,
-                                child: ListTile(
-                                  onTap: () {
-                                    //TODO : handle on click
-                                  },
-                                  horizontalTitleGap: 8,
-                                  leading: SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: Image.asset(
-                                      ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-                                    ),
-                                  ),
-                                  title: const Text(
-                                    "Premium",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
+                            ListTile(
+                              onTap: () {
+                                //TODO : handle on click
+                              },
+                              horizontalTitleGap: 8,
+                              leading: const Icon(Icons.bookmark_border_outlined),
+                              title: const Text(
+                                "Bookmarks",
+                                style: TextStyle(
+                                  fontSize: 20,
                                 ),
                               ),
+                            ),
 
-                              ListTile(
+                            ListTile(
+                              onTap: () {
+                                //TODO : handle on click
+                              },
+                              horizontalTitleGap: 8,
+                              leading: const Icon(Icons.list_alt),
+                              title: const Text(
+                                "Lists",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+
+                            Visibility(
+                              visible: isLoggedIn,
+                              child: ListTile(
                                 onTap: () {
                                   //TODO : handle on click
                                 },
                                 horizontalTitleGap: 8,
-                                leading: const Icon(Icons.bookmark_border_outlined),
+                                leading: const Icon(Icons.mic_none_sharp),
                                 title: const Text(
-                                  "Bookmarks",
+                                  "Spaces",
                                   style: TextStyle(
                                     fontSize: 20,
                                   ),
                                 ),
                               ),
+                            ),
 
-                              ListTile(
+                            Visibility(
+                              visible: isLoggedIn,
+                              child: ListTile(
                                 onTap: () {
                                   //TODO : handle on click
                                 },
                                 horizontalTitleGap: 8,
-                                leading: const Icon(Icons.list_alt),
+                                leading: const Icon(Icons.attach_money),
                                 title: const Text(
-                                  "Lists",
+                                  "Monetization",
                                   style: TextStyle(
                                     fontSize: 20,
                                   ),
                                 ),
                               ),
-
-                              Visibility(
-                                visible: isLoggedIn,
-                                child: ListTile(
-                                  onTap: () {
-                                    //TODO : handle on click
-                                  },
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(Icons.mic_none_sharp),
-                                  title: const Text(
-                                    "Spaces",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              Visibility(
-                                visible: isLoggedIn,
-                                child: ListTile(
-                                  onTap: () {
-                                    //TODO : handle on click
-                                  },
-                                  horizontalTitleGap: 8,
-                                  leading: const Icon(Icons.attach_money),
-                                  title: const Text(
-                                    "Monetization",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -330,9 +324,7 @@ class _NavDrawerState extends State<NavDrawer> {
                 }else{
                   tp.setTheme("dark");
                 }
-                setState(() {
-                  //to reload the theme/icons
-                });
+
               }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
             ),
           ],

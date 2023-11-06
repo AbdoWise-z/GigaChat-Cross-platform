@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/widgets/app-bar.dart';
 
 //every home page tab should implement this :)
+
+
 mixin HomePageTab {
 
   String? getTitle(BuildContext context){}
@@ -13,7 +15,7 @@ mixin HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context){}
   Widget? getPage(BuildContext context){}
   Widget? getFloatingActionButton(BuildContext context){}
-  bool enableVisualNotification(BuildContext context){
-    return true;
+  int getNotificationsCount(BuildContext context){
+    return 1;
   }
 }
