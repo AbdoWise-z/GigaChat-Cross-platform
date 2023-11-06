@@ -157,9 +157,9 @@ class _FabMenuScreenState extends State<_FabMenuScreen> with SingleTickerProvide
             ),
             ..._generateMenu(),
             Positioned(
-              child: widget.title,
               right: widget.titleDx,
               bottom: widget.titleDy,
+              child: widget.title,
             ),
           ],
         ),
