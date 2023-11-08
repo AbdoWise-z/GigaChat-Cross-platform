@@ -8,6 +8,9 @@ import 'package:gigachat/widgets/input-fields/username-input-field.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 
 class UsernameLoginPage extends StatefulWidget {
+  static const String pageRoute = "/login/username";
+  static const String inputFieldKey = "username-page-input-field";
+  static const String nextButtonKey = "username-page-next-button";
   const UsernameLoginPage({super.key});
 
   @override
@@ -17,13 +20,13 @@ class UsernameLoginPage extends StatefulWidget {
 const String LOGIN_PAGE_DESCRIPTION =
     "To get started, first enter your phone, email, or @username";
 
+
 class _UsernamePageState extends State<UsernameLoginPage> {
   late String username;
   late bool isValid;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     username = "";
     isValid = false;
@@ -45,11 +48,12 @@ class _UsernamePageState extends State<UsernameLoginPage> {
                 const SizedBox(height: 20),
                 // Username Input Field
                 TextDataFormField(
-                    validator: InputValidations.verifyUsername,
+                  key: const Key(UsernameLoginPage.inputFieldKey),
+                    validator: InputValidations.isValidUsername,
                     onChange: (editedUsername) {
                       setState(() {
                         username = editedUsername;
-                        isValid = InputValidations.verifyUsername(username) == null;
+                        isValid = InputValidations.isValidUsername(username) == null;
                       });
                     }
                 ),
@@ -60,10 +64,11 @@ class _UsernamePageState extends State<UsernameLoginPage> {
           const Expanded(child: SizedBox()),
           // Page Footer
           LoginFooter(
+            rightButtonKey: const Key(UsernameLoginPage.nextButtonKey),
             disableNext: !isValid,
             proceedButtonName: "Next",
             onPressed: () async {
-            if (InputValidations.verifyUsername(username) == null)
+            if (InputValidations.isValidUsername(username) == null)
             {
               Navigator.pushReplacement(
                   context,

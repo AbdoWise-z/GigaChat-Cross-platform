@@ -79,7 +79,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             TextDataFormField(onChange: (value){
               setState(() {
                 email = value;
-                valid = InputValidations.verifyUsername(email) == null;
+                valid = InputValidations.isValidUsername(email) == null;
               });
             }, value: email),
 

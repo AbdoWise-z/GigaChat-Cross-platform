@@ -9,6 +9,10 @@ import 'package:gigachat/widgets/input-fields/password-input-field.dart';
 
 
 class PasswordLoginPage extends StatefulWidget {
+  static const String pageRoute = "/login/password";
+  static const passwordFieldKey = "login-password-password-field";
+  static const loginButtonKey = "login-password-login-button";
+
   String username;
 
   PasswordLoginPage({required this.username,super.key});
@@ -71,13 +75,14 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
                 // password field
                 PasswordFormField(
+                  key: Key(PasswordLoginPage.passwordFieldKey),
                   onChanged: (value) {
                     setState(() {
                       password = value;
-                      isValid = InputValidations.verifyPassword(password) == null;
+                      isValid = InputValidations.isValidPassword(password) == null;
                     });
                     },
-                  validator: InputValidations.verifyPassword,
+                  validator: InputValidations.isValidPassword,
                   label: "Password",
                 ),
               ],
@@ -86,6 +91,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
           const Expanded(child: SizedBox()),
 
           LoginFooter(
+              rightButtonKey: Key(PasswordLoginPage.loginButtonKey),
               disableNext: !isValid,
               proceedButtonName: "Log in",
               username: widget.username

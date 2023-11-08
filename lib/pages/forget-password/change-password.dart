@@ -50,21 +50,21 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                 onChanged: (value){
                   setState(() {
                     newPassword = value;
-                    validInput = InputValidations.verifyPassword(value) == null;
+                    validInput = InputValidations.isValidPassword(value) == null;
                     validInput = validInput && newPassword == confirmPassword;
                   });
                 },
-                validator: InputValidations.verifyPassword,
+                validator: InputValidations.isValidPassword,
                 //validator: (value){return value.length > 5;},
                 label: "Password",
               ),
               const SizedBox(height: 20),
               PasswordFormField(
-                  validator: InputValidations.verifyPassword,
+                  validator: InputValidations.isValidPassword,
                   onChanged: (value){
                     setState(() {
                       confirmPassword = value;
-                      validInput = InputValidations.verifyPassword(value) == null;
+                      validInput = InputValidations.isValidPassword(value) == null;
                       validInput = validInput && newPassword == confirmPassword;
                     });
                   },
