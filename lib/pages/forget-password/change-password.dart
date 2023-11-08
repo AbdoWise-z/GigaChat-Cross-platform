@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-description.dart';
+import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
-import 'package:gigachat/widgets/password-input-field.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
+import 'package:gigachat/widgets/input-fields/password-input-field.dart';
 
 const String NEW_PASSWORD_DESCRIPTION = "Make sure your new password is 8 characters or more. "
     "Try including numbers, letters, and punctuation marks for a strong password"

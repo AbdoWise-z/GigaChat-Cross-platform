@@ -3,9 +3,9 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/user-verification/verification-code-page.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-description.dart';
+import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
 
 const String CONFIRMATION_METHOD_TITLE = "Where should we send a confirmation code?";
 const String CONFIRMATION_METHOD_DESCRIPTION = "Before you can change your password,"

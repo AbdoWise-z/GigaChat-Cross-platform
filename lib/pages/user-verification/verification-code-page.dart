@@ -3,10 +3,10 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-description.dart';
+import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
-import 'package:gigachat/widgets/username-input-field.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
+import 'package:gigachat/widgets/input-fields/username-input-field.dart';
 
 
 const String CODE_VERIFICATION_DESCRIPTION = "Check your email to get your confirmation"

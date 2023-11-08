@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
@@ -11,6 +11,8 @@ import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/post.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/user-verification/verification-code-page.dart';
@@ -30,6 +32,8 @@ class GigaChat extends StatefulWidget {
 }
 
 class _GigaChatState extends State<GigaChat> {
+
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -43,14 +47,15 @@ class _GigaChatState extends State<GigaChat> {
           return MaterialApp(
             theme: val.getTheme,
             title: "GigaChat",
-            initialRoute: LandingRegisterPage.pageRoute,
+            initialRoute: Tweet.pageRoute,
             routes: {
-              Home.pageRoute : (context) => Home(),
-              LoginPage.pageRoute : (context) => LoginPage(),
+              Tweet.pageRoute : (context) => const FeedWidget(),
+              Home.pageRoute : (context) => const Home(),
+              LoginPage.pageRoute : (context) => const LoginPage(),
               ForgetPassword.pageRoute : (context) => ForgetPassword(),
-              VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
-              CreateAccount.pageRoute : (context) => CreateAccount(),
-              LoadingPage.pageRoute : (context) => LoadingPage(),
+              VerificationCodePage.pageRoute : (context) => const VerificationCodePage(),
+              CreateAccount.pageRoute : (context) => const CreateAccount(),
+              LoadingPage.pageRoute : (context) => const LoadingPage(),
               CreatePassword.pageRoute : (context) =>  CreatePassword(),
               LandingRegisterPage.pageRoute : (context) => LandingRegisterPage(),
             },
