@@ -6,6 +6,9 @@ import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/register/create-account.dart';
+import 'package:gigachat/pages/register/create-password.dart';
+import 'package:gigachat/pages/register/landing-register.dart';
+import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
@@ -53,6 +56,8 @@ class _GigaChatState extends State<GigaChat> {
               VerificationCodePage.pageRoute : (context) => const VerificationCodePage(),
               CreateAccount.pageRoute : (context) => const CreateAccount(),
               LoadingPage.pageRoute : (context) => const LoadingPage(),
+              CreatePassword.pageRoute : (context) =>  CreatePassword(),
+              LandingRegisterPage.pageRoute : (context) => LandingRegisterPage(),
             },
           );
         },
