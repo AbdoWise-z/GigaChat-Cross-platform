@@ -44,15 +44,15 @@ class _GigaChatState extends State<GigaChat> {
           return MaterialApp(
             theme: val.getTheme,
             title: "GigaChat",
-            initialRoute: LoginPage.pageRoute,
+            initialRoute: Tweet.pageRoute,
             routes: {
-              Tweet.pageRoute : (context) => FeedWidget(),
-              Home.pageRoute : (context) => Home(),
-              LoginPage.pageRoute : (context) => LoginPage(),
+              Tweet.pageRoute : (context) => const FeedWidget(),
+              Home.pageRoute : (context) => const Home(),
+              LoginPage.pageRoute : (context) => const LoginPage(),
               ForgetPassword.pageRoute : (context) => ForgetPassword(),
-              VerificationCodePage.pageRoute : (context) => VerificationCodePage(),
-              CreateAccount.pageRoute : (context) => CreateAccount(),
-              LoadingPage.pageRoute : (context) => LoadingPage(),
+              VerificationCodePage.pageRoute : (context) => const VerificationCodePage(),
+              CreateAccount.pageRoute : (context) => const CreateAccount(),
+              LoadingPage.pageRoute : (context) => const LoadingPage(),
             },
           );
         },

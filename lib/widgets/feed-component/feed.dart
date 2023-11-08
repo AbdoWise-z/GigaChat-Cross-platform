@@ -16,25 +16,27 @@ class FeedWidget extends StatefulWidget {
 class _FeedWidgetState extends State<FeedWidget> {
   TweetData tweet = TweetData(
       id: '1',
-      description: "this is post guys",
+      description: "when i woke up ... i was riding in a flower carriage, it was my birthday",
       media: "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
       views: 12,
       date: DateTime(2022,5,30,12,24,30),
       type: "Masterpiece"
   );
 
-  User user = User();
-
+  User user = User(name: "Osama",id: "Lolli-Simp2225");
+// hello
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
       appBar: LoginAppBar(context),
-      body: Column(
-        children: [
-          Tweet(tweetOwner: user, tweetData: tweet),
-          Tweet(tweetOwner: user, tweetData: tweet),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Tweet(tweetOwner: user, tweetData: tweet),
+            Tweet(tweetOwner: user, tweetData: tweet),
+          ],
+        ),
       ),
     );
   }

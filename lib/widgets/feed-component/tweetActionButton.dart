@@ -1,14 +1,22 @@
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:like_button/like_button.dart';
+import 'package:intl/intl.dart';
 
 class TweetActionButton extends StatefulWidget {
 
   final IconData icon;
   int? count;
+  bool? isLikeButton;
+  bool? isShareButton;
 
-  TweetActionButton({super.key, required this.icon, this.count});
+  TweetActionButton({super.key, required this.icon, this.count,this.isLikeButton,this.isShareButton}){
+    isLikeButton ??= false;
+    isShareButton ??= false;
+  }
 
   @override
   State<TweetActionButton> createState() => _TweetActionButtonState();
@@ -30,29 +38,29 @@ class _TweetActionButtonState extends State<TweetActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: ElevatedButton(
-        onPressed: (){},
-        style: ButtonStyle(
-            foregroundColor: getColor(Colors.grey, Colors.red),
-            backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.transparent),
-            padding: MaterialStateProperty.resolveWith((state)=>EdgeInsets.zero)
-        ),
+    return LikeButton(
+      size: 20,
+      likeCount: widget.count,
 
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children:[
-              const Expanded(child: SizedBox()),
-              FaIcon(widget.icon,size: 16),
-              const Expanded(child: SizedBox()),
-              Visibility(
-                visible: widget.count != null,
-                  child: Text(widget.count.toString(),style: const TextStyle(fontSize: 13))
-              )
-            ]
-        ),
-      ),
+
+      likeBuilder: widget.isLikeButton == true ? null : (isLiked){
+        return Icon(widget.icon,size: 20,color: Colors.grey);
+      },
+
+      countDecoration: (count, likeCount) {
+        likeCount ??= 0;
+        return widget.isShareButton == true || likeCount < 9999 ?
+        null :
+        Text(NumberFormat.compact().format(likeCount));
+        },
+
+      animationDuration: Duration(seconds: widget.isLikeButton == true ? 1 : 0),
+      circleSize: widget.isLikeButton == true ? null : 0,
+      bubblesSize: widget.isLikeButton == true ? null : 0,
+      
+      onTap: (isLiked){
+        return Future(() => widget.isLikeButton == true && !isLiked);
+      },
     );
   }
 }
