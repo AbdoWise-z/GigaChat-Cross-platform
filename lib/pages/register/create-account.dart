@@ -36,14 +36,13 @@ class _CreateAccountState extends State<CreateAccount> {
       appBar: AppBar(
         toolbarHeight: 40,
         elevation: 0,
-        title: Center(
-          child: SizedBox(
-            height: 40,
-            width: 40,
-            child: Image.asset(
-                ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-              ),
-          ),
+        centerTitle: true,
+        title: SizedBox(
+          height: 40,
+          width: 40,
+          child: Image.asset(
+              ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
+            ),
         ),
       ),
       body: Column(
