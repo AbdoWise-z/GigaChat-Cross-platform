@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gigachat/main.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
 
 void main(){
   testWidgets("Testing Button Behaviour", (WidgetTester tester) async {
@@ -15,7 +16,7 @@ void main(){
     // executing testing
     await tester.pumpWidget(
         MaterialApp(
-            home: GigaChat(initialRoute: UsernameLoginPage.pageRoute)
+            home: GigaChat(initialRoute: UsernameLoginPage.pageRoute , locals: LocalSettings(),)
         )
     );
 
