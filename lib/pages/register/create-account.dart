@@ -1,10 +1,10 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/register/confirm-create-account.dart';
-import 'package:gigachat/pages/user-verification/verification-code-page.dart';
-import 'package:gigachat/providers/theme-provider.dart';
-import 'package:email_validator/email_validator.dart';
+import 'package:gigachat/pages/register/create-password.dart';
+import 'package:gigachat/services/input-validations.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:intl/intl.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -15,42 +15,27 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-
   //input controllers
   TextEditingController inputName = TextEditingController();
   TextEditingController inputEmail = TextEditingController();
   TextEditingController inputDOB = TextEditingController();
   //input validation
-  bool nameIsValid = false;
-  bool nameIsError = false;
-  bool emailIsValid = false;
-  bool emailIsError = false;
   final formKey = GlobalKey<FormState>();
+  final nameFieldKey = GlobalKey<FormFieldState>();
+  final emailFieldKey = GlobalKey<FormFieldState>();
 
-  FocusNode nameFocusNode = FocusNode();
-  FocusNode emailFocusNode = FocusNode();
-  FocusNode dateFocusNode = FocusNode();
 
+  FocusNode dateFocusNode = FocusNode();  //to check for date text_field focus
 
   @override
   Widget build(BuildContext context) {
 
-    bool isButtonDisabled = !nameIsValid || !emailIsValid || inputDOB.text.isEmpty;
+    bool isButtonDisabled = inputDOB.text.isEmpty || inputName.text.isEmpty
+        || inputEmail.text.isEmpty || !formKey.currentState!.validate();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        toolbarHeight: 40,
-        elevation: 0,
-        centerTitle: true,
-        title: SizedBox(
-          height: 40,
-          width: 40,
-          child: Image.asset(
-              ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-            ),
-        ),
-      ),
+      appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
       body: Column(
         children: [
           Expanded(
@@ -81,25 +66,10 @@ class _CreateAccountState extends State<CreateAccount> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               TextFormField(
+                                key: nameFieldKey,
                                 controller: inputName,
-                                focusNode: nameFocusNode,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (String? input){
-                                  if(input == null || input.isEmpty){
-                                    nameIsValid = false;
-                                    nameIsError = false;
-                                    return null;
-                                  }
-                                  else if(input.length > 50){
-                                    nameIsValid = false;
-                                    nameIsError = true;
-                                    return "Must be 50 characters or fewer";
-                                  }else{
-                                    nameIsValid = true;
-                                    nameIsError = false;
-                                    return null;
-                                  }
-                                },
+                                validator: InputValidations.isValidName,
                                 onChanged: (String input) async {
                                   await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
                                   setState(() {});
@@ -108,33 +78,17 @@ class _CreateAccountState extends State<CreateAccount> {
                                   labelText: "Name",
                                   border: const OutlineInputBorder(),
                                   counterText: "${inputName.text.length}/50",
-                                  suffixIcon: nameIsValid?
-                                  const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                                  nameIsError? const Icon(Icons.error,color: Colors.red,) : null,
+                                  suffixIcon: inputName.text.isEmpty? null :
+                                    nameFieldKey.currentState!.isValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
+                                          const Icon(Icons.error,color: Colors.red,)
                                 ),
                               ),
                               const SizedBox(height: 24,),
                               TextFormField(
+                                key: emailFieldKey,
                                 controller: inputEmail,
-                                focusNode: emailFocusNode,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (String? input){
-                                  if(input == null || input.isEmpty){
-                                    emailIsValid = false;
-                                    emailIsError = false;
-                                    return null;
-                                  }
-                                  if(EmailValidator.validate(input)){
-                                    emailIsError = false;
-                                    emailIsValid = true;
-                                    return null;
-                                  }
-                                  else{
-                                    emailIsError = true;
-                                    emailIsValid = false;
-                                    return "Please enter a valid email";
-                                  }
-                                },
+                                validator: InputValidations.isValidEmail,
                                 onChanged: (String input) async {
                                   await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
                                   setState(() {});
@@ -142,8 +96,9 @@ class _CreateAccountState extends State<CreateAccount> {
                                 decoration: InputDecoration(
                                   labelText: "Email",
                                   border: const OutlineInputBorder(),
-                                  suffixIcon: emailIsValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                                  emailIsError? const Icon(Icons.error,color: Colors.red,) : null,
+                                    suffixIcon: inputEmail.text.isEmpty? null :
+                                    emailFieldKey.currentState!.isValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
+                                    const Icon(Icons.error,color: Colors.red,)
                                 ),
                               ),
                               const SizedBox(height: 24,),
@@ -169,75 +124,40 @@ class _CreateAccountState extends State<CreateAccount> {
               ),
             ),
           ),
+          Column(
+            children: [
+              AuthFooter(
+                  disableRightButton: isButtonDisabled,
+                  showLeftButton: false,
+                  leftButtonLabel: "",
+                  rightButtonLabel: "Next",
+                  onLeftButtonPressed: (){},
+                  onRightButtonPressed: (){
+                    //TODO: back-end post request
+                    //TODO: Navigate to other pages
+                    Navigator.pushNamed(context, CreatePassword.pageRoute);
+                  }
+              ),
+              Visibility(
+                  visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
+                  child: SizedBox(
+                    height: 100,
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: DateTime.now(),
+                      maximumDate: DateTime.now(),
+                      onDateTimeChanged: (input){
+                        setState(() {
+                          inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
+                        });
+                      },
+                    ),
+                  )
+              ),
+            ],
+          )
         ],
       ),
-      bottomSheet: SizedBox(
-        height: dateFocusNode.hasFocus? 160 : 60,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Divider(thickness: 0.6, height: 1,),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0,10,10,0),
-              child: ElevatedButton(
-
-                onPressed: isButtonDisabled? null : () async {
-                  if(formKey.currentState!.validate()){
-                    //TODO: back-end post request
-                    final result = await Navigator.pushNamed(context,
-                      ConfirmCreateAccount.pageRoute,
-                      arguments: {
-                        "Name" : inputName,
-                        "Email" : inputEmail,
-                        "DOB" : inputDOB,
-                      }
-                    );
-                    if(result == "Name tapped"){
-                      nameFocusNode.requestFocus();
-                    }
-                    else if(result == "Email tapped"){
-                      emailFocusNode.requestFocus();
-                    }
-                    else if(result == "DOB tapped"){
-                     setState(() {
-                       dateFocusNode.requestFocus();
-                     });
-                    }else if(result == "Confirmed"){
-                      if(!context.mounted) return;
-                      Navigator.pushNamed(context, VerificationCodePage.pageRoute);
-                    }
-                  }
-                },
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all(
-                      const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      )
-                  ),
-                ),
-                child: const Text("Next"),
-              ),
-            ),
-            Visibility(
-              visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
-              child: SizedBox(
-                height: 100,
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: DateTime.now(),
-                  maximumDate: DateTime.now(),
-                  onDateTimeChanged: (input){
-                    setState(() {
-                      inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
-                    });
-                  },
-                ),
-              )
-            ),
-          ],
-        ),
-      ),
-    );
+     );
   }
 }
