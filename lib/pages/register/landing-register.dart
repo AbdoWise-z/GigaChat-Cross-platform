@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/login-page.dart';
 import 'package:gigachat/pages/register/create-account.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LandingRegisterPage extends StatelessWidget {

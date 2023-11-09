@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/user-verification/verification-code-page.dart';
 import 'package:gigachat/util/contact-method.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 
 const String CONFIRMATION_METHOD_TITLE =
@@ -84,7 +84,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
           ),
         ),
       ),
-      bottomSheet: LoginFooter(
+      bottomSheet: AuthFooter(
         rightButtonLabel: "Next",
         disableRightButton: false,
         onRightButtonPressed: (){

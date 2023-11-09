@@ -3,11 +3,11 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
-import 'package:gigachat/widgets/input-fields/username-input-field.dart';
+import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 
 const String CONFIRM_EMAIL_PAGE_DESCRIPTION =
     "Verify your identity by entering the email address associated with your $APP_NAME account.";
@@ -62,7 +62,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
             label: "Email",
           ),
           const Expanded(child: SizedBox()),
-          LoginFooter(
+          AuthFooter(
             rightButtonLabel: "Next",
             disableRightButton: !isValidEmail,
             onRightButtonPressed: () {

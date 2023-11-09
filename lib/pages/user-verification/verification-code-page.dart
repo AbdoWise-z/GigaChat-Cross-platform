@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
-import 'package:gigachat/widgets/input-fields/username-input-field.dart';
+import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 
 const String CODE_VERIFICATION_DESCRIPTION =
     "Check your email to get your confirmation"
@@ -61,7 +61,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                   });
                 }),
             const Expanded(child: SizedBox()),
-            LoginFooter(
+            AuthFooter(
               rightButtonLabel: "Next",
               disableRightButton: !valid,
               onRightButtonPressed: (){

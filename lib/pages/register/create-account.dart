@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:intl/intl.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -126,7 +126,7 @@ class _CreateAccountState extends State<CreateAccount> {
           ),
           Column(
             children: [
-              LoginFooter(
+              AuthFooter(
                   disableRightButton: isButtonDisabled,
                   showLeftButton: false,
                   leftButtonLabel: "",

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
-import 'package:gigachat/widgets/input-fields/password-input-field.dart';
+import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
 const String NEW_PASSWORD_DESCRIPTION =
     "Make sure your new password is 8 characters or more. Try including numbers, letters, and punctuation marks for a strong password\n\nYou'll be logged out of all active $APP_NAME sessions after your password is changed.";
@@ -82,7 +82,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           ),
         ),
       ),
-      bottomSheet: LoginFooter(
+      bottomSheet: AuthFooter(
         rightButtonLabel: "Change password",
         disableRightButton: !isValidForm,
         onRightButtonPressed: (){

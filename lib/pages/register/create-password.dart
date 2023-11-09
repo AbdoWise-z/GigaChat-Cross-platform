@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/widgets/input-fields/password-input-field.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 
 
 class CreatePassword extends StatefulWidget {
@@ -55,7 +55,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               },
               label: 'Password',
             ),
-            LoginFooter(
+            AuthFooter(
                 disableRightButton: isButtonDisabled,
                 showLeftButton: false,
                 leftButtonLabel: "",

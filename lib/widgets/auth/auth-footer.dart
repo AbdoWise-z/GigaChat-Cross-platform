@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
-class LoginFooter extends StatelessWidget {
+class AuthFooter extends StatelessWidget {
   bool disableRightButton;
   bool? showLeftButton;
   String leftButtonLabel;
@@ -12,7 +12,7 @@ class LoginFooter extends StatelessWidget {
   Key? rightButtonKey;
   Key? leftButtonKey;
 
-  LoginFooter({
+  AuthFooter({
     super.key,
     required this.disableRightButton,
     required this.showLeftButton,

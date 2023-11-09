@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
-import 'package:gigachat/widgets/page-footer.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
-import 'package:gigachat/widgets/input-fields/password-input-field.dart';
+import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
 class PasswordLoginPage extends StatefulWidget {
   static const String pageRoute = "/login/password";
@@ -100,7 +100,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
           ),
           const Expanded(child: SizedBox()),
 
-          LoginFooter(
+          AuthFooter(
             rightButtonKey: const Key(PasswordLoginPage.loginButtonKey),
 
               rightButtonLabel: "Log in",

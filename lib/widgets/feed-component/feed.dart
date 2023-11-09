@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/post-class.dart';
-import 'package:gigachat/widgets/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/post.dart';
 
 class FeedWidget extends StatefulWidget {

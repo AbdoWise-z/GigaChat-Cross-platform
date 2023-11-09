@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import '../base.dart';
+import '../../base.dart';
 
 PreferredSizeWidget AuthAppBar(BuildContext context,{
   required IconButton? leadingIcon,
