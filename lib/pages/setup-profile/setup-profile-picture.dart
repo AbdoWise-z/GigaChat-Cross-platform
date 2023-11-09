@@ -4,7 +4,6 @@ import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/upload-image.dart';
-import '../../providers/theme-provider.dart';
 import 'dart:io';
 
 class PickProfilePicture extends StatefulWidget {

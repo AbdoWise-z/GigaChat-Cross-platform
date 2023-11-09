@@ -55,19 +55,19 @@ class _CreatePasswordState extends State<CreatePassword> {
               },
               label: 'Password',
             ),
-            AuthFooter(
-                disableRightButton: isButtonDisabled,
-                showLeftButton: false,
-                leftButtonLabel: "",
-                rightButtonLabel: "Next",
-                onLeftButtonPressed: (){},
-                onRightButtonPressed: (){
-                  //TODO: register request to api
-                  //TODO: navigate to pick a profile page
-                }
-            )
           ],
         ),
+      ),
+      bottomSheet: AuthFooter(
+          disableRightButton: isButtonDisabled,
+          showLeftButton: false,
+          leftButtonLabel: "",
+          rightButtonLabel: "Next",
+          onLeftButtonPressed: (){},
+          onRightButtonPressed: (){
+            //TODO: register request to api
+            //TODO: navigate to pick a profile page
+          }
       ),
      );
   }

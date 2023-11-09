@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
-import '../../providers/theme-provider.dart';
 
 class ChooseUsername extends StatefulWidget {
   const ChooseUsername({Key? key}) : super(key: key);

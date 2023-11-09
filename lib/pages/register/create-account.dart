@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/register/create-password.dart';
+import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -24,8 +24,12 @@ class _CreateAccountState extends State<CreateAccount> {
   final nameFieldKey = GlobalKey<FormFieldState>();
   final emailFieldKey = GlobalKey<FormFieldState>();
 
+  //for controlling focus
+  FocusNode nameFocus = FocusNode();
+  FocusNode emailFocus = FocusNode();
+  FocusNode dateFocusNode = FocusNode();
 
-  FocusNode dateFocusNode = FocusNode();  //to check for date text_field focus
+  DateTime nonFormattedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +72,7 @@ class _CreateAccountState extends State<CreateAccount> {
                               TextFormField(
                                 key: nameFieldKey,
                                 controller: inputName,
+                                focusNode: nameFocus,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator: InputValidations.isValidName,
                                 onChanged: (String input) async {
@@ -87,6 +92,7 @@ class _CreateAccountState extends State<CreateAccount> {
                               TextFormField(
                                 key: emailFieldKey,
                                 controller: inputEmail,
+                                focusNode: emailFocus,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator: InputValidations.isValidEmail,
                                 onChanged: (String input) async {
@@ -124,39 +130,61 @@ class _CreateAccountState extends State<CreateAccount> {
               ),
             ),
           ),
-          Column(
-            children: [
-              AuthFooter(
-                  disableRightButton: isButtonDisabled,
-                  showLeftButton: false,
-                  leftButtonLabel: "",
-                  rightButtonLabel: "Next",
-                  onLeftButtonPressed: (){},
-                  onRightButtonPressed: (){
-                    //TODO: back-end post request
-                    //TODO: Navigate to other pages
-                    Navigator.pushNamed(context, CreatePassword.pageRoute);
-                  }
-              ),
-              Visibility(
-                  visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
-                  child: SizedBox(
-                    height: 100,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: DateTime.now(),
-                      maximumDate: DateTime.now(),
-                      onDateTimeChanged: (input){
-                        setState(() {
-                          inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
-                        });
-                      },
-                    ),
-                  )
-              ),
-            ],
-          )
         ],
+      ),
+      bottomSheet: SizedBox(
+        height: dateFocusNode.hasFocus? 170 : 70,
+        child: Column(
+          children: [
+            AuthFooter(
+                disableRightButton: isButtonDisabled,
+                showLeftButton: false,
+                leftButtonLabel: "",
+                rightButtonLabel: "Next",
+                onLeftButtonPressed: (){},
+                onRightButtonPressed: () async {
+                  final result = await Navigator.pushNamed(
+                    context,
+                    ConfirmCreateAccount.pageRoute,
+                    arguments: {
+                      "Name" : inputName,
+                      "Email" : inputEmail,
+                      "DOB" : inputDOB,
+                      "nonFormattedDate" : nonFormattedDate,
+                    },
+                  );
+                  if(result == "Name tapped"){
+                    nameFocus.requestFocus();
+                  }
+                  if(result == "Email tapped"){
+                    emailFocus.requestFocus();
+                  }
+                  if(result == "DOB tapped"){
+                    setState(() {
+                      dateFocusNode.requestFocus();
+                    });
+                  }
+                }
+            ),
+            Visibility(
+                visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
+                child: SizedBox(
+                  height: 100,
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: DateTime.now(),
+                    maximumDate: DateTime.now(),
+                    onDateTimeChanged: (input){
+                      setState(() {
+                        inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
+                        nonFormattedDate = input;
+                      });
+                    },
+                  ),
+                )
+            ),
+          ],
+        ),
       ),
      );
   }

@@ -66,7 +66,7 @@ class _GigaChatState extends State<GigaChat> {
               UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
 
               ForgetPassword.pageRoute : (context) => ForgetPassword(),
-              VerificationCodePage.pageRoute : (context) => const VerificationCodePage(),
+              VerificationCodePage.pageRoute : (context) => VerificationCodePage(isRegister: false,),
               CreateAccount.pageRoute : (context) => const CreateAccount(),
               LoadingPage.pageRoute : (context) => const LoadingPage(),
               CreatePassword.pageRoute : (context) =>  CreatePassword(),

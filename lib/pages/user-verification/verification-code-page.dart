@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
+import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -14,7 +15,9 @@ const String CODE_VERIFICATION_DESCRIPTION =
 class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
-  const VerificationCodePage({super.key});
+  bool isRegister;
+
+  VerificationCodePage({super.key, required this.isRegister});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
@@ -23,25 +26,44 @@ class VerificationCodePage extends StatefulWidget {
 class _VerificationCodePageState extends State<VerificationCodePage> {
   late String code;
   late bool valid;
+  bool resendEmailIsEnabled = false;
+  int counter = 60;
 
   @override
   void initState() {
     super.initState();
     code = "";
     valid = false;
+    enableResendEmail();
+  }
+
+  void enableResendEmail() async {
+
+    for(int i = 60; i >= 1; i--){
+      setState(() {
+        counter = i;
+      });
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    setState(() {
+      resendEmailIsEnabled = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    String email = widget.isRegister ? ModalRoute.of(context)?.settings.arguments as String : "";
     return Scaffold(
       appBar: AuthAppBar(
         context,
-        leadingIcon: IconButton(
+        leadingIcon: widget.isRegister ? null: IconButton(
           onPressed: () {
             Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),
         ),
+        showDefault: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
@@ -50,9 +72,10 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           children: [
             const PageTitle(title: "We sent you a code"),
             const SizedBox(height: 15),
-            const PageDescription(description: CODE_VERIFICATION_DESCRIPTION),
+            PageDescription(description: widget.isRegister ? "Enter it below to verify $email." : CODE_VERIFICATION_DESCRIPTION),
             const SizedBox(height: 20),
             TextDataFormField(
+                keyboardType: widget.isRegister? TextInputType.number : TextInputType.text,
                 label: "Enter your code",
                 onChange: (value) {
                   setState(() {
@@ -60,11 +83,26 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                     valid = value.isNotEmpty;
                   });
                 }),
+            const SizedBox(height: 25,),
+            GestureDetector(
+              onTap: resendEmailIsEnabled? (){
+                //TODO: send confirmation code request
+                setState(() {
+                  resendEmailIsEnabled = false;
+                  enableResendEmail();
+                });
+              } : null,
+              child: Text(resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",style: TextStyle(color: resendEmailIsEnabled? Colors.blue : Colors.grey),),
+            ),
             const Expanded(child: SizedBox()),
             AuthFooter(
               rightButtonLabel: "Next",
               disableRightButton: !valid,
               onRightButtonPressed: (){
+                widget.isRegister ? (){
+                  // TODO: call the api here
+                  Navigator.pushReplacementNamed(context, CreatePassword.pageRoute);
+                } :
                 Navigator.push(
                     context,
                     // TODO: call the api here
@@ -75,7 +113,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
               onLeftButtonPressed: (){
                 Navigator.pop(context);
               },
-              showLeftButton: true,
+              showLeftButton: !widget.isRegister,
             )
           ],
         ),

@@ -1,7 +1,6 @@
 
 
 import 'package:email_validator/email_validator.dart';
-import 'package:string_validator/string_validator.dart';
 
 const MIN_USERNAME_LENGTH = 5;
 const MAX_USERNAME_LENGTH = 15;

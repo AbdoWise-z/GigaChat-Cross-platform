@@ -44,7 +44,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
           onPressed: () {
             Navigator.popUntil(context, ModalRoute.withName('/'));
           },
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
         ),
       ),
       body: Padding(
@@ -91,7 +91,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
           Navigator.push(
               context,
               // TODO: call the api here
-              MaterialPageRoute(builder: (context) => const VerificationCodePage()));
+              MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,)));
         },
 
         leftButtonLabel: "",

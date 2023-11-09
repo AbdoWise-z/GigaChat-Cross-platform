@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
-import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';

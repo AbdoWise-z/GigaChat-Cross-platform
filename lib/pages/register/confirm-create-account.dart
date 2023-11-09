@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../user-verification/verification-code-page.dart';
 class ConfirmCreateAccount extends StatelessWidget {
   const ConfirmCreateAccount({Key? key}) : super(key: key);
   static const pageRoute = '/confirm-create-account';
@@ -125,8 +127,25 @@ class ConfirmCreateAccount extends StatelessWidget {
                       SizedBox(
                         height: 40,
                         child: TextButton(
-                            onPressed: (){
-                              Navigator.pop(context,"Confirmed");  //user confirmed his inputs
+                            onPressed: () async {
+                              if(DateTime.now().difference(accountData["nonFormattedDate"]).inDays < 18 * 365){
+                                await showDialog(context: context,
+                                    builder: (BuildContext ctx) =>
+                                    const AlertDialog(
+                                      content: Text("Can't sign up right now"),
+                                    )
+                                );
+                                if(context.mounted) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                              else{
+                                Navigator.pushReplacementNamed(
+                                    context,
+                                    VerificationCodePage.pageRoute,
+                                    arguments: accountData["Email"].text,
+                                );
+                              }
                             },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.blue,

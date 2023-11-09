@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
-import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:google_fonts/google_fonts.dart';
 
