@@ -27,9 +27,9 @@ void main(){
     expect(tester.widget<ElevatedButton>(nextButtonField).enabled, false);
 
     // testing correct username
-    await tester.enterText(usernameField, "thisIsCorrectUsername123");
+    await tester.enterText(usernameField, "Username123");
     await tester.pump();
-    expect(find.text("thisIsCorrectUsername123"), findsOneWidget);
+    expect(find.text("Username123"), findsOneWidget);
     expect(tester.widget<ElevatedButton>(nextButtonField).enabled, true);
 
     // Navigating to password page

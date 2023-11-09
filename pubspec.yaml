@@ -71,6 +71,7 @@ flutter:
   assets:
     - assets/giga-chat-logo-dark.png
     - assets/giga-chat-logo-light.png
+    - assets/google-logo-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

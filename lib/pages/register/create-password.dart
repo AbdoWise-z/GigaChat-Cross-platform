@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/services/input-validations.dart';
+import 'package:gigachat/widgets/input-fields/password-input-field.dart';
 
 import '../../providers/theme-provider.dart';
 
@@ -15,12 +17,14 @@ class CreatePassword extends StatefulWidget {
 class _CreatePasswordState extends State<CreatePassword> {
 
   TextEditingController inputPassword = TextEditingController();
-  bool passwordIsValid = false;
-  bool passwordIsError = false;
   bool passwordVisible = false;
+  final passwordKey = GlobalKey<FormFieldState>();
 
   @override
   Widget build(BuildContext context) {
+
+    bool isButtonDisabled = inputPassword.text.isEmpty || !passwordKey.currentState!.isValid;
+
     return Scaffold(
       appBar: AppBar(
         leading: const Icon(null),
@@ -40,22 +44,30 @@ class _CreatePasswordState extends State<CreatePassword> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             const Text(
+            const Text(
                "You'll need a password",
                style: TextStyle(
                    fontSize: 30,
                    fontWeight: FontWeight.bold
                ),
              ),
-             const SizedBox(height: 10,),
-             const Text(
+            const SizedBox(height: 10,),
+            const Text(
                "Make sure it's 8 characters or more.",
                style: TextStyle(
                  color: Colors.blueGrey,
                ),
              ),
             const SizedBox(height: 15,),
+            PasswordFormField(
+              onChanged: (String input) async {
+                await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
+                setState(() {});
+              },
+              label: 'Password',
+            ),
             TextFormField(
+              key: passwordKey,
               controller: inputPassword,
               autofocus: true,
               style: const TextStyle(
@@ -63,28 +75,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               ),
               obscureText: !passwordVisible,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (String? input){
-                if(input == null || input.isEmpty){
-                  passwordIsValid = false;
-                  passwordIsError = false;
-                  return null;
-                }
-                else if(input.length < 8){
-                  passwordIsValid = false;
-                  passwordIsError = true;
-                  return "Password is too short";
-                  //TODO: password validation
-                }else if(false){
-                  passwordIsValid = false;
-                  passwordIsError = true;
-                  return "Password is too weak";
-                }
-                else{
-                  passwordIsValid = true;
-                  passwordIsError = false;
-                  return null;
-                }
-              },
+              validator: InputValidations.isValidPassword,
               onChanged: (String input) async {
                 await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
                 setState(() {});
@@ -116,9 +107,9 @@ class _CreatePasswordState extends State<CreatePassword> {
                           },
                         ),
                         const SizedBox(width: 5,),
-                        passwordIsValid?
+                        inputPassword.text.isEmpty? const SizedBox() : passwordKey.currentState!.isValid?
                         const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                        passwordIsError? const Icon(Icons.error,color: Colors.red,) : const SizedBox(),
+                        const Icon(Icons.error,color: Colors.red,),
                       ],
                     ),
                   ),
@@ -139,10 +130,10 @@ class _CreatePasswordState extends State<CreatePassword> {
               padding: const EdgeInsets.fromLTRB(0,10,10,0),
               child: ElevatedButton(
 
-                onPressed: passwordIsValid? (){
+                onPressed: isButtonDisabled? null : (){
                   //TODO: register request to api
                   //TODO: navigate to pick a profile page
-                } : null,
+                },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(
                       const RoundedRectangleBorder(

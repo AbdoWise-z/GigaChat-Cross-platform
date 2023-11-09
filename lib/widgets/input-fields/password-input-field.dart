@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/services/input-validations.dart';
 
 
 class PasswordFormField extends StatefulWidget {
   void Function(String) onChanged;
-  String? Function(String?) validator;
   String label;
   PasswordFormField({
     super.key,
     required this.onChanged,
-    required this.validator,
     required this.label
   });
 
@@ -32,7 +31,6 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
     // TODO: implement initState
     super.initState();
     onChanged = widget.onChanged;
-    validator = widget.validator;
     label = widget.label;
     passwordVisible = false;
   }
@@ -46,15 +44,14 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
     return TextFormField(
       onChanged: (value){
         setState(() {
-          valid = validator(value) == null;
-          print(validator(value));
+          valid = value.isNotEmpty;
           onChanged(value);
         });
       },
       obscureText: ! passwordVisible,
       autocorrect: false,
       enableSuggestions: false,
-
+      validator: InputValidations.isValidPassword,
       decoration: InputDecoration(
         label: Text(label),
         border: const OutlineInputBorder(),

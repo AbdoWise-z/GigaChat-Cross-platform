@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:gigachat/services/input-validations.dart';
 import 'package:intl/intl.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -18,18 +19,18 @@ class _CreateAccountState extends State<CreateAccount> {
   TextEditingController inputEmail = TextEditingController();
   TextEditingController inputDOB = TextEditingController();
   //input validation
-  bool nameIsValid = false;
-  bool nameIsError = false;
-  bool emailIsValid = false;
-  bool emailIsError = false;
   final formKey = GlobalKey<FormState>();
+  final nameFieldKey = GlobalKey<FormFieldState>();
+  final emailFieldKey = GlobalKey<FormFieldState>();
+
 
   FocusNode dateFocusNode = FocusNode();  //to check for date text_field focus
 
   @override
   Widget build(BuildContext context) {
 
-    bool isButtonDisabled = inputDOB.text.isEmpty || inputName.text.isEmpty || inputEmail.text.isEmpty;
+    bool isButtonDisabled = inputDOB.text.isEmpty || inputName.text.isEmpty
+        || inputEmail.text.isEmpty || !formKey.currentState!.validate();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -75,24 +76,10 @@ class _CreateAccountState extends State<CreateAccount> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               TextFormField(
+                                key: nameFieldKey,
                                 controller: inputName,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (String? input){
-                                  if(input == null || input.isEmpty){
-                                    nameIsValid = false;
-                                    nameIsError = false;
-                                    return null;
-                                  }
-                                  else if(input.length > 50){
-                                    nameIsValid = false;
-                                    nameIsError = true;
-                                    return "Must be 50 characters or fewer";
-                                  }else{
-                                    nameIsValid = true;
-                                    nameIsError = false;
-                                    return null;
-                                  }
-                                },
+                                validator: InputValidations.isValidName,
                                 onChanged: (String input) async {
                                   await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
                                   setState(() {});
@@ -101,32 +88,17 @@ class _CreateAccountState extends State<CreateAccount> {
                                   labelText: "Name",
                                   border: const OutlineInputBorder(),
                                   counterText: "${inputName.text.length}/50",
-                                  suffixIcon: nameIsValid?
-                                  const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                                  nameIsError? const Icon(Icons.error,color: Colors.red,) : null,
+                                  suffixIcon: inputName.text.isEmpty? null :
+                                    nameFieldKey.currentState!.isValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
+                                          const Icon(Icons.error,color: Colors.red,)
                                 ),
                               ),
                               const SizedBox(height: 24,),
                               TextFormField(
+                                key: emailFieldKey,
                                 controller: inputEmail,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator: (String? input){
-                                  if(input == null || input.isEmpty){
-                                    emailIsValid = false;
-                                    emailIsError = false;
-                                    return null;
-                                  }
-                                  if(EmailValidator.validate(input)){
-                                    emailIsError = false;
-                                    emailIsValid = true;
-                                    return null;
-                                  }
-                                  else{
-                                    emailIsError = true;
-                                    emailIsValid = false;
-                                    return "Please enter a valid email";
-                                  }
-                                },
+                                validator: InputValidations.isValidEmail,
                                 onChanged: (String input) async {
                                   await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
                                   setState(() {});
@@ -134,8 +106,9 @@ class _CreateAccountState extends State<CreateAccount> {
                                 decoration: InputDecoration(
                                   labelText: "Email",
                                   border: const OutlineInputBorder(),
-                                  suffixIcon: emailIsValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                                  emailIsError? const Icon(Icons.error,color: Colors.red,) : null,
+                                    suffixIcon: inputEmail.text.isEmpty? null :
+                                    emailFieldKey.currentState!.isValid? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
+                                    const Icon(Icons.error,color: Colors.red,)
                                 ),
                               ),
                               const SizedBox(height: 24,),
@@ -175,13 +148,8 @@ class _CreateAccountState extends State<CreateAccount> {
               child: ElevatedButton(
 
                 onPressed: isButtonDisabled? null : (){
-                  if(formKey.currentState!.validate()){
-                    //TODO: back-end post request
-                    //TODO: Navigate to other pages
-                    showDialog(context: context,
-                        builder: (context) => const Text("Noice")
-                    );
-                  }
+                  //TODO: back-end post request
+                  //TODO: Navigate to other pages
                 },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(

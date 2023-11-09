@@ -54,13 +54,10 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                     validInput = validInput && newPassword == confirmPassword;
                   });
                 },
-                validator: InputValidations.isValidPassword,
-                //validator: (value){return value.length > 5;},
                 label: "Password",
               ),
               const SizedBox(height: 20),
               PasswordFormField(
-                  validator: InputValidations.isValidPassword,
                   onChanged: (value){
                     setState(() {
                       confirmPassword = value;
@@ -68,7 +65,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       validInput = validInput && newPassword == confirmPassword;
                     });
                   },
-                //validator: (value){return value.length > 5;},
                 label: "Confirm password",
               ),
             ],

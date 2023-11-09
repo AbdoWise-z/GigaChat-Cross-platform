@@ -53,10 +53,9 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     email = widget.username ?? "";
-    valid = InputValidations.isValidEmail(email) == null;
+    valid = email.isNotEmpty;
   }
 
   @override
@@ -79,7 +78,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             TextDataFormField(onChange: (value){
               setState(() {
                 email = value;
-                valid = InputValidations.isValidUsername(email) == null;
+                valid = value.isNotEmpty;
               });
             }, value: email),
 
@@ -91,7 +90,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                 onPressed: (){
                   Navigator.pushReplacement(context,MaterialPageRoute(
                   builder: (context)=>
-                      InputValidations.isValidEmail(email) == null ?
+                      InputValidations.isValidEmail(email) == null?
                       VerificationMethodPage(methods: getUserContactMethods(email)) :
                       ConfirmEmailPage(username: email))
                   );

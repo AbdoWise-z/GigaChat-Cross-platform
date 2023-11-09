@@ -49,11 +49,10 @@ class _UsernamePageState extends State<UsernameLoginPage> {
                 // Username Input Field
                 TextDataFormField(
                   key: const Key(UsernameLoginPage.inputFieldKey),
-                    validator: InputValidations.isValidUsername,
                     onChange: (editedUsername) {
                       setState(() {
                         username = editedUsername;
-                        isValid = InputValidations.isValidUsername(username) == null;
+                        isValid = username.isNotEmpty;
                       });
                     }
                 ),
@@ -68,7 +67,7 @@ class _UsernamePageState extends State<UsernameLoginPage> {
             disableNext: !isValid,
             proceedButtonName: "Next",
             onPressed: () async {
-            if (InputValidations.isValidUsername(username) == null)
+            if (isValid)
             {
               Navigator.pushReplacement(
                   context,

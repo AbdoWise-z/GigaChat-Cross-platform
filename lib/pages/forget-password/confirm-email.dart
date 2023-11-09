@@ -47,7 +47,14 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage>
 
             const SizedBox(height: 20),
 
-            TextDataFormField(onChange: (value){},label: "Email"),
+            TextDataFormField(
+                onChange: (value){
+                  setState(() {
+
+                  });
+                },
+                label: "Email",
+            ),
 
             const Expanded(child: SizedBox()),
 

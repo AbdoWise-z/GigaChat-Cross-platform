@@ -5,10 +5,10 @@ void main() {
   late List<List> emailTestVector;
 
   emailTestVector = [
-    ["not an email bruh", InputValidations.invalidInput],
-    ["notanemailbruh", InputValidations.invalidInput],
-    ["notanemail@bruh", InputValidations.invalidInput],
-    ["notanemail@bruh.", InputValidations.invalidInput],
+    ["not an email bruh", InputValidations.emailInvalidInput],
+    ["notanemailbruh", InputValidations.emailInvalidInput],
+    ["notanemail@bruh", InputValidations.emailInvalidInput],
+    ["notanemail@bruh.", InputValidations.emailInvalidInput],
     ["anemail@bruh.com", null],
     ["anemailSSS548@bruh.com", null],
   ];

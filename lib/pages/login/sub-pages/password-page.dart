@@ -79,10 +79,9 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
                   onChanged: (value) {
                     setState(() {
                       password = value;
-                      isValid = InputValidations.isValidPassword(password) == null;
+                      isValid = value.isNotEmpty;
                     });
                     },
-                  validator: InputValidations.isValidPassword,
                   label: "Password",
                 ),
               ],
