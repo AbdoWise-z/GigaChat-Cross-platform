@@ -12,9 +12,11 @@ class Tweet extends StatelessWidget {
   final User tweetOwner;
   final TweetData tweetData;
   late final List<Widget> actionButtons;
+  bool? isRetweet;
 
-  Tweet({super.key, required this.tweetOwner, required this.tweetData}) {
+  Tweet({super.key, required this.tweetOwner, required this.tweetData,required this.isRetweet}) {
     // TODO: we need to handle if the number is too big in the post provider processing
+    isRetweet ??= false;
     actionButtons = [
       TweetActionButton(
         icon: FontAwesomeIcons.comment,
@@ -65,7 +67,6 @@ class Tweet extends StatelessWidget {
                 // media display here
                 Visibility(
                   // TODO: visibility should be triggered if the post has some media
-                  visible: true,
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 10, 0, 5),
                     width: double.infinity,
@@ -75,7 +76,8 @@ class Tweet extends StatelessWidget {
                     ),
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: Image.network(tweetData.media)),
+                        child: Image.network(tweetData.media),
+                    )
                   ),
                 ),
                 Container(

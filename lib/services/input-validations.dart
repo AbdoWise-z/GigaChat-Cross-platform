@@ -105,10 +105,4 @@ class InputValidations
           }
           return null;
      }
-
-     static String? isValidCode(String? code)
-     {
-          //TODO: validate code format
-          return null;
-     }
 }

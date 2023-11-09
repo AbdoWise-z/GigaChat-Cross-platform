@@ -22,12 +22,7 @@ class ForgetPasswordButton extends StatelessWidget {
     return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ForgetPassword(
-                        username: username,
-                      )));
+
         },
         child: Text("Forget password?",
           style: TextStyle(

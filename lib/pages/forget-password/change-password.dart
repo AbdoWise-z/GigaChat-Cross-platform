@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/login-app-bar.dart';
+import 'package:gigachat/widgets/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/page-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/input-fields/password-input-field.dart';
 
-const String NEW_PASSWORD_DESCRIPTION = "Make sure your new password is 8 characters or more. "
-    "Try including numbers, letters, and punctuation marks for a strong password"
-    "\n\nYou'll be logged out of all active " + APP_NAME + " sessions after your password is changed.";
+const String NEW_PASSWORD_DESCRIPTION =
+    "Make sure your new password is 8 characters or more. Try including numbers, letters, and punctuation marks for a strong password\n\nYou'll be logged out of all active $APP_NAME sessions after your password is changed.";
 
 class NewPasswordPage extends StatefulWidget {
   const NewPasswordPage({super.key});
@@ -21,21 +20,32 @@ class NewPasswordPage extends StatefulWidget {
 class _NewPasswordPageState extends State<NewPasswordPage> {
   late String newPassword;
   late String confirmPassword;
-  late bool validInput;
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     newPassword = "";
     confirmPassword = "";
-    validInput = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isValidForm = (formKey.currentState != null &&
+        newPassword.isNotEmpty &&
+        confirmPassword.isNotEmpty &&
+        formKey.currentState!.validate()
+    );
     return Scaffold(
-      appBar: LoginAppBar(context),
+      appBar: AuthAppBar(
+        context,
+        leadingIcon: IconButton(
+          onPressed: () {
+            Navigator.popUntil(context, ModalRoute.withName('/'));
+          },
+          icon: const Icon(Icons.close),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
         child: SingleChildScrollView(
@@ -46,41 +56,43 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
               const SizedBox(height: 20),
               const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
               const SizedBox(height: 20),
-              PasswordFormField(
-                onChanged: (value){
-                  setState(() {
-                    newPassword = value;
-                    validInput = InputValidations.isValidPassword(value) == null;
-                    validInput = validInput && newPassword == confirmPassword;
-                  });
-                },
-                label: "Password",
-              ),
-              const SizedBox(height: 20),
-              PasswordFormField(
-                  onChanged: (value){
+              Form(key: formKey, child: Column(children: [
+                PasswordFormField(
+                  onChanged: (value) {
                     setState(() {
-                      confirmPassword = value;
-                      validInput = InputValidations.isValidPassword(value) == null;
-                      validInput = validInput && newPassword == confirmPassword;
+                      newPassword = value;
                     });
                   },
-                label: "Confirm password",
-              ),
+                  label: "Enter a new password",
+                ),
+                const SizedBox(height: 20),
+                PasswordFormField(
+                  onChanged: (value) {
+                    setState(() {
+                      confirmPassword = value;
+                    });
+                  },
+                  validator: (value){
+                    return value == newPassword ? null : "passwords is not identical";
+                  },
+                  label: "Confirm password",
+                ),
+              ],))
             ],
           ),
         ),
       ),
       bottomSheet: LoginFooter(
-        disableNext: !validInput,
-        proceedButtonName: "Change password",
-        showBackButton: false,
-        showForgetPassword: false,
-        showCancelButton: false,
-        onPressed: (){
+        rightButtonLabel: "Change password",
+        disableRightButton: !isValidForm,
+        onRightButtonPressed: (){
           // TODO: call api to change the password
         },
-      ),
+
+        leftButtonLabel: "",
+        onLeftButtonPressed: (){},
+        showLeftButton: false,
+      )
     );
   }
 }

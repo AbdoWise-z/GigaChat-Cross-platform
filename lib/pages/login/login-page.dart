@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/create-account.dart';
+import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/theme-provider.dart';
@@ -131,8 +132,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: (){
-                        // TODO: uncomment this when integrate phase 1
-                        //Navigator.pushNamed(context, RegisterPage.pageRoute);
+                        Navigator.pushNamed(context, LandingRegisterPage.pageRoute);
                       },
                       child: Text("Sign up",
                         style: GoogleFonts.dmSans(

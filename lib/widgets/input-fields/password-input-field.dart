@@ -7,53 +7,64 @@ import 'package:gigachat/services/input-validations.dart';
 class PasswordFormField extends StatefulWidget {
   void Function(String) onChanged;
   String label;
+  String? Function(String?)? validator;
+  bool? hideBorder;
+  GlobalKey<FormFieldState>? passwordKey;
   PasswordFormField({
     super.key,
     required this.onChanged,
-    required this.label
-  });
+    required this.label,
+    this.validator,
+    this.hideBorder,
+    this.passwordKey
+  })
+  {
+    validator ??= InputValidations.isValidPassword;
+    hideBorder ??= false;
+  }
 
   @override
   State<PasswordFormField> createState() => _PasswordFormFieldState();
 }
 
 class _PasswordFormFieldState extends State<PasswordFormField> {
-  late void Function(String) onChanged;
-  late String? Function(String?) validator;
-  late String label;
 
   late bool passwordVisible;
-  late bool verified = false;
-  bool valid = false;
+  late String password;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    onChanged = widget.onChanged;
-    label = widget.label;
     passwordVisible = false;
+    password = "";
   }
   @override
   Widget build(BuildContext context) {
+
+    bool valid = password.isNotEmpty && widget.validator!(password) == null;
+
     IconData passwordState =
     passwordVisible ?
     Icons.visibility_outlined :
     Icons.visibility_off_outlined;
 
     return TextFormField(
-      onChanged: (value){
+      key: widget.passwordKey,
+      onChanged: (value) async {
+        await Future.delayed(const Duration(milliseconds: 50));
+        password = value;
         setState(() {
-          valid = value.isNotEmpty;
-          onChanged(value);
+          widget.onChanged(value);
         });
       },
       obscureText: ! passwordVisible,
-      autocorrect: false,
-      enableSuggestions: false,
-      validator: InputValidations.isValidPassword,
+      autovalidateMode: widget.hideBorder! ? AutovalidateMode.disabled : AutovalidateMode.onUserInteraction,
+      validator: (value){
+        return value == null || value.isEmpty ? null : widget.validator!(value);
+      },
+
       decoration: InputDecoration(
-        label: Text(label),
+        label: Text(widget.label),
         border: const OutlineInputBorder(),
         suffixIcon:
         Row(
