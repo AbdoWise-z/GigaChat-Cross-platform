@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:provider/provider.dart';
 
-import '../api/account-requests.dart';
+
 
 
 
@@ -12,10 +14,22 @@ class Auth extends ChangeNotifier{
   }
 
   User? _currentUser;
+  LoginState loginState = LoginState.idle;
+
 
   void login(String username , String password) async {
+    loginState = LoginState.idle;
     _currentUser = await apiLogin(username, password);
+    loginState = _currentUser == null ? LoginState.failure : LoginState.success;
     notifyListeners();
+  }
+
+  LoginState getLoginState(){
+    return loginState;
+  }
+
+  void resetLoginState(){
+    loginState = LoginState.idle;
   }
 
   User? getCurrentUser(){

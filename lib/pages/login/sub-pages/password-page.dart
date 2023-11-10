@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
@@ -7,12 +10,12 @@ import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
 class PasswordLoginPage extends StatefulWidget {
   static const String pageRoute = "/login/password";
-  static const passwordFieldKey = "login-password-password-field";
+  static final passwordFieldKey = GlobalKey<FormFieldState>();
   static const loginButtonKey = "login-password-login-button";
 
-  String username;
+  final String username;
 
-  PasswordLoginPage({required this.username, super.key});
+  const PasswordLoginPage({required this.username, super.key});
 
   @override
   State<PasswordLoginPage> createState() => _LoginPasswordPageState();
@@ -21,16 +24,26 @@ class PasswordLoginPage extends StatefulWidget {
 class _LoginPasswordPageState extends State<PasswordLoginPage> {
   String? password;
   bool isValid = false;
+  late bool logInPressed;
+  late final Auth authProvider;
+  late FToast fToast;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     password = "";
+    authProvider = Auth.getInstance(context);
+    logInPressed = false;
+    fToast = FToast();
+    fToast.init(context);
   }
 
   @override
   Widget build(BuildContext context) {
+
+    checkForLoginFailure();
+
+
     return Scaffold(
       appBar: AuthAppBar(
         context,
@@ -80,10 +93,11 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
                 // password field
                 PasswordFormField(
-                  key: const Key(PasswordLoginPage.passwordFieldKey),
+                  passwordKey: PasswordLoginPage.passwordFieldKey,
                   hideBorder: true,
                   onChanged: (value) {
                     setState(() {
+                      logInPressed = false;
                       password = value;
                       isValid = value.isNotEmpty;
                     });
@@ -100,23 +114,52 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
 
           AuthFooter(
             rightButtonKey: const Key(PasswordLoginPage.loginButtonKey),
+            rightButtonLabel: "Log in",
+            disableRightButton: !isValid,
+            onRightButtonPressed: () async {
+              authProvider.login(widget.username, password!);
+            },
 
-              rightButtonLabel: "Log in",
-              disableRightButton: !isValid,
-              onRightButtonPressed: (){
-                //TODO: call the api to login
-              },
-
-              leftButtonLabel: "Forget password?",
-              onLeftButtonPressed: (){
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,)));
+            leftButtonLabel: "Forget password?",
+            onLeftButtonPressed: (){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,)));
               },
             showLeftButton: true,
           )
         ],
       ),
     );
+  }
+
+  _showToast(String message) {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.grey,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [Text(message),],
+      ),
+    );
+
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
+  }
+
+
+  void checkForLoginFailure() async {
+      await Future.delayed(const Duration(milliseconds: 80));
+      if(authProvider.loginState == LoginState.success){
+        _showToast("Wrong password!");
+      }
+      authProvider.resetLoginState();
   }
 }

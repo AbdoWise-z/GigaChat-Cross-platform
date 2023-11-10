@@ -5,3 +5,9 @@ const String APP_NAME = "gigachat";
 
 // global constants
 const double LOGIN_PAGE_PADDING = 10.0;
+
+enum LoginState {
+  idle,
+  success,
+  failure,
+}

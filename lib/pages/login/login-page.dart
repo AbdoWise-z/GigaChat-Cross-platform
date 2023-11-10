@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/theme-provider.dart';
@@ -13,19 +14,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 40,
-        elevation: 0,
-        centerTitle: true,
-        leading: const Icon(Icons.close),
-        title: SizedBox(
-          height: 40,
-          width: 40,
-          child: Image.asset(
-            ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-          ),
-        ),
-      ),
+      appBar: AuthAppBar(context, leadingIcon: null, showDefault: true),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(35,35,35,100),
         child: SingleChildScrollView(
