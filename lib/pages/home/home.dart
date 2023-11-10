@@ -45,9 +45,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       );
     }
 
-    print(tabs);
-    print(_controller);
-
     setState(() {
       //the controller is ready .. lesgo
       _currentPage = p;
