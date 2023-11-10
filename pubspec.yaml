@@ -44,6 +44,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   provider: ^6.0.5
   path_provider:
+  photo_manager: ^2.8.0
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,7 @@ flutter:
   assets:
     - assets/giga-chat-logo-dark.png
     - assets/giga-chat-logo-light.png
+    - assets/create-post-popup.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

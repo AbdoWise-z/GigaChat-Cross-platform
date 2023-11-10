@@ -98,6 +98,13 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        dropdownMenuTheme: const DropdownMenuThemeData(
+          textStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        )
       );
     }else if (_themeName == "light"){
       _theme = ThemeData.light().copyWith(
