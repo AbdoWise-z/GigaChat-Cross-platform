@@ -34,7 +34,7 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
           context,
           MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: method,)));
     })){
-      toast.showToast("Some API Error happened ..");
+      Toast.showToast(context,"Some API Error happened ..");
     }
 
     setState(() {
@@ -47,7 +47,6 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    toast = Toast(context);
   }
 
   @override

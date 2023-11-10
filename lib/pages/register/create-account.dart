@@ -39,7 +39,6 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   void initState() {
     super.initState();
-    toast = Toast(context);
   }
 
   bool _loading = false;
@@ -76,7 +75,7 @@ class _CreateAccountState extends State<CreateAccount> {
         });
       }
     })) {
-      toast.showToast('Email is un valid');
+      Toast.showToast(context,'Email is un valid');
     }
     setState(() {
       _loading = false;

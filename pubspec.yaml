@@ -38,7 +38,6 @@ dependencies:
   like_button: ^2.0.5
   google_fonts: ^6.1.0
   image_picker: ^1.0.4
-  fluttertoast: ^8.2.3
 
 
 

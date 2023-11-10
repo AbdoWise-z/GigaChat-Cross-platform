@@ -41,7 +41,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
       Navigator.popUntil(context, (r) => true);
       Navigator.pushNamed(context, "/");
     })){
-      toast.showToast("Wrong password!");
+      Toast.showToast(context,"Wrong password!",width: 20);
       setState(() {
         _loading = false;
       });
@@ -54,7 +54,6 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
     password = "";
     authProvider = Auth.getInstance(context);
     logInPressed = false;
-    toast = Toast(context);
   }
 
   @override
