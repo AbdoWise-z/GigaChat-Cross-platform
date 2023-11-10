@@ -5,6 +5,7 @@ import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
+import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -50,6 +51,10 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
         ),
       );
     });
+
+    if (methods == null){
+      Toast.showToast(context, "API Error ");
+    }
 
     setState(() {
       _loading = false;

@@ -82,6 +82,7 @@ SliverAppBar buildAppBar(BuildContext context , bool pinned , String? userImage 
         fontSize: 20,
       ),
     ),
+    centerTitle: true,
     actions: actions.map((e) => IconButton(icon: Icon(e.icon), onPressed: e.onClick,)).toList(growable: false),
     bottom: tabs != null && controller != null ? TabBar(
       indicatorWeight: 3,

@@ -38,7 +38,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
     });
 
     if (! await authProvider.login(widget.username, password!, () {
-      Navigator.popUntil(context, (r) => true);
+      Navigator.popUntil(context, (r) => false);
       Navigator.pushNamed(context, "/");
     })){
       Toast.showToast(context,"Wrong password!",width: 20);

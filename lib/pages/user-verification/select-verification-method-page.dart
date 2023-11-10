@@ -52,7 +52,6 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
     setState(() {
       _loading = false;
     });
-
   }
 
   @override

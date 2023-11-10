@@ -87,12 +87,12 @@ class _CreateAccountState extends State<CreateAccount> {
     bool isButtonDisabled = formKey.currentState == null || inputDOB.text.isEmpty || inputName.text.isEmpty
         || inputEmail.text.isEmpty || !formKey.currentState!.validate();
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
-      body: Stack(
-        children: [
-          Column(
+    return Stack(
+      children: [
+        Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
+          body: Column(
             children: [
               Expanded(
                 child: Padding(
@@ -184,44 +184,44 @@ class _CreateAccountState extends State<CreateAccount> {
               ),
             ],
           ),
-          Visibility(
-            visible: _loading,
-            child: const Positioned.fill(child: BlockingLoadingPage()),
+          bottomSheet: SizedBox(
+            height: dateFocusNode.hasFocus? 170 : 70,
+            child: Column(
+              children: [
+                AuthFooter(
+                    disableRightButton: isButtonDisabled,
+                    showLeftButton: false,
+                    leftButtonLabel: "",
+                    rightButtonLabel: "Next",
+                    onLeftButtonPressed: (){},
+                    onRightButtonPressed: _validateEmail
+                ),
+                Visibility(
+                    visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
+                    child: SizedBox(
+                      height: 100,
+                      child: CupertinoDatePicker(
+                        mode: CupertinoDatePickerMode.date,
+                        initialDateTime: DateTime.now(),
+                        maximumDate: DateTime.now(),
+                        onDateTimeChanged: (input){
+                          setState(() {
+                            inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
+                            nonFormattedDate = input;
+                          });
+                        },
+                      ),
+                    )
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
-      bottomSheet: SizedBox(
-        height: dateFocusNode.hasFocus? 170 : 70,
-        child: Column(
-          children: [
-            AuthFooter(
-                disableRightButton: isButtonDisabled,
-                showLeftButton: false,
-                leftButtonLabel: "",
-                rightButtonLabel: "Next",
-                onLeftButtonPressed: (){},
-                onRightButtonPressed: _validateEmail
-            ),
-            Visibility(
-                visible: dateFocusNode.hasFocus,  //visible when date text_field is focused
-                child: SizedBox(
-                  height: 100,
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.date,
-                    initialDateTime: DateTime.now(),
-                    maximumDate: DateTime.now(),
-                    onDateTimeChanged: (input){
-                      setState(() {
-                        inputDOB.text = DateFormat.yMMMMd('en_US').format(input);
-                        nonFormattedDate = input;
-                      });
-                    },
-                  ),
-                )
-            ),
-          ],
+         ),
+        Visibility(
+          visible: _loading,
+          child: const Positioned.fill(child: BlockingLoadingPage()),
         ),
-      ),
-     );
+      ],
+    );
   }
 }

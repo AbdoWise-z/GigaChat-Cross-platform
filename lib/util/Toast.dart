@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class Toast{
-  static void showToast(BuildContext context,String message,{double width = 8}) {
+  static void showToast(BuildContext context,String message,{double width = 16}) {
     if(!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

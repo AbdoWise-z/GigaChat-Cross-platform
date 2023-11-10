@@ -55,15 +55,12 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           ),
         );
       });
-
       if (methods == null){
         setState(() {
           _loading = false;
         });
         return;
       }
-
-
     }else{
       Navigator.pushReplacement(
           context,

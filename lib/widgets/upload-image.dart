@@ -89,7 +89,7 @@ class UploadImageState extends State<UploadImage> {
                 child: const Text("Take photo"),
                 onTap: () async {
                   selectedImage = await getImageFromCamera();
-                  if(selectedImage.path != ""){
+                  if(selectedImage.path.isNotEmpty){
                     setState(() {
                       done = true;
                       widget.onImagePicked(selectedImage);
@@ -100,7 +100,7 @@ class UploadImageState extends State<UploadImage> {
               PopupMenuItem(
                   onTap: () async {
                     selectedImage = await getImageFromGallery();
-                    if(selectedImage.path != ""){
+                    if(selectedImage.path.isNotEmpty){
                       setState(() {
                         done = true;
                         widget.onImagePicked(selectedImage);
@@ -112,7 +112,7 @@ class UploadImageState extends State<UploadImage> {
             ],
           );
         },
-        child: done? CircleAvatar(
+        child: done ? CircleAvatar(
           radius: 100,
           backgroundImage: FileImage(selectedImage),
         ):

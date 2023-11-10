@@ -1,4 +1,5 @@
 
+import "dart:io";
 import "dart:math";
 
 import "package:gigachat/base.dart";
@@ -12,6 +13,7 @@ class User {
   String iconLink;
   String id;
   String? auth;
+  bool active;
 
   bool get isLocalUser {
     return auth != null;
@@ -24,7 +26,8 @@ class User {
     this.following = 1,
     this.iconLink = "https://i.imgur.com/7SbtKvw.png",
     this.id = "Abdo1654",
-    this.auth,
+    this.auth = "Token should go here",
+    this.active = true,
   });
 
 }
@@ -48,6 +51,12 @@ Future<bool> apiRequestVerificationMethod(ContactMethod method) async {
   return Random().nextBool();
 }
 
+Future<User?> apiVerifyMethod(ContactMethod method , String code) async {
+  await Future.delayed(const Duration(milliseconds: 500));
+  return User();
+}
+
+
 Future<bool> apiIsEmailValid(String email) async {
   await Future.delayed(const Duration(milliseconds: 500));
   return Random().nextBool();
@@ -57,6 +66,22 @@ Future<ContactMethod?> apiRegister(String name , String email , String dob) asyn
   ContactMethod method = ContactMethod(method: ContactMethodType.EMAIL, data: email , title: "Email" , disc: "we will send an email containing a code to \"$email\".");
   await Future.delayed(const Duration(milliseconds: 500));
   return method;
+}
+
+Future<bool> apiCreateNewPassword(String token , String password) async {
+  await Future.delayed(const Duration(milliseconds: 500));
+  return Random().nextBool();
+}
+
+Future<bool> apiSetProfileImage(String token , File img) async {
+  await Future.delayed(const Duration(milliseconds: 500));
+  return Random().nextBool();
+}
+
+
+Future<bool> apiSetUsername(String token , String name) async {
+  await Future.delayed(const Duration(milliseconds: 500));
+  return Random().nextBool();
 }
 
 

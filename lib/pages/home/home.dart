@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/app-bar.dart';
 import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
@@ -23,9 +24,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
+
   //TODO: @Osama @Adel , replace with your pages
   final List<HomePageTab> _pages = [
-    DummyPage(),
+    FeedHomeTab(),
     DummyPage(),
     DummyPage(),
     DummyPage(),
@@ -42,6 +44,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         vsync: this,
       );
     }
+
+    print(tabs);
+    print(_controller);
 
     setState(() {
       //the controller is ready .. lesgo
@@ -85,12 +90,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ctx,
               _pages[_currentPage].isAppBarPinned(context),
               isLoggedIn ? value.getCurrentUser()!.iconLink : null,
-              _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search */
+              _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
               _pages[_currentPage].getSearchBar(context),
               _pages[_currentPage].getActions(context),
               _controller,
               _pages[_currentPage].getTabs(context),
-
             ),
           ],
           body: _controller != null ? TabBarView(

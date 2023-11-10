@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/base.dart';
@@ -59,6 +61,15 @@ class Auth extends ChangeNotifier{
     return false;
   }
 
+  Future<bool> verifyMethod(ContactMethod method , String code , void Function() success) async {
+    _currentUser = await apiVerifyMethod(method, code);
+    if (_currentUser != null){
+      success();
+      return true;
+    }
+    return false;
+  }
+
   Future<bool> isValidEmail(String email , void Function() onValid) async {
     var ok = await apiIsEmailValid(email);
     if (ok){
@@ -76,5 +87,34 @@ class Auth extends ChangeNotifier{
     }
     return false;
   }
+
+  Future<bool> createNewUserPassword(User user , String password , void Function() success) async {
+    bool ok = await apiCreateNewPassword(user.auth!, password);
+    if (ok){
+      success();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> setUserProfileImage(User user , File img , void Function() success) async {
+    bool ok = await apiSetProfileImage(user.auth!, img);
+    if (ok){
+      success();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> setUserUsername(User user , String name , void Function() success) async {
+    bool ok = await apiSetUsername(user.auth!, name);
+    if (ok){
+      success();
+      return true;
+    }
+    return false;
+  }
+
+
 
 }

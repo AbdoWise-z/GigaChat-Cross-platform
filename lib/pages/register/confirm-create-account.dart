@@ -32,7 +32,7 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
     if (! await Auth.getInstance(context).registerUser(name, email, date, (method) {
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: method,)));
+          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: true , method: method,)));
     })){
       Toast.showToast(context,"Some API Error happened ..");
     }
