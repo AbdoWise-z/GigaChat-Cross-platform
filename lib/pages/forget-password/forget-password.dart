@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/confirm-email.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -10,19 +12,6 @@ import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 import '../user-verification/select-verification-method-page.dart';
 
-List<ContactMethod> getUserContactMethods(String email) {
-  // TODO: move this function to Auth provider
-  // TODO: email must be hidden by stars
-  return [
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-    ContactMethod(contactWay: "Send an email to", contactTarget: email),
-  ];
-}
 
 const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
     "username associated with your account to change the password.";
@@ -49,8 +38,45 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     valid = email.isNotEmpty;
   }
 
+  bool _loading = false;
+  void _getContactMethods() async {
+    if (InputValidations.isValidEmail(email) == null) {
+      setState(() {
+        _loading = true;
+      });
+
+      var methods = await Auth.getInstance(context).getContactMethods(email , (m) {
+        Navigator.pushReplacement(context,
+          MaterialPageRoute(
+            builder: (context) =>
+                VerificationMethodPage(
+                    methods: m
+                ),
+          ),
+        );
+      });
+
+      if (methods == null){
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
+
+
+    }else{
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const BlockingLoadingPage();
+    }
+
     return Scaffold(
       appBar: AuthAppBar(
         context,
@@ -83,17 +109,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             AuthFooter(
               rightButtonLabel: "Next",
               disableRightButton: !valid,
-              onRightButtonPressed: (){
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                      InputValidations.isValidEmail(email) == null
-                          ? VerificationMethodPage(
-                          methods: getUserContactMethods(email))
-                          : ConfirmEmailPage(username: email)));
-
-              },
+              onRightButtonPressed: _getContactMethods,
 
               leftButtonLabel: "",
               onLeftButtonPressed: (){},

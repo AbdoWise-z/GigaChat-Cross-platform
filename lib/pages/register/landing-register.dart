@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +14,7 @@ class LandingRegisterPage extends StatelessWidget {
       appBar: AuthAppBar(context, leadingIcon:
       IconButton(
           onPressed: (){
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            Navigator.pop(context);
             },
           icon: const Icon(Icons.close))
       ),
@@ -136,7 +136,7 @@ class LandingRegisterPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: (){
-                      Navigator.pushNamed(context, LoginPage.pageRoute);
+                      Navigator.pushNamed(context, LandingLoginPage.pageRoute);
                     },
                     child: Text("Log in",
                       style: GoogleFonts.dmSans(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
+import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
@@ -24,7 +26,7 @@ class _NavDrawerState extends State<NavDrawer> {
           ),
           const SizedBox(height: 10,),
           const Text(
-            "Create an official GigaChat account to get the full experoence.",
+            "Create an official GigaChat account to get the full experience.",
             style: TextStyle(
               fontWeight: FontWeight.w500,
             ),
@@ -35,7 +37,7 @@ class _NavDrawerState extends State<NavDrawer> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // TODO : goto landing page with register in focus
+                Navigator.pushNamed(context, LandingRegisterPage.pageRoute);
               },
               style: ButtonStyle(
                   shape: MaterialStateProperty.all(
@@ -59,7 +61,7 @@ class _NavDrawerState extends State<NavDrawer> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {
-                // TODO : goto landing page with login in focus
+                Navigator.pushNamed(context, LandingLoginPage.pageRoute);
               },
               style: ButtonStyle(
                 shape: MaterialStateProperty.all(

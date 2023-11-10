@@ -1,14 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../providers/theme-provider.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class LandingLoginPage extends StatelessWidget {
+  const LandingLoginPage({Key? key}) : super(key: key);
   static const pageRoute = '/landing-login';
 
   @override

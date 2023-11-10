@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
@@ -26,7 +28,25 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
   bool isValid = false;
   late bool logInPressed;
   late final Auth authProvider;
-  late FToast fToast;
+  late final Toast toast;
+
+  bool _loading = false;
+
+  void _doLogin() async {
+    setState(() {
+      _loading = true;
+    });
+
+    if (! await authProvider.login(widget.username, password!, () {
+      Navigator.popUntil(context, (r) => true);
+      Navigator.pushNamed(context, "/");
+    })){
+      toast.showToast("Wrong password!");
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -34,14 +54,14 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
     password = "";
     authProvider = Auth.getInstance(context);
     logInPressed = false;
-    fToast = FToast();
-    fToast.init(context);
+    toast = Toast(context);
   }
 
   @override
   Widget build(BuildContext context) {
-
-    checkForLoginFailure();
+    if (_loading){
+      return const BlockingLoadingPage();
+    }
 
 
     return Scaffold(
@@ -116,9 +136,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
             rightButtonKey: const Key(PasswordLoginPage.loginButtonKey),
             rightButtonLabel: "Log in",
             disableRightButton: !isValid,
-            onRightButtonPressed: () async {
-              authProvider.login(widget.username, password!);
-            },
+            onRightButtonPressed: _doLogin,
 
             leftButtonLabel: "Forget password?",
             onLeftButtonPressed: (){
@@ -131,35 +149,5 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
         ],
       ),
     );
-  }
-
-  _showToast(String message) {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Colors.grey,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [Text(message),],
-      ),
-    );
-
-
-    fToast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
-    );
-  }
-
-
-  void checkForLoginFailure() async {
-      await Future.delayed(const Duration(milliseconds: 80));
-      if(authProvider.loginState == LoginState.success){
-        _showToast("Wrong password!");
-      }
-      authProvider.resetLoginState();
   }
 }

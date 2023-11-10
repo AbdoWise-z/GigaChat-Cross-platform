@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
@@ -32,8 +34,35 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
     isValidEmail = false;
   }
 
+  bool _loading = false;
+  void _getContactMethods() async {
+    setState(() {
+      _loading = true;
+    });
+
+    var methods = await Auth.getInstance(context).getContactMethods(email , (m) {
+      Navigator.pushReplacement(context,
+        MaterialPageRoute(
+          builder: (context) =>
+              VerificationMethodPage(
+                  methods: m
+              ),
+        ),
+      );
+    });
+
+    setState(() {
+      _loading = false;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const BlockingLoadingPage();
+    }
+
     return Scaffold(
       appBar: AuthAppBar(
         context,
@@ -65,13 +94,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
           AuthFooter(
             rightButtonLabel: "Next",
             disableRightButton: !isValidEmail,
-            onRightButtonPressed: () {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => VerificationMethodPage(
-                          methods: getUserContactMethods(email))));
-            },
+            onRightButtonPressed: _getContactMethods,
             leftButtonLabel: "",
             onLeftButtonPressed: () {},
             showLeftButton: false,

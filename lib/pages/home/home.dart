@@ -71,86 +71,84 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Auth>(
-      builder: (BuildContext context, value, Widget? child) {
-        bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
-        return SafeArea(
-          child: Scaffold(
-            drawerDragStartBehavior: DragStartBehavior.start,
-            drawer: const NavDrawer(),
-            body: NestedScrollView(
-              controller: _scrollController,
-              headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
-                buildAppBar(
-                  ctx,
-                  _pages[_currentPage].isAppBarPinned(context),
-                  isLoggedIn ? value.getCurrentUser()!.iconLink : null,
-                  _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search */
-                  _pages[_currentPage].getSearchBar(context),
-                  _pages[_currentPage].getActions(context),
-                  _controller,
-                  _pages[_currentPage].getTabs(context),
+    bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
+    Auth value = Auth.getInstance(context);
 
+    return SafeArea(
+      child: Scaffold(
+        drawerDragStartBehavior: DragStartBehavior.start,
+        drawer: const NavDrawer(),
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
+            buildAppBar(
+              ctx,
+              _pages[_currentPage].isAppBarPinned(context),
+              isLoggedIn ? value.getCurrentUser()!.iconLink : null,
+              _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search */
+              _pages[_currentPage].getSearchBar(context),
+              _pages[_currentPage].getActions(context),
+              _controller,
+              _pages[_currentPage].getTabs(context),
+
+            ),
+          ],
+          body: _controller != null ? TabBarView(
+            controller: _controller,
+            children: _pages[_currentPage].getTabsWidgets(context)!,
+          ) : _pages[_currentPage].getPage(context)!,
+        ),
+        floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),
+        bottomNavigationBar: AnimatedContainer(
+          height: _hidBottomControls ? 0 : 50,
+          duration: const Duration(milliseconds: 100),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
+            child: Row(
+              children: [
+
+                BottomBarItem(
+                  icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
+                  click: () => setPage(0),
+                  notify: _pages[0].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
+                  click: () => setPage(1),
+                  notify: _pages[1].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
+                  click: () => setPage(2),
+                  notify: _pages[2].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
+                  click: () => setPage(3),
+                  notify: _pages[3].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
+                  click: () => setPage(4),
+                  notify: _pages[4].getNotificationsCount(context),
                 ),
               ],
-              body: _controller != null ? TabBarView(
-                controller: _controller,
-                children: _pages[_currentPage].getTabsWidgets(context)!,
-              ) : _pages[_currentPage].getPage(context)!,
-            ),
-            floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),
-            bottomNavigationBar: AnimatedContainer(
-              height: _hidBottomControls ? 0 : 50,
-              duration: const Duration(milliseconds: 100),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
-                child: Row(
-                  children: [
-
-                    BottomBarItem(
-                      icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
-                      click: () => setPage(0),
-                      notify: _pages[0].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
-                      click: () => setPage(1),
-                      notify: _pages[1].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
-                      click: () => setPage(2),
-                      notify: _pages[2].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
-                      click: () => setPage(3),
-                      notify: _pages[3].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
-                      click: () => setPage(4),
-                      notify: _pages[4].getNotificationsCount(context),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

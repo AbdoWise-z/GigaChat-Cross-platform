@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/user-verification/verification-code-page.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
@@ -35,8 +37,30 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
     selectedMethod = methods[0];
   }
 
+  bool _loading = false;
+  void _requestVerify(ContactMethod m) async {
+    setState(() {
+      _loading = true;
+    });
+
+    await Auth.getInstance(context).requestVerificationMethod(m , () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: m,)));
+    });
+
+    setState(() {
+      _loading = false;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const BlockingLoadingPage();
+    }
+
     return Scaffold(
       appBar: AuthAppBar(
         context,
@@ -62,9 +86,9 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: methods
                     .map((method) => RadioListTile(
-                          title: Text(method.contactWay,
+                          title: Text(method.title,
                               style: contactTextStyle()),
-                          subtitle: Text(method.contactTarget,
+                          subtitle: Text(method.disc,
                               style: contactTextStyle()),
                           toggleable: false,
                           activeColor: Colors.blue,
@@ -88,10 +112,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         rightButtonLabel: "Next",
         disableRightButton: false,
         onRightButtonPressed: (){
-          Navigator.push(
-              context,
-              // TODO: call the api here
-              MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,)));
+          _requestVerify(selectedMethod!);
         },
 
         leftButtonLabel: "",

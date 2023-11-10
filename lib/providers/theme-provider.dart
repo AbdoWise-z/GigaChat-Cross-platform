@@ -98,6 +98,7 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
       );
     }else if (_themeName == "light"){
       _theme = ThemeData.light().copyWith(
@@ -161,6 +162,7 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
       );
     }
   }

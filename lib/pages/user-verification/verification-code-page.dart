@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
 import 'package:gigachat/pages/register/create-password.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -16,8 +18,8 @@ class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
   bool isRegister;
-
-  VerificationCodePage({super.key, required this.isRegister});
+  ContactMethod method;
+  VerificationCodePage({super.key, required this.isRegister , required this.method});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
@@ -38,8 +40,10 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
   }
 
   void enableResendEmail() async {
-
     for(int i = 60; i >= 1; i--){
+      if (!context.mounted){
+        return;
+      }
       setState(() {
         counter = i;
       });
@@ -47,6 +51,23 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     }
     setState(() {
       resendEmailIsEnabled = true;
+    });
+  }
+
+  bool _loading = false;
+  void _requestVerify(ContactMethod m) async {
+    setState(() {
+      _loading = true;
+    });
+
+    await Auth.getInstance(context).requestVerificationMethod(m , () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: m,)));
+    });
+
+    setState(() {
+      _loading = false;
     });
   }
 
@@ -85,14 +106,19 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                 }),
             const SizedBox(height: 25,),
             GestureDetector(
-              onTap: resendEmailIsEnabled? (){
+              onTap: resendEmailIsEnabled && !_loading ? (){
                 //TODO: send confirmation code request
                 setState(() {
                   resendEmailIsEnabled = false;
                   enableResendEmail();
                 });
               } : null,
-              child: Text(resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",style: TextStyle(color: resendEmailIsEnabled? Colors.blue : Colors.grey),),
+              child: Text(
+                resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",
+                style: TextStyle(
+                    color: resendEmailIsEnabled && !_loading ? Colors.blue : Colors.grey
+                ),
+              ),
             ),
             const Expanded(child: SizedBox()),
             AuthFooter(

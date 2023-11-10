@@ -1,17 +1,62 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/util/contact-method.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../user-verification/verification-code-page.dart';
-class ConfirmCreateAccount extends StatelessWidget {
+class ConfirmCreateAccount extends StatefulWidget {
   const ConfirmCreateAccount({Key? key}) : super(key: key);
   static const pageRoute = '/confirm-create-account';
+
   @override
-  Widget build(BuildContext context) {
+  State<ConfirmCreateAccount> createState() => _ConfirmCreateAccountState();
+}
+
+class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
+
+  bool _loading = false;
+  void _doRegister() async {
+    setState(() {
+      _loading = true;
+    });
 
     Map accountData = ModalRoute.of(context)!.settings.arguments as Map;
+    String name = accountData["Name"].text;
+    String email = accountData["Email"].text;
+    String date = accountData["DOB"].text;
 
+    if (! await Auth.getInstance(context).registerUser(name, email, date, (method) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: method,)));
+    })){
+      toast.showToast("Some API Error happened ..");
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  late final Toast toast;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    toast = Toast(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const BlockingLoadingPage();
+    }
+
+    Map accountData = ModalRoute.of(context)!.settings.arguments as Map;
     return Scaffold(
         appBar: AppBar(
           toolbarHeight: 40,
@@ -140,11 +185,7 @@ class ConfirmCreateAccount extends StatelessWidget {
                                 }
                               }
                               else{
-                                Navigator.pushReplacementNamed(
-                                    context,
-                                    VerificationCodePage.pageRoute,
-                                    arguments: accountData["Email"].text,
-                                );
+                                _doRegister();
                               }
                             },
                           style: TextButton.styleFrom(

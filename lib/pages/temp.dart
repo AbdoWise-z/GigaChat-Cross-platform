@@ -22,7 +22,7 @@ class _TempPageState extends State<TempPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(onPressed: () {
-              Auth.getInstance(context).login("username", "password");
+              Auth.getInstance(context).login("username", "password" , () {});
             }, child: const Text("Login"))
           ],
         ),

@@ -4,7 +4,7 @@ import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
-import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
@@ -52,33 +52,38 @@ class _GigaChatState extends State<GigaChat> {
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
       ],
       child: Consumer<ThemeProvider>(
-        builder: (_ , val , __) {
+        builder: (_ , theme , __) {
           // print("theme updated");
-          return MaterialApp(
-            theme: val.getTheme,
-            title: "GigaChat",
-            initialRoute: widget.initialRoute ?? LoginPage.pageRoute,
-            routes: {
-              Tweet.pageRoute : (context) => const FeedWidget(),
-              Home.pageRoute : (context) => const Home(),
+          return Consumer<Auth>(
+            builder: (___ , auth , ____) {
+              return MaterialApp(
+                theme: theme.getTheme,
+                title: "GigaChat",
+                initialRoute: widget.initialRoute ?? Home.pageRoute,
+                routes: {
+                  Tweet.pageRoute : (context) => const FeedWidget(),
+                  Home.pageRoute : (context) => const Home(),
 
-              LoginPage.pageRoute : (context) => const LoginPage(),
-              UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
+                  LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
+                  UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
 
-              ForgetPassword.pageRoute : (context) => ForgetPassword(),
-              VerificationCodePage.pageRoute : (context) => VerificationCodePage(isRegister: false,),
-              CreateAccount.pageRoute : (context) => const CreateAccount(),
-              LoadingPage.pageRoute : (context) => const LoadingPage(),
-              CreatePassword.pageRoute : (context) =>  CreatePassword(),
-              LandingRegisterPage.pageRoute : (context) => LandingRegisterPage(),
-              ChooseUsername.pageRoute : (context) => ChooseUsername(),
-              PickProfilePicture.pageRoute : (context) => PickProfilePicture(),
-              ConfirmCreateAccount.pageRoute : (context) => ConfirmCreateAccount(),
-            },
+                  ForgetPassword.pageRoute : (context) => ForgetPassword(),
+                  CreateAccount.pageRoute : (context) => const CreateAccount(),
+                  LoadingPage.pageRoute : (context) => const LoadingPage(),
+                  CreatePassword.pageRoute : (context) => const CreatePassword(),
+                  LandingRegisterPage.pageRoute : (context) => const LandingRegisterPage(),
+                  ChooseUsername.pageRoute : (context) => const ChooseUsername(),
+                  PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
+                  ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
+                },
+              );
+            }
           );
         },
       ),
     );
   }
 }
+
+
 

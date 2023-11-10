@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
