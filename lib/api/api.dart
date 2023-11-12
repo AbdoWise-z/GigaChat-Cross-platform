@@ -23,6 +23,7 @@ class ApiResponse<T> {
     print("ApiResponse{code: $code , data: $data , body: $responseBody}");
   }
 
+  //TODO: add codes here
   static const int CODE_SUCCESS = 200;
   static const int CODE_SUCCESS_CREATED = 201;
   static const int CODE_SUCCESS_NO_BODY = 204;
@@ -79,6 +80,7 @@ class ApiPath{
 
   const ApiPath._(String p) : _path = p;
 
+  //TODO: add paths here
   static ApiPath checkExistedEmail       = const ApiPath._("/api/user/checkExistedEmail");
   static ApiPath signUp                  = const ApiPath._("/api/user/signup");
   static ApiPath checkBirthDate          = const ApiPath._("/api/user/checkBirthDate");
