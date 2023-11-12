@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -83,10 +84,21 @@ class _NavDrawerState extends State<NavDrawer> {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                child: Icon(
-                  Icons.ac_unit_sharp,
-                  size: 34,
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Container(
+                  width: 74,
+                  height: 74,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(user.iconLink),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      border: Border.all(
+                        width: 0,
+                      )
+                  ),
                 ),
               ),
               const Expanded(child: SizedBox()),

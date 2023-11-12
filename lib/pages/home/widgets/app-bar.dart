@@ -34,18 +34,21 @@ SliverAppBar buildAppBar(BuildContext context , bool pinned , String? userImage 
         onPressed: () => Scaffold.of(context).openDrawer(),
         icon: userImage == null ? const Icon(
             Icons.person_outline_outlined
-        ) : Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(userImage),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(50)),
-              border: Border.all(
-                width: 0,
-              )
+        ) : Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(userImage),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(50)),
+                border: Border.all(
+                  width: 0,
+                )
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -48,35 +49,42 @@ class _CreateAccountState extends State<CreateAccount> {
       _loading = true;
     });
 
-    if (!await Auth.getInstance(context).isValidEmail(inputEmail.text, () async {
-      setState(() {
-        _loading = false;
-      });
+    Auth auth = Auth.getInstance(context);
 
-      final result = await Navigator.pushNamed(
-        context,
-        ConfirmCreateAccount.pageRoute,
-        arguments: {
-          "Name" : inputName,
-          "Email" : inputEmail,
-          "DOB" : inputDOB,
-          "nonFormattedDate" : nonFormattedDate,
-        },
-      );
-      if(result == "Name tapped"){
-        nameFocus.requestFocus();
+    await auth.isValidEmail(
+      inputEmail.text ,
+      success: (res) async {
+        final result = await Navigator.pushNamed(
+          context,
+          ConfirmCreateAccount.pageRoute,
+          arguments: {
+            "Name" : inputName,
+            "Email" : inputEmail,
+            "DOB" : inputDOB,
+            "nonFormattedDate" : nonFormattedDate,
+          },
+        );
+        if(result == "Name tapped"){
+          nameFocus.requestFocus();
+        }
+        if(result == "Email tapped"){
+          emailFocus.requestFocus();
+        }
+        if(result == "DOB tapped"){
+          setState(() {
+            dateFocusNode.requestFocus();
+          });
+        }
+      },
+      error: (res) {
+        if (res.code == ApiResponse.CODE_SUCCESS){
+          Toast.showToast(context, "Email already exist");
+        } else {
+          Toast.showToast(context, Api.errorToString(res.code));
+        }
       }
-      if(result == "Email tapped"){
-        emailFocus.requestFocus();
-      }
-      if(result == "DOB tapped"){
-        setState(() {
-          dateFocusNode.requestFocus();
-        });
-      }
-    })) {
-      Toast.showToast(context,'Email is un valid');
-    }
+    );
+
     setState(() {
       _loading = false;
     });
