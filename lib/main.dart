@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
@@ -20,8 +24,6 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/post.dart';
 import 'package:provider/provider.dart';
-
-import 'pages/user-verification/verification-code-page.dart';
 
 
 void main() async {

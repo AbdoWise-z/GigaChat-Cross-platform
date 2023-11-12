@@ -1,13 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/app-bar.dart';
 import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/theme-provider.dart';
-import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class Home extends StatefulWidget {
@@ -34,6 +36,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     DummyPage(),
   ];
 
+
+  Future<void> test() async{
+    //TODO: was just testing the upload function
+    Permission.manageExternalStorage.request();
+    var f = File("/sdcard/Download/0ac84d5117148db057942650cf7c23c1.jpg");
+    print (await f.length());
+    await f.readAsBytes();
+
+    var k = await Account.apiSetProfileImage(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTExZjExYTYzYzQ4NmMyNjVjYzFmNiIsImlhdCI6MTY5OTgxNzU2MiwiZXhwIjoxNzA3NTkzNTYyfQ.e_M-aIScz4zagCyuV3guFcUED4zYuYm7RSrp1vnei1A",
+      f,
+    );
+    print("code: ${k.code}");
+    print(k.responseBody);
+
+
+  }
+
   void setPage(int p){
     _controller = null;
     AppBarTabs? tabs = _pages[p].getTabs(context);
@@ -53,6 +73,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    //test();
     super.initState();
     setPage(0);
     _scrollController.addListener(() {

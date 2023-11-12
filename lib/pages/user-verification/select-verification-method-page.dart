@@ -43,15 +43,31 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
       _loading = true;
     });
 
-    await Auth.getInstance(context).requestVerificationMethod(m , () {
-      Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: false,method: m,)));
-    });
+    //TODO: complete this !!!
 
-    setState(() {
-      _loading = false;
-    });
+    Auth auth = Auth.getInstance(context);
+
+    auth.requestVerificationMethod(
+      m ,
+      success: (res) {
+        setState(() {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerificationCodePage(
+                isRegister: false,
+                method: m,
+              ),
+            ),
+          );
+        });
+      },
+      error: (res) {
+        setState(() {
+          _loading = false;
+        });
+      },
+    );
   }
 
   @override

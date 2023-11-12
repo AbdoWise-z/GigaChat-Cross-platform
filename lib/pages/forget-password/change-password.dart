@@ -44,18 +44,19 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       throw "This should never happen ...";
     }
 
-    if (!await auth.createNewUserPassword(auth.getCurrentUser()! , newPassword , () {
-      setState(() {
-        _loading = false;
-        Navigator.popUntil(context, (route) => false);
-        Navigator.pushNamed(context, Home.pageRoute);
-      });
-    })) {
-      setState(() {
-        _loading = false;
-        Toast.showToast(context, "API Error ..");
-      });
-    }
+    //TODO: fix this
+    // if (!await auth.createNewUserPassword(auth.getCurrentUser()! , newPassword , () {
+    //   setState(() {
+    //     _loading = false;
+    //     Navigator.popUntil(context, (route) => false);
+    //     Navigator.pushNamed(context, Home.pageRoute);
+    //   });
+    // })) {
+    //   setState(() {
+    //     _loading = false;
+    //     Toast.showToast(context, "API Error ..");
+    //   });
+    // }
   }
 
   @override
