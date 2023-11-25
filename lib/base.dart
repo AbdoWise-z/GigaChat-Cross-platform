@@ -1,5 +1,5 @@
 //TODO: add constants here
-const String API_LINK = "13.48.45.126:3000";
+const String API_LINK = "51.20.216.159";
 const Duration API_TIMEOUT = Duration(seconds: 5);
 
 const String APP_NAME = "gigachat";
