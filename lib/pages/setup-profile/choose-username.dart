@@ -42,18 +42,29 @@ class _ChooseUsernameState extends State<ChooseUsername> {
       throw "This should never happen ...";
     }
 
-    if (!await auth.setUserUsername(auth.getCurrentUser()! , name , () {
-      setState(() {
-        _loading = false;
-        Navigator.popUntil(context, (route) => false);
-        Navigator.pushNamed(context, Home.pageRoute);
-      });
-    })) {
-      setState(() {
-        _loading = false;
-        Toast.showToast(context, "API Error ..");
-      });
-    }
+    auth.setUserUsername(
+      name ,
+      success: (res) {
+        setState(() {
+          print(res.code);
+          print(res.responseBody);
+
+
+          _loading = false;
+          Navigator.popUntil(context, (route) => false);
+          Navigator.pushNamed(context, Home.pageRoute);
+        });
+      },
+      error: (res) {
+        setState(() {
+          print(res.code);
+          print(res.responseBody);
+
+          _loading = false;
+          Toast.showToast(context, "API Error ..");
+        });
+      },
+    );
   }
 
   @override

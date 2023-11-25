@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/base.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/util/user-data.dart';
 import 'package:provider/provider.dart';
@@ -16,14 +16,14 @@ class Auth extends ChangeNotifier{
 
   User? _currentUser = User();
 
-  Future<bool> login(String username , String password , void Function() success ) async {
-    _currentUser = await apiLogin(username, password);
-    if (_currentUser != null){
-      //failed
-      success();
-      return true;
+  Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
+    var res = await Account.apiLogin(username , password);
+    if (res.data != null){
+      _currentUser = res.data;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
   }
 
   User? getCurrentUser(){
@@ -34,7 +34,7 @@ class Auth extends ChangeNotifier{
     if (_currentUser == null) {
       return;
     }
-    bool ok = await apiLogout(_currentUser!);
+    bool ok = await Account.apiLogout(_currentUser!);
     if (ok){
       _currentUser = null;
     }
@@ -46,74 +46,82 @@ class Auth extends ChangeNotifier{
   }
 
   Future<List<ContactMethod>?> getContactMethods(String email , void Function(List<ContactMethod>) success ) async {
-    var methods = await apiGetContactMethods(email);
+    var methods = await Account.apiGetContactMethods(email);
     if (methods != null){
       success(methods);
     }
     return methods;
   }
 
-  Future<bool> requestVerificationMethod(ContactMethod method , void Function() success) async {
-    var ok = await apiRequestVerificationMethod(method);
-    if (ok){
-      success();
-      return true;
+  Future<void> requestVerificationMethod(ContactMethod method , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiRequestVerificationMethod(method);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
   }
 
-  Future<bool> verifyMethod(ContactMethod method , String code , void Function() success) async {
-    _currentUser = await apiVerifyMethod(method, code);
-    if (_currentUser != null){
-      success();
-      return true;
+  Future<void> verifyMethod(ContactMethod method , String code , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
+    var res = await Account.apiVerifyMethod(method , code);
+    if (res.data != null){
+      _currentUser = res.data;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
   }
 
-  Future<bool> isValidEmail(String email , void Function() onValid) async {
-    var ok = await apiIsEmailValid(email);
-    if (ok){
-      onValid();
-      return true;
+  Future<void> isValidEmail(String email , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiIsEmailValid(email);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
+    return;
   }
 
-  Future<bool> registerUser(String name , String email , String dob , void Function(ContactMethod) success) async {
-    var k = await apiRegister(name, email, dob);
-    if (k != null){
-      success(k);
-      return true;
+  Future<void> registerUser(String name , String email , String dob , { void Function(ApiResponse<ContactMethod>)? success , void Function(ApiResponse<ContactMethod>)? error}) async {
+    var res = await Account.apiRegister(name , email , dob);
+    if (res.code == ApiResponse.CODE_SUCCESS){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
+    return;
   }
 
-  Future<bool> createNewUserPassword(User user , String password , void Function() success) async {
-    bool ok = await apiCreateNewPassword(user.auth!, password);
-    if (ok){
-      success();
-      return true;
+  Future<void> createNewUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiCreateNewPassword(_currentUser!.auth , password);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
+    return;
   }
 
-  Future<bool> setUserProfileImage(User user , File img , void Function() success) async {
-    bool ok = await apiSetProfileImage(user.auth!, img);
-    if (ok){
-      success();
-      return true;
+  Future<void> setUserProfileImage(File img , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
+    var res = await Account.apiSetProfileImage(_currentUser!.auth , img);
+    if (res.data != null){
+      _currentUser!.iconLink = res.data!;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
   }
 
-  Future<bool> setUserUsername(User user , String name , void Function() success) async {
-    bool ok = await apiSetUsername(user.auth!, name);
-    if (ok){
-      success();
-      return true;
+  Future<void> setUserUsername(String name , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiSetUsername(_currentUser!.auth , name);
+    if (res.data!){
+      //update the new username
+      _currentUser!.id = name;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
     }
-    return false;
+    return;
   }
 
 

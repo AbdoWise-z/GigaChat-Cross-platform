@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -24,18 +25,31 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
       _loading = true;
     });
 
+    Auth auth = Auth.getInstance(context);
+
     Map accountData = ModalRoute.of(context)!.settings.arguments as Map;
     String name = accountData["Name"].text;
     String email = accountData["Email"].text;
-    String date = accountData["DOB"].text;
+    DateTime date = accountData["nonFormattedDate"];
 
-    if (! await Auth.getInstance(context).registerUser(name, email, date, (method) {
-      Navigator.pushReplacement(
+    await auth.registerUser(
+      name, email, "${date.month}-${date.day}-${date.year}",
+      success: (res) {
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => VerificationCodePage(isRegister: true , method: method,)));
-    })){
-      Toast.showToast(context,"Some API Error happened ..");
-    }
+          MaterialPageRoute(
+            builder: (context) => VerificationCodePage(
+              isRegister: true ,
+              method: res.data!,
+            ),
+          ),
+        );
+      },
+      error: (res) {
+        print(res.responseBody);
+        Toast.showToast(context, Api.errorToString(res.code));
+      }
+    );
 
     setState(() {
       _loading = false;

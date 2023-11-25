@@ -32,17 +32,17 @@ class _PickProfilePictureState extends State<PickProfilePicture> {
       throw "This should never happen ...";
     }
 
-    if (!await auth.setUserProfileImage(auth.getCurrentUser()! , img , () {
-      setState(() {
+    await auth.setUserProfileImage(
+      img,
+      success: (res) {
         _loading = false;
         Navigator.pushReplacementNamed(context, ChooseUsername.pageRoute);
-      });
-    })) {
-      setState(() {
+      },
+      error: (res) {
         _loading = false;
         Toast.showToast(context, "API Error ..");
-      });
-    }
+      }
+    );
   }
 
   @override

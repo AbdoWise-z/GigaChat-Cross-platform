@@ -33,17 +33,35 @@ class _CreatePasswordState extends State<CreatePassword> {
       throw "This should never happen ...";
     }
 
-    if (!await auth.createNewUserPassword(auth.getCurrentUser()! , newPassword , () {
-      setState(() {
-        _loading = false;
-        Navigator.pushReplacementNamed(context, PickProfilePicture.pageRoute);
-      });
-    })) {
-      setState(() {
-        _loading = false;
-        Toast.showToast(context, "API Error ..");
-      });
-    }
+    auth.createNewUserPassword(
+      newPassword ,
+      success: (res) async {
+        await auth.login(
+            auth.getCurrentUser()!.email,
+            newPassword,
+            success: (res) {
+              setState(() {
+                print(res.code);
+                print(res.responseBody);
+                _loading = false;
+                Navigator.pushReplacementNamed(context, PickProfilePicture.pageRoute);
+              });
+            },
+            error: (res){
+              throw "WTF ??";
+            }
+        );
+      },
+      error: (res) {
+        setState(() {
+          print(res.code);
+          print(res.responseBody);
+
+          _loading = false;
+          Toast.showToast(context, "API Error ..");
+        });
+      },
+    );
   }
 
   @override

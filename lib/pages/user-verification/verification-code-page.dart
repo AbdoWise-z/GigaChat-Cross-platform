@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
@@ -64,18 +65,24 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
       counter = 60;
     });
 
-    if (!await Auth.getInstance(context).requestVerificationMethod(m , () {
-      setState(() {
-        _resendLoading = false;
-        resendEmailIsEnabled = false;
-        enableResendEmail();
-      });
-    })) {
-      setState(() {
-        _resendLoading = false;
-        resendEmailIsEnabled = true;
-      });
-    }
+    Auth auth = Auth.getInstance(context);
+
+    auth.requestVerificationMethod(
+      m ,
+      success: (res) {
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = false;
+          enableResendEmail();
+        });
+      },
+      error: (res) {
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = true;
+        });
+      },
+    );
   }
 
   bool _loading = false;
@@ -86,21 +93,31 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
       _loading = true;
     });
 
-    if (!await Auth.getInstance(context).verifyMethod(m , code , () {
-      setState(() {
+    Auth auth = Auth.getInstance(context);
+
+    await auth.verifyMethod(
+      m,
+      code,
+
+      success: (res) {
         if (widget.isRegister){
           Navigator.pushReplacementNamed(context, CreatePassword.pageRoute);
         }else{
           Navigator.push(context, MaterialPageRoute(builder: (context) => const NewPasswordPage()));
         }
-        _loading = false;
-      });
-    })) {
-      setState(() {
-        _loading = false;
-        Toast.showToast(context, "Wrong code");
-      });
-    }
+      },
+      error: (res) {
+        print(res.code);
+        print(res.responseBody);
+        if (res.code == ApiResponse.CODE_NOT_AUTHORIZED){
+          Toast.showToast(context, "Wrong code");
+        }
+      },
+    );
+
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
