@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 
 import 'menu-fab.dart';
 

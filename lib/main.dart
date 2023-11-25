@@ -62,6 +62,10 @@ class _GigaChatState extends State<GigaChat> {
                 theme: theme.getTheme,
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? Home.pageRoute,
+                builder: (ctx , child) {
+                  if (child == null) return SizedBox.shrink();
+                  return child;
+                },
                 routes: {
                   Tweet.pageRoute : (context) => const FeedWidget(),
                   Home.pageRoute : (context) => const Home(),
