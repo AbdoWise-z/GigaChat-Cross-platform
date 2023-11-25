@@ -1,11 +1,19 @@
-
+enum ContactMethodType{
+    EMAIL,
+    PHONE,
+}
 
 class ContactMethod
 {
-    final String contactWay;
-    final String contactTarget;
+    final ContactMethodType method;
+    final String? data;
+    final String title;
+    final String disc;
+
     const ContactMethod({
-        required this.contactWay,
-        required this.contactTarget
+        required this.method,
+        required this.data,
+        required this.title,
+        required this.disc
     });
 }

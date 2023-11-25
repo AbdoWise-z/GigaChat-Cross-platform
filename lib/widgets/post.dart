@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
-import 'package:like_button/like_button.dart';
 
 class Tweet extends StatelessWidget {
   static String pageRoute = "/test";
@@ -12,9 +12,11 @@ class Tweet extends StatelessWidget {
   final User tweetOwner;
   final TweetData tweetData;
   late final List<Widget> actionButtons;
+  bool? isRetweet;
 
-  Tweet({super.key, required this.tweetOwner, required this.tweetData}) {
+  Tweet({super.key, required this.tweetOwner, required this.tweetData,required this.isRetweet}) {
     // TODO: we need to handle if the number is too big in the post provider processing
+    isRetweet ??= false;
     actionButtons = [
       TweetActionButton(
         icon: FontAwesomeIcons.comment,
@@ -65,7 +67,6 @@ class Tweet extends StatelessWidget {
                 // media display here
                 Visibility(
                   // TODO: visibility should be triggered if the post has some media
-                  visible: true,
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 10, 0, 5),
                     width: double.infinity,
@@ -75,7 +76,8 @@ class Tweet extends StatelessWidget {
                     ),
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: Image.network(tweetData.media)),
+                        child: Image.network(tweetData.media),
+                    )
                   ),
                 ),
                 Container(
@@ -139,7 +141,7 @@ class Tweet extends StatelessWidget {
 
   Widget buildSheet(BuildContext context,User tweetOwner) {
     return ClipRRect(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0,40,0,0),
         child: Column(
@@ -169,7 +171,7 @@ class Tweet extends StatelessWidget {
       style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          padding: EdgeInsets.all(15)
+          padding: const EdgeInsets.all(15)
       ),
       onPressed: () {},
       child: Row(

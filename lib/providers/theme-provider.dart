@@ -98,13 +98,7 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
-        dropdownMenuTheme: const DropdownMenuThemeData(
-          textStyle: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        )
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
       );
     }else if (_themeName == "light"){
       _theme = ThemeData.light().copyWith(
@@ -168,6 +162,7 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
       );
     }
   }

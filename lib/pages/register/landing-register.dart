@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/create-account.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../providers/theme-provider.dart';
 
 class LandingRegisterPage extends StatelessWidget {
   const LandingRegisterPage({Key? key}) : super(key: key);
@@ -13,18 +11,12 @@ class LandingRegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 40,
-        elevation: 0,
-        centerTitle: true,
-        leading: const Icon(Icons.close),
-        title: SizedBox(
-          height: 40,
-          width: 40,
-          child: Image.asset(
-            ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-          ),
-        ),
+      appBar: AuthAppBar(context, leadingIcon:
+      IconButton(
+          onPressed: (){
+            Navigator.pop(context);
+            },
+          icon: const Icon(Icons.close))
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(35,35,35,100),
@@ -52,12 +44,12 @@ class LandingRegisterPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 35,
-                        height: 35,
+                        width: 25,
+                        height: 25,
                         child: Image.asset('assets/google-logo-icon.png')
                       ),
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.symmetric(vertical: 10,horizontal: 8),
                         child: Text(
                           "Continue with Google",
                           style: TextStyle(
@@ -144,7 +136,7 @@ class LandingRegisterPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: (){
-                      Navigator.pushNamed(context, LoginPage.pageRoute);
+                      Navigator.pushNamed(context, LandingLoginPage.pageRoute);
                     },
                     child: Text("Log in",
                       style: GoogleFonts.dmSans(

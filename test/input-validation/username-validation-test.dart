@@ -13,9 +13,9 @@ void main() {
     ["im MoA", InputValidations.invalidInput],
     ["StarBoy96", null],
   ];
-  int numberOfPasswords = usernameTestVector.length;
+  int numberOfTests = usernameTestVector.length;
 
-  for (int i = 0; i < numberOfPasswords; i++) {
+  for (int i = 0; i < numberOfTests; i++) {
     test("username validation: test number #${i + 1}", () {
       expect(InputValidations.isValidUsername(usernameTestVector[i][0]),
           usernameTestVector[i][1]);

@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import '../../base.dart';
 
 
 class TextDataFormField extends StatefulWidget {
@@ -10,6 +9,8 @@ class TextDataFormField extends StatefulWidget {
   String? value;
   bool? isEnabled;
   String? label;
+  TextInputType? keyboardType;
+
 
   TextDataFormField({
     super.key,
@@ -17,7 +18,8 @@ class TextDataFormField extends StatefulWidget {
     this.validator,
     this.value,
     this.isEnabled,
-    this.label
+    this.label,
+    this.keyboardType,
   });
 
   @override
@@ -29,6 +31,7 @@ class _TextDataFormFieldState extends State<TextDataFormField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: widget.keyboardType?? TextInputType.text,
       onChanged: widget.onChange,
       initialValue: widget.value ?? "",
       enabled: widget.isEnabled ?? true,

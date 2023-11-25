@@ -1,9 +1,8 @@
 //TODO: add constants here
-const String API_LINK = "https://www.x.com";
+const String API_LINK = "13.48.45.126:3000";
+const Duration API_TIMEOUT = Duration(seconds: 5);
 
 const String APP_NAME = "gigachat";
 
 // global constants
 const double LOGIN_PAGE_PADDING = 10.0;
-const double CREATE_POST_POPUP_PADDING = 60;
-const int MEDIA_UPLOAD_LIMIT = 4;

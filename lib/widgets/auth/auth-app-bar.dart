@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import '../base.dart';
 
-PreferredSizeWidget LoginAppBar(BuildContext context) {
+PreferredSizeWidget AuthAppBar(BuildContext context,{
+  required IconButton? leadingIcon,
+  bool? showDefault
+})
+{
   return AppBar(
     centerTitle: true,
-    leading: IconButton(
-      onPressed: (){
-        Navigator.popUntil(context,ModalRoute.withName('/'));
-      },
-      icon: const Icon(Icons.close),
-    ),
+    leading: leadingIcon,
+    automaticallyImplyLeading: showDefault ?? false,
     title: SizedBox(
       height: 40,
       width: 40,

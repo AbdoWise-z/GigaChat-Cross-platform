@@ -12,7 +12,6 @@ void main(){
     // find needed widgets
     final usernameField = find.byKey(const Key(UsernameLoginPage.inputFieldKey));
     final nextButtonField = find.byKey(const Key(UsernameLoginPage.nextButtonKey));
-
     // executing testing
     await tester.pumpWidget(
         MaterialApp(
@@ -21,15 +20,18 @@ void main(){
     );
 
     // testing wrong username
-    await tester.enterText(usernameField, "this is wrong username");
+
+    String username = "";
+    await tester.enterText(usernameField, username);
     await tester.pump();
-    expect(find.text("this is wrong username"), findsOneWidget);
+    expect(find.text(username), findsOneWidget);
     expect(tester.widget<ElevatedButton>(nextButtonField).enabled, false);
 
     // testing correct username
-    await tester.enterText(usernameField, "thisIsCorrectUsername123");
+    username = "StarBoy96";
+    await tester.enterText(usernameField, username);
     await tester.pump();
-    expect(find.text("thisIsCorrectUsername123"), findsOneWidget);
+    expect(find.text(username), findsOneWidget);
     expect(tester.widget<ElevatedButton>(nextButtonField).enabled, true);
 
     // Navigating to password page
@@ -37,19 +39,25 @@ void main(){
     await tester.pumpAndSettle();
     expect(find.text("Enter your password"), findsOneWidget);
 
-    // Checking if the username is there and the login button appeared
-    final passwordField = find.byKey(const Key(PasswordLoginPage.passwordFieldKey));
+
+    final passwordField = find.byKey(PasswordLoginPage.passwordFieldKey);
     final loginButton = find.byKey(const Key(PasswordLoginPage.loginButtonKey));
-    expect(tester.widget<ElevatedButton>(loginButton).enabled,false);
+
+
+    // Checking if the username is there and the login button appeared
+    expect(find.text(username),findsOneWidget); // username is there
+    expect(tester.widget<ElevatedButton>(loginButton).enabled,false); // button disabled
 
     // testing some invalid password
-    await tester.enterText(passwordField, "this is invalid password");
-    await tester.pump();
+    await tester.enterText(passwordField, "");
+    await tester.pumpAndSettle();
     expect(tester.widget<ElevatedButton>(loginButton).enabled,false);
 
-    // testing some invalid password
-    await tester.enterText(passwordField, "thisIsValidPassword@456");
-    await tester.pump();
+
+    // testing a valid password
+    await tester.enterText(passwordField, "thisIsValid@456");
+    await tester.pumpAndSettle();
+    expect(find.text("thisIsValid@456"), findsOneWidget);
     expect(tester.widget<ElevatedButton>(loginButton).enabled,true);
   });
 }

@@ -1,11 +1,11 @@
 
 
-import 'package:string_validator/string_validator.dart';
+import 'package:email_validator/email_validator.dart';
 
 const MIN_USERNAME_LENGTH = 5;
 const MAX_USERNAME_LENGTH = 15;
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 64;
 
 class InputValidations
@@ -18,6 +18,7 @@ class InputValidations
      static String passwordLongInputError = "password is too long";
      static String passwordShortInputError = "password is too short";
      static String passwordWeakError = "weak password!";
+     static String emailInvalidInput = "Please enter a valid email";
      static String invalidInput = "invalid input";
 
      static String? isUniqueUsername(String? username)
@@ -60,10 +61,9 @@ class InputValidations
      /// 3- it's length is bounded by some min and max
      static String? isValidPassword(String? password)
      {
-          RegExp passwordValidCharacters = RegExp("[a-zA-Z0-9!@£\$#_.]");
 
           if (password == null || password.isEmpty) {
-            return emptyErrorMessage;
+            return null;
           }
           if (password.length < MIN_PASSWORD_LENGTH){
                return passwordShortInputError;
@@ -72,53 +72,36 @@ class InputValidations
                return passwordLongInputError;
           }
 
-          bool satisfyRegex = passwordValidCharacters.allMatches(password).length == password.length;
-          if (!satisfyRegex)
-          {
-               return invalidInput;
-          }
+          RegExp letters = RegExp("[a-zA-Z]");
 
-          RegExp specialChars = RegExp("[@!\$#_\-]");
-          RegExp lowerCase = RegExp("[a-z]");
-          RegExp upperCase = RegExp("[A-Z]");
-          RegExp numbers = RegExp("[0-9]");
+          bool hasLetters = letters.hasMatch(password);
 
-          bool hasLowerCase = lowerCase.hasMatch(password);
-          bool hasUpperCase = upperCase.hasMatch(password);
-          bool hasNumber = numbers.hasMatch(password);
-          bool hasSpecial = specialChars.hasMatch(password);
-
-          return hasSpecial && hasLowerCase && hasUpperCase && hasNumber
-              ? null :
-          passwordWeakError;
+          return hasLetters ? null : passwordWeakError;
 
      }
 
      /// Checks if the given string is in email format
      static String? isValidEmail(String? email)
      {
-          RegExp emailValidCharacters = RegExp("[a-zA-Z0-9@._\-]");
           if (email == null || email.isEmpty) {
-            return emptyErrorMessage;
+            return null;
           }
           
-          if (emailValidCharacters.allMatches(email).length != email.length){
-               return invalidInput;
+          if(!EmailValidator.validate(email)){
+              return emailInvalidInput;
           }
-
-          RegExp emailRegex = RegExp("@[a-zA-Z0-9]+[.][a-z]+\$");
-          
-          if (!emailRegex.hasMatch(email))
-          {
-               return invalidInput;
-          }
-          
           return null;
      }
 
-     static String? isValidCode(String? code)
-     {
-          //TODO: validate code format
+     static String nameLongErrorMessage = "Must be 50 characters or fewer";
+
+     static String? isValidName(String? name){
+          if(name == null || name.isEmpty){
+               return null;
+          }
+          if(name.length > 50){
+               return nameLongErrorMessage;
+          }
           return null;
      }
 }
