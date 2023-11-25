@@ -39,7 +39,6 @@ class _GalleryWidget extends StatefulWidget {
   final List<String> selected;
 
   const _GalleryWidget({
-    super.key,
     required this.canSkip,
     required this.selectMax,
     required this.cameraEnabled,

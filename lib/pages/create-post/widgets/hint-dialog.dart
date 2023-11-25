@@ -15,14 +15,15 @@ class _HintDialogState extends State<HintDialog> {
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 160 , horizontal: CREATE_POST_POPUP_PADDING),
         child: Center(
           child: Container(
             alignment: Alignment.topCenter,
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.vertical(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(25),
                 bottom: Radius.circular(25),
               ),
@@ -46,7 +47,6 @@ class _HintDialogState extends State<HintDialog> {
                   child: Text(
                     "Photos, videos, and GIFs - in one post" ,
                     style: TextStyle(
-                      color: Colors.white,
                       fontSize: 36,
                       fontWeight: FontWeight.w900,
                     ),

@@ -49,6 +49,7 @@ dependencies:
   http:
   http_parser:
   permission_handler: ^11.0.1
+  photo_manager: ^2.8.1
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,7 @@ flutter:
     - assets/giga-chat-logo-dark.png
     - assets/giga-chat-logo-light.png
     - assets/google-logo-icon.png
+    - assets/create-post-popup.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

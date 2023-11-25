@@ -59,7 +59,7 @@ class User {
     this.auth = "AUTH KEY",
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = "",
+    this.iconLink = "https://i.imgur.com/ESmRWqF.png",
     this.bannerLink = "",
     this.location = "hell",
     this.website = "www.Abdo.com",
