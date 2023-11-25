@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
@@ -59,9 +58,11 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? Home.pageRoute,
+                initialRoute: widget.initialRoute ?? Tweet.pageRoute,
                 routes: {
-                  Tweet.pageRoute : (context) => const FeedWidget(),
+                  // TODO: for test purposes remove later
+                  Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
+
                   Home.pageRoute : (context) => const Home(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),

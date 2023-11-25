@@ -4,6 +4,7 @@ import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/util/user-data.dart';
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});

@@ -1,66 +1,128 @@
-
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
 
 class TweetActionButton extends StatefulWidget {
-
   final IconData icon;
   int? count;
-  bool? isLikeButton;
-  bool? isShareButton;
+  final bool? isLikeButton;
+  bool isLiked;
+  bool isRetweet;
+  bool isRetweeted;
+  String? tweetId;
+  final Function() onPressed;
 
-  TweetActionButton({super.key, required this.icon, this.count,this.isLikeButton,this.isShareButton}){
-    isLikeButton ??= false;
-    isShareButton ??= false;
-  }
+  TweetActionButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    required this.isLikeButton,
+    this.count,
+    required this.isLiked,
+    required this.isRetweet,
+    required this.isRetweeted,
+    this.tweetId
+  });
 
   @override
   State<TweetActionButton> createState() => _TweetActionButtonState();
 }
 
-MaterialStateProperty<Color> getColor(Color defaultColor,Color onPressedColor)
-{
-  calcColor(Set<MaterialState> states){
-    if(states.contains(MaterialState.pressed)) {
-      return onPressedColor;
-    } else {
-      return defaultColor;
-    }
-  }
-  return MaterialStateProperty.resolveWith(calcColor);
-}
-
 class _TweetActionButtonState extends State<TweetActionButton> {
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
-    return LikeButton(
-      size: 20,
-      likeCount: widget.count,
+    FeedProvider feedProvider = FeedProvider(context);
+    if (widget.isLikeButton!){
+    }
+    bool hideCount = widget.count == null;
+    widget.count ??= 0;
+    return widget.isLikeButton!
+        ? Expanded(
+          child: ElevatedButton(
+            onPressed: (){},
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.grey,
+                padding: EdgeInsets.zero,
+                elevation: 0,
+                splashFactory: NoSplash.splashFactory
+            ),
+            child: LikeButton(
+                size: 20,
+                likeCount: widget.count,
+                isLiked: widget.isLiked!,
+                countDecoration: (count, likeCount) {
+                  likeCount ??= 0;
+                  return likeCount < 9999
+                      ? null
+                      : Text(NumberFormat.compact().format(likeCount));
+                },
+                onTap: (isLiked) {
+                  widget.onPressed();
+                  widget.isLiked = !isLiked;
+                  return Future(() => !isLiked);
+                },
+              ),
+          ),
+        )
+        : Expanded(
+          child: Center(
 
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: !widget.isRetweet || !widget.isRetweeted ? Colors.grey : Colors.greenAccent,
+                  padding: EdgeInsets.zero,
+                  elevation: 0,
+                  splashFactory: NoSplash.splashFactory
+              ),
+                onPressed: widget.isRetweet ? () async {
+                  showCustomModalSheet(context,
+                      [
+                        [widget.isRetweeted ? "Undo Repost" : "Repost",FontAwesomeIcons.retweet,() async {
 
-      likeBuilder: widget.isLikeButton == true ? null : (isLiked){
-        return Icon(widget.icon,size: 20,color: Colors.grey);
-      },
+                          if (widget.isRetweeted){
+                            bool tryUndo = await feedProvider.undoRetweet(widget.tweetId!);
+                            if (tryUndo == true) {
+                              widget.isRetweeted = false;
+                              widget.count = widget.count! - 1;
+                              setState(() {});
+                            }
+                          }
+                          else{
+                            bool tryRetweet = await feedProvider.retweetTweet(widget.tweetId!);
+                            if (tryRetweet == true) {
+                              widget.isRetweeted = true;
+                              widget.count = widget.count! + 1;
+                              setState(() {});
+                            }
+                          }
 
-      countDecoration: (count, likeCount) {
-        likeCount ??= 0;
-        return widget.isShareButton == true || likeCount < 9999 ?
-        null :
-        Text(NumberFormat.compact().format(likeCount));
-        },
-
-      animationDuration: Duration(seconds: widget.isLikeButton == true ? 1 : 0),
-      circleSize: widget.isLikeButton == true ? null : 0,
-      bubblesSize: widget.isLikeButton == true ? null : 0,
-      
-      onTap: (isLiked){
-        return Future(() => widget.isLikeButton == true && !isLiked);
-      },
+                        }],
+                        ["Quote",FontAwesomeIcons.pen,(){
+                          // TODO: idk fn
+                        }],
+                      ]
+                  );
+                } : widget.onPressed,
+                icon: Icon(widget.icon,size: 20),
+                label: Visibility(
+                    visible: !hideCount,
+                    child: Text(
+                      NumberFormat.compact().format(widget.count),
+                    )
+                )
+            ),
+          )
     );
   }
 }

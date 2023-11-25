@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/util/contact-method.dart';
+import 'package:gigachat/util/user-data.dart';
 import 'package:provider/provider.dart';
 
 
@@ -13,7 +14,7 @@ class Auth extends ChangeNotifier{
     return Provider.of<Auth>(ctx , listen: false);
   }
 
-  User? _currentUser;
+  User? _currentUser = User();
 
   Future<bool> login(String username , String password , void Function() success ) async {
     _currentUser = await apiLogin(username, password);
