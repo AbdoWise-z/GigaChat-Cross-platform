@@ -59,7 +59,7 @@ class User {
     this.auth = "AUTH KEY",
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = "",
+    this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
     this.bannerLink = "",
     this.location = "hell",
     this.website = "www.Abdo.com",
@@ -90,6 +90,7 @@ class ApiPath{
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
+  static ApiPath followingTweets            = const ApiPath._("/");
 }
 
 class Api {
@@ -121,6 +122,7 @@ class Api {
       default: return "Error [$code]";
     }
   }
+
 
   static Future<ApiResponse<T>> _apiPostNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
     try {
@@ -193,6 +195,79 @@ class Api {
       return _apiPostNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
     return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
+  }
+
+  static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
+    try{
+      var response = await http.get(url).timeout(API_TIMEOUT);
+      Map<String, dynamic> responsePayload = json.decode(response.body);
+
+      return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
+    } on SocketException {
+      return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
+    } on TimeoutException {
+      return ApiResponse<T>(code: ApiResponse.CODE_TIMEOUT, responseBody: null);
+    } on Error catch (e) {
+      print(e);
+      return ApiResponse<T>(code: ApiResponse.CODE_UNKNOWN, responseBody: null);
+    }
+  }
+
+  static Future<ApiResponse<T>> _apiGetFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Map<String,String> files , Encoding encoding) async {
+    try {
+      var request = http.MultipartRequest("GET" , url);
+      request.headers.addAll(headers ?? {});
+
+      if (body != null) {
+        if (body is Map<String , String>){
+          request.fields.addAll(body);
+        }else{
+          print("_apiPostFilesImpl: tried to add a body that is not a map");
+        }
+      }
+
+      for ( MapEntry e in files.entries) {
+        //TODO: maybe get the contentType and fileName too in the future ...
+        request.files.add(
+            await http.MultipartFile.fromPath(
+                '${e.key}',
+                '${e.value}'
+            )
+        );
+      }
+
+      var response = await request.send();
+      var response2 = await http.Response.fromStream(response);
+      return ApiResponse<T>(code: response.statusCode, responseBody: String.fromCharCodes(response2.bodyBytes));
+    } on SocketException {
+      return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
+    } on TimeoutException{
+      return ApiResponse<T>(code: ApiResponse.CODE_TIMEOUT, responseBody: null);
+    } on Error catch (e) {
+      print(e);
+      return ApiResponse<T>(code: ApiResponse.CODE_UNKNOWN, responseBody: null);
+    }
+  }
+
+
+
+  static Future<ApiResponse<T>> apiGet<T>(
+      ApiPath path ,
+      {
+        Map<String,dynamic>? params ,
+        Map<String,String>? headers ,
+        Object? body ,
+        Map<String,String>? files ,
+        Encoding? encoding ,
+      }
+      ){
+
+    encoding ??= Encoding.getByName("utf-8");
+    headers ??= JSON_TYPE_HEADER;
+    if (files == null){ //not an upload request
+      return _apiGetNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
+    }
+    return _apiGetFilesImpl<T>(path.url() , headers , body , files , encoding!);
   }
 
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/tweet-data.dart';
-import 'package:gigachat/util/user-data.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/tweets.dart';
 
 class FeedProvider
@@ -27,7 +27,6 @@ class FeedProvider
       Future<List<TweetData>> getFollowingTweets() async
       {
           _currentFeedData =  await TweetsInterface.apiGetFollowingTweet(_currentUser);
-
           // TODO: Response must be formatted here but we will move on for now
           return _currentFeedData;
       }
