@@ -42,7 +42,7 @@ class FeedHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-          FeedWidget(showFollowingTweets: true),
+        FeedWidget(showFollowingTweets: true),
         FeedWidget(showFollowingTweets: true)
         ];
     }

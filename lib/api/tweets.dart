@@ -66,25 +66,18 @@ TweetData getDefaultTweet(){
       referredTweetId: '',
 
       description:
-      "when i woke up ... i was riding in a flower carriage, it was my birthday,"
-          "loremloremloremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
-          "loremloremloremloremloremloremloremloremloremloremloremlorem",
+      "Bonjour, friends.According to the the prophecy: “The people will all be dissolved into the waters. And only the Hydro Archon will remain, weeping on her throne.” Let me take you back about 500 years ago in fontaine, where the main characters are The (previous) Hydro Archon, Dragon Neuvillette and an important person named Furina. The Hydro Archon created the Oratrice to deliver proper justice. They all lived happily until the cataclysm (I would like to make a note here that this cataclysm might be or might not be the khaenriahn one), which befelled the beloved Hydro Archon.",
 
 
       mediaType: MediaType.IMAGE,
       media:
       "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
 
-      viewsNum: 12,
-      likesNum: 999,
-      repliesNum: 1,
-      repostsNum: 0,
-      creationTime: DateTime(2022, 5, 30, 12, 24, 30),
+      viewsNum: 10,
+      likesNum: 20,
+      repliesNum: 30,
+      repostsNum: 40,
+      creationTime: DateTime.parse("2013-10-02T01:11:18.965+00:00"),
       type: "Masterpiece", tweetOwner: User(name: "Osama",id: "Lolli-simp"),
 
       isLiked: false,

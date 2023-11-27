@@ -58,14 +58,14 @@ class _TweetActionButtonState extends State<TweetActionButton> {
             ),
             child: LikeButton(
                 size: 20,
-                likeCount: widget.count,
+                likeCount: hideCount ? null : widget.count,
                 isLiked: widget.isLiked!,
-                countDecoration: (count, likeCount) {
+                countDecoration: widget.count != null ? (count, likeCount) {
                   likeCount ??= 0;
                   return likeCount < 9999
                       ? null
                       : Text(NumberFormat.compact().format(likeCount));
-                },
+                } : null,
                 onTap: (isLiked) {
                   widget.onPressed();
                   widget.isLiked = !isLiked;
@@ -94,7 +94,7 @@ class _TweetActionButtonState extends State<TweetActionButton> {
                             bool tryUndo = await feedProvider.undoRetweet(widget.tweetId!);
                             if (tryUndo == true) {
                               widget.isRetweeted = false;
-                              widget.count = widget.count! - 1;
+                              widget.count = hideCount ? null :  widget.count! - 1;
                               setState(() {});
                             }
                           }
@@ -102,7 +102,7 @@ class _TweetActionButtonState extends State<TweetActionButton> {
                             bool tryRetweet = await feedProvider.retweetTweet(widget.tweetId!);
                             if (tryRetweet == true) {
                               widget.isRetweeted = true;
-                              widget.count = widget.count! + 1;
+                              widget.count = hideCount ? null : widget.count! + 1;
                               setState(() {});
                             }
                           }

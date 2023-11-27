@@ -8,8 +8,9 @@ import 'package:gigachat/widgets/post.dart';
 
 class FeedWidget extends StatefulWidget {
   bool showFollowingTweets;
+  Tweet? specialTweet;
 
-  FeedWidget({super.key,required this.showFollowingTweets});
+  FeedWidget({super.key,required this.showFollowingTweets,this.specialTweet});
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
@@ -26,6 +27,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     _tweetsData = widget.showFollowingTweets ?
     await _feedProvider.getFollowingTweets() :
     await _feedProvider.getFollowingTweets();
+
     loading = false;
     setState(() {});
   }
@@ -43,19 +45,22 @@ class _FeedWidgetState extends State<FeedWidget> {
       return const LoadingPage();
     }
 
-    return
-      Scaffold(
-        appBar: AuthAppBar(context, leadingIcon: null),
-        backgroundColor: Colors.black,
-        body: SingleChildScrollView(
+    List<Tweet> tweetWidgets = _tweetsData.map((tweet) => Tweet(
+      tweetOwner: tweet.tweetOwner,
+      tweetData: tweet,
+      isRetweet: false,
+      isSinglePostView: false,
+    )
+    ).toList();
+
+    if (widget.specialTweet != null) {
+      tweetWidgets.insert(0, widget.specialTweet!);
+    }
+
+    return SingleChildScrollView(
           child: Column(
-            children: _tweetsData.map((tweet) => Tweet(
-                tweetOwner: tweet.tweetOwner,
-                tweetData: tweet,
-                isRetweet: false)
-            ).toList(),
+            children: tweetWidgets,
           ),
-        ),
       );
   }
 }
