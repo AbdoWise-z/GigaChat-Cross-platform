@@ -2,7 +2,7 @@
 import "dart:convert";
 import "dart:io";
 import "dart:math";
-
+import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
 import "package:gigachat/util/contact-method.dart";
 

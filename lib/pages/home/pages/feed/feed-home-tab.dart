@@ -10,6 +10,7 @@ import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/post.dart';
+import "package:gigachat/api/user-class.dart";
 
 class FeedHomeTab with HomePageTab {
   @override

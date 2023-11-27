@@ -6,7 +6,7 @@ import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
-
+import "package:gigachat/api/user-class.dart";
 
 class Auth extends ChangeNotifier{
   static Auth getInstance(BuildContext ctx){
@@ -14,7 +14,7 @@ class Auth extends ChangeNotifier{
   }
 
   //TODO: change back to null
-  User? _currentUser = User();
+  User? _currentUser = null;
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);

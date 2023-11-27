@@ -4,6 +4,7 @@ import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/post-class.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/post.dart';
+import "package:gigachat/api/user-class.dart";
 
 class FeedWidget extends StatefulWidget {
   const FeedWidget({super.key});
