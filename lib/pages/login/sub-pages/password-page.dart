@@ -41,14 +41,10 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
       widget.username,
       password!,
       success: (res) {
-        print(res.code);
-        print(res.responseBody);
         Navigator.popUntil(context, (r) => false);
         Navigator.pushNamed(context, "/");
       },
       error: (res){
-        print(res.code);
-        print(res.responseBody);
         Toast.showToast(context,"Wrong password!",width: 20);
         setState(() {
           _loading = false;

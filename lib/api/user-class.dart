@@ -1,8 +1,7 @@
-
 class User {
   String id;
   String name;
-  String auth;
+  String? auth;
   String email;
   String bio;
   String iconLink;
@@ -19,10 +18,10 @@ class User {
   User({
     this.id = "@Abdo-ww",
     this.name = "Abdo",
-    this.auth = "AUTH KEY",
+    this.auth,
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = "https://i.imgur.com/ESmRWqF.png",
+    this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
     this.bannerLink = "",
     this.location = "hell",
     this.website = "www.Abdo.com",
@@ -32,5 +31,5 @@ class User {
     this.following = 0,
     this.active = false,
   });
-}
 
+}

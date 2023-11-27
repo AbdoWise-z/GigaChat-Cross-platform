@@ -3,7 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/api.dart';
-import 'package:gigachat/util/tweet-data.dart';
+import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/post.dart';

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/loading-page.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
-import 'package:gigachat/util/tweet-data.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/post.dart';
@@ -25,9 +26,10 @@ class _FeedWidgetState extends State<FeedWidget> {
   late bool loading;
 
   void fetchTweets() async{
+    var user = Auth.getInstance(context).getCurrentUser()!;
     _tweetsData = widget.showFollowingTweets ?
-    await _feedProvider.getFollowingTweets() :
-    await _feedProvider.getFollowingTweets();
+    await _feedProvider.getFollowingTweets(user) :
+    await _feedProvider.getFollowingTweets(user);
 
     loading = false;
     setState(() {});

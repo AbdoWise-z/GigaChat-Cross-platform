@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
 class Auth extends ChangeNotifier{
-  static Auth getInstance(BuildContext ctx){
-    return Provider.of<Auth>(ctx , listen: false);
+  static Auth getInstance(BuildContext context){
+    return Provider.of<Auth>(context , listen: false);
   }
 
   //TODO: change back to null
@@ -92,7 +92,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> createNewUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
-    var res = await Account.apiCreateNewPassword(_currentUser!.auth , password);
+    var res = await Account.apiCreateNewPassword(_currentUser!.auth! , password);
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -102,7 +102,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> setUserProfileImage(File img , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
-    var res = await Account.apiSetProfileImage(_currentUser!.auth , img);
+    var res = await Account.apiSetProfileImage(_currentUser!.auth! , img);
     if (res.data != null){
       _currentUser!.iconLink = res.data!;
       if (success != null) success(res);
@@ -112,7 +112,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> setUserUsername(String name , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
-    var res = await Account.apiSetUsername(_currentUser!.auth , name);
+    var res = await Account.apiSetUsername(_currentUser!.auth! , name);
     if (res.data!){
       //update the new username
       _currentUser!.id = name;

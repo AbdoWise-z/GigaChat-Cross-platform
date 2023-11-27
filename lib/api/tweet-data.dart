@@ -1,9 +1,34 @@
-
-import 'package:gigachat/api/api.dart';
+import 'package:gigachat/api/user-class.dart';
 
 enum MediaType{
   IMAGE,
   VIDEO,
+}
+
+enum TweetType {
+  TWEET,
+  REPLY
+}
+
+class MediaObject {
+  final String link;
+  final MediaType type;
+
+  MediaObject({required this.link, required this.type});
+}
+
+class IntermediateTweetData{
+  final String? referredTweetId;
+  final String description;
+  final List<MediaObject> media;
+  final TweetType type;
+
+  IntermediateTweetData({
+    this.referredTweetId,
+    required this.description,
+    required this.media,
+    this.type = TweetType.TWEET,
+  });
 }
 
 class TweetData
