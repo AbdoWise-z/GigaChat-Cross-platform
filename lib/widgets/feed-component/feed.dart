@@ -5,7 +5,7 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedWidget extends StatefulWidget {
@@ -51,7 +51,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     List<Tweet> tweetWidgets = _tweetsData.map((tweet) => Tweet(
       tweetOwner: tweet.tweetOwner,
       tweetData: tweet,
-      isRetweet: false,
+      isRetweet: true,
       isSinglePostView: false,
     )
     ).toList();

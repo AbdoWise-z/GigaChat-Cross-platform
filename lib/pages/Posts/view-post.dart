@@ -7,7 +7,7 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 
 class ViewPostPage extends StatelessWidget {
   static const String pageRoute = "/post/view";

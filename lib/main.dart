@@ -16,7 +16,7 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
 

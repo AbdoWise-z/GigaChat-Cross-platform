@@ -42,6 +42,7 @@ class ApiPath{
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
+  ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
 
@@ -55,9 +56,15 @@ class ApiPath{
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
-  static ApiPath followingTweets            = const ApiPath._("/api/homepage/following");
-  static ApiPath comments            = const ApiPath._("/api/tweets/replies/");
+
+  static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
+
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
+  static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
+  static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
+  static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
+  static ApiPath comments                = const ApiPath._("/api/tweets/replies");
+  static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
 }
 
 class Api {
@@ -170,8 +177,7 @@ class Api {
         url,
         headers: headers
       ).timeout(API_TIMEOUT);
-
-      Map<String, dynamic> responsePayload = json.decode(response.body);
+      dynamic responsePayload = json.decode(response.body);
 
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
     } on SocketException {
@@ -305,7 +311,6 @@ class Api {
         Encoding? encoding ,
       }
       ){
-
     encoding ??= Encoding.getByName("utf-8");
     if (files == null){ //not an upload request
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);

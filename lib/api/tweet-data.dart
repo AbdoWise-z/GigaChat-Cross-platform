@@ -40,10 +40,10 @@ class TweetData
   final MediaType? mediaType;
   final String? media;
 
-  final int viewsNum;
+  int viewsNum;
   int likesNum;
-  final int repliesNum;
-  final int repostsNum;
+  int repliesNum;
+  int repostsNum;
 
   final DateTime creationTime;
 

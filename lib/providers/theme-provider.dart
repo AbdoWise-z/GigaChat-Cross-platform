@@ -21,7 +21,7 @@ class ThemeProvider extends ChangeNotifier {
     return _themeName;
   }
 
-  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "dark" {
+  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "light" {
     init();
   }
 
@@ -163,6 +163,7 @@ class ThemeProvider extends ChangeNotifier {
           indicator: TabIndicator(),
         ),
         pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
+
       );
     }
   }

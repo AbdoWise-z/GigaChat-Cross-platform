@@ -27,7 +27,9 @@ class FeedProvider
 
   Future<List<TweetData>> getFollowingTweets(User user) async
   {
-    _currentFeedData = await Tweets.apiGetFollowingTweet(user);
+    List<TweetData>? response = await Tweets.getFollowingTweet(user.auth);
+
+    _currentFeedData = response ?? [];
     // TODO: Response must be formatted here but we will move on for now
     return _currentFeedData;
   }
@@ -45,14 +47,14 @@ class FeedProvider
   Future<bool> retweetTweet(String tweetId) async
   {
     // TODO: Call The api here
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     return true;
   }
 
   Future<bool> undoRetweet(String tweetId) async
   {
     // TODO: Call The api here
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     return true;
   }
 
