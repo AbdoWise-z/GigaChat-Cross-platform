@@ -91,7 +91,7 @@ class Tweets {
                     name: tweet["followingUser"]["nickname"],
                     auth: token,
                     //bio : "sad",
-                    iconLink : "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
+                    iconLink : tweet["followingUser"]["profile_image"],
                     followers : tweet["followingUser"]["followers_num"],
                     following : tweet["followingUser"]["following_num"],
                     active : true,

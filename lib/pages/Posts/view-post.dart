@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
@@ -27,7 +28,9 @@ class ViewPostPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
-      body: FeedWidget(showFollowingTweets: true,specialTweet: Tweet(
+      body: FeedWidget(
+          tweetDataSource: FeedProvider(context).getFollowingTweets,
+        specialTweet: Tweet(
           tweetOwner: tweetOwner,
           tweetData: tweetData,
           isRetweet: false,

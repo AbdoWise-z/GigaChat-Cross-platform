@@ -9,10 +9,14 @@ import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedWidget extends StatefulWidget {
-  bool showFollowingTweets;
+  Future<List<TweetData>> Function(User) tweetDataSource;
   Tweet? specialTweet;
 
-  FeedWidget({super.key,required this.showFollowingTweets,this.specialTweet});
+  FeedWidget({
+    super.key,
+    this.specialTweet,
+    required this.tweetDataSource
+  });
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
@@ -27,10 +31,7 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   void fetchTweets() async{
     var user = Auth.getInstance(context).getCurrentUser()!;
-    _tweetsData = widget.showFollowingTweets ?
-    await _feedProvider.getFollowingTweets(user) :
-    await _feedProvider.getFollowingTweets(user);
-
+    _tweetsData = await widget.tweetDataSource(user);
     loading = false;
     setState(() {});
   }

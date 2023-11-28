@@ -19,6 +19,8 @@ import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/feed-provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,9 +59,6 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  // TODO: for test purposes remove later
-                  Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
-
                   Home.pageRoute : (context) => const Home(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
