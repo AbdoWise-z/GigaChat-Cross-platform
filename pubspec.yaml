@@ -38,7 +38,8 @@ dependencies:
   like_button: ^2.0.5
   google_fonts: ^6.1.0
   image_picker: ^1.0.4
-
+  readmore: ^2.2.0
+  mockito: ^5.4.3
 
 
   # The following adds the Cupertino Icons font to your application.

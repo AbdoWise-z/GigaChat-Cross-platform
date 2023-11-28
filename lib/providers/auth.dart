@@ -1,6 +1,5 @@
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
@@ -12,8 +11,7 @@ class Auth extends ChangeNotifier{
   static Auth getInstance(BuildContext ctx){
     return Provider.of<Auth>(ctx , listen: false);
   }
-
-  User? _currentUser;
+  User? _currentUser = User();
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);
