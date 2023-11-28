@@ -7,6 +7,7 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
@@ -59,7 +60,7 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? Home.pageRoute,
+                initialRoute: widget.initialRoute ?? UserProfile.pageRoute,
                 routes: {
                   // TODO: for test purposes remove later
                   Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
@@ -77,7 +78,8 @@ class _GigaChatState extends State<GigaChat> {
                   ChooseUsername.pageRoute : (context) => const ChooseUsername(),
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
-                  ViewPostPage.pageRoute : (context) => ViewPostPage()
+                  ViewPostPage.pageRoute : (context) => ViewPostPage(),
+                  UserProfile.pageRoute : (context) => UserProfile(),
                 },
               );
             }
