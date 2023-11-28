@@ -7,8 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 
 class LocalSettings extends ChangeNotifier {
-  static LocalSettings getInstance(BuildContext ctx){
-    return Provider.of<LocalSettings>(ctx , listen: true);
+  static LocalSettings getInstance(BuildContext ctx , {bool listen = false}){
+    return Provider.of<LocalSettings>(ctx , listen: listen);
   }
 
   Map<String,dynamic> _values = {};

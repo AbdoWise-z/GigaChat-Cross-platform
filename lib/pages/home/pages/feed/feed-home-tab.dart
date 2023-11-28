@@ -1,10 +1,15 @@
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/api/api.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/post.dart';
+import "package:gigachat/api/user-class.dart";
 
 class FeedHomeTab with HomePageTab {
   @override
@@ -79,7 +84,7 @@ class FeedHomeTab with HomePageTab {
         ),
       ),
       onTab: () {
-        print("you clicked me ?");
+        Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
       } ,
       items: [
         FloatingActionMenuItem(
