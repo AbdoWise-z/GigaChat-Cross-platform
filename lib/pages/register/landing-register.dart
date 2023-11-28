@@ -5,6 +5,24 @@ import 'package:gigachat/pages/register/create-account.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/theme-provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+GoogleSignIn googleSignIn = GoogleSignIn(
+  scopes: ['email'],
+);
+Future signInWithGoogle() async{
+
+  GoogleSignInAccount? acc;
+  try{
+    acc = await googleSignIn.signIn();
+  }catch(e){
+    print(e);
+  }
+  return acc;
+}
+Future signOutWithGoogle() async{
+  googleSignIn.disconnect();
+}
 
 class LandingRegisterPage extends StatelessWidget {
   const LandingRegisterPage({Key? key}) : super(key: key);
@@ -42,7 +60,11 @@ class LandingRegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 150,),
               ElevatedButton(
-                  onPressed: (){},
+                  onPressed: () async {
+                    var acc = await signInWithGoogle();
+                    print(acc);
+                    await signOutWithGoogle();
+                  },
                 style: ElevatedButton.styleFrom(
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
