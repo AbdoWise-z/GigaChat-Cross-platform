@@ -36,47 +36,13 @@ class ApiResponse<T> {
 
 }
 
-class User {
-  String id;
-  String name;
-  String auth;
-  String email;
-  String bio;
-  String iconLink;
-  String bannerLink;
-  String location;
-  String website;
-  String birthDate;
-  String joinedDate;
-
-  int followers;
-  int following;
-  bool active;
-
-  User({
-    this.id = "@Abdo-ww",
-    this.name = "Abdo",
-    this.auth = "AUTH KEY",
-    this.email = "...",
-    this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
-    this.bannerLink = "",
-    this.location = "hell",
-    this.website = "www.Abdo.com",
-    this.birthDate = "9-18-2002",
-    this.joinedDate = "9-17-2002",
-    this.followers = 0,
-    this.following = 0,
-    this.active = false,
-  });
-
-}
 
 class ApiPath{
   final String _path;
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
+  ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
 
@@ -90,7 +56,15 @@ class ApiPath{
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
-  static ApiPath followingTweets            = const ApiPath._("/");
+
+  static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
+
+  static ApiPath createTweet             = const ApiPath._("/api/tweets/");
+  static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
+  static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
+  static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
+  static ApiPath comments                = const ApiPath._("/api/tweets/replies");
+  static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
 }
 
 class Api {
@@ -197,10 +171,13 @@ class Api {
     return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
   }
 
-  static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
+  static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
     try{
-      var response = await http.get(url).timeout(API_TIMEOUT);
-      Map<String, dynamic> responsePayload = json.decode(response.body);
+      var response = await http.get(
+        url,
+        headers: headers
+      ).timeout(API_TIMEOUT);
+      dynamic responsePayload = json.decode(response.body);
 
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
     } on SocketException {
@@ -264,10 +241,8 @@ class Api {
 
     encoding ??= Encoding.getByName("utf-8");
     headers ??= JSON_TYPE_HEADER;
-    if (files == null){ //not an upload request
-      return _apiGetNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
-    }
-    return _apiGetFilesImpl<T>(path.url() , headers , body , files , encoding!);
+
+    return _apiGetNoFilesImpl<T>(path.url(params: params) , headers );
   }
 
 
@@ -336,7 +311,6 @@ class Api {
         Encoding? encoding ,
       }
       ){
-
     encoding ??= Encoding.getByName("utf-8");
     if (files == null){ //not an upload request
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);

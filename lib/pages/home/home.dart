@@ -50,8 +50,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     );
     print("code: ${k.code}");
     print(k.responseBody);
-
-
   }
 
   void setPage(int p){
@@ -91,8 +89,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {

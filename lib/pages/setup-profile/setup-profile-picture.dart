@@ -39,6 +39,7 @@ class _PickProfilePictureState extends State<PickProfilePicture> {
         Navigator.pushReplacementNamed(context, ChooseUsername.pageRoute);
       },
       error: (res) {
+        print(res.responseBody);
         _loading = false;
         Toast.showToast(context, "API Error ..");
       }
