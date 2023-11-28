@@ -133,7 +133,6 @@ class Account {
 
   static Future<ApiResponse<bool>> apiCreateNewPassword(String token, String password) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    print(headers);
     var k = await Api.apiPatch<bool>(
       ApiPath.assignPassword,
       body: json.encode({

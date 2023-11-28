@@ -13,8 +13,10 @@ class TweetsInterface
 
     static Future<List<TweetData>> apiGetFollowingTweet (User currentUser) async
     {
+        final headers = Api.getTokenWithJsonHeader("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw");
         // TODO: call the api here when http package ends
-        ApiResponse response = await Api.apiGet(ApiPath.followingTweets);
+        ApiResponse response = await Api.apiGet(ApiPath.followingTweets,headers: headers);
+        print(response.responseBody);
         if (response.code == ApiResponse.CODE_SUCCESS){
             final tweets = json.decode(response.responseBody!);
             List<dynamic> responseTweets = tweets["data"];
@@ -57,6 +59,12 @@ class TweetsInterface
         return [];
     }
 
+
+    static Future<List<TweetData>> GetTweetReplies (String tweetId) async
+    {
+      Api.apiGet(ApiPath.comments , params: {"tweetId": tweetId});
+      return [getDefaultTweet(),getDefaultTweet(),getDefaultTweet()];
+    }
 }
 
 

@@ -90,7 +90,8 @@ class ApiPath{
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
-  static ApiPath followingTweets            = const ApiPath._("/");
+  static ApiPath followingTweets            = const ApiPath._("/api/homepage/following");
+  static ApiPath comments            = const ApiPath._("/api/tweets/replies/");
 }
 
 class Api {
@@ -197,9 +198,13 @@ class Api {
     return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
   }
 
-  static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
+  static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
     try{
-      var response = await http.get(url).timeout(API_TIMEOUT);
+      var response = await http.get(
+        url,
+        headers: headers
+      ).timeout(API_TIMEOUT);
+
       Map<String, dynamic> responsePayload = json.decode(response.body);
 
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
@@ -264,10 +269,8 @@ class Api {
 
     encoding ??= Encoding.getByName("utf-8");
     headers ??= JSON_TYPE_HEADER;
-    if (files == null){ //not an upload request
-      return _apiGetNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
-    }
-    return _apiGetFilesImpl<T>(path.url() , headers , body , files , encoding!);
+
+    return _apiGetNoFilesImpl<T>(path.url(params: params) , headers );
   }
 
 
