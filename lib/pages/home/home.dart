@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 
 class Home extends StatefulWidget {
-  static const String pageRoute = "/";
+  static const String pageRoute = "/home";
   const Home({super.key});
 
 
@@ -50,8 +50,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     );
     print("code: ${k.code}");
     print(k.responseBody);
-
-
   }
 
   void setPage(int p){
@@ -97,6 +95,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
 
+    print("update");
+
     return SafeArea(
       child: Scaffold(
         drawerDragStartBehavior: DragStartBehavior.start,
@@ -104,15 +104,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
-            buildAppBar(
-              ctx,
-              _pages[_currentPage].isAppBarPinned(context),
-              isLoggedIn ? value.getCurrentUser()!.iconLink : null,
-              _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
-              _pages[_currentPage].getSearchBar(context),
-              _pages[_currentPage].getActions(context),
-              _controller,
-              _pages[_currentPage].getTabs(context),
+            HomeAppBar(
+              pinned: _pages[_currentPage].isAppBarPinned(context),
+              userImage: isLoggedIn ? value.getCurrentUser()!.iconLink : null,
+              title: _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
+              searchBar: _pages[_currentPage].getSearchBar(context),
+              actions: _pages[_currentPage].getActions(context),
+              controller: _controller,
+              tabs: _pages[_currentPage].getTabs(context),
             ),
           ],
           body: _controller != null ? TabBarView(

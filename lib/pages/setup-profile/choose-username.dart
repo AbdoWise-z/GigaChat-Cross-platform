@@ -59,7 +59,6 @@ class _ChooseUsernameState extends State<ChooseUsername> {
         setState(() {
           print(res.code);
           print(res.responseBody);
-
           _loading = false;
           Toast.showToast(context, "API Error ..");
         });

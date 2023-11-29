@@ -4,7 +4,10 @@ import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:provider/provider.dart';
+import "package:gigachat/api/user-class.dart";
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
@@ -151,198 +154,221 @@ class _NavDrawerState extends State<NavDrawer> {
   @override
   Widget build(BuildContext context) {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
-    return Drawer(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32 , vertical: 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _createHeader(Auth.getInstance(context).getCurrentUser()),
-                        const SizedBox(height: 30,),
-                        const Divider(height: 1,thickness: 1,),
-                        const SizedBox(height: 30,),
-                        Column(
+    return Consumer<ThemeProvider>(
+      builder: (_ , __ , ___) {
+        return Drawer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32 , vertical: 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ListTile(
-                              onTap: () {
-                                //TODO : handle on click
-                              },
-                              horizontalTitleGap: 8,
-                              leading: const Icon(Icons.person_outline),
-                              title: const Text(
-                                "Profile",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-
-                            Visibility(
-                              visible: isLoggedIn,
-                              child: ListTile(
-                                onTap: () {
-                                  //TODO : handle on click
-                                },
-                                horizontalTitleGap: 8,
-                                leading: SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Image.asset(
-                                    ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
+                            _createHeader(Auth.getInstance(context).getCurrentUser()),
+                            const SizedBox(height: 30,),
+                            const Divider(height: 1,thickness: 1,),
+                            const SizedBox(height: 30,),
+                            Column(
+                              children: [
+                                ListTile(
+                                  onTap: () {
+                                    //TODO : handle on click
+                                  },
+                                  horizontalTitleGap: 8,
+                                  leading: const Icon(Icons.person_outline),
+                                  title: const Text(
+                                    "Profile",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                                title: const Text(
-                                  "Premium",
-                                  style: TextStyle(
-                                    fontSize: 20,
+
+                                Visibility(
+                                  visible: isLoggedIn,
+                                  child: ListTile(
+                                    onTap: () {
+                                      //TODO : handle on click
+                                    },
+                                    horizontalTitleGap: 8,
+                                    leading: SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: Image.asset(
+                                        ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
+                                      ),
+                                    ),
+                                    title: const Text(
+                                      "Premium",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
 
-                            ListTile(
-                              onTap: () {
-                                //TODO : handle on click
-                              },
-                              horizontalTitleGap: 8,
-                              leading: const Icon(Icons.bookmark_border_outlined),
-                              title: const Text(
-                                "Bookmarks",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-
-                            ListTile(
-                              onTap: () {
-                                //TODO : handle on click
-                              },
-                              horizontalTitleGap: 8,
-                              leading: const Icon(Icons.list_alt),
-                              title: const Text(
-                                "Lists",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-
-                            Visibility(
-                              visible: isLoggedIn,
-                              child: ListTile(
-                                onTap: () {
-                                  //TODO : handle on click
-                                },
-                                horizontalTitleGap: 8,
-                                leading: const Icon(Icons.mic_none_sharp),
-                                title: const Text(
-                                  "Spaces",
-                                  style: TextStyle(
-                                    fontSize: 20,
+                                ListTile(
+                                  onTap: () {
+                                    //TODO : handle on click
+                                  },
+                                  horizontalTitleGap: 8,
+                                  leading: const Icon(Icons.bookmark_border_outlined),
+                                  title: const Text(
+                                    "Bookmarks",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
 
-                            Visibility(
-                              visible: isLoggedIn,
-                              child: ListTile(
-                                onTap: () {
-                                  //TODO : handle on click
-                                },
-                                horizontalTitleGap: 8,
-                                leading: const Icon(Icons.attach_money),
-                                title: const Text(
-                                  "Monetization",
-                                  style: TextStyle(
-                                    fontSize: 20,
+                                ListTile(
+                                  onTap: () {
+                                    //TODO : handle on click
+                                  },
+                                  horizontalTitleGap: 8,
+                                  leading: const Icon(Icons.list_alt),
+                                  title: const Text(
+                                    "Lists",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                              ),
+
+                                Visibility(
+                                  visible: isLoggedIn,
+                                  child: ListTile(
+                                    onTap: () {
+                                      //TODO : handle on click
+                                    },
+                                    horizontalTitleGap: 8,
+                                    leading: const Icon(Icons.mic_none_sharp),
+                                    title: const Text(
+                                      "Spaces",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                Visibility(
+                                  visible: isLoggedIn,
+                                  child: ListTile(
+                                    onTap: () {
+                                      //TODO : handle on click
+                                    },
+                                    horizontalTitleGap: 8,
+                                    leading: const Icon(Icons.attach_money),
+                                    title: const Text(
+                                      "Monetization",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  const ExpansionTile(
-                    title: Padding(
-                      padding: EdgeInsets.only(left: 40),
-                      child: Text(
-                        "Professional Tools",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
                       ),
-                    ),
-                    children: [
+                      const ExpansionTile(
+                        title: Padding(
+                          padding: EdgeInsets.only(left: 40),
+                          child: Text(
+                            "Professional Tools",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        children: [
 
+                        ],
+                      ),
+                      ExpansionTile(
+                        title: const Padding(
+                          padding: EdgeInsets.only(left: 40),
+                          child: Text(
+                            "Settings & Support",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        children: [
+                          ListTile(
+                            onTap: () {
+                              //TODO : sub-menu action 1
+                            },
+                            horizontalTitleGap: 24,
+                            leading: const Padding(
+                              padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
+                              child: Icon(Icons.settings , size: 20,),
+                            ),
+                            title: const Text(
+                              "Settings and privacy",
+                            ),
+                          ),
+                          ListTile(
+                            onTap: () {
+                              //TODO : sub-menu action 2
+                            },
+                            horizontalTitleGap: 24,
+                            leading: const Padding(
+                              padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
+                              child: Icon(Icons.info_outline , size: 20,),
+                            ),
+                            title: const Text(
+                              "Help Center",
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  ExpansionTile(
-                    title: const Padding(
-                      padding: EdgeInsets.only(left: 40),
-                      child: Text(
-                        "Settings & Support",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
+                ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: IconButton(onPressed: () {
+                        ThemeProvider tp = ThemeProvider.getInstance(context);
+                        if (tp.getThemeName == "dark"){
+                          tp.setTheme("light");
+                        }else{
+                          tp.setTheme("dark");
+                        }
+
+                      }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
+                    ),
+
+                    const Expanded(child: SizedBox.shrink()),
+
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: IconButton(onPressed: () {
+                        var settings = LocalSettings.getInstance(context);
+                        settings.setValue<bool>(name: "login", val: false);
+                        settings.apply();
+                        Navigator.popUntil(context, (route) => false);
+                        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                      },
+                        icon: const Icon(Icons.logout),
                       ),
                     ),
-                    children: [
-                      ListTile(
-                        onTap: () {
-                          //TODO : sub-menu action 1
-                        },
-                        horizontalTitleGap: 24,
-                        leading: const Padding(
-                          padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
-                          child: Icon(Icons.settings , size: 20,),
-                        ),
-                        title: const Text(
-                          "Settings and privacy",
-                        ),
-                      ),
-                      ListTile(
-                        onTap: () {
-                          //TODO : sub-menu action 2
-                        },
-                        horizontalTitleGap: 24,
-                        leading: const Padding(
-                          padding: EdgeInsets.fromLTRB(42, 2, 0, 0),
-                          child: Icon(Icons.info_outline , size: 20,),
-                        ),
-                        title: const Text(
-                          "Help Center",
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: IconButton(onPressed: () {
-                ThemeProvider tp = ThemeProvider.getInstance(context);
-                if (tp.getThemeName == "dark"){
-                  tp.setTheme("light");
-                }else{
-                  tp.setTheme("dark");
-                }
-
-              }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
-            ),
-          ],
-        )
+                  ],
+                ),
+              ],
+            )
+        );
+      }
     );
   }
 }

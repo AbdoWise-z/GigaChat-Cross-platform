@@ -1,15 +1,10 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/api.dart';
-import 'package:gigachat/api/post-class.dart';
+import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
-import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
@@ -17,13 +12,14 @@ import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
-import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
+
+import 'providers/feed-provider.dart';
 
 
 void main() async {
@@ -61,9 +57,8 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? Home.pageRoute,
+                initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  Tweet.pageRoute : (context) => const FeedWidget(),
                   Home.pageRoute : (context) => const Home(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
@@ -77,6 +72,8 @@ class _GigaChatState extends State<GigaChat> {
                   ChooseUsername.pageRoute : (context) => const ChooseUsername(),
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
+                  ViewPostPage.pageRoute : (context) => ViewPostPage(),
+                  CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
               );
             }

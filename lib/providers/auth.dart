@@ -1,19 +1,19 @@
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
-
+import "package:gigachat/api/user-class.dart";
 
 class Auth extends ChangeNotifier{
-  static Auth getInstance(BuildContext ctx){
-    return Provider.of<Auth>(ctx , listen: false);
+  static Auth getInstance(BuildContext context){
+    return Provider.of<Auth>(context , listen: false);
   }
 
-  User? _currentUser;
+  //TODO: change back to null
+  User? _currentUser = User();
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);
@@ -92,7 +92,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> createNewUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
-    var res = await Account.apiCreateNewPassword(_currentUser!.auth , password);
+    var res = await Account.apiCreateNewPassword(_currentUser!.auth! , password);
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -102,7 +102,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> setUserProfileImage(File img , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
-    var res = await Account.apiSetProfileImage(_currentUser!.auth , img);
+    var res = await Account.apiSetProfileImage(_currentUser!.auth! , img);
     if (res.data != null){
       _currentUser!.iconLink = res.data!;
       if (success != null) success(res);
@@ -112,7 +112,7 @@ class Auth extends ChangeNotifier{
   }
 
   Future<void> setUserUsername(String name , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
-    var res = await Account.apiSetUsername(_currentUser!.auth , name);
+    var res = await Account.apiSetUsername(_currentUser!.auth! , name);
     if (res.data!){
       //update the new username
       _currentUser!.id = name;
