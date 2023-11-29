@@ -7,12 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LandingLoginPage extends StatelessWidget {
   const LandingLoginPage({Key? key}) : super(key: key);
-  static const pageRoute = '/landing-login';
+  static const pageRoute = '/';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AuthAppBar(context, leadingIcon: null, showDefault: true),
+      appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(35,35,35,100),
         child: SingleChildScrollView(
@@ -20,7 +20,6 @@ class LandingLoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 150,),
-
               const Text(
                 "Welcome back! Log in to see the the latest.",
                 style: TextStyle(

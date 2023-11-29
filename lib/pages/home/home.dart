@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 
 class Home extends StatefulWidget {
-  static const String pageRoute = "/";
+  static const String pageRoute = "/home";
   const Home({super.key});
 
 

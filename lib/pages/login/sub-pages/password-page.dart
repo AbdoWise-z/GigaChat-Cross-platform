@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
@@ -42,7 +43,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
       password!,
       success: (res) {
         Navigator.popUntil(context, (r) => false);
-        Navigator.pushNamed(context, "/");
+        Navigator.pushNamed(context, Home.pageRoute);
       },
       error: (res){
         Toast.showToast(context,"Wrong password!",width: 20);

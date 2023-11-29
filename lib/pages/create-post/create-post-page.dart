@@ -25,7 +25,6 @@ class CreatePostPage extends StatefulWidget {
 }
 
 class _CreatePostPageState extends State<CreatePostPage> {
-
   void _openDialog(){
     Navigator.push(
       context,
