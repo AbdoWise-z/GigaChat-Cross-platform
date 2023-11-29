@@ -5,6 +5,7 @@ import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -42,6 +43,12 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
       widget.username,
       password!,
       success: (res) {
+        var settings = LocalSettings.getInstance(context);
+        settings.setValue<String>(name: "username", val: widget.username);
+        settings.setValue<String>(name: "password", val: password!);
+        settings.setValue<bool>(name: "login", val: true);
+        settings.apply();
+
         Navigator.popUntil(context, (r) => false);
         Navigator.pushNamed(context, Home.pageRoute);
       },

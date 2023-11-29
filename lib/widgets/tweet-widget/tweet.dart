@@ -4,17 +4,16 @@ import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
-import 'package:video_player/video_player.dart';
 
 class Tweet extends StatelessWidget {
   static String pageRoute = "/test";
@@ -189,7 +188,6 @@ class Tweet extends StatelessWidget {
                     ),
 
                   ),
-
                   // =================== first row of single post view ===================
                   Visibility(
                       visible: isSinglePostView,
@@ -289,7 +287,9 @@ class Tweet extends StatelessWidget {
         isRetweeted: false,
 
         onPressed: () {
-          // TODO: navigate to the add post page in comment mode and send it [username, post id]
+          Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
+            "reply" : tweetData,
+          });
         },
       ),
       TweetActionButton(

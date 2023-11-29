@@ -54,7 +54,7 @@ class TweetData
 
   bool isLiked;
 
-  final bool isRetweeted;
+  bool isRetweeted;
   User? reTweeter;
 
   TweetData({

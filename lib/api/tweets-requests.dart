@@ -60,14 +60,18 @@ class Tweets {
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
   ///
-  static Future<List<TweetData>?> getFollowingTweet (String? token) async
+  static Future<List<TweetData>?> getFollowingTweet(String? token) async
   {
-    var headers = Api.getTokenWithJsonHeader("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw");
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(ApiPath.followingTweets,headers: headers);
 
-
-
     if (response.code == ApiResponse.CODE_SUCCESS){
+
+      if (response.responseBody!.isEmpty){
+        loadCache();
+        return cachedTweets; //TODO: backend fix this pls ?
+      }
+
       final tweets = json.decode(response.responseBody!);
       List<dynamic> responseTweets = tweets["tweetList"];
 
@@ -98,7 +102,8 @@ class Tweets {
 
                   ),
                   isLiked: tweet["isLiked"],
-                  isRetweeted: tweet["isRetweeted"],
+                  //who tf made this ?
+                  isRetweeted: tweet["isRtweeted"],
               ),
           ).toList();
       cachedTweets = responseTweets.cast();

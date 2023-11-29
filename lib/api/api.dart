@@ -177,7 +177,7 @@ class Api {
         url,
         headers: headers
       ).timeout(API_TIMEOUT);
-      dynamic responsePayload = json.decode(response.body);
+      //dynamic responsePayload = json.decode(response.body);
 
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
     } on SocketException {

@@ -13,7 +13,6 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
-import 'package:gigachat/widgets/post.dart';
 import 'dart:math';
 
 class CreatePostPage extends StatefulWidget {
@@ -186,29 +185,32 @@ class _CreatePostPageState extends State<CreatePostPage> {
             title: Row(
               children: [
                 const Expanded(child: SizedBox()),
-                SizedBox(
-                  height: 30,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context, PageRouteBuilder(
-                        opaque: false,
-                        pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-                          return HintDialog();
-                        },
-                      ));
-                    },
-                    style: ButtonStyle(
-                        shape: MaterialStateProperty.all(
-                          const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
+                Visibility(
+                  visible: false, //for debug only
+                  child: SizedBox(
+                    height: 30,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, PageRouteBuilder(
+                          opaque: false,
+                          pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                            return HintDialog();
+                          },
+                        ));
+                      },
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                            const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(25)),
+                            ),
                           ),
+                          backgroundColor: MaterialStateProperty.all(Colors.blue)
+                      ),
+                      child: const Text(
+                        "Test",
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
-                        backgroundColor: MaterialStateProperty.all(Colors.blue)
-                    ),
-                    child: const Text(
-                      "Test",
-                      style: TextStyle(
-                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -327,8 +329,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   const Divider(
+                    height: 1,
+                    thickness: 1,
                     color: Colors.blueGrey,
                   ),
+
                   SizedBox(
                     height: 50,
                     width: null,
