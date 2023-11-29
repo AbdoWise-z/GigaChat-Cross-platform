@@ -54,8 +54,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       tweetData: tweet,
       isRetweet: true,
       isSinglePostView: false,
-    )
-    ).toList();
+    )).toList();
 
     if (widget.specialTweet != null) {
       tweetWidgets.insert(0, widget.specialTweet!);

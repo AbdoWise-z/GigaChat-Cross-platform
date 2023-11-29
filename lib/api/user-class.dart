@@ -1,3 +1,5 @@
+const String USER_DEFAULT_PROFILE = "https://i.imgur.com/C1bPcWq.png";
+
 class User {
   String id;
   String name;
@@ -21,7 +23,7 @@ class User {
     this.auth,
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
+    this.iconLink = USER_DEFAULT_PROFILE,
     this.bannerLink = "",
     this.location = "hell",
     this.website = "www.Abdo.com",

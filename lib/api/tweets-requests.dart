@@ -75,12 +75,15 @@ class Tweets {
       final tweets = json.decode(response.responseBody!);
       List<dynamic> responseTweets = tweets["tweetList"];
 
+      //print(response.responseBody);
+      //print(responseTweets[0]["tweetDetails"]);
+
       responseTweets =
           responseTweets.map((tweet) =>
               TweetData(
                   id: tweet["tweetDetails"]["_id"],
-                  referredTweetId: tweet["tweetDetails"]["referredTweetId"],
-                  description: tweet["tweetDetails"]["description"],
+                  referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
+                  description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
                   viewsNum: 0,
                   likesNum: tweet["tweetDetails"]["likesNum"],
                   repliesNum: tweet["tweetDetails"]["repliesNum"],
@@ -95,7 +98,7 @@ class Tweets {
                     name: tweet["followingUser"]["nickname"],
                     auth: token,
                     //bio : "sad",
-                    iconLink : tweet["followingUser"]["profile_image"],
+                    iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
                     followers : tweet["followingUser"]["followers_num"],
                     following : tweet["followingUser"]["following_num"],
                     active : true,

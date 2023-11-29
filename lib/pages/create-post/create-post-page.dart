@@ -49,6 +49,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
       _loading = true;
     });
 
+    for (var k in _posts){
+      if (k.currentState!.controller.text.isEmpty){
+        Toast.showToast(context, "post cannot be empty");
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
+    }
+
     Auth auth = Auth.getInstance(context);
     FeedProvider feed = FeedProvider(context);
 
@@ -156,6 +166,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    bool canPost = true;
+    for (var k in _posts){
+      if (k.currentState != null && k.currentState!.controller.text.isEmpty){
+        canPost = false;
+        break;
+      }
+    }
+
     if (_replyTweet == null) {
       var params = ModalRoute
           .of(context)!
@@ -221,16 +240,21 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 SizedBox(
                   height: 30,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: canPost ? () {
                       _sendTweets();
-                    },
+                    } : null,
                     style: ButtonStyle(
-                        shape: MaterialStateProperty.all(
-                          const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
+                      shape: MaterialStateProperty.all(
+                        const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
                         ),
-                        backgroundColor: MaterialStateProperty.all(Colors.blue)
+                      ),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                        if (states.any((element) => element == MaterialState.disabled)){
+                          return Colors.blueAccent.withAlpha(120);
+                        }
+                        return Colors.blueAccent;
+                      }),
                     ),
                     child: Text(
                       _posts.length > 1 ? "Post all" : "Post",
@@ -330,7 +354,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   ),
                   const Divider(
                     height: 1,
-                    thickness: 1,
+                    thickness: 0.5,
                     color: Colors.blueGrey,
                   ),
 
