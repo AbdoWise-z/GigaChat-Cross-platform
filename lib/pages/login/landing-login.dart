@@ -33,6 +33,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
       setState(() {
         _loading = false;
       });
+      return;
     }
 
     String username = settings.getValue(name: "username", def: null)!;
