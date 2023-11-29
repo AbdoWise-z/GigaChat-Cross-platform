@@ -37,8 +37,9 @@ class TweetData
   final String referredTweetId;
   final String description;
 
-  final MediaType? mediaType;
+  final MediaType mediaType;
   final String? media;
+  final List<MediaObject> mediaL;
 
   final int viewsNum;
   int likesNum;
@@ -52,14 +53,15 @@ class TweetData
   final User tweetOwner;
 
   bool isLiked;
-  bool isRetweeted;
+
+  final bool isRetweeted;
+  User? reTweeter;
 
   TweetData({
     required this.id,
     required this.referredTweetId,
     required this.description,
-    required this.mediaType,
-    required this.media,
+    this.mediaL = const [],
     required this.viewsNum,
     required this.likesNum,
     required this.repliesNum,
@@ -68,6 +70,9 @@ class TweetData
     required this.type,
     required this.tweetOwner,
     required this.isLiked,
-    required this.isRetweeted
+    this.reTweeter,
+    required this.isRetweeted,
+    required this.mediaType,
+    required this.media,
   });
 }

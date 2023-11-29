@@ -83,8 +83,8 @@ class Tweets {
 
                   ),
                   isLiked: tweet["isLiked"],
-                  isRetweeted: tweet["isRetweeted"]
-              )
+                  isRetweeted: tweet["isRetweeted"],
+              ),
           ).toList();
       return responseTweets.cast();
     }

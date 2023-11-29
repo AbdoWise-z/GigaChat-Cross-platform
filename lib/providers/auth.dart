@@ -13,7 +13,7 @@ class Auth extends ChangeNotifier{
   }
 
   //TODO: change back to null
-  User? _currentUser = null;
+  User? _currentUser = User();
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);
