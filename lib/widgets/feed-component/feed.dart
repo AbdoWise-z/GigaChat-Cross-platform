@@ -5,14 +5,18 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedWidget extends StatefulWidget {
-  bool showFollowingTweets;
+  Future<List<TweetData>> Function(User) tweetDataSource;
   Tweet? specialTweet;
 
-  FeedWidget({super.key,required this.showFollowingTweets,this.specialTweet});
+  FeedWidget({
+    super.key,
+    this.specialTweet,
+    required this.tweetDataSource
+  });
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
@@ -27,10 +31,7 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   void fetchTweets() async{
     var user = Auth.getInstance(context).getCurrentUser()!;
-    _tweetsData = widget.showFollowingTweets ?
-    await _feedProvider.getFollowingTweets(user) :
-    await _feedProvider.getFollowingTweets(user);
-
+    _tweetsData = await widget.tweetDataSource(user);
     loading = false;
     setState(() {});
   }
@@ -51,7 +52,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     List<Tweet> tweetWidgets = _tweetsData.map((tweet) => Tweet(
       tweetOwner: tweet.tweetOwner,
       tweetData: tweet,
-      isRetweet: false,
+      isRetweet: true,
       isSinglePostView: false,
     )
     ).toList();

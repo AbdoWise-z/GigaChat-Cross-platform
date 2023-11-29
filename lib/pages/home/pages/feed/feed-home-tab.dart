@@ -7,8 +7,9 @@ import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedHomeTab with HomePageTab {
@@ -47,8 +48,8 @@ class FeedHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-        FeedWidget(showFollowingTweets: true),
-        FeedWidget(showFollowingTweets: true)
+        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
+        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
         ];
     }
     return const [
