@@ -1,10 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/api.dart';
-import 'package:gigachat/api/post-class.dart';
+import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/loading-page.dart';
@@ -24,6 +21,8 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/post.dart';
 import 'package:provider/provider.dart';
+
+import 'pages/user-verification/verification-code-page.dart';
 
 
 void main() async {
@@ -61,13 +60,11 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? Home.pageRoute,
-                builder: (ctx , child) {
-                  if (child == null) return SizedBox.shrink();
-                  return child;
-                },
+                initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  Tweet.pageRoute : (context) => const FeedWidget(),
+                  // TODO: for test purposes remove later
+                  Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
+
                   Home.pageRoute : (context) => const Home(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
@@ -81,6 +78,8 @@ class _GigaChatState extends State<GigaChat> {
                   ChooseUsername.pageRoute : (context) => const ChooseUsername(),
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
+                  ViewPostPage.pageRoute : (context) => ViewPostPage(),
+                  CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
               );
             }
