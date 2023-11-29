@@ -28,14 +28,14 @@ class Account {
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
-      u.email       = res["data"]["user"]["email"];
+      //u.email       = res["data"]["user"]["email"];
       //u.bio         = res["data"]["user"]["bio"];
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
       //u.bannerLink  = res["data"]["user"]["banner_image"];
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
-      u.birthDate   = res["data"]["user"]["birthDate"];
-      u.joinedDate  = res["data"]["user"]["joinedAt"];
+      u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
+      u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
       //u.followers   = res["data"]["user"]["followers_num"];
       //u.following   = res["data"]["user"]["following_num"];
 
@@ -180,6 +180,47 @@ class Account {
   static Future<bool> apiLogout(User u) async {
     //TODO: do some API request
     return true;
+  }
+
+  static Future<ApiResponse<User>> apiUserProfile(String username) async{
+    var k = await Api.apiGet<User>(
+        ApiPath.userProfile.format([username]),
+    );
+    User u = User();
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      print(res);
+      u.id          = res["user"]["username"];
+      u.name        = res["user"]["nickname"];
+      //u.email       = res["user"]["email"];
+      u.bio         = res["user"]["bio"] ?? "";
+      u.iconLink    = res["user"]["profile_image"];
+      u.bannerLink  = res["user"]["banner_image"] ?? "";
+      //u.location    = res["user"]["location"];
+      //u.website     = res["user"]["website"];
+      u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
+      u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
+      u.followers   = res["user"]["followers_num"];
+      u.following   = res["user"]["followings_num"];
+
+      k.data = u;
+    }else{
+      u.id          = "";
+      u.name        = "";
+      //u.email       = res["user"]["email"];
+      u.bio         = "";
+      u.iconLink    = "";
+      u.bannerLink  = "";
+      //u.location    = res["user"]["location"];
+      //u.website     = res["user"]["website"];
+      u.birthDate   = DateTime.parse("1992-10-8");
+      u.joinedDate  = DateTime.parse("1992-10-8");
+      u.followers   = 0;
+      u.following   = 0;
+
+      k.data = u;
+    }
+    return k;
   }
 
 }

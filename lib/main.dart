@@ -19,7 +19,7 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/post.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/user-verification/verification-code-page.dart';
@@ -60,10 +60,10 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? UserProfile.pageRoute,
+                initialRoute: widget.initialRoute ?? LandingRegisterPage.pageRoute,
                 routes: {
                   // TODO: for test purposes remove later
-                  Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
+                  //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
 
                   Home.pageRoute : (context) => const Home(),
 
@@ -79,7 +79,7 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
-                  UserProfile.pageRoute : (context) => UserProfile(),
+                  UserProfile.pageRoute : (context) => UserProfile(isCurrUser:true ,username: Auth.getInstance(context).getCurrentUser()!.id),
                 },
               );
             }
