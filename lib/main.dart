@@ -7,6 +7,7 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
+import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';

@@ -54,6 +54,7 @@ dependencies:
   permission_handler: ^11.0.1
   photo_manager: ^2.8.1
   sprintf:
+  photo_view: ^0.14.0
 
 dev_dependencies:
   flutter_test:

@@ -89,7 +89,7 @@ class UploadImageState extends State<UploadImage> {
               PopupMenuItem(
                 child: const Text("Take photo"),
                 onTap: () async {
-                  selectedImage = await getImageFromCamera();
+                  selectedImage = await getImageFromCamera(false);
                   if(selectedImage.path.isNotEmpty){
                     setState(() {
                       done = true;
@@ -100,7 +100,7 @@ class UploadImageState extends State<UploadImage> {
               ),
               PopupMenuItem(
                   onTap: () async {
-                    selectedImage = await getImageFromGallery();
+                    selectedImage = await getImageFromGallery(false);
                     if(selectedImage.path.isNotEmpty){
                       setState(() {
                         done = true;

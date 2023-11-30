@@ -192,34 +192,33 @@ class Account {
       print(res);
       u.id          = res["user"]["username"];
       u.name        = res["user"]["nickname"];
-      //u.email       = res["user"]["email"];
+      //u.email     = res["user"]["email"];
       u.bio         = res["user"]["bio"] ?? "";
       u.iconLink    = res["user"]["profile_image"];
       u.bannerLink  = res["user"]["banner_image"] ?? "";
-      //u.location    = res["user"]["location"];
-      //u.website     = res["user"]["website"];
+      //u.location  = res["user"]["location"];
+      //u.website   = res["user"]["website"];
       u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
       u.followers   = res["user"]["followers_num"];
       u.following   = res["user"]["followings_num"];
 
-      k.data = u;
     }else{
       u.id          = "";
       u.name        = "";
-      //u.email       = res["user"]["email"];
+      //u.email     = "";
       u.bio         = "";
       u.iconLink    = "";
       u.bannerLink  = "";
-      //u.location    = res["user"]["location"];
-      //u.website     = res["user"]["website"];
+      //u.location  = "";
+      //u.website   = "";
       u.birthDate   = DateTime.parse("1992-10-8");
       u.joinedDate  = DateTime.parse("1992-10-8");
       u.followers   = 0;
       u.following   = 0;
 
-      k.data = u;
     }
+    k.data = u;
     return k;
   }
 

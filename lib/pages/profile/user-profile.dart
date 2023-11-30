@@ -2,7 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/profile/profile-image-view.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
 
@@ -22,11 +25,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   //user details
   late String name;
   late String username;
-  late String? avatarImageUrl;
-  late String? bannerImageUrl;  //can be null
-  String location = "Cairo, Egypt";
-  late DateTime? birthDate;
-  late DateTime? joinedDate;
+  late String avatarImageUrl;
+  late String bannerImageUrl;
+  String location = "Cairo, Egypt";  //its not a feature so its constant forever, looks cool tho
+  late DateTime birthDate;
+  late DateTime joinedDate;
   late int following;
   late int followers;
 
@@ -39,27 +42,48 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   bool showName = false;
   double avatarRadius = 35;
   EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
+  int prevTabIndex = 0;
+  List<bool> isLoaded = [true,false,false,false];
 
+  //get user data
   void getData() async {
     setState(() {
       loading = true;
     });
     var res = await Account.apiUserProfile(widget.username);
-    User? u = res.data;
-    if(u != null){
-      name = u.name;
-      username = u.id;
-      avatarImageUrl = u.iconLink;
-      bannerImageUrl = u.bannerLink;
-      birthDate = u.birthDate;
-      joinedDate = u.joinedDate;
-      following = u.following;
-      followers = u.followers;
-    }
+    User u = res.data!;
+
+    name = u.name;
+    username = u.id;
+    avatarImageUrl = u.iconLink;
+    bannerImageUrl = "https://cdn.custom-cursor.com/pa"
+        "cks/7464/genshin-nahida-and-a-thousand-floating-dreams-pack.png"; //TODO:change this later
+    birthDate = u.birthDate!;
+    joinedDate = u.joinedDate!;
+    following = u.following;
+    followers = u.followers;
 
     setState(() {
       loading = false;
     });
+  }
+
+  void onTapBarClick(int index) {
+    if(prevTabIndex != index){
+      prevTabIndex = index;
+      if(index == 1 && !isLoaded[1]){
+        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        isLoaded[1] = true;
+     }
+      if(index == 2 && !isLoaded[2]){
+        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        isLoaded[2] = true;
+      }
+      if(index == 3 && !isLoaded[3]){
+        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        isLoaded[3] = true;
+      }
+    }
   }
 
   @override
@@ -71,9 +95,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
 
   //TODO: banner image alignment
-  //TODO: search button
-  //TODO: profile avatar page
-  //TODO: banner image page
   //TODO: get tweets
 
   @override
@@ -82,33 +103,34 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     return loading? const BlockingLoadingPage(): Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-          title: showName? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, //TODO: nickname
-                style: const TextStyle(
+        title: showName? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(name, //TODO: nickname
+              style: const TextStyle(
                   fontSize: 23,
                   color: Colors.white
-                ),
               ),
-              const Text("2 Posts",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ), //TODO: num of posts
-            ],
-          ) : null,
-          backgroundColor: Colors.transparent,
-          leading: ProfileAppBarIcon(
-            icon: Icons.arrow_back,
-            onPressed: (){
-              Navigator.pop(context);
-            },
-          ),
-          leadingWidth: 60,
-          actions:  showName && !widget.isCurrUser?
-          [
-            Padding(
+            ),
+            const Text("2 Posts",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ), //TODO: num of posts
+          ],
+        ) : null,
+        backgroundColor: Colors.transparent,
+        leading: ProfileAppBarIcon(
+          toolTip: 'Navigate Up',
+          icon: Icons.arrow_back,
+          onPressed: (){
+            Navigator.pop(context);
+          },
+        ),
+        leadingWidth: 60,
+        actions:  (showName && !widget.isCurrUser)?
+        [
+          Padding(
               padding: const EdgeInsets.all(8.0),
               child: FollowButton(
                 backgroundColor: Colors.white,
@@ -117,36 +139,52 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   //TODO: follow user
                 },
               )
+          ),
+        ] :
+        [
+          ProfileAppBarIcon(
+            icon: Icons.search,
+            onPressed: (){
+              //TODO: navigate to search page with user filter
+            },
+            toolTip: 'Search',
+          ),
+          ProfileAppBarIcon(
+            icon: Icons.more_vert,
+            toolTip: 'Menu',
+            onPressed: () {  //doesn't do anything just for looks :p
+              showMenu(
+                context: context,
+                position: const RelativeRect.fromLTRB(6, 5, 5, 0),
+                items: [
+                  PopupMenuItem(
+                    child: const Text("Share"),
+                    onTap: (){},
+                  ),
+                  PopupMenuItem(
+                    child: const Text("Draft"),
+                    onTap: (){},
+                  ),
+                  PopupMenuItem(
+                    child: const Text("Lists you're on"),
+                    onTap: (){},
+                  )
+                ],
+              );
+            },
+          ),
+        ],
+        flexibleSpace: collapsed? FlexibleSpaceBar(
+          background: ColorFiltered(
+            colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
+            child: Image.network(bannerImageUrl,
+              fit: BoxFit.cover,
+              alignment: Alignment.bottomCenter,
             ),
-          ]:
-          [
-            ProfileAppBarIcon(
-                icon: Icons.search,
-              onPressed: (){
-                  //TODO:
-              },
-            ),
-            ProfileAppBarIcon(
-                icon: Icons.more_vert,
-              onPressed: (){
-                  //TODO:
-              },
-            ),
-          ],
-          flexibleSpace: collapsed? FlexibleSpaceBar(
-            background: ColorFiltered(
-              colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-              child: Container(
-                color: Colors.blue,
-                child: Image.network("https://www.ggrecon."
-                    "com/media/l5skm20t/who-is-nahida-genshin-impact.jpg?mode=crop&width=682&quality=80&format=webp", //TODO: banner image
-                  fit: BoxFit.cover,
-                  alignment: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-          ) : null,
+          ),
+        ) : null
       ),
+
       body: NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification){
           setState(() {
@@ -161,7 +199,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         },
         child: RefreshIndicator(
           onRefresh: ()async{
-
+            //TODO: refresh user page
           },
           child: Stack(
             children: [
@@ -171,187 +209,145 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   children: [
                     Column(
                       children: [
-                        Container(
-                          height: 160,
-                          width: double.infinity,
-                          color: Colors.blue,
-                          child: Image.network("https://www.ggrecon"
-                              ".com/media/l5skm20t/who-is-nahida-genshin-impact.jp"
-                              "g?mode=crop&width=682&quality=80&format=webp", //TODO: banner image
-                            fit: BoxFit.cover,
-                            alignment: Alignment.bottomCenter,
-                          ),
+                        ProfileBanner(
+                          bannerImageUrl: bannerImageUrl,
+                          onTap: ()async{
+                             var res = await Navigator.push(context,
+                                 MaterialPageRoute(builder: (context) =>
+                                     ProfileImageView(isProfileAvatar: false, imageUrl: bannerImageUrl)
+                                 )
+                             );
+                             setState(() {
+                               bannerImageUrl = res;
+                             });
+                          },
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Expanded(child: SizedBox()),
-                                  Visibility(
-                                    visible: !widget.isCurrUser,
-                                      child: Container(
-                                        width: 35,
-                                        height: 35,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(width: 1,
-                                              color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black)
-                                        ),
-                                        child: IconButton(
-                                          icon: Icon(Icons.mail_outline,
-                                            size: 17.5,
-                                            color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black,
-                                          ),
-                                          onPressed: (){
-
-                                          },
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ProfileInteract(isCurrUser: widget.isCurrUser),
+                                      Text(
+                                        name,
+                                        style: const TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold
                                         ),
                                       ),
-                                  ),
-                                  const SizedBox(width: 10,),
-                                  widget.isCurrUser? OutlinedButton(
-                                    onPressed: (){},
-                                    style: OutlinedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        )
-                                    ),
-                                    child: const Text("Edit profile",style: TextStyle(fontWeight: FontWeight.bold),),
-                                  ) : FollowButton(
-                                    onPressed: (){
-                                      //TODO: follow user
-                                    },
-                                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                                  )
-                                ],
-                              ),
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                              Text("@$username"),
-                              const SizedBox(height: 20,),
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on_outlined, size: 15,),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                                        child: Text(location),
+                                      Text("@$username"),
+                                      const SizedBox(height: 20,),
+                                      Row(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on_outlined, size: 15,),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                child: Text(location),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 10,),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.cake, size: 15,),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate )}"),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10,),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.date_range, size: 15,),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                                            child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 15,),
+                                      Row(
+                                        children: [
+                                          InkWell(
+                                            onTap: (){
+                                              //TODO: list of Following
+                                            },
+                                            splashFactory: NoSplash.splashFactory,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "$following",
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const Text(" Following"),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10,),
+                                          InkWell(
+                                            onTap: (){
+                                              //TODO: list of Followers
+                                            },
+                                            splashFactory: NoSplash.splashFactory,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "$followers",
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const Text(" Followers"),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 20,),
+                                      ProfileTabBar(
+                                        tabController: tabController,
+                                      ),
+                                      SizedBox(
+                                        height: 1000, //TODO: user feed (change height dynamically every getTweets request)
+                                        child: TabBarView(
+                                            controller: tabController,
+                                            children: [
+                                              FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets,),
+                                              Container(color: Colors.red,child: Center(child: Text("2"),),),
+                                              Container(color: Colors.red,child: Center(child: Text("3"),),),
+                                              Container(color: Colors.red,child: Center(child: Text("4"),),),
+                                            ]
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 10,),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.cake, size: 15,),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                                        child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate?? DateTime.now())}"),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10,),
-                              Row(
-                                children: [
-                                  const Icon(Icons.date_range, size: 15,),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate?? DateTime.now())}"),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 15,),
-                              Row(
-                                children: [
-                                  InkWell(
-                                    onTap: (){
-                                      //TODO: list of Following
-                                    },
-                                    splashFactory: NoSplash.splashFactory,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "$following",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const Text(" Following"),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10,),
-                                  InkWell(
-                                    onTap: (){
-                                      //TODO: list of Followers
-                                    },
-                                    splashFactory: NoSplash.splashFactory,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "$followers",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const Text(" Followers"),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20,),
-                              ProfileTabBar(
-                                tabController: tabController,
-                              ),
-                              Container(
-                                height: 2000, //TODO: user feed (change height dynamically every getTweets request)
-                                child: TabBarView(
-                                  controller: tabController,
-                                    children: [
-                                      Container(height: 1000,width:200,color: Colors.red,child: Center(child: Text("1"),),),
-                                      Container(height: 1000,width:200,color: Colors.red,child: Center(child: Text("2"),),),
-                                      Container(height: 1000,width:200,color: Colors.red,child: Center(child: Text("3"),),),
-                                      Container(height: 1000,width:200,color: Colors.red,child: Center(child: Text("4"),),),
-                                    ]
                                 ),
-                              )
-                            ],
-                          ),
-                        )
-
                       ],
                     ),
-                    AnimatedContainer(
-                      margin: avatarPadding,
-                      width: 2 * avatarRadius,
-                      height: 2 * avatarRadius,
-                      transformAlignment: AlignmentDirectional.bottomCenter,
-                      duration: const Duration(milliseconds: 10),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: ThemeProvider.getInstance(context).isDark()? Colors.black : Colors.white,
-                              width: 3)
-                      ),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        radius: avatarRadius,
-                        backgroundImage: avatarImageUrl == ""? null : NetworkImage(avatarImageUrl!,),
-                      ),
+                    ProfileAvatar(
+                      avatarImageUrl: avatarImageUrl,
+                      avatarPadding: avatarPadding,
+                      avatarRadius: avatarRadius,
+                      onTap: () async {
+                        var res = await Navigator.push(context,
+                            MaterialPageRoute(builder: (context) =>
+                                ProfileImageView(isProfileAvatar: true, imageUrl: avatarImageUrl)
+                            )
+                        );
+                        setState(() {
+                          avatarImageUrl = res;
+                        });
+                      },
                     ),
                   ],
-                ),
+                )
               ),
               Visibility(
                 visible: scrollController.hasClients && scrollController.position.pixels > 295,
@@ -362,16 +358,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     width: double.infinity,
                     child: ProfileTabBar(
                       tabController: tabController,
-                      onTap: (index){
-                        setState(() {
-                          scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
-                        });
-                      },
+                      onTap: onTapBarClick,
                     ),
                   ),
                 ),
               ),
-            ]
+            ],
           ),
         ),
       ),
@@ -383,7 +375,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 class ProfileAppBarIcon extends StatelessWidget {
   final IconData icon;
   final void Function()? onPressed;
-  const ProfileAppBarIcon({Key? key,required this.icon,required this.onPressed}) : super(key: key);
+  final String toolTip;
+  const ProfileAppBarIcon({Key? key,required this.icon,required this.onPressed,required this.toolTip}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -398,6 +391,7 @@ class ProfileAppBarIcon extends StatelessWidget {
         ),
         child: IconButton(
           iconSize: 22,
+          tooltip: toolTip,
           icon: Icon(icon),color: Colors.white,
           onPressed: onPressed,
         ),
@@ -407,13 +401,13 @@ class ProfileAppBarIcon extends StatelessWidget {
 }
 
 class ProfileTabBar extends StatelessWidget {
-  ProfileTabBar({Key? key, this.tabController,this.onTap}) : super(key: key);
+  const ProfileTabBar({Key? key, this.tabController,this.onTap}) : super(key: key);
 
-  TabController? tabController;
-  List<String> tabs = [
+  final TabController? tabController;
+  static const List<String> tabs = [
     "Posts" , "Replies", "Media", " Likes",
   ];
-  void Function(int)? onTap;
+  final void Function(int)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -427,12 +421,12 @@ class ProfileTabBar extends StatelessWidget {
 }
 
 class FollowButton extends StatelessWidget {
-  FollowButton({Key? key,this.backgroundColor,this.onPressed,this.textColor,this.padding}) : super(key: key);
+  const FollowButton({Key? key,this.backgroundColor,this.onPressed,this.textColor,this.padding}) : super(key: key);
 
-  void Function()? onPressed;
-  Color? textColor;
-  Color? backgroundColor;
-  EdgeInsetsGeometry? padding;
+  final void Function()? onPressed;
+  final Color? textColor;
+  final Color? backgroundColor;
+  final EdgeInsetsGeometry? padding;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -453,6 +447,118 @@ class FollowButton extends StatelessWidget {
     );
   }
 }
+
+class ProfileAvatar extends StatelessWidget {
+  const ProfileAvatar({Key? key,required this.avatarImageUrl,
+    required this.avatarPadding,required this.avatarRadius,required this.onTap}) : super(key: key);
+
+  final double avatarRadius;
+  final EdgeInsetsGeometry avatarPadding;
+  final String avatarImageUrl;
+  final void Function()? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      splashFactory: NoSplash.splashFactory,
+      onTap: onTap,
+      child: AnimatedContainer(
+        margin: avatarPadding,
+        width: 2 * avatarRadius,
+        height: 2 * avatarRadius,
+        transformAlignment: AlignmentDirectional.bottomCenter,
+        duration: const Duration(milliseconds: 10),
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+                color: ThemeProvider.getInstance(context).isDark()? Colors.black : Colors.white,
+                width: 3)
+        ),
+        child: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          radius: avatarRadius,
+          backgroundImage: avatarImageUrl == ""? null : NetworkImage(avatarImageUrl,),
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileBanner extends StatelessWidget {
+  const ProfileBanner({Key? key,required this.bannerImageUrl,required this.onTap}) : super(key: key);
+
+  final String bannerImageUrl;
+  final void Function()? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      splashFactory: NoSplash.splashFactory,
+      onTap: onTap,
+      child: Container(
+        height: 160,
+        width: double.infinity,
+        color: Colors.blue,
+        child: Image.network(bannerImageUrl,
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileInteract extends StatelessWidget {
+  const ProfileInteract({Key? key,required this.isCurrUser}) : super(key: key);
+
+  final bool isCurrUser;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: SizedBox()),
+        Visibility(
+          visible: !isCurrUser,
+          child: Container(
+            width: 35,
+            height: 35,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(width: 1,
+                    color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black)
+            ),
+            child: IconButton(
+              icon: Icon(Icons.mail_outline,
+                size: 17.5,
+                color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black,
+              ),
+              onPressed: (){
+                //TODO: DM user page
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 10,),
+        isCurrUser? OutlinedButton(
+          onPressed: (){},
+          style: OutlinedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              )
+          ),
+          child: const Text("Edit profile",style: TextStyle(fontWeight: FontWeight.bold),),
+        ) :
+        FollowButton(
+          onPressed: (){
+            //TODO: follow user
+          },
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+        )
+      ],
+    );
+  }
+}
+
+
 
 
 
