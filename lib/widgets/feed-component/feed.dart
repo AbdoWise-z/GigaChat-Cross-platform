@@ -11,11 +11,13 @@ import "package:gigachat/api/user-class.dart";
 class FeedWidget extends StatefulWidget {
   Future<List<TweetData>> Function(User) tweetDataSource;
   Tweet? specialTweet;
+  bool? scrollable;
 
   FeedWidget({
     super.key,
     this.specialTweet,
-    required this.tweetDataSource
+    required this.tweetDataSource,
+    this.scrollable
   });
 
   @override
@@ -49,6 +51,8 @@ class _FeedWidgetState extends State<FeedWidget> {
       return const LoadingPage();
     }
 
+    widget.scrollable ??= true;
+
     List<Tweet> tweetWidgets = _tweetsData.map((tweet) => Tweet(
       tweetOwner: tweet.tweetOwner,
       tweetData: tweet,
@@ -61,10 +65,12 @@ class _FeedWidgetState extends State<FeedWidget> {
       tweetWidgets.insert(0, widget.specialTweet!);
     }
 
-    return SingleChildScrollView(
+    return widget.scrollable == true ?
+    SingleChildScrollView(
           child: Column(
             children: tweetWidgets,
           ),
-      );
+      ) :
+    Column(children: tweetWidgets);
   }
 }
