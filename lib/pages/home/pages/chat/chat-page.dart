@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
 
 class ChatPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ChatPageState extends State<ChatPage> {
             ChatItem(
               message: ChatMessageObject(
                   id: "asfdjs;dbdfg",
-                  media: null,
+                  media: MediaObject(link: "https://cdn.discordapp.com/attachments/1168192198764933280/1180253019934314587/image.png?ex=657cbf47&is=656a4a47&hm=cb58781313b28a105b64fdc4570e2677e62cbc8cea70e422a4a8e4fcb4030a5e&", type: MediaType.IMAGE),
                   replyTo: null,
                   self: true,
                   text: "this is a message and this is a very long message daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaamn",
