@@ -7,32 +7,58 @@ import 'package:gigachat/api/api.dart';
 
 class FeedProvider
 {
-  late List<TweetData> _currentFeedData;
-  //late User _currentUser;
-  static FeedProvider? _instance;
+  List<TweetData> _currentFeedData = [];
+  int? _lastRequestedPage;
+  int pageCount = 5;
 
 
-  // Private Constructor
-  FeedProvider._internal(BuildContext context){
-    //_currentUser = Auth.getInstance(context).getCurrentUser()!;
-    _currentFeedData = [];
+  FeedProvider({
+    required this.pageCount
+  }){
+    _lastRequestedPage = 0;
   }
 
-  // Getting An Instance Of The Object
-  factory FeedProvider(BuildContext context){
-    _instance ??= FeedProvider._internal(context);
-    return _instance!;
-  }
-
-
-  Future<List<TweetData>> getFollowingTweets(User user) async
+  Future<List<TweetData>> getFollowingTweets(String userToken,int page) async
   {
-    List<TweetData>? response = await Tweets.getFollowingTweet(user.auth);
 
-    _currentFeedData = response ?? [];
-    // TODO: Response must be formatted here but we will move on for now
+    if (_lastRequestedPage! >= page)
+    {
+      // the list is already updated with the requested page
+      return _currentFeedData;
+    }
+
+    _lastRequestedPage = page;
+
+    List<TweetData> response = await Tweets.getFollowingTweet(
+        userToken,
+        pageCount.toString(),
+        page.toString()
+    );
+
+    _currentFeedData.addAll(response);
+
     return _currentFeedData;
   }
+
+  Future<List<TweetData>> getUserProfileTweets(String userToken,int page) async
+  {
+    if (page * pageCount == _currentFeedData.length)
+    {
+      // the list is already updated with the requested page
+      return _currentFeedData;
+    }
+
+    List<TweetData>? response = await Tweets.getFollowingTweet(
+        userToken,
+        pageCount.toString(),
+        page.toString()
+    );
+
+    _currentFeedData = [..._currentFeedData, ...response];
+
+    return _currentFeedData;
+  }
+
 
   List<TweetData> getCurrentTweets()
   {

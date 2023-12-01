@@ -18,7 +18,7 @@ class User {
   User({
     this.id = "@Abdo-ww",
     this.name = "Abdo",
-    this.auth,
+    this.auth = "moa",
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
     this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",

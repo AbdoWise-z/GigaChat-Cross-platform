@@ -36,9 +36,9 @@ class _TweetActionButtonState extends State<TweetActionButton> {
 
     return widget.isLikeButton!
         ? Expanded(
-            child: ElevatedButton(
+            child: TextButton(
               onPressed: () {},
-              style: ElevatedButton.styleFrom(
+              style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.grey,
                   padding: EdgeInsets.zero,
@@ -72,8 +72,8 @@ class _TweetActionButtonState extends State<TweetActionButton> {
           )
         : Expanded(
             child: Center(
-            child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
+            child: TextButton.icon(
+                style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: !widget.isRetweet || !widget.isRetweeted
                         ? Colors.grey

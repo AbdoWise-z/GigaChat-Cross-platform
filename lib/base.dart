@@ -1,6 +1,8 @@
 //TODO: add constants here
+//const String API_LINK = "127.0.0.1:5000";
 const String API_LINK = "backend.gigachat.cloudns.org";
-const Duration API_TIMEOUT = Duration(seconds: 5);
+const Duration API_TIMEOUT = Duration(seconds: 1);
+const int DEFAULT_PAGE_COUNT = 5;
 
 const String APP_NAME = "gigachat";
 
