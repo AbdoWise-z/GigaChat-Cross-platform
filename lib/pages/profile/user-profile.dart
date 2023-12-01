@@ -96,6 +96,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   //TODO: banner image alignment
   //TODO: get tweets
+  //TODO: onNotification func (when scrolling so fast)
 
   @override
   Widget build(BuildContext context) {
@@ -187,14 +188,16 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
       body: NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification){
-          setState(() {
-            double pos = scrollController.position.pixels;
-            collapsed = pos > 80 ? true : false;
-            showName = pos > 162 ? true : false;
-            avatarRadius = pos < 155? 35 - 0.2 * pos : 20;
-            avatarPadding = pos < 155? EdgeInsets.fromLTRB(8 + 0.2 * pos, 122 + 0.46 * pos, 0, 0) :
-            const EdgeInsets.fromLTRB(24, 160, 0, 0);
-          });
+          double pos = scrollController.position.pixels;
+          if(pos < 300){
+            setState(() {
+              collapsed = pos > 80 ? true : false;
+              showName = pos > 162 ? true : false;
+              avatarRadius = pos < 140? 35 - 0.2 * pos : 20;
+              avatarPadding = pos < 140? EdgeInsets.fromLTRB(8 + 0.2 * pos, 122 + 0.46 * pos, 0, 0) :
+              const EdgeInsets.fromLTRB(24, 160, 0, 0);
+            });
+          }
           return true;
         },
         child: RefreshIndicator(
