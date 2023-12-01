@@ -1,6 +1,5 @@
 
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:gigachat/api/tweet-data.dart';
 
@@ -51,21 +50,29 @@ class Tweets {
   //final String GET_FOLLOWING_TWEETS_API = "$API_LINK/api/homepage/following";
   //List<Tweet>? serverResponse;
 
-  static List<TweetData>? cachedTweets;
-  static void loadCache() {
+  static List<TweetData> cachedTweets = loadCache();
+  static List<TweetData> loadCache() {
     // TODO: load cache here later
-    cachedTweets ??= [getDefaultTweet(MediaType.IMAGE),getDefaultTweet(MediaType.VIDEO)];
+    return [
+      getDefaultTweet("1",MediaType.IMAGE),
+      getDefaultTweet("2",MediaType.IMAGE),
+      getDefaultTweet("3",MediaType.IMAGE),
+      getDefaultTweet("4",MediaType.IMAGE),
+      getDefaultTweet("5",MediaType.IMAGE),
+    ];
   }
 
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
-  ///
-  static Future<List<TweetData>?> getFollowingTweet (String? token) async
+  static Future<List<TweetData>> getFollowingTweet (String token,String count, String page) async
   {
-    var headers = Api.getTokenWithJsonHeader("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw");
-    ApiResponse response = await Api.apiGet(ApiPath.followingTweets,headers: headers);
-
-
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        ApiPath.followingTweets,
+        headers: headers,
+        params: {"page":page,"count":count}
+    );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
       final tweets = json.decode(response.responseBody!);
@@ -112,19 +119,45 @@ class Tweets {
   }
 
 
+  static Future<List<User>> getTweetLikers(String token, String tweetId,String page) async
+  {
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
+    tweetId = "654c193b688f342c88a547e8";
+
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        ApiPath.tweetLikers.appendDirectory(tweetId),
+        headers: headers,
+        params: {"page": page}
+    );
+    if (response.code == ApiResponse.CODE_SUCCESS){
+      dynamic jsonResponse = json.decode(response.responseBody!);
+      List<dynamic> users = jsonResponse["data"];
+      return users.map(
+              (user) => User(
+                    id: user["username"] ?? "",
+                    name: user["nickname"],
+                    bio: user["bio"] ?? "",
+                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png"
+                )
+      ).toList();
+    }
+    return [];
+  }
+
+
   /// returns true if the tweet is successfully liked, false if it failed
   static Future<bool> likeTweetById(String token,String tweetId) async {
       ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
       var headers = Api.getTokenWithJsonHeader("Bearer $token");
       ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-      if(response.code == 201){
+      if(response.code == 201)
+      {
         return true;
       }
       else
       {
-        if (kDebugMode) {
-          print(response.code);
-        }
+        debugPrint(response.code.toString());
         return false;
       }
   }
@@ -183,14 +216,12 @@ class Tweets {
       return null;
     }
   }
-
-
 }
 
 
-TweetData getDefaultTweet(MediaType mediaType){
+TweetData getDefaultTweet(String id,MediaType mediaType){
   return TweetData(
-      id: '1',
+      id: id,
       referredTweetId: '',
 
       description:
