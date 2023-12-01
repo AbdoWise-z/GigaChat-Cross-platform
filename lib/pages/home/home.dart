@@ -103,7 +103,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         drawer: const NavDrawer(),
         body: NestedScrollView(
           controller: _scrollController,
-          headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
+          headerSliverBuilder: (_ , __) => [
             HomeAppBar(
               pinned: _pages[_currentPage].isAppBarPinned(context),
               userImage: isLoggedIn ? value.getCurrentUser()!.iconLink : null,
@@ -113,10 +113,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               controller: _controller,
               tabs: _pages[_currentPage].getTabs(context),
             ),
-          ],
-          body: _controller != null ? TabBarView(
-            controller: _controller,
-            children: _pages[_currentPage].getTabsWidgets(context)!,
+
+          ], body: _controller != null ? Column(
+            children: [
+              Expanded(
+                child: TabBarView(
+                  controller: _controller,
+                  children: _pages[_currentPage].getTabsWidgets(context)!,
+                ),
+              ),
+            ],
           ) : _pages[_currentPage].getPage(context)!,
         ),
         floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),

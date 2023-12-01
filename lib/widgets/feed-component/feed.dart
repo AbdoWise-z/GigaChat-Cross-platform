@@ -33,6 +33,8 @@ class _FeedWidgetState extends State<FeedWidget> {
     var user = Auth.getInstance(context).getCurrentUser()!;
     _tweetsData = await widget.tweetDataSource(user);
     loading = false;
+
+    if (!context.mounted) return;
     setState(() {});
   }
 
