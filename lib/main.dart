@@ -3,6 +3,7 @@ import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
@@ -57,9 +58,10 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
+                initialRoute: widget.initialRoute ?? ChatPage.pageRoute,
                 routes: {
                   Home.pageRoute : (context) => const Home(),
+                  ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
                   UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
