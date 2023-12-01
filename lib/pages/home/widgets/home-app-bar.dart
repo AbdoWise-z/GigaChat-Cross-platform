@@ -78,9 +78,7 @@ class HomeAppBar extends StatelessWidget {
       ) : title == null ? GestureDetector(
         onTap: searchBar!.onClick,
         child: Container(
-          //constraints: const BoxConstraints.expand(height: 35),
-          width: 35,
-          height: 35,
+          constraints: const BoxConstraints.expand(height: 35),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: ThemeProvider.getInstance(context).isDark() ? const Color.fromARGB(30, 200, 255, 235) : const Color.fromARGB(30, 100, 155, 135),
