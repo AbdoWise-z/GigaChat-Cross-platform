@@ -1,4 +1,3 @@
-const String USER_DEFAULT_PROFILE = "https://i.imgur.com/C1bPcWq.png";
 
 class User {
   String id;
@@ -10,8 +9,8 @@ class User {
   String bannerLink;
   String location;
   String website;
-  String birthDate;
-  String joinedDate;
+  DateTime? birthDate;
+  DateTime? joinedDate;
 
   int followers;
   int following;
@@ -20,15 +19,16 @@ class User {
   User({
     this.id = "@Abdo-ww",
     this.name = "Abdo",
-    this.auth,
+    this.auth = "moa",
     this.email = "...",
-    this.bio = "the coolest man on planet earth :PEPECOOL:",
-    this.iconLink = USER_DEFAULT_PROFILE,
-    this.bannerLink = "",
+    this.bio = "",
+    this.iconLink = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
+    this.bannerLink = "https://cdn.custom-cursor.com/pa"
+        "cks/7464/genshin-nahida-and-a-thousand-floating-dreams-pack.png",
     this.location = "hell",
     this.website = "www.Abdo.com",
-    this.birthDate = "9-18-2002",
-    this.joinedDate = "9-17-2002",
+    this.birthDate,
+    this.joinedDate,
     this.followers = 0,
     this.following = 0,
     this.active = false,

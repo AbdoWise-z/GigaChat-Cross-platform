@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
@@ -109,8 +110,8 @@ class _NavDrawerState extends State<NavDrawer> {
                 //TODO : handle account menu
               },
                 icon: const Icon(
-                  Icons.format_list_bulleted_outlined,
-                  size: 14,
+                  Icons.more_vert,
+                  size: 16,
                 ),
               ),
             ],
@@ -176,8 +177,12 @@ class _NavDrawerState extends State<NavDrawer> {
                             Column(
                               children: [
                                 ListTile(
-                                  onTap: () {
+                                  onTap: () async {
                                     //TODO : handle on click
+                                    await Navigator.pushNamed(context, UserProfile.pageRoute);
+                                    setState(() {
+
+                                    });
                                   },
                                   horizontalTitleGap: 8,
                                   leading: const Icon(Icons.person_outline),

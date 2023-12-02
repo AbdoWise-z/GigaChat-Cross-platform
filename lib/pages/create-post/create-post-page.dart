@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:gigachat/api/api.dart';
+import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -60,7 +63,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     Auth auth = Auth.getInstance(context);
-    FeedProvider feed = FeedProvider(context);
+    FeedProvider feed = FeedProvider(pageCount: 5);
 
     String? ref;
     if (_replyTweet != null) {
@@ -70,13 +73,31 @@ class _CreatePostPageState extends State<CreatePostPage> {
     bool error = false;
     for (var k in _posts){
       var state = k.currentState!;
+      List<String> paths = state.media;
+      List<UploadFile> files = paths.map(
+              (e) => UploadFile(
+                path: "/sdcard/$e",
+                type: MediaObject.TypeOf(e) == MediaType.IMAGE ? "image" : "video",
+                subtype: MediaObject.TypeOf(e) == MediaType.IMAGE ? "png" : "mp4"
+              )
+      ).toList();
+
+      ApiResponse<List> response = await Media.uploadMedia(auth.getCurrentUser()!.auth!, files);
+
+      if (response.data == null || response.data!.length != paths.length){
+        if (!context.mounted) return; //just to make flutter shut up
+        Toast.showToast(context, "Please check your internet");
+        error = true;
+        break;
+      }
+
+      List urls = response.data!;
+
       IntermediateTweetData data = IntermediateTweetData(
         description: state.controller.text,
-        media: state.media.map((e) => MediaObject(
-          //TODO : replace with the actual media
-          //       after the backend adds the end point
-          link: "https://i.imgur.com/9XSC9YB.jpeg",
-          type: MediaType.IMAGE,
+        media: files.map((e) => MediaObject(
+          link: urls[files.indexOf(e)],
+          type: MediaObject.TypeOf(e.path),
         )).toList(growable: false),
         referredTweetId: ref,
         type: ref == null ? TweetType.TWEET : TweetType.REPLY,

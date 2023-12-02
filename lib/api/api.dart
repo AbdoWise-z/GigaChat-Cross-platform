@@ -6,7 +6,16 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
+import 'package:sprintf/sprintf.dart';
 
+
+class UploadFile{
+  final String path;
+  final String? type;
+  final String? subtype;
+
+  UploadFile({required this.path, this.type, this.subtype}) : assert(type == null || subtype != null , "Type and subtype must be both null or both not null");
+}
 
 class ApiResponse<T> {
   T? data;
@@ -42,6 +51,14 @@ class ApiPath{
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
+  static ApiPath fromString(String str){
+    return ApiPath._(str);
+  }
+  ApiPath format(List list){
+    String str;
+    str = sprintf(_path,list);
+    return ApiPath._(str);
+  }
   ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
@@ -63,6 +80,14 @@ class ApiPath{
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
   static ApiPath comments                = const ApiPath._("/api/tweets/replies");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
+  static ApiPath media                   = const ApiPath._("/api/media");
+  static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
+  static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
+  static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
+  static ApiPath userProfileTweets       = const ApiPath._("/api/%s/tweets");
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
+
 }
 
 class Api {
@@ -71,6 +96,12 @@ class Api {
     return getJsonHeader({
       "authorization" : token
     });
+  }
+
+  static Map<String,String> getTokenHeader(String token){
+    return {
+      "authorization" : token
+    };
   }
 
   static Map<String,String> getJsonHeader(Map<String,String> m){
@@ -115,11 +146,10 @@ class Api {
     }
   }
 
-  static Future<ApiResponse<T>> _apiPostFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Map<String,String> files , Encoding encoding) async {
+  static Future<ApiResponse<T>> _apiPostFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
       var request = http.MultipartRequest("POST" , url);
       request.headers.addAll(headers ?? {});
-
       if (body != null) {
         if (body is Map<String , String>){
           request.fields.addAll(body);
@@ -127,16 +157,7 @@ class Api {
           print("_apiPostFilesImpl: tried to add a body that is not a map");
         }
       }
-
-      for ( MapEntry e in files.entries) {
-        //TODO: maybe get the contentType and fileName too in the future ...
-        request.files.add(
-            await http.MultipartFile.fromPath(
-              '${e.key}',
-               '${e.value}'
-            )
-        );
-      }
+      request.files.addAll(files);
 
       var response = await request.send();
       var response2 = await http.Response.fromStream(response);
@@ -157,7 +178,7 @@ class Api {
         Map<String,dynamic>? params ,
         Map<String,String>? headers ,
         Object? body ,
-        Map<String,String>? files ,
+        List<http.MultipartFile>? files ,
         Encoding? encoding ,
       }
       ){
@@ -173,7 +194,7 @@ class Api {
     try{
       var response = await http.get(
         url,
-        headers: headers
+        headers: headers,
       ).timeout(API_TIMEOUT);
       //dynamic responsePayload = json.decode(response.body);
 
@@ -188,56 +209,14 @@ class Api {
     }
   }
 
-  static Future<ApiResponse<T>> _apiGetFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Map<String,String> files , Encoding encoding) async {
-    try {
-      var request = http.MultipartRequest("GET" , url);
-      request.headers.addAll(headers ?? {});
-
-      if (body != null) {
-        if (body is Map<String , String>){
-          request.fields.addAll(body);
-        }else{
-          print("_apiPostFilesImpl: tried to add a body that is not a map");
-        }
-      }
-
-      for ( MapEntry e in files.entries) {
-        //TODO: maybe get the contentType and fileName too in the future ...
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                '${e.key}',
-                '${e.value}'
-            )
-        );
-      }
-
-      var response = await request.send();
-      var response2 = await http.Response.fromStream(response);
-      return ApiResponse<T>(code: response.statusCode, responseBody: String.fromCharCodes(response2.bodyBytes));
-    } on SocketException {
-      return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
-    } on TimeoutException{
-      return ApiResponse<T>(code: ApiResponse.CODE_TIMEOUT, responseBody: null);
-    } on Error catch (e) {
-      print(e);
-      return ApiResponse<T>(code: ApiResponse.CODE_UNKNOWN, responseBody: null);
-    }
-  }
-
-
-
   static Future<ApiResponse<T>> apiGet<T>(
       ApiPath path ,
       {
         Map<String,dynamic>? params ,
         Map<String,String>? headers ,
-        Object? body ,
-        Map<String,String>? files ,
-        Encoding? encoding ,
       }
       ){
 
-    encoding ??= Encoding.getByName("utf-8");
     headers ??= JSON_TYPE_HEADER;
 
     return _apiGetNoFilesImpl<T>(path.url(params: params) , headers );
@@ -263,11 +242,10 @@ class Api {
     }
   }
 
-  static Future<ApiResponse<T>> _apiPatchFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Map<String,String> files , Encoding encoding) async {
+  static Future<ApiResponse<T>> _apiPatchFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
       var request = http.MultipartRequest("PATCH" , url);
       request.headers.addAll(headers ?? {});
-
       if (body != null) {
         if (body is Map<String , String>){
           request.fields.addAll(body);
@@ -275,20 +253,11 @@ class Api {
           print("_apiPostFilesImpl: tried to add a body that is not a map");
         }
       }
-
-      for ( MapEntry e in files.entries) {
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                '${e.key}',
-                '${e.value}'
-            )
-        );
-      }
+      request.files.addAll(files);
 
       var response = await request.send();
       var response2 = await http.Response.fromStream(response);
       return ApiResponse<T>(code: response.statusCode, responseBody: String.fromCharCodes(response2.bodyBytes));
-
     } on SocketException {
       return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
     } on TimeoutException{
@@ -305,7 +274,7 @@ class Api {
         Map<String,dynamic>? params ,
         Map<String,String>? headers ,
         Object? body ,
-        Map<String,String>? files ,
+        List<http.MultipartFile>? files ,
         Encoding? encoding ,
       }
       ){

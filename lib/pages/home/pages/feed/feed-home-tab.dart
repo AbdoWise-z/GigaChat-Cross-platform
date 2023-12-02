@@ -13,11 +13,6 @@ import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedHomeTab with HomePageTab {
-  @override
-  String? getTitle(BuildContext context) {
-    // TODO: implement getTitle
-    return super.getTitle(context);
-  }
 
   @override
   List<AppBarAction> getActions(BuildContext context) {
@@ -48,9 +43,16 @@ class FeedHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        ];
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.HOME_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()!.auth,
+        ),
+
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()?.auth,
+        ),
+      ];
     }
     return const [
       Padding(

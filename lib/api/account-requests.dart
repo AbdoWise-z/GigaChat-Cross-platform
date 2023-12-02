@@ -2,6 +2,7 @@
 import "dart:convert";
 import "dart:io";
 import "dart:math";
+import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
 import "package:gigachat/util/contact-method.dart";
@@ -28,16 +29,16 @@ class Account {
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
-
-      u.bio         = res["data"]["user"]["bio"]          ?? u.bio;
+      //u.email       = res["data"]["user"]["email"];
+      //u.bio         = res["data"]["user"]["bio"];
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      u.bannerLink  = res["data"]["user"]["bannerImage"]  ?? u.bannerLink;
-      u.location    = res["data"]["user"]["location"]     ?? u.location;
-      u.website     = res["data"]["user"]["website"]      ?? u.website;
-      u.birthDate   = res["data"]["user"]["birthDate"];
-      u.joinedDate  = res["data"]["user"]["joinedAt"];
-      u.followers   = res["data"]["user"]["followers_num"];
-      u.following   = res["data"]["user"]["followings_num"];
+      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      //u.location    = res["data"]["user"]["location"];
+      //u.website     = res["data"]["user"]["website"];
+      u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
+      u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
+      //u.followers   = res["data"]["user"]["followers_num"];
+      //u.following   = res["data"]["user"]["following_num"];
 
       k.data = u;
     }
@@ -77,27 +78,24 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
-    print(k.responseBody);
-
     if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
 
       u.active      = true; //TODO: change this later
       u.auth        = res["token"];
-      u.email       = method.data!; //TODO: change this later
-      u.id          = res["data"]["suggestedUsername"] ?? "";
-      // u.name        = res["data"]["user"]["nickname"];
-      //
-      // u.bio         = res["data"]["user"]["bio"] ?? u.bio;
-      // u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      // u.bannerLink  = res["data"]["user"]["bannerImage"] ?? u.bannerLink;
-      // u.location    = res["data"]["user"]["location"] ?? u.location;
-      // u.website     = res["data"]["user"]["website"] ?? u.website;
-      // u.birthDate   = res["data"]["user"]["birthDate"];
-      // u.joinedDate  = res["data"]["user"]["joinedAt"];
-      // u.followers   = res["data"]["user"]["followers_num"];
-      // u.following   = res["data"]["user"]["followings_num"];
+      u.id          = res["data"]["user"]["username"];
+      u.name        = res["data"]["user"]["nickname"];
+      u.email       = res["data"]["user"]["email"];
+      //u.bio         = res["data"]["user"]["bio"];
+      //u.iconLink    = res["data"]["user"]["profile_image"];
+      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      //u.location    = res["data"]["user"]["location"];
+      //u.website     = res["data"]["user"]["website"];
+      u.birthDate   = res["data"]["user"]["birthDate"];
+      u.joinedDate  = res["data"]["user"]["joinedAt"];
+      //u.followers   = res["data"]["user"]["followers_num"];
+      //u.following   = res["data"]["user"]["following_num"];
 
       k.data = u;
     }
@@ -151,16 +149,22 @@ class Account {
 
   static Future<ApiResponse<String>> apiSetProfileImage(String token, File img) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
+    if (links == null || links.isEmpty){
+      //print("failed to upload profile image");
+      return ApiResponse<String>(code: -1, responseBody: "");
+    }
+
     var k = await Api.apiPatch<String>(
       ApiPath.profileImage,
       headers: headers,
-      files: {
-        "profile_image" : img.path
-      }
+      body: json.encode( {
+        "profile_image" : links[0],
+      }),
     );
-    if (k.code == ApiResponse.CODE_SUCCESS) {
-      var res = jsonDecode(k.responseBody!);
-      k.data = res["image_profile_url"];
+    print("avatar: ${k.code}");
+    if (k.code == ApiResponse.CODE_SUCCESS_NO_BODY) {
+      k.data = links[0];
     }
     return k;
   }
@@ -184,5 +188,91 @@ class Account {
     //TODO: do some API request
     return true;
   }
+
+  static Future<ApiResponse<User>> apiCurrUserProfile(String token) async{
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<User>(
+        ApiPath.currUserProfile,
+      headers: headers,
+    );
+    User u = User();
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      print(res);
+      u.id          = res["user"]["username"];
+      u.name        = res["user"]["nickname"];
+      //u.email     = res["user"]["email"];
+      u.bio         = res["user"]["bio"] ?? "";
+      u.iconLink    = res["user"]["profile_image"];
+      u.bannerLink  = res["user"]["banner_image"] ?? "";
+      //u.location  = res["user"]["location"];
+      //u.website   = res["user"]["website"];
+      u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
+      u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
+      u.followers   = res["user"]["followers_num"];
+      u.following   = res["user"]["followings_num"];
+
+    }else{
+      u.id          = "";
+      u.name        = "";
+      //u.email     = "";
+      u.bio         = "";
+      u.iconLink    = "";
+      u.bannerLink  = "";
+      //u.location  = "";
+      //u.website   = "";
+      u.birthDate   = DateTime.parse("1992-10-8");
+      u.joinedDate  = DateTime.parse("1992-10-8");
+      u.followers   = 0;
+      u.following   = 0;
+
+    }
+    k.data = u;
+    return k;
+  }
+
+
+  static Future<ApiResponse<bool>> apiUpdateUserInfo(String token,String name,String bio,String website, String location,DateTime birthDate) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiPatch<bool>(
+      ApiPath.updateUserInfo,
+      body: json.encode(
+        {
+          "nickname" : name,
+          "bio" : bio,
+          "location" : location,
+          "website" : website,
+          "birth_date" : birthDate.toString(),
+        }
+      ),
+      headers: headers,
+    );
+    k.data = k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    print(k.code);
+    return k;
+  }
+
+  static Future<ApiResponse<String>> apiSetBannerImage(String token, File img) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
+    if (links == null || links.isEmpty){
+      //print("failed to upload profile image");
+      return ApiResponse<String>(code: -1, responseBody: "");
+    }
+
+    var k = await Api.apiPatch<String>(
+      ApiPath.banner,
+      headers: headers,
+      body: json.encode( {
+        "profile_banner" : links[0],
+      }),
+    );
+    print("banner: ${k.code}");
+    if (k.code == ApiResponse.CODE_SUCCESS_NO_BODY) {
+      k.data = links[0];
+    }
+    return k;
+  }
+
 
 }

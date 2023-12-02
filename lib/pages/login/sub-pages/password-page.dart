@@ -39,6 +39,8 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
       _loading = true;
     });
 
+    //print("login : {username: ${widget.username} , password: $password");
+
     await authProvider.login(
       widget.username,
       password!,
