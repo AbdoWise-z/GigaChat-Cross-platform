@@ -1,8 +1,11 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
@@ -10,9 +13,9 @@ import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
 
 class UserProfile extends StatefulWidget {
-  String username;
-  bool isCurrUser;
-  UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
+  final String username;
+  final bool isCurrUser;
+  const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
   static const pageRoute = '/user-profile';
 
@@ -27,6 +30,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late String username;
   late String avatarImageUrl;
   late String bannerImageUrl;
+  late String bio;
+  late String website;
   String location = "Cairo, Egypt";  //its not a feature so its constant forever, looks cool tho
   late DateTime birthDate;
   late DateTime joinedDate;
@@ -50,18 +55,20 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     setState(() {
       loading = true;
     });
-    var res = await Account.apiUserProfile(widget.username);
+    Auth auth = Auth.getInstance(context);
+    var res = await Account.apiUserProfile(widget.username,auth.getCurrentUser()!.auth!);
     User u = res.data!;
 
     name = u.name;
     username = u.id;
     avatarImageUrl = u.iconLink;
-    bannerImageUrl = "https://cdn.custom-cursor.com/pa"
-        "cks/7464/genshin-nahida-and-a-thousand-floating-dreams-pack.png"; //TODO:change this later
+    bannerImageUrl = u.bannerLink;
     birthDate = u.birthDate!;
     joinedDate = u.joinedDate!;
     following = u.following;
     followers = u.followers;
+    bio = u.bio;
+    website = u.website;
 
     setState(() {
       loading = false;
@@ -93,7 +100,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     super.initState();
   }
 
-
   //TODO: banner image alignment
   //TODO: get tweets
   //TODO: onNotification func (when scrolling so fast)
@@ -101,13 +107,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
 
+    double max = bio != ""? 390 : 317;
+
     return loading? const BlockingLoadingPage(): Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: showName? Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, //TODO: nickname
+            Text(name,
               style: const TextStyle(
                   fontSize: 23,
                   color: Colors.white
@@ -189,7 +197,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       body: NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification){
           double pos = scrollController.position.pixels;
-          if(pos < 300){
+          if(pos < max){
             setState(() {
               collapsed = pos > 80 ? true : false;
               showName = pos > 162 ? true : false;
@@ -230,7 +238,32 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      ProfileInteract(isCurrUser: widget.isCurrUser),
+                                      ProfileInteract(
+                                        isCurrUser: widget.isCurrUser,
+                                        onTapEditProfile: ()async{
+                                          var res = await Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) =>
+                                                  EditProfile(
+                                                    name: name,
+                                                    bannerImageUrl: bannerImageUrl,
+                                                    avatarImageUrl: avatarImageUrl,
+                                                    bio: bio,
+                                                    website: website,
+                                                    birthDate: birthDate,
+                                                  )
+                                              ));
+                                          setState(() {
+                                            name = res["name"];
+                                            bio = res["bio"];
+                                            website = res["website"];
+                                            birthDate = res["birthDate"];
+                                            bannerImageUrl = res["bannerImageUrl"];
+                                            avatarImageUrl = res["avatarImageUrl"];
+                                          });
+                                        },
+                                        onTapDM: (){}, //TODO: DM user
+                                        onTapFollow: (){}, //TODO: follow user
+                                      ),
                                       Text(
                                         name,
                                         style: const TextStyle(
@@ -239,6 +272,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         ),
                                       ),
                                       Text("@$username"),
+                                      bio == "" ? const Text("") :
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(0,10,0,0),
+                                        child: SizedBox(
+                                          height: 80,
+                                            child: Text(bio)
+                                        ),
+                                      ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         children: [
@@ -266,11 +307,25 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       const SizedBox(height: 10,),
                                       Row(
                                         children: [
-                                          const Icon(Icons.date_range, size: 15,),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                                            child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.date_range, size: 15,),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                              ),
+                                            ],
                                           ),
+                                          SizedBox(width: 10,),
+                                          Row(
+                                            children: [
+                                              const Icon(CupertinoIcons.link, size: 15,),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                child: Text(website), //TODO: change later
+                                              ),
+                                            ],
+                                          )
                                         ],
                                       ),
                                       const SizedBox(height: 15,),
@@ -322,7 +377,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
-                                              FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets,),
+                                              Container(color: Colors.red,child: Center(child: Text("1"),),),
                                               Container(color: Colors.red,child: Center(child: Text("2"),),),
                                               Container(color: Colors.red,child: Center(child: Text("3"),),),
                                               Container(color: Colors.red,child: Center(child: Text("4"),),),
@@ -353,7 +408,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                 )
               ),
               Visibility(
-                visible: scrollController.hasClients && scrollController.position.pixels > 295,
+                visible: scrollController.hasClients && scrollController.position.pixels > (max - 5),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10,80,10,10),
                   child: Container(
@@ -510,9 +565,14 @@ class ProfileBanner extends StatelessWidget {
 }
 
 class ProfileInteract extends StatelessWidget {
-  const ProfileInteract({Key? key,required this.isCurrUser}) : super(key: key);
+  const ProfileInteract({Key? key,required this.isCurrUser,required this.onTapDM,
+    required this.onTapEditProfile,required this.onTapFollow}) : super(key: key);
 
   final bool isCurrUser;
+  final void Function() onTapEditProfile;
+  final void Function() onTapFollow;
+  final void Function() onTapDM;
+
 
   @override
   Widget build(BuildContext context) {
@@ -534,15 +594,13 @@ class ProfileInteract extends StatelessWidget {
                 size: 17.5,
                 color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black,
               ),
-              onPressed: (){
-                //TODO: DM user page
-              },
+              onPressed: onTapDM,
             ),
           ),
         ),
         const SizedBox(width: 10,),
         isCurrUser? OutlinedButton(
-          onPressed: (){},
+          onPressed: onTapEditProfile,
           style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -551,19 +609,11 @@ class ProfileInteract extends StatelessWidget {
           child: const Text("Edit profile",style: TextStyle(fontWeight: FontWeight.bold),),
         ) :
         FollowButton(
-          onPressed: (){
-            //TODO: follow user
-          },
+          onPressed: onTapFollow,
           padding: const EdgeInsets.symmetric(horizontal: 30),
         )
       ],
     );
   }
 }
-
-
-
-
-
-
 

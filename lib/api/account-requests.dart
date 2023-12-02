@@ -182,9 +182,11 @@ class Account {
     return true;
   }
 
-  static Future<ApiResponse<User>> apiUserProfile(String username) async{
+  static Future<ApiResponse<User>> apiUserProfile(String username,String token) async{
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
         ApiPath.userProfile.format([username]),
+      headers: headers,
     );
     User u = User();
     if(k.code == ApiResponse.CODE_SUCCESS){
@@ -222,4 +224,24 @@ class Account {
     return k;
   }
 
+
+  static Future<ApiResponse<bool>> apiUpdateUserInfo(String token,String name,String bio,String website, String location,DateTime birthDate) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiPatch<bool>(
+      ApiPath.updateUserInfo,
+      body: json.encode(
+        {
+          "nickname" : name,
+          "bio" : bio,
+          "location" : location,
+          "website" : website,
+          "birth_date" : birthDate.toString(),
+        }
+      ),
+      headers: headers,
+    );
+    k.data = k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    print(k.code);
+    return k;
+  }
 }

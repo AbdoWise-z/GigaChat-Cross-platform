@@ -123,6 +123,20 @@ class Auth extends ChangeNotifier{
     return;
   }
 
-
+  Future<void> setUserInfo(String name,String bio,String website, String location,DateTime birthDate,
+      { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiUpdateUserInfo(_currentUser!.auth! , name,bio,website,location,birthDate);
+    if (res.data!){
+      _currentUser!.name = name;
+      _currentUser!.birthDate = birthDate;
+      _currentUser!.website = website;
+      _currentUser!.location = location;
+      _currentUser!.bio = bio;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
 
 }
