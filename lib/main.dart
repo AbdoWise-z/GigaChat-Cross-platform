@@ -58,7 +58,7 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? ChatPage.pageRoute,
+                initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
                   Home.pageRoute : (context) => const Home(),
                   ChatPage.pageRoute : (context) => const ChatPage(),

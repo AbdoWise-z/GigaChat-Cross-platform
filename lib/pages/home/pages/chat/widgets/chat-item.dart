@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/swipe-to.dart';
 import 'package:gigachat/widgets/video-player.dart';
@@ -9,8 +12,10 @@ class ChatItem extends StatelessWidget {
 
   final ChatMessageObject message;
   final ChatMessageObject? replyTo;
+  final void Function(ChatMessageObject obj) onLongPress;
+  final void Function(ChatMessageObject obj) onSwipe;
 
-  const ChatItem({super.key, required this.message , this.replyTo});
+  const ChatItem({super.key, required this.message , this.replyTo, required this.onLongPress, required this.onSwipe});
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +23,13 @@ class ChatItem extends StatelessWidget {
       crossAxisAlignment: message.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         SwipeTo(
+          onRightSwipe: null,
+          onLeftSwipe: null,
           child: ChatMessageContent(
+            onLongPress: () => onLongPress(message),
             messageObject: message,
-            replyObject: message,
-          ),
-          onRightSwipe: () {
-            print("swipe");
-          },
+            replyObject: null,
+          ), //null for now :")
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -43,7 +48,8 @@ class ChatItem extends StatelessWidget {
 class ChatMessageContent extends StatelessWidget {
   final ChatMessageObject messageObject;
   final ChatMessageObject? replyObject;
-  const ChatMessageContent({super.key, required this.messageObject , required this.replyObject});
+  final void Function() onLongPress;
+  const ChatMessageContent({super.key, required this.messageObject , required this.replyObject, required this.onLongPress});
 
   Widget _getMediaObjectFor(ChatMessageObject object){
     if (object.media == null) {
@@ -64,14 +70,15 @@ class ChatMessageContent extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
         ),
-        child: Image.network(object.media!.link,),
+        child: object.media!.link.startsWith("/sdcard") ? Image.file(File(object.media!.link)) :  Image.network(object.media!.link,),
       );
     }
   }
 
   Widget _getReplyObject(BuildContext context){
-    if (replyObject == null)
-      return SizedBox.shrink();
+    if (replyObject == null) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       padding: const EdgeInsets.only(
@@ -114,7 +121,7 @@ class ChatMessageContent extends StatelessWidget {
                 fit: BoxFit.fill,
               ),
             ),
-          ) : SizedBox.shrink(),
+          ) : const SizedBox.shrink(),
         ],
       ),
     );
@@ -178,34 +185,46 @@ class ChatMessageContent extends StatelessWidget {
                   ),
                 ),
               ],
-            ) : SizedBox.shrink(),
+            ) : const SizedBox.shrink(),
 
+            //Text Content
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               width: double.infinity,
               alignment: messageObject.self ? Alignment.centerRight : Alignment.centerLeft,
               child: Column(
+                crossAxisAlignment: messageObject.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   _getMediaObjectFor(messageObject),
 
                   SizedBox.square(dimension: messageObject.media == null ? 0 : 5,),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
+                  Material(
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
+                      bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
+                    ),
+                    color: messageObject.self ? Colors.blue : Colors.black,
+                    child: InkWell(
+
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
                         topRight: const Radius.circular(20),
                         bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
                         bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
                       ),
-                      color: messageObject.self ? Colors.blue : Colors.black,
-                    ),
-                    child: Text(
-                      messageObject.text,
-                      softWrap: true,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
+                      onLongPress: onLongPress,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          messageObject.text,
+                          softWrap: true,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -148,9 +148,8 @@ class _ChatListPageState extends State<ChatListPage> {
               _createDialog(e);
             },
             press: () {
-              setState(() {
-                //TODO: open chat page
-              });
+              //TODO: implement the real chat
+              Navigator.pushNamed(context, "/chat");
             },
           )).toList()
           ,
@@ -180,9 +179,8 @@ class _ChatListPageState extends State<ChatListPage> {
               _createDialog(e);
             },
             press: () {
-              setState(() {
-                //TODO: open chat page
-              });
+              //TODO: implement the real chat
+              Navigator.pushNamed(context, "/chat");
             },
           )).toList()
           ,
