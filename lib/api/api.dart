@@ -146,7 +146,6 @@ class Api {
 
   static Future<ApiResponse<T>> _apiPostFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
-
       var request = http.MultipartRequest("POST" , url);
       request.headers.addAll(headers ?? {});
       if (body != null) {
@@ -156,7 +155,6 @@ class Api {
           print("_apiPostFilesImpl: tried to add a body that is not a map");
         }
       }
-
       request.files.addAll(files);
 
       var response = await request.send();
@@ -242,11 +240,10 @@ class Api {
     }
   }
 
-  static Future<ApiResponse<T>> _apiPatchFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Map<String,UploadFile> files , Encoding encoding) async {
+  static Future<ApiResponse<T>> _apiPatchFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
       var request = http.MultipartRequest("PATCH" , url);
       request.headers.addAll(headers ?? {});
-
       if (body != null) {
         if (body is Map<String , String>){
           request.fields.addAll(body);
@@ -254,20 +251,11 @@ class Api {
           print("_apiPostFilesImpl: tried to add a body that is not a map");
         }
       }
-
-      for ( MapEntry e in files.entries) {
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                '${e.key}',
-                '${e.value}'
-            )
-        );
-      }
+      request.files.addAll(files);
 
       var response = await request.send();
       var response2 = await http.Response.fromStream(response);
       return ApiResponse<T>(code: response.statusCode, responseBody: String.fromCharCodes(response2.bodyBytes));
-
     } on SocketException {
       return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
     } on TimeoutException{
@@ -284,7 +272,7 @@ class Api {
         Map<String,dynamic>? params ,
         Map<String,String>? headers ,
         Object? body ,
-        Map<String,UploadFile>? files ,
+        List<http.MultipartFile>? files ,
         Encoding? encoding ,
       }
       ){
