@@ -4,6 +4,7 @@ import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
@@ -68,6 +69,7 @@ class _GigaChatState extends State<GigaChat> {
                   //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
 
                   Home.pageRoute : (context) => const Home(),
+                  ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
                   UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
