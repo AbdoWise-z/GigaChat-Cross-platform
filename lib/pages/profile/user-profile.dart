@@ -398,7 +398,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
-                                              Container(color: Colors.red,child: Center(child: Text("1"),),),
+                                              FeedWidget(
+                                                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
+                                                userToken: Auth.getInstance(context).getCurrentUser()!.auth,
+                                                userID: username,
+                                              ),
                                               Container(color: Colors.red,child: Center(child: Text("2"),),),
                                               Container(color: Colors.red,child: Center(child: Text("3"),),),
                                               Container(color: Colors.red,child: Center(child: Text("4"),),),

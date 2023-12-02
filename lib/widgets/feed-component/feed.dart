@@ -34,7 +34,7 @@ class FeedWidget extends StatefulWidget {
 
 
 class _FeedWidgetState extends State<FeedWidget> {
-  late List<TweetData> _tweetsData;
+  List<TweetData> _tweetsData = [];
   late bool loading;
   late FeedProvider feedProvider;
 

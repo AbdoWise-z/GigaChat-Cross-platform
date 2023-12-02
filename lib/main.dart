@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
@@ -81,6 +82,7 @@ class _GigaChatState extends State<GigaChat> {
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
                   UserProfile.pageRoute : (context) => UserProfile(isCurrUser:true ,username: Auth.getInstance(context).getCurrentUser()!.id),
+                  UserListViewPage.pageRoute : (context) => UserListViewPage(),
                 },
               );
             }
