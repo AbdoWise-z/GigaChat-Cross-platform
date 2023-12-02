@@ -34,7 +34,7 @@ class Media {
       headers: Api.getTokenHeader("Bearer $token"),
     );
 
-    //print("res: ${res.code} / ${res.responseBody}");
+    print("res: ${res.code} / ${res.responseBody}");
 
     if (res.code == ApiResponse.CODE_SUCCESS){
       var body = json.decode(res.responseBody!);

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/api.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -55,7 +57,8 @@ class _EditProfileState extends State<EditProfile> {
           onTap: () async {
             selectedImage = await getImageFromCamera(!isProfileAvatar);
             if(selectedImage.path.isNotEmpty){
-              var k = await Media.apiMedia([selectedImage],auth.getCurrentUser()!.auth!);
+              var k = await Media.uploadMedia(auth.getCurrentUser()!.auth!,
+                  [UploadFile(path: selectedImage.path,type: "image",subtype: "png")]);
               if(k.data != null){
                 setState(() {
                   isProfileAvatar? newAvatarImageUrl = k.data![0] : newBannerImageUrl = k.data![0];
@@ -71,7 +74,8 @@ class _EditProfileState extends State<EditProfile> {
             onTap: () async {
               selectedImage = await getImageFromGallery(!isProfileAvatar);
               if(selectedImage.path.isNotEmpty){
-                var k = await Media.apiMedia([selectedImage],auth.getCurrentUser()!.auth!);
+                var k = await Media.uploadMedia(auth.getCurrentUser()!.auth!,
+                    [UploadFile(path: selectedImage.path,type: "image",subtype: "png")]);
                 if(k.data != null){
                   setState(() {
                     isProfileAvatar? newAvatarImageUrl = k.data![0] : newBannerImageUrl = k.data![0];

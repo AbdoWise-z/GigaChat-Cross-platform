@@ -50,13 +50,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false,false,false];
 
+  double max = 317;
+
   //get user data
   void getData() async {
     setState(() {
       loading = true;
     });
     Auth auth = Auth.getInstance(context);
-    var res = await Account.apiUserProfile(widget.username,auth.getCurrentUser()!.auth!);
+    var res = await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!);
     User u = res.data!;
 
     name = u.name;
@@ -68,6 +70,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     following = u.following;
     followers = u.followers;
     bio = u.bio;
+    max = bio != ""? 390 : 317;
     website = u.website;
 
     setState(() {
@@ -107,7 +110,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
 
-    double max = bio != ""? 390 : 317;
+
 
     return loading? const BlockingLoadingPage(): Scaffold(
       extendBodyBehindAppBar: true,

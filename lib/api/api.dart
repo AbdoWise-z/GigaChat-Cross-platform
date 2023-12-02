@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
+import 'package:sprintf/sprintf.dart';
 
 
 class UploadFile{
@@ -50,6 +51,14 @@ class ApiPath{
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
+  static ApiPath fromString(String str){
+    return ApiPath._(str);
+  }
+  ApiPath format(List list){
+    String str;
+    str = sprintf(_path,list);
+    return ApiPath._(str);
+  }
   ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
@@ -72,6 +81,11 @@ class ApiPath{
   static ApiPath comments                = const ApiPath._("/api/tweets/replies");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
   static ApiPath media                   = const ApiPath._("/api/media");
+  static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
+  static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
+  static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+
+
 }
 
 class Api {

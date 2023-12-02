@@ -13,7 +13,7 @@ class ChatObject {
     this.lastMessage = "this is a last message",
     this.username = "@Abdo",
     this.nickname = "Abdo Mohammed",
-    this.profileImage = USER_DEFAULT_PROFILE,
+    this.profileImage = "USER_DEFAULT_PROFILE",
     this.pinned = false,
     this.time,
   }) {
