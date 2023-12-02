@@ -39,8 +39,11 @@ class Media {
     if (res.code == ApiResponse.CODE_SUCCESS){
       var body = json.decode(res.responseBody!);
       res.data = body["data"]["usls"];
+      if (success != null) success(res);
+      return res;
     }
 
+    if (error != null) error(res);
     return res;
   }
 }
