@@ -22,7 +22,6 @@ class ViewPostPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     tweetOwner = args["tweetOwner"];
     tweetData = args["tweetData"];
@@ -40,8 +39,9 @@ class ViewPostPage extends StatelessWidget {
             ),
 
             FeedWidget(
-                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                userID: Auth.getInstance(context).getCurrentUser()?.auth!
+                providerType: ProviderFunction.GET_TWEET_COMMENTS,
+                userToken: Auth.getInstance(context).getCurrentUser()?.auth!,
+                tweetID: tweetData.id,
             )
           ],
         ),
