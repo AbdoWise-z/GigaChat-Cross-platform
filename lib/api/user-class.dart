@@ -20,7 +20,7 @@ class User {
   User({
     this.id = "@Abdo-ww",
     this.name = "Abdo",
-    this.auth,
+    this.auth = "moa",
     this.email = "...",
     this.bio = "the coolest man on planet earth :PEPECOOL:",
     this.iconLink = USER_DEFAULT_PROFILE,

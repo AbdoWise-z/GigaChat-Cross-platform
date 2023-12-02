@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
@@ -28,14 +29,24 @@ class ViewPostPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
-      body: FeedWidget(
-          tweetDataSource: FeedProvider(context).getFollowingTweets,
-        specialTweet: Tweet(
-          tweetOwner: tweetOwner,
-          tweetData: tweetData,
-          isRetweet: false,
-          isSinglePostView: true
-      ),),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Tweet(
+                tweetOwner: tweetOwner,
+                tweetData: tweetData,
+                isRetweet: false,
+                isSinglePostView: true
+            ),
+
+            FeedWidget(
+                providerType: ProviderFunction.GET_TWEET_COMMENTS,
+                userToken: Auth.getInstance(context).getCurrentUser()?.auth!,
+                tweetID: tweetData.id,
+            )
+          ],
+        ),
+      ),
     );
   }
 }

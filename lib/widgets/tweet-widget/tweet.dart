@@ -5,6 +5,7 @@ import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -16,6 +17,43 @@ import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
+
+
+Widget textToRichText(String inputText){
+  List<String> result = inputText.split(' ');
+  List<TextSpan> textSpans = [];
+  String prevString = "";
+  for (var str in result){
+    if (str.isNotEmpty && str[0] == '#')
+    {
+      textSpans.add(
+        TextSpan(
+          text: prevString
+        )
+      );
+      prevString = "";
+      textSpans.add(TextSpan(
+        text: str,
+        style: const TextStyle(
+          color: Colors.blue
+        )
+      ));
+    }
+    else{
+      prevString += " $str";
+    }
+    if (prevString.isNotEmpty)
+      textSpans.add(
+          TextSpan(
+              text: prevString
+          )
+      );
+  }
+  return RichText(text: TextSpan(
+    children: textSpans
+  ));
+}
+
 
 class Tweet extends StatelessWidget {
   static String pageRoute = "/test";
@@ -34,23 +72,35 @@ class Tweet extends StatelessWidget {
   });
   // Controllers for the tweet class
   Future<bool> toggleLikeTweet(String? token,String tweetId) async {
-    if (token == null) return false;
+    //if (token == null) return true;
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
 
-    bool success = tweetData.isLiked ?
-    await Tweets.unlikeTweetById(token, tweetId) :
-    await Tweets.likeTweetById(token, tweetId);
-    tweetData.isLiked = !tweetData.isLiked;
-    tweetData.likesNum += tweetData.isLiked ? 1 : -1;
+    bool isLikingTweet = !tweetData.isLiked;
+
+    bool success = isLikingTweet ?
+    await Tweets.likeTweetById(token, tweetId) :
+    await Tweets.unlikeTweetById(token, tweetId);
+
+    if(success){
+      tweetData.isLiked = isLikingTweet;
+      tweetData.likesNum += tweetData.isLiked ? 1 : -1;
+    }
     return success;
   }
 
-  Future<bool> retweetTweet(String? token,String tweetId) async {
+  Future<bool> toggleRetweetTweet(String? token,String tweetId) async {
     if (token == null) return false;
-    bool success = await Tweets.retweetTweetById(token, tweetId);
+
+    bool isRetweeting = !tweetData.isRetweeted;
+    bool success = isRetweeting ?
+    await Tweets.retweetTweetById(token, tweetId) :
+    false;
     // TODO: call the interface here and send the tweet id to retweet it
-    await Future.delayed(const Duration(seconds: 2));
-    tweetData.isRetweeted = !tweetData.isRetweeted;
-    tweetData.repostsNum += tweetData.isRetweeted ? 1 : -1;
+    if (success)
+    {
+      tweetData.isRetweeted = isRetweeting;
+      tweetData.repostsNum += tweetData.isRetweeted ? 1 : -1;
+    }
     return tweetData.isRetweeted;
   }
 
@@ -85,6 +135,7 @@ class Tweet extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: CircleAvatar(
+                    backgroundColor: Colors.white,
                     radius: 20,
                     backgroundImage: NetworkImage(tweetOwner.iconLink)),
               ),
@@ -119,29 +170,7 @@ class Tweet extends StatelessWidget {
 
                   // =================== post content ===================
                   // TODO: make the hashtags and mentions later
-                  ReadMoreText(
-                    tweetData.description,
-                    style: TextStyle(
-                        fontSize: isSinglePostView ? 16 : 15,
-                        fontWeight: FontWeight.w500,
-                        color: isDarkMode ? Colors.white : Colors.black
-                    ),
-                    trimLines: MAX_LINES_TO_SHOW,
-                    colorClickableText: Colors.pink,
-                    trimMode: TrimMode.Line,
-                    trimCollapsedText: ' Show more',
-                    trimExpandedText: ' Show less',
-                    moreStyle: const TextStyle(
-                        fontSize:  14,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                    lessStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                  ),
-
-
+                  textToRichText(tweetData.description),
 
 
                   // =================== media display here ===================
@@ -219,50 +248,89 @@ class Tweet extends StatelessWidget {
                   ),
 
                   // =================== divider one ===================
-                  Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 10)),
+                  Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 1)),
 
                   // =================== second row of single post view ===================
                   Visibility(
                       visible: isSinglePostView,
                       child: Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: RichText(
-                              text: TextSpan(
-                                  text: tweetData.repostsNum.toString(),
-                                  style: TextStyle(
-                                      color: isDarkMode ? Colors.white : Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                  children: [
-                                    const TextSpan(
-                                        text: " Reposts    ",
-                                        style: TextStyle(color: Colors.grey)
-                                    ),
-                                    TextSpan(text: tweetData.likesNum.toString()),
-                                    const TextSpan(
-                                        text: " Likes ",
-                                        style: TextStyle(color: Colors.grey)
+                          TextButton(
+                              onPressed: (){
+                                Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                  arguments: {
+                                  "pageTitle": "Reposted By",
+                                    "tweetID" : tweetData.id,
+                                    "providerType" : UserListViewFunction.GET_TWEET_REPOSTERS
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                padding:const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.grey
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "${tweetData.repostsNum} ",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isDarkMode ? Colors.white : Colors.black
                                     )
-                                  ]),
-                            ),
-                          )
+                                  ),
+                                  const Text(" Reposts"),
+                                ],
+                              )
+                          ),
+
+                          TextButton(
+                              onPressed: (){
+                                Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                    arguments: {
+                                      "pageTitle": "Liked By",
+                                      "tweetID" : tweetData.id,
+                                      "providerType" : UserListViewFunction.GET_TWEET_LIKERS
+                                    });
+                              },
+                              style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.grey
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                      "${tweetData.likesNum} ",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: isDarkMode ? Colors.white : Colors.black
+                                      )
+                                  ),
+                                  const Text(" Likes"),
+                                ],
+                              )
+                          ),
+
                         ],
                       )),
 
                   // =================== divider two ===================
-                  Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 10)),
+                  Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 1)),
 
 
                   // =================== action buttons row ===================
                   Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: EdgeInsets.zero,
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: actionButtons
                             .map((actionBtn) => actionBtn)
                             .toList()),
-                  )
+                  ),
+
+                  // =================== divider three ===================
+                  Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 10)),
+
                 ],
               ),
             )
@@ -305,7 +373,7 @@ class Tweet extends StatelessWidget {
         isRetweeted: tweetData.isRetweeted,
 
         onPressed: () async {
-          return await retweetTweet(userToken,tweetData.id);
+          return await toggleRetweetTweet(userToken,tweetData.id);
         }
       ),
       TweetActionButton(
@@ -384,6 +452,7 @@ class Tweet extends StatelessWidget {
     Row(
       children: [
         CircleAvatar(
+            backgroundColor: Colors.white,
             radius: 20,
             backgroundImage: NetworkImage(tweetOwner.iconLink)
         ),
@@ -500,7 +569,7 @@ class _FollowButtonState extends State<FollowButton> {
               padding: const EdgeInsets.symmetric(vertical: -10.0),
             ),
             child: const Text(
-              "Follow",
+              "Unfollow",
               style: TextStyle(
                   fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
             ))

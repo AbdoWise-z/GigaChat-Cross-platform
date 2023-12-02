@@ -43,9 +43,16 @@ class FeedHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        ];
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.HOME_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()!.auth,
+        ),
+
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()?.auth,
+        ),
+      ];
     }
     return const [
       Padding(

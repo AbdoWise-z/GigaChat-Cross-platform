@@ -63,7 +63,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     Auth auth = Auth.getInstance(context);
-    FeedProvider feed = FeedProvider(context);
+    FeedProvider feed = FeedProvider(pageCount: 5);
 
     String? ref;
     if (_replyTweet != null) {
