@@ -87,14 +87,14 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.transparent,
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: Image.network(_with.iconLink),
+            Container(
+              width: 40,
+              height: 40,
+              clipBehavior: Clip.antiAlias,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle
               ),
+              child: Image.network(_with.iconLink,fit: BoxFit.cover,),
             ),
 
             const SizedBox(width: 10,),
@@ -130,9 +130,14 @@ class _ChatPageState extends State<ChatPage> {
                         //chat
                         children: [
 
-                          ImageIcon(
-                            NetworkImage(_with.iconLink),
-                            size: 75,
+                          Container(
+                            width: 70,
+                            height: 70,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle
+                            ),
+                            child: Image.network(_with.iconLink,fit: BoxFit.cover,),
                           ),
 
                           Text(

@@ -3,6 +3,8 @@ import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 
+import '../base.dart';
+
 class ChatObject {
   String lastMessage;
   final String username;
@@ -15,7 +17,7 @@ class ChatObject {
     this.lastMessage = "this is a last message",
     this.username = "@Abdo",
     this.nickname = "Abdo Mohammed",
-    this.profileImage = "USER_DEFAULT_PROFILE",
+    this.profileImage = USER_DEFAULT_PROFILE,
     this.pinned = false,
     this.time,
   }) {

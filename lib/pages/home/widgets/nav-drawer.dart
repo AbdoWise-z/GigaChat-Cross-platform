@@ -110,8 +110,8 @@ class _NavDrawerState extends State<NavDrawer> {
                 //TODO : handle account menu
               },
                 icon: const Icon(
-                  Icons.format_list_bulleted_outlined,
-                  size: 14,
+                  Icons.more_vert,
+                  size: 16,
                 ),
               ),
             ],
