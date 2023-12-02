@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -43,6 +44,13 @@ class _CreatePasswordState extends State<CreatePassword> {
               setState(() {
                 print(res.code);
                 print(res.responseBody);
+
+                var settings = LocalSettings.getInstance(context);
+                settings.setValue<String>(name: "username", val: auth.getCurrentUser()!.email);
+                settings.setValue<String>(name: "password", val: newPassword);
+                settings.setValue<bool>(name: "login", val: true);
+                settings.apply();
+
                 _loading = false;
                 Navigator.pushReplacementNamed(context, PickProfilePicture.pageRoute);
               });

@@ -1,18 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
+import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-class LandingLoginPage extends StatelessWidget {
+class LandingLoginPage extends StatefulWidget {
   const LandingLoginPage({Key? key}) : super(key: key);
-  static const pageRoute = '/landing-login';
+  static const pageRoute = '/';
+
+  @override
+  State<LandingLoginPage> createState() => _LandingLoginPageState();
+}
+
+class _LandingLoginPageState extends State<LandingLoginPage> {
+  bool _loading = false;
+
+  void _tryAutoLogin() async {
+    setState(() {
+      _loading = true;
+    });
+
+    var settings = LocalSettings.getInstance(context);
+    var authProvider = Auth.getInstance(context);
+
+    if (!settings.getValue<bool>(name: "login", def: false)!){
+      setState(() {
+        _loading = false;
+      });
+      return;
+    }
+
+    String username = settings.getValue(name: "username", def: null)!;
+    String password = settings.getValue(name: "password", def: null)!;
+
+    await authProvider.login(
+      username,
+      password,
+      success: (res) {
+        Navigator.popUntil(context, (r) => false);
+        Navigator.pushNamed(context, Home.pageRoute);
+      },
+      error: (res){
+        Toast.showToast(context,"Password changed",width: 20);
+        setState(() {
+          _loading = false;
+        });
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tryAutoLogin();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading){
+      return const BlockingLoadingPage();
+    }
+
     return Scaffold(
-      appBar: AuthAppBar(context, leadingIcon: null, showDefault: true),
+      appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(35,35,35,100),
         child: SingleChildScrollView(
@@ -20,7 +76,6 @@ class LandingLoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 150,),
-
               const Text(
                 "Welcome back! Log in to see the the latest.",
                 style: TextStyle(

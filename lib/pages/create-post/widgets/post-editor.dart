@@ -79,15 +79,13 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
       end: 1,
     ).animate(_slide);
     initAnim();
+
+    node.requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
     Auth auth = Auth.getInstance(context);
-
-    if (widget.active){
-      node.requestFocus();
-    }
 
     double ihm = MediaQuery.of(context).size.width - 40 - 8 * 2;
     if (widget.maxImageHeight == 1 || media.length > 1){
