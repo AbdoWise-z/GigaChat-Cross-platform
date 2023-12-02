@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 
 import 'api.dart';

@@ -2,6 +2,7 @@
 import "dart:convert";
 import "dart:io";
 import "dart:math";
+import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
 import "package:gigachat/util/contact-method.dart";
@@ -151,16 +152,22 @@ class Account {
 
   static Future<ApiResponse<String>> apiSetProfileImage(String token, File img) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
+    if (links == null || links.isEmpty){
+      //print("failed to upload profile image");
+      return ApiResponse<String>(code: -1, responseBody: "");
+    }
+
     var k = await Api.apiPatch<String>(
       ApiPath.profileImage,
       headers: headers,
-      files: {
-        "profile_image" : img.path
-      }
+      body: json.encode( {
+        "profile_image" : links[0],
+      }),
     );
-    if (k.code == ApiResponse.CODE_SUCCESS) {
-      var res = jsonDecode(k.responseBody!);
-      k.data = res["image_profile_url"];
+
+    if (k.code == ApiResponse.CODE_SUCCESS_NO_BODY) {
+      k.data = links[0];
     }
     return k;
   }
