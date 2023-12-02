@@ -39,11 +39,15 @@ class _EditProfileState extends State<EditProfile> {
 
   String newBannerImageUrl = "";
   String newAvatarImageUrl = "";
+  File selectedAvatar = File("");
+  File selectedBanner = File("");
 
   FocusNode dateFocusNode = FocusNode();
   DateTime nonFormattedDate = DateTime.now();
 
   bool failed = false;
+  bool bannerChanged = false;
+  bool avatarChanged = false;
 
   void editImage(bool isProfileAvatar){
     File selectedImage;
@@ -57,16 +61,10 @@ class _EditProfileState extends State<EditProfile> {
           onTap: () async {
             selectedImage = await getImageFromCamera(!isProfileAvatar);
             if(selectedImage.path.isNotEmpty){
-              var k = await Media.uploadMedia(auth.getCurrentUser()!.auth!,
-                  [UploadFile(path: selectedImage.path,type: "image",subtype: "png")]);
-              if(k.data != null){
-                setState(() {
-                  isProfileAvatar? newAvatarImageUrl = k.data![0] : newBannerImageUrl = k.data![0];
-                });
-              }else{
-                if(!context.mounted) return;
-                Toast.showToast(context, "Failed to upload image");
-              }
+              setState(() {
+                isProfileAvatar ? avatarChanged = true : bannerChanged = true;
+                isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
+              });
             }
           },
         ),
@@ -74,16 +72,10 @@ class _EditProfileState extends State<EditProfile> {
             onTap: () async {
               selectedImage = await getImageFromGallery(!isProfileAvatar);
               if(selectedImage.path.isNotEmpty){
-                var k = await Media.uploadMedia(auth.getCurrentUser()!.auth!,
-                    [UploadFile(path: selectedImage.path,type: "image",subtype: "png")]);
-                if(k.data != null){
-                  setState(() {
-                    isProfileAvatar? newAvatarImageUrl = k.data![0] : newBannerImageUrl = k.data![0];
-                  });
-                }else{
-                  if(!context.mounted) return;
-                  Toast.showToast(context, "Failed to upload image");
-                }
+                setState(() {
+                  isProfileAvatar ? avatarChanged = true : bannerChanged = true;
+                  isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
+                });
               }
             },
             child: const Text("Choose existing photo              ")
@@ -94,8 +86,6 @@ class _EditProfileState extends State<EditProfile> {
 
   void updateInfo()async{
     Auth auth = Auth.getInstance(context);
-    bool bannerChanged = widget.bannerImageUrl != newBannerImageUrl;
-    bool avatarChanged = widget.avatarImageUrl != newAvatarImageUrl;
     bool infoChanged = widget.name != inputName.text
         || widget.website != inputWebsite.text
         || widget.birthDate != nonFormattedDate
@@ -119,23 +109,43 @@ class _EditProfileState extends State<EditProfile> {
         )
     );
     if(bannerChanged){
-      //TODO: banner request
+      print("banner request here");
+      await auth.setUserBannerImage(
+        selectedBanner,
+        success: (res){
+          newBannerImageUrl = res.data!;
+        },
+        error: (res){
+          failed = true;
+        }
+      );
     }
     if(avatarChanged){
-      //TODO: avatar request
+      print("avatar request here");
+      await auth.setUserProfileImage(
+        selectedAvatar,
+        success: (res){
+          newAvatarImageUrl = res.data!;
+        },
+        error: (res){
+          failed = true;
+        }
+      );
     }
     if(infoChanged){
       await auth.setUserInfo(inputName.text, inputBio.text,
-          inputWebsite.text, "Cairo, Egypt", nonFormattedDate,
-          error: (res){
-            Toast.showToast(context, "Failed to update profile");
-            failed = true;
-          }
+        inputWebsite.text, "Cairo, Egypt", nonFormattedDate,
+        error: (res){
+          failed = true;
+        }
       );
     }
     if(context.mounted){
       Navigator.pop(context); //to pop the alert dialog
-      if(!failed){
+      if(failed) {
+        Toast.showToast(context, "Failed to update profile");
+      }
+      else{
         Navigator.pop(context,{
           "name" : inputName.text,
           "bio": inputBio.text,
@@ -165,19 +175,6 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit profile",style: TextStyle(fontSize: 20),),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: (){
-            Navigator.pop(context,{
-              "name" : widget.name,
-              "bio": widget.bio,
-              "website" : widget.website,
-              "birthDate" : widget.birthDate,
-              "bannerImageUrl" : widget.bannerImageUrl,
-              "avatarImageUrl" : widget.avatarImageUrl,
-            });
-          },
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(12.0),
@@ -215,9 +212,13 @@ class _EditProfileState extends State<EditProfile> {
                         child: SizedBox(
                           height: 160,
                           width: double.infinity,
-                          child: Image.network(newBannerImageUrl,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.bottomCenter,
+                          child: bannerChanged? Image.file(
+                            selectedBanner,
+                            fit: BoxFit.contain,
+                          ) :
+                          Image.network(
+                            newBannerImageUrl,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -231,7 +232,7 @@ class _EditProfileState extends State<EditProfile> {
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: Theme(
-                    data: ThemeData(),  //to cancel the theme effects
+                    data: ThemeProvider.getInstance(context).isDark() ? ThemeData.dark() : ThemeData.light(),  //to cancel the theme effects
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -259,7 +260,7 @@ class _EditProfileState extends State<EditProfile> {
                         Text("Location",style: TextStyle(color: Colors.grey[700]),),
                         TextFormField(
                           readOnly: true,
-                          initialValue: "Cairo,Egypt",
+                          initialValue: "Cairo, Egypt",
                           onTap: (){
                             setState(() {});
                           },
@@ -307,7 +308,11 @@ class _EditProfileState extends State<EditProfile> {
                       child: ClipOval(
                         child: ColorFiltered(
                           colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-                          child: CircleAvatar(
+                          child: avatarChanged? CircleAvatar(
+                            radius: 35,
+                            backgroundImage: FileImage(selectedAvatar),
+                          ) :
+                          CircleAvatar(
                             radius: 35,
                             backgroundImage: NetworkImage(newAvatarImageUrl),
                           ),

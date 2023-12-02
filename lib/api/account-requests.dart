@@ -162,7 +162,7 @@ class Account {
         "profile_image" : links[0],
       }),
     );
-
+    print("avatar: ${k.code}");
     if (k.code == ApiResponse.CODE_SUCCESS_NO_BODY) {
       k.data = links[0];
     }
@@ -251,4 +251,28 @@ class Account {
     print(k.code);
     return k;
   }
+
+  static Future<ApiResponse<String>> apiSetBannerImage(String token, File img) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
+    if (links == null || links.isEmpty){
+      //print("failed to upload profile image");
+      return ApiResponse<String>(code: -1, responseBody: "");
+    }
+
+    var k = await Api.apiPatch<String>(
+      ApiPath.banner,
+      headers: headers,
+      body: json.encode( {
+        "profile_banner" : links[0],
+      }),
+    );
+    print("banner: ${k.code}");
+    if (k.code == ApiResponse.CODE_SUCCESS_NO_BODY) {
+      k.data = links[0];
+    }
+    return k;
+  }
+
+
 }

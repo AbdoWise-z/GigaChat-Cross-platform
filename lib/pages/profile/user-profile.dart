@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -103,7 +105,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     super.initState();
   }
 
-  //TODO: banner image alignment
   //TODO: get tweets
   //TODO: onNotification func (when scrolling so fast)
 
@@ -228,12 +229,27 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           onTap: ()async{
                              var res = await Navigator.push(context,
                                  MaterialPageRoute(builder: (context) =>
-                                     ProfileImageView(isProfileAvatar: false, imageUrl: bannerImageUrl)
+                                     ProfileImageView(
+                                       isProfileAvatar: false,
+                                       imageUrl: bannerImageUrl,
+                                       avatarImageUrl: avatarImageUrl,
+                                       name: name,
+                                       birthDate: birthDate,
+                                       bio: bio,
+                                       website: website,
+                                     )
                                  )
                              );
-                             setState(() {
-                               bannerImageUrl = res;
-                             });
+                             if(res != null){
+                               setState(() {
+                                 name = res["name"];
+                                 bio = res["bio"];
+                                 website = res["website"];
+                                 birthDate = res["birthDate"];
+                                 bannerImageUrl = res["bannerImageUrl"];
+                                 avatarImageUrl = res["avatarImageUrl"];
+                               });
+                             }
                           },
                         ),
                         Padding(
@@ -255,14 +271,16 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                                     birthDate: birthDate,
                                                   )
                                               ));
-                                          setState(() {
-                                            name = res["name"];
-                                            bio = res["bio"];
-                                            website = res["website"];
-                                            birthDate = res["birthDate"];
-                                            bannerImageUrl = res["bannerImageUrl"];
-                                            avatarImageUrl = res["avatarImageUrl"];
-                                          });
+                                          if(res != null){
+                                            setState(() {
+                                              name = res["name"];
+                                              bio = res["bio"];
+                                              website = res["website"];
+                                              birthDate = res["birthDate"];
+                                              bannerImageUrl = res["bannerImageUrl"];
+                                              avatarImageUrl = res["avatarImageUrl"];
+                                            });
+                                          }
                                         },
                                         onTapDM: (){}, //TODO: DM user
                                         onTapFollow: (){}, //TODO: follow user
@@ -319,13 +337,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                               ),
                                             ],
                                           ),
-                                          SizedBox(width: 10,),
+                                          const SizedBox(width: 10,),
                                           Row(
                                             children: [
                                               const Icon(CupertinoIcons.link, size: 15,),
                                               Padding(
                                                 padding: const EdgeInsets.symmetric(horizontal: 5),
-                                                child: Text(website), //TODO: change later
+                                                child: Text(website), //TODO: change later (detect urls)
                                               ),
                                             ],
                                           )
@@ -402,9 +420,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 ProfileImageView(isProfileAvatar: true, imageUrl: avatarImageUrl)
                             )
                         );
-                        setState(() {
-                          avatarImageUrl = res;
-                        });
+                        if(res != null){
+                          setState(() {
+                            avatarImageUrl = res;
+                          });
+                        }
                       },
                     ),
                   ],
@@ -428,6 +448,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           ),
         ),
       ),
+      floatingActionButton: FeedHomeTab().getFloatingActionButton(context),  //TODO: change later
     );
   }
 }

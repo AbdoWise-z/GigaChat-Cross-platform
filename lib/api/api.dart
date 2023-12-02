@@ -84,6 +84,8 @@ class ApiPath{
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
+
 
 
 }

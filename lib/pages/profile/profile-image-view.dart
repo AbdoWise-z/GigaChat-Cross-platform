@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:photo_view/photo_view.dart';
@@ -9,7 +10,21 @@ import 'dart:io';
 class ProfileImageView extends StatelessWidget {
   final bool isProfileAvatar;
   final String imageUrl;
-  const ProfileImageView({Key? key,required this.isProfileAvatar,required this.imageUrl}) : super(key: key);
+  String? name;
+  String? avatarImageUrl;
+  String? bio;
+  String? website;
+  DateTime? birthDate;
+
+   ProfileImageView({Key? key,
+    required this.isProfileAvatar,
+    required this.imageUrl,
+     this.name,
+     this.avatarImageUrl,
+     this.bio,
+     this.website,
+     this.birthDate
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +99,32 @@ class ProfileImageView extends StatelessWidget {
                     ),
                   ],
                 );
-              }: (){
-                //TODO: navigate to edit profile
+              }: () async {
+               var res = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>
+                        EditProfile(
+                          avatarImageUrl: avatarImageUrl!,
+                          bannerImageUrl: imageUrl,
+                          name: name!,
+                          bio: bio!,
+                          website: website!,
+                          birthDate: birthDate!,
+                      )
+                    )
+                );
+               if(res != null && context.mounted){
+                 Navigator.pop(context,
+                   {
+                     "name" : res["name"],
+                     "bio" : res["bio"],
+                     "website" : res["website"],
+                     "birthDate" : res["birthDate"],
+                     "bannerImageUrl" : res["bannerImageUrl"],
+                     "avatarImageUrl" : res["avatarImageUrl"]
+                   }
+                 );
+               }
               } ,
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
