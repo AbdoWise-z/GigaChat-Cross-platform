@@ -85,8 +85,8 @@ class ApiPath{
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
-
-
+  static ApiPath userProfileTweets       = const ApiPath._("/api/%s/tweets");
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
 
 }
 

@@ -5,6 +5,7 @@ import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
 
+import '../base.dart';
 import 'api.dart';
 import "package:gigachat/api/user-class.dart";
 
