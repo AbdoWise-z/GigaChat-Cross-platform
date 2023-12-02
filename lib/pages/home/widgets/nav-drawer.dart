@@ -4,6 +4,7 @@ import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
@@ -333,17 +334,36 @@ class _NavDrawerState extends State<NavDrawer> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: IconButton(onPressed: () {
-                    ThemeProvider tp = ThemeProvider.getInstance(context);
-                    if (tp.getThemeName == "dark"){
-                      tp.setTheme("light");
-                    }else{
-                      tp.setTheme("dark");
-                    }
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: IconButton(onPressed: () {
+                        ThemeProvider tp = ThemeProvider.getInstance(context);
+                        if (tp.getThemeName == "dark"){
+                          tp.setTheme("light");
+                        }else{
+                          tp.setTheme("dark");
+                        }
 
-                  }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
+                      }, icon: Icon(ThemeProvider.getInstance(context).isDark() ? Icons.dark_mode_outlined : Icons.light_mode_outlined)),
+                    ),
+
+                    const Expanded(child: SizedBox.shrink()),
+
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: IconButton(onPressed: () {
+                        var settings = LocalSettings.getInstance(context);
+                        settings.setValue<bool>(name: "login", val: false);
+                        settings.apply();
+                        Navigator.popUntil(context, (route) => false);
+                        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                      },
+                        icon: const Icon(Icons.logout),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             )

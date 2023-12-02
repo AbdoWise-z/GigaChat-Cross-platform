@@ -28,16 +28,16 @@ class Account {
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
-      u.email       = res["data"]["user"]["email"];
-      //u.bio         = res["data"]["user"]["bio"];
+
+      u.bio         = res["data"]["user"]["bio"]          ?? u.bio;
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      //u.bannerLink  = res["data"]["user"]["banner_image"];
-      //u.location    = res["data"]["user"]["location"];
-      //u.website     = res["data"]["user"]["website"];
+      u.bannerLink  = res["data"]["user"]["bannerImage"]  ?? u.bannerLink;
+      u.location    = res["data"]["user"]["location"]     ?? u.location;
+      u.website     = res["data"]["user"]["website"]      ?? u.website;
       u.birthDate   = res["data"]["user"]["birthDate"];
       u.joinedDate  = res["data"]["user"]["joinedAt"];
-      //u.followers   = res["data"]["user"]["followers_num"];
-      //u.following   = res["data"]["user"]["following_num"];
+      u.followers   = res["data"]["user"]["followers_num"];
+      u.following   = res["data"]["user"]["followings_num"];
 
       k.data = u;
     }
@@ -77,24 +77,27 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
+    print(k.responseBody);
+
     if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
 
       u.active      = true; //TODO: change this later
       u.auth        = res["token"];
-      u.id          = res["data"]["user"]["username"];
-      u.name        = res["data"]["user"]["nickname"];
-      u.email       = res["data"]["user"]["email"];
-      //u.bio         = res["data"]["user"]["bio"];
-      //u.iconLink    = res["data"]["user"]["profile_image"];
-      //u.bannerLink  = res["data"]["user"]["banner_image"];
-      //u.location    = res["data"]["user"]["location"];
-      //u.website     = res["data"]["user"]["website"];
-      u.birthDate   = res["data"]["user"]["birthDate"];
-      u.joinedDate  = res["data"]["user"]["joinedAt"];
-      //u.followers   = res["data"]["user"]["followers_num"];
-      //u.following   = res["data"]["user"]["following_num"];
+      u.email       = method.data!; //TODO: change this later
+      u.id          = res["data"]["suggestedUsername"] ?? "";
+      // u.name        = res["data"]["user"]["nickname"];
+      //
+      // u.bio         = res["data"]["user"]["bio"] ?? u.bio;
+      // u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
+      // u.bannerLink  = res["data"]["user"]["bannerImage"] ?? u.bannerLink;
+      // u.location    = res["data"]["user"]["location"] ?? u.location;
+      // u.website     = res["data"]["user"]["website"] ?? u.website;
+      // u.birthDate   = res["data"]["user"]["birthDate"];
+      // u.joinedDate  = res["data"]["user"]["joinedAt"];
+      // u.followers   = res["data"]["user"]["followers_num"];
+      // u.following   = res["data"]["user"]["followings_num"];
 
       k.data = u;
     }

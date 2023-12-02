@@ -58,6 +58,8 @@ class _FeedWidgetState extends State<FeedWidget> {
 
     if(!mounted) return;
     loading = false;
+
+    if (!context.mounted) return;
     setState(() {});
   }
 

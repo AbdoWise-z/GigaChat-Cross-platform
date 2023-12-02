@@ -47,7 +47,7 @@ class ApiPath{
   const ApiPath._(String p) : _path = p;
 
   //TODO: add paths here
-  static ApiPath checkExistedEmail       = const ApiPath._("/api/user/checkExistedEmail");
+  static ApiPath checkExistedEmail       = const ApiPath._("/api/user/existedEmailOrUsername");
   static ApiPath signUp                  = const ApiPath._("/api/user/signup");
   static ApiPath checkBirthDate          = const ApiPath._("/api/user/checkBirthDate");
   static ApiPath confirmEmail            = const ApiPath._("/api/user/confirmEmail");
@@ -56,9 +56,7 @@ class ApiPath{
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
-
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
-
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");

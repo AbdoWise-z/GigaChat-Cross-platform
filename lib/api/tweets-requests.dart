@@ -64,6 +64,7 @@ class Tweets {
 
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
+
   static Future<List<TweetData>> getFollowingTweet (String token,String count, String page) async
   {
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
@@ -75,15 +76,24 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
+
+      if (response.responseBody!.isEmpty){
+        loadCache();
+        return cachedTweets; //TODO: backend fix this pls ?
+      }
+
       final tweets = json.decode(response.responseBody!);
       List<dynamic> responseTweets = tweets["tweetList"];
+
+      //print(response.responseBody);
+      //print(responseTweets[0]["tweetDetails"]);
 
       responseTweets =
           responseTweets.map((tweet) =>
               TweetData(
                   id: tweet["tweetDetails"]["_id"],
-                  referredTweetId: tweet["tweetDetails"]["referredTweetId"],
-                  description: tweet["tweetDetails"]["description"],
+                  referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
+                  description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
                   viewsNum: 0,
                   likesNum: tweet["tweetDetails"]["likesNum"],
                   repliesNum: tweet["tweetDetails"]["repliesNum"],
@@ -98,15 +108,16 @@ class Tweets {
                     name: tweet["followingUser"]["nickname"],
                     auth: token,
                     //bio : "sad",
-                    iconLink : tweet["followingUser"]["profile_image"],
+                    iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
                     followers : tweet["followingUser"]["followers_num"],
                     following : tweet["followingUser"]["following_num"],
                     active : true,
 
                   ),
                   isLiked: tweet["isLiked"],
-                  isRetweeted: tweet["isRtweeted"]
-              )
+                  //who tf made this ?
+                  isRetweeted: tweet["isRtweeted"],
+              ),
           ).toList();
       cachedTweets = responseTweets.cast();
     }
