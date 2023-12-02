@@ -183,10 +183,10 @@ class Account {
     return true;
   }
 
-  static Future<ApiResponse<User>> apiUserProfile(String username,String token) async{
+  static Future<ApiResponse<User>> apiCurrUserProfile(String token) async{
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
-        ApiPath.userProfile.format([username]),
+        ApiPath.currUserProfile,
       headers: headers,
     );
     User u = User();
