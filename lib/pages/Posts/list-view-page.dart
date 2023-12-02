@@ -33,7 +33,7 @@ class _UserListViewPageState extends State<UserListViewPage> {
       case UserListViewFunction.GET_TWEET_LIKERS:
         currentList = await Tweets.getTweetLikers(userToken,tweetID,page.toString());
       case UserListViewFunction.GET_TWEET_REPOSTERS:
-        currentList = await Tweets.getTweetLikers(userToken, tweetID, page.toString());
+        currentList = await Tweets.getTweetRetweeters(userToken, tweetID, page.toString());
       case null:
         currentList = [];
     }

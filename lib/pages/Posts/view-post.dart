@@ -40,8 +40,9 @@ class ViewPostPage extends StatelessWidget {
             ),
 
             FeedWidget(
-                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                userID: Auth.getInstance(context).getCurrentUser()?.auth!
+                providerType: ProviderFunction.GET_TWEET_COMMENTS,
+                userToken: Auth.getInstance(context).getCurrentUser()?.auth!,
+                tweetID: tweetData.id,
             )
           ],
         ),

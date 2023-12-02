@@ -18,7 +18,7 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
-    print("code: ${k.code} , res: ${k.responseBody}");
+    //print("code: ${k.code} , res: ${k.responseBody}");
 
     if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
       User u = User();
@@ -77,7 +77,7 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
-    print(k.responseBody);
+    //print(k.responseBody);
 
     if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
       User u = User();

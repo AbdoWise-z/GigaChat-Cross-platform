@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
+import 'package:sprintf/sprintf.dart';
 
 
 class ApiResponse<T> {
@@ -39,6 +40,14 @@ class ApiResponse<T> {
 
 class ApiPath{
   final String _path;
+  static ApiPath fromString(String str){
+    return ApiPath._(str);
+  }
+  ApiPath format(List list){
+    String str;
+    str = sprintf(_path,list);
+    return ApiPath._(str);
+  }
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
@@ -61,8 +70,10 @@ class ApiPath{
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
-  static ApiPath comments                = const ApiPath._("/api/tweets/replies");
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
+  static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
+  static ApiPath userProfileTweets       = const ApiPath._("/api/%s/tweets");
 }
 
 class Api {

@@ -16,6 +16,43 @@ import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
 
+
+Widget textToRichText(String inputText){
+  List<String> result = inputText.split(' ');
+  List<TextSpan> textSpans = [];
+  String prevString = "";
+  for (var str in result){
+    if (str.isNotEmpty && str[0] == '#')
+    {
+      textSpans.add(
+        TextSpan(
+          text: prevString
+        )
+      );
+      prevString = "";
+      textSpans.add(TextSpan(
+        text: str,
+        style: const TextStyle(
+          color: Colors.blue
+        )
+      ));
+    }
+    else{
+      prevString += " $str";
+    }
+    if (prevString.isNotEmpty)
+      textSpans.add(
+          TextSpan(
+              text: prevString
+          )
+      );
+  }
+  return RichText(text: TextSpan(
+    children: textSpans
+  ));
+}
+
+
 class Tweet extends StatelessWidget {
   static String pageRoute = "/test";
   final User tweetOwner;
@@ -50,11 +87,12 @@ class Tweet extends StatelessWidget {
   }
 
   Future<bool> toggleRetweetTweet(String? token,String tweetId) async {
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
     if (token == null) return false;
 
     bool isRetweeting = !tweetData.isRetweeted;
-    bool success = await Tweets.retweetTweetById(token, tweetId);
+    bool success = isRetweeting ?
+    await Tweets.retweetTweetById(token, tweetId) :
+    false;
     // TODO: call the interface here and send the tweet id to retweet it
     if (success)
     {
@@ -95,6 +133,7 @@ class Tweet extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: CircleAvatar(
+                    backgroundColor: Colors.white,
                     radius: 20,
                     backgroundImage: NetworkImage(tweetOwner.iconLink)),
               ),
@@ -129,27 +168,7 @@ class Tweet extends StatelessWidget {
 
                   // =================== post content ===================
                   // TODO: make the hashtags and mentions later
-                  ReadMoreText(
-                    tweetData.description,
-                    style: TextStyle(
-                        fontSize: isSinglePostView ? 16 : 15,
-                        fontWeight: FontWeight.w500,
-                        color: isDarkMode ? Colors.white : Colors.black
-                    ),
-                    trimLines: MAX_LINES_TO_SHOW,
-                    colorClickableText: Colors.pink,
-                    trimMode: TrimMode.Line,
-                    trimCollapsedText: ' Show more',
-                    trimExpandedText: ' Show less',
-                    moreStyle: const TextStyle(
-                        fontSize:  14,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                    lessStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                  ),
+                  textToRichText(tweetData.description),
 
 
                   // =================== media display here ===================
@@ -252,9 +271,9 @@ class Tweet extends StatelessWidget {
                                 children: [
                                   Text(
                                     "${tweetData.repostsNum} ",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black
+                                        color: isDarkMode ? Colors.white : Colors.black
                                     )
                                   ),
                                   const Text(" Reposts"),
@@ -272,7 +291,7 @@ class Tweet extends StatelessWidget {
                                     });
                               },
                               style: TextButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(horizontal: 4,vertical: 15),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
                                   backgroundColor: Colors.transparent,
                                   foregroundColor: Colors.grey
                               ),
@@ -280,9 +299,9 @@ class Tweet extends StatelessWidget {
                                 children: [
                                   Text(
                                       "${tweetData.likesNum} ",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black
+                                          color: isDarkMode ? Colors.white : Colors.black
                                       )
                                   ),
                                   const Text(" Likes"),
@@ -431,6 +450,7 @@ class Tweet extends StatelessWidget {
     Row(
       children: [
         CircleAvatar(
+            backgroundColor: Colors.white,
             radius: 20,
             backgroundImage: NetworkImage(tweetOwner.iconLink)
         ),
