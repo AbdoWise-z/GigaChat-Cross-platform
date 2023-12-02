@@ -20,37 +20,27 @@ import 'package:readmore/readmore.dart';
 
 
 Widget textToRichText(String inputText){
-  List<String> result = inputText.split(' ');
-  List<TextSpan> textSpans = [];
-  String prevString = "";
-  for (var str in result){
-    if (str.isNotEmpty && str[0] == '#')
-    {
-      textSpans.add(
-        TextSpan(
-          text: prevString
-        )
-      );
-      prevString = "";
-      textSpans.add(TextSpan(
-        text: str,
+  final RegExp regex = RegExp(r'\B#\w*[a-zA-Z]+\w*');
+  List<TextSpan> spans = [];
+  inputText.splitMapJoin(
+    regex,
+    onMatch: (Match match) {
+      spans.add(TextSpan(
+        text: match.group(0),
         style: const TextStyle(
-          color: Colors.blue
-        )
+            color: Colors.blue
+        ),
       ));
-    }
-    else{
-      prevString += " $str";
-    }
-    if (prevString.isNotEmpty)
-      textSpans.add(
-          TextSpan(
-              text: prevString
-          )
-      );
-  }
+      return match.group(0)!;
+    },
+    onNonMatch: (String nonMatch) {
+      spans.add(TextSpan(text: nonMatch));
+      return nonMatch;
+    },
+  );
+
   return RichText(text: TextSpan(
-    children: textSpans
+    children: spans,
   ));
 }
 
