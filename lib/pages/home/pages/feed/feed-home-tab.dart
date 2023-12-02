@@ -13,11 +13,6 @@ import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import "package:gigachat/api/user-class.dart";
 
 class FeedHomeTab with HomePageTab {
-  @override
-  String? getTitle(BuildContext context) {
-    // TODO: implement getTitle
-    return super.getTitle(context);
-  }
 
   @override
   List<AppBarAction> getActions(BuildContext context) {

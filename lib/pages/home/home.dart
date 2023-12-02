@@ -4,9 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
-import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,22 +18,24 @@ class Home extends StatefulWidget {
 
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Home> createState() => HomeState();
+
+
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin {
+class HomeState extends State<Home> with TickerProviderStateMixin {
   TabController? _controller;
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
 
   //TODO: @Osama @Adel , replace with your pages
-  final List<HomePageTab> _pages = [
+  late final List<HomePageTab> _pages = [
     FeedHomeTab(),
-    DummyPage(),
-    DummyPage(),
-    DummyPage(),
-    DummyPage(),
+    ChatHomeTab(),
+    ChatHomeTab(),
+    ChatHomeTab(),
+    ChatHomeTab(),
   ];
 
 
@@ -50,6 +52,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     );
     print("code: ${k.code}");
     print(k.responseBody);
+  }
+
+  void update(void Function() callback){
+    setState(callback);
   }
 
   void setPage(int p){
@@ -125,9 +131,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ],
           ) : _pages[_currentPage].getPage(context)!,
         ),
-        floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),
+        floatingActionButton: _hidBottomControls && !_pages[_currentPage].isBottomNavPinned(context) ? null : _pages[_currentPage].getFloatingActionButton(context),
         bottomNavigationBar: AnimatedContainer(
-          height: _hidBottomControls ? 0 : 50,
+          height: _hidBottomControls && !_pages[_currentPage].isBottomNavPinned(context) ? 0 : 50,
           duration: const Duration(milliseconds: 100),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),

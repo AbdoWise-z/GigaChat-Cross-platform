@@ -146,13 +146,14 @@ class Account {
     return k;
   }
 
+  //TODO fix this
   static Future<ApiResponse<String>> apiSetProfileImage(String token, File img) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<String>(
       ApiPath.profileImage,
       headers: headers,
       files: {
-        "profile_image" : img.path
+        "profile_image" : UploadFile(path: img.path , type: "image" , subtype: "png"),
       }
     );
     if (k.code == ApiResponse.CODE_SUCCESS) {

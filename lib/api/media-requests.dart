@@ -1,29 +1,49 @@
-import 'api.dart';
-import 'dart:io';
+
 import 'dart:convert';
 
+import 'package:gigachat/api/api.dart';
+import 'package:http/http.dart';
+import 'package:http_parser/http_parser.dart';
+
+
 class Media {
+  static Future<ApiResponse<List>> uploadMedia(String token , List<UploadFile> files , {void Function(ApiResponse<List>)? success , void Function(ApiResponse<List>)? error}) async {
+    List<MultipartFile> fList = [];
 
-  static Future<ApiResponse<List<String>>> apiMedia(List<File> files,String token) async{
-    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    print(files[0].path);
-    List<String>filePaths = files.map((e) => e.path).toList();
-    var k = await Api.apiPost<List<String>>(
-        ApiPath.media,
-        body: json.encode({
-          "media" : files[0].path,
-        }),
-      headers: headers,
-    );
-    if(k.code == ApiResponse.CODE_SUCCESS_CREATED){
-      var res = json.decode(k.responseBody!);
-      print(res);
-      k.data = res["urls"];
-    }else{
-      print(k.code);
-      k.data = null;
+    for (var upload in files){
+      fList.add(
+        await MultipartFile.fromPath(
+          "media" ,
+          upload.path ,
+          contentType: upload.type != null ? MediaType(upload.type!, upload.subtype!) : null,
+        ),
+      );
     }
-    return k;
-  }
 
+    if (fList.isEmpty){
+      return ApiResponse<List<String>>(
+        code: 0,
+        data: [],
+        responseBody: '',
+      );
+    }
+
+    var res = await Api.apiPost<List>(
+      ApiPath.media,
+      files: fList,
+      headers: Api.getTokenHeader("Bearer $token"),
+    );
+
+    //print("res: ${res.code} / ${res.responseBody}");
+
+    if (res.code == ApiResponse.CODE_SUCCESS){
+      var body = json.decode(res.responseBody!);
+      res.data = body["data"]["usls"];
+      if (success != null) success(res);
+      return res;
+    }
+
+    if (error != null) error(res);
+    return res;
+  }
 }
