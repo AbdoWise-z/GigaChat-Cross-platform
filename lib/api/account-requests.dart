@@ -274,5 +274,55 @@ class Account {
     return k;
   }
 
+  static Future<ApiResponse<User>> apiUserProfile(String token,String username) async{
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+
+    var k = await Api.apiGet<User>(
+      ApiPath.userProfile.format([username]),
+      headers: headers,
+    );
+    User u = User();
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      print(res);
+      u.id                    = res["user"]["username"];
+      u.name                  = res["user"]["nickname"];
+      //u.email               = res["user"]["email"];
+      u.bio                   = res["user"]["bio"] ?? "";
+      u.iconLink              = res["user"]["profile_image"];
+      u.bannerLink            = res["user"]["banner_image"] ?? "";
+      //u.location            = res["user"]["location"];
+      //u.website             = res["user"]["website"];
+      u.birthDate             = DateTime.parse(res["user"]["birth_date"]);
+      u.joinedDate            = DateTime.parse(res["user"]["joined_date"]);
+      u.followers             = res["user"]["followers_num"];
+      u.following             = res["user"]["followings_num"];
+      u.isWantedUserBlocked   = res["user"]["is_wanted_user_blocked"];
+      u.isWantedUserMuted     = res["user"]["is_wanted_user_muted"];
+      u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
+      u.isWantedUserFollowed  = res["user"]["is_wanted_user_followed"];
+      u.isCurrUser            = res["user"]["is_curr_user"];
+
+
+    }else{
+      u.id          = "";
+      u.name        = "";
+      //u.email     = "";
+      u.bio         = "";
+      u.iconLink    = "";
+      u.bannerLink  = "";
+      //u.location  = "";
+      //u.website   = "";
+      u.birthDate   = DateTime.parse("1992-10-8");
+      u.joinedDate  = DateTime.parse("1992-10-8");
+      u.followers   = 0;
+      u.following   = 0;
+
+    }
+    k.data = u;
+    return k;
+  }
+
+
 
 }

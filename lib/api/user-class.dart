@@ -11,6 +11,13 @@ class User {
   String website;
   DateTime? birthDate;
   DateTime? joinedDate;
+  bool? isCurrUserBlocked;
+  bool? isWantedUserBlocked;
+  bool? isCurrUserMuted;
+  bool? isWantedUserMuted;
+  bool? isWantedUserFollowed;
+  bool? isCurrUser;
+
 
   int followers;
   int following;
@@ -32,6 +39,12 @@ class User {
     this.followers = 0,
     this.following = 0,
     this.active = false,
+    this.isCurrUser,
+    this.isCurrUserBlocked,
+    this.isCurrUserMuted,
+    this.isWantedUserBlocked,
+    this.isWantedUserFollowed,
+    this.isWantedUserMuted,
   });
 
 }
