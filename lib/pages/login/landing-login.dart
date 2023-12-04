@@ -12,7 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LandingLoginPage extends StatefulWidget {
   const LandingLoginPage({Key? key}) : super(key: key);
-  static const pageRoute = '/';
+  static const pageRoute = '/landing';
 
   @override
   State<LandingLoginPage> createState() => _LandingLoginPageState();
@@ -28,6 +28,15 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
 
     var settings = LocalSettings.getInstance(context);
     var authProvider = Auth.getInstance(context);
+
+    if (authProvider.getCurrentUser() != null) { //if there is a default login use it
+      Future.delayed(Duration.zero , () {
+        Navigator.popUntil(context, (r) => false);
+        Navigator.pushNamed(context, Home.pageRoute);
+        print("using default login");
+      });
+      return;
+    }
 
     if (!settings.getValue<bool>(name: "login", def: false)!){
       setState(() {

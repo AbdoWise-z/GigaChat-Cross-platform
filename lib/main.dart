@@ -64,7 +64,7 @@ class _GigaChatState extends State<GigaChat> {
               return MaterialApp(
                 theme: theme.getTheme,
                 title: "GigaChat",
-                initialRoute: widget.initialRoute ?? LandingRegisterPage.pageRoute,
+                initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
                   // TODO: for test purposes remove later
                   //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),

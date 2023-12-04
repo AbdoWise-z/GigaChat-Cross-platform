@@ -13,7 +13,14 @@ class Auth extends ChangeNotifier{
   }
 
   //TODO: change back to null
-  User? _currentUser;
+  User? _currentUser = User(
+    auth: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmI0MjQ2Y2UxODFlMDkxZjQ0ZWQ2OCIsImlhdCI6MTcwMTY5NDg3NCwiZXhwIjoxNzA5NDcwODc0fQ.fzgA0k7GDEptyv2VIjmKZZWNTvzbJLSJMPqssWgUtFI",
+    id: "moa_ded_inside",
+    name: "Mohamed Adel Ezz Eldin",
+    bio: "MoA is ded again",
+    iconLink: "https://storage.googleapis.com/gigachat-img.appspot.com/0b9940fd-1532-4e4b-b806-b591f307c40a-download.jpg?GoogleAccessId=firebase-adminsdk-5avio%40gigachat-img.iam.gserviceaccount.com&Expires=253399795200&Signature=DR5oSMgiNZkk%2FerBuAAvI78oN%2BwkkWuxIFkTGVA6O62QLSSnzEvauRkLFJ2Xy%2FmT8DY5zK6tQJYswHvBLdMOfTQa4nI1ROUGmPVlRtivoDvTRFew36JHglhVzfU20V9MTKCcTh5DCUZ40m0lNAdZmfOHSwXBiDD4IkLaKdgxBf106bx6lRZCsMsDU4nbaWzdoEVjycvNi5ExRz4Qwv9B%2Bcekc0I12CxtLXKSS6aGL2zQO9keVR77DyqtypMt81O863SJuKeRYXf7z7k9byLTm%2BXzVaMhEgq%2BdAcx8anmnaEUojLkCsxhcXgOQjU56gBjpDAhIOQ%2FpmJVhisPGz7FEA%3D%3D",
+    bannerLink: "https://storage.googleapis.com/gigachat-img.appspot.com/",
+  );
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);
