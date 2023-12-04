@@ -57,7 +57,7 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
   List<AssetPathEntity> _paths = [];
   int _currentPath = 0;
   AssetPathEntity? _path;
-  List<AssetEntity>? _entities;
+  List<AssetEntity> _entities = [];
   int _page = 0;
   final int _sizePerPage = 30;
   int _totalCount = 0;
@@ -123,7 +123,7 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
     );
 
     setState(() {
-      _entities!.addAll(entities);
+      _entities.addAll(entities);
       _page++;
       _loadingMore = false;
     });
@@ -232,11 +232,11 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       ),
       childrenDelegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
-          if (index == _entities!.length - _sizePerPage &&
-              !_loadingMore && _entities!.length < _totalCount) {
+          if (index == _entities.length - _sizePerPage &&
+              !_loadingMore && _entities.length < _totalCount) {
             _loadMore();
           }
-          final AssetEntity entity = _entities![index];
+          final AssetEntity entity = _entities[index];
           return ImageGridItem(
             key: ValueKey<int>(index),
             entity: entity,
@@ -263,7 +263,7 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
             enabled: _selectedPaths.length < widget.selectMax || _selectedPaths.contains("${entity.relativePath}${entity.title}"),
           );
         },
-        childCount: _entities!.length,
+        childCount: _entities.length,
         findChildIndexCallback: (Key key) {
           // Re-use elements.
           if (key is ValueKey<int>) {
