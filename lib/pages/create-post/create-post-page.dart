@@ -392,7 +392,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             //if you somehow was able to click before the app even builds
                             //then you deserve the app crash in your face :)
                             List<String> items = state.media;
-                            var selected = await Gallery.selectFromGallery(context , selected: items);
+                            var selected = await Gallery.selectFromGallery(context , selected: items , canSkip: true);
                             state.setState(() {
                               state.media = selected; //totally crashable btw
                             });
