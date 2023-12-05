@@ -179,7 +179,13 @@ class _NavDrawerState extends State<NavDrawer> {
                                 ListTile(
                                   onTap: () async {
                                     //TODO : handle on click
-                                    await Navigator.pushNamed(context, UserProfile.pageRoute);
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserProfile(username: Auth.getInstance(context).getCurrentUser()!.id, isCurrUser: true)
+                                      )
+                                    );
                                     setState(() {
 
                                     });

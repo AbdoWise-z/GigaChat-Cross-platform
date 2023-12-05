@@ -209,13 +209,15 @@ class _EditProfileState extends State<EditProfile> {
                     children: [
                       ColorFiltered(
                         colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-                        child: SizedBox(
+                        child: Container(
+                          color: Colors.blue,
                           height: 160,
                           width: double.infinity,
                           child: bannerChanged? Image.file(
                             selectedBanner,
                             fit: BoxFit.contain,
                           ) :
+                          newBannerImageUrl == ""? null :
                           Image.network(
                             newBannerImageUrl,
                             fit: BoxFit.contain,

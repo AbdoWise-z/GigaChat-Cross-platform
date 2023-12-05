@@ -91,18 +91,19 @@ class Tweet extends StatelessWidget {
   }
 
   Future<bool> toggleRetweetTweet(String? token,String tweetId) async {
-    if (token == null)
+    if (token == null){
       return false;
+    }
 
     bool isRetweeting = !tweetData.isRetweeted;
-    bool success = isRetweeting ? await Tweets.retweetTweetById(token, tweetId) : false;
+    bool success = isRetweeting ? await Tweets.retweetTweetById(token, tweetId) : await Tweets.unretweetTweetById(token, tweetId);
     // TODO: call the interface here and send the tweet id to retweet it
     if (success)
     {
       tweetData.isRetweeted = isRetweeting;
       tweetData.repostsNum += tweetData.isRetweeted ? 1 : -1;
     }
-    return tweetData.isRetweeted;
+    return success;
   }
 
   // ui part

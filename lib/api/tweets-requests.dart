@@ -65,11 +65,13 @@ class Tweets {
 
   static List<TweetData> decodeTweetList(String token, ApiResponse response, ProviderFunction providerFunction){
     final tweets = json.decode(response.responseBody!);
+    print(response.responseBody!);
 
     if (providerFunction == ProviderFunction.HOME_PAGE_TWEETS) {
       List<dynamic> responseTweets = tweets["tweetList"];
       return responseTweets.map((tweet) {
         List<dynamic>? tweetMedia = tweet["tweetDetails"]["media"];
+        print(tweet);
           return TweetData(
             id: tweet["tweetDetails"]["_id"],
             referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
@@ -262,7 +264,8 @@ class Tweets {
                     id: user["username"] ?? "",
                     name: user["nickname"],
                     bio: user["bio"] ?? "",
-                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png"
+                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png",
+                    isFollowed: user["isFollowed"],
                 )
       ).toList();
     }
@@ -284,7 +287,8 @@ class Tweets {
                     id: user["username"] ?? "",
                     name: user["nickname"],
                     bio: user["bio"] ?? "",
-                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png"
+                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png",
+                    isFollowed: user["isFollowed"],
                 )
       ).toList();
     }
@@ -332,6 +336,22 @@ class Tweets {
   /// returns true if the tweet is successfully retweeted, false if it failed
   static Future<bool> retweetTweetById(String token,String tweetId) async {
     ApiPath endPoint = (ApiPath.retweet).appendDirectory(tweetId);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    if(response.code == 204){
+      return true;
+    }
+    else
+    {
+      if (kDebugMode) {
+        print(response.code);
+      }
+      return false;
+    }
+  }
+
+  static Future<bool> unretweetTweetById(String token,String tweetId) async {
+    ApiPath endPoint = (ApiPath.unretweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
     if(response.code == 204){

@@ -98,6 +98,30 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
+  void onEditProfileClick () async {
+    var res = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) =>
+            EditProfile(
+              name: name,
+              bannerImageUrl: bannerImageUrl,
+              avatarImageUrl: avatarImageUrl,
+              bio: bio,
+              website: website,
+              birthDate: birthDate,
+            )
+        ));
+    if(res != null){
+      setState(() {
+        name = res["name"];
+        bio = res["bio"];
+        website = res["website"];
+        birthDate = res["birthDate"];
+        bannerImageUrl = res["bannerImageUrl"];
+        avatarImageUrl = res["avatarImageUrl"];
+      });
+    }
+  }
+
   @override
   void initState()  {
     tabController = TabController(length: 4, vsync: this);
@@ -190,7 +214,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         flexibleSpace: collapsed? FlexibleSpaceBar(
           background: ColorFiltered(
             colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-            child: Image.network(bannerImageUrl,
+            child: bannerImageUrl == ""?
+            Container(color: Colors.blue,) :
+            Image.network(bannerImageUrl,
               fit: BoxFit.cover,
               alignment: Alignment.bottomCenter,
             ),
@@ -227,29 +253,34 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         ProfileBanner(
                           bannerImageUrl: bannerImageUrl,
                           onTap: ()async{
-                             var res = await Navigator.push(context,
-                                 MaterialPageRoute(builder: (context) =>
-                                     ProfileImageView(
-                                       isProfileAvatar: false,
-                                       imageUrl: bannerImageUrl,
-                                       avatarImageUrl: avatarImageUrl,
-                                       name: name,
-                                       birthDate: birthDate,
-                                       bio: bio,
-                                       website: website,
-                                     )
-                                 )
-                             );
-                             if(res != null){
-                               setState(() {
-                                 name = res["name"];
-                                 bio = res["bio"];
-                                 website = res["website"];
-                                 birthDate = res["birthDate"];
-                                 bannerImageUrl = res["bannerImageUrl"];
-                                 avatarImageUrl = res["avatarImageUrl"];
-                               });
-                             }
+                            if(bannerImageUrl != ""){
+                              var res = await Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) =>
+                                      ProfileImageView(
+                                        isProfileAvatar: false,
+                                        imageUrl: bannerImageUrl,
+                                        avatarImageUrl: avatarImageUrl,
+                                        name: name,
+                                        birthDate: birthDate,
+                                        bio: bio,
+                                        website: website,
+                                      )
+                                  )
+                              );
+                              if(res != null){
+                                setState(() {
+                                  name = res["name"];
+                                  bio = res["bio"];
+                                  website = res["website"];
+                                  birthDate = res["birthDate"];
+                                  bannerImageUrl = res["bannerImageUrl"];
+                                  avatarImageUrl = res["avatarImageUrl"];
+                                });
+                              }
+                            }
+                            else{
+                              onEditProfileClick();
+                            }
                           },
                         ),
                         Padding(
@@ -259,29 +290,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     children: [
                                       ProfileInteract(
                                         isCurrUser: widget.isCurrUser,
-                                        onTapEditProfile: ()async{
-                                          var res = await Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) =>
-                                                  EditProfile(
-                                                    name: name,
-                                                    bannerImageUrl: bannerImageUrl,
-                                                    avatarImageUrl: avatarImageUrl,
-                                                    bio: bio,
-                                                    website: website,
-                                                    birthDate: birthDate,
-                                                  )
-                                              ));
-                                          if(res != null){
-                                            setState(() {
-                                              name = res["name"];
-                                              bio = res["bio"];
-                                              website = res["website"];
-                                              birthDate = res["birthDate"];
-                                              bannerImageUrl = res["bannerImageUrl"];
-                                              avatarImageUrl = res["avatarImageUrl"];
-                                            });
-                                          }
-                                        },
+                                        onTapEditProfile: onEditProfileClick,
                                         onTapDM: (){}, //TODO: DM user
                                         onTapFollow: (){}, //TODO: follow user
                                       ),
@@ -394,7 +403,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         tabController: tabController,
                                       ),
                                       SizedBox(
-                                        height: 1000, //TODO: user feed (change height dynamically every getTweets request)
+                                        height: 2100, //TODO: user feed (change height dynamically every getTweets request)
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
@@ -583,7 +592,9 @@ class ProfileBanner extends StatelessWidget {
         height: 160,
         width: double.infinity,
         color: Colors.blue,
-        child: Image.network(bannerImageUrl,
+        child: bannerImageUrl == ""?
+        Container(color: Colors.blue,) :
+        Image.network(bannerImageUrl,
           fit: BoxFit.cover,
           alignment: Alignment.bottomCenter,
         ),
@@ -644,4 +655,35 @@ class ProfileInteract extends StatelessWidget {
     );
   }
 }
+
+class NoPosts extends StatelessWidget {
+  const NoPosts({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 100,
+      child: Center(
+        child: Column(
+          children: [
+            Text(
+              "No posts to show",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            Text(
+              "Try posting something",
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
