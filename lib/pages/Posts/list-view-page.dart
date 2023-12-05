@@ -5,7 +5,7 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 enum UserListViewFunction{
@@ -84,10 +84,13 @@ class _UserListViewPageState extends State<UserListViewPage> {
                 ],
               ),
               const Expanded(child: SizedBox()),
-              SizedBox(
-                  width: 100,
-                  height: 25,
-                  child: FollowButton(isFollowed: false, callBack: (bool followed){})
+              Visibility(
+                visible: user.value.id != Auth.getInstance(context).getCurrentUser()!.id,
+                child: SizedBox(
+                    width: 100,
+                    height: 25,
+                    child: FollowButton(isFollowed: false, callBack: (bool followed){}, username: user.value.id)
+                ),
               ),
             ],
           ),

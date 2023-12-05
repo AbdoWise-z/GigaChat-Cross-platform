@@ -15,6 +15,7 @@ class User {
   int followers;
   int following;
   bool active;
+  bool? isFollowed;
 
   User({
     this.id = "@Abdo-ww",
@@ -32,6 +33,7 @@ class User {
     this.followers = 0,
     this.following = 0,
     this.active = false,
+    this.isFollowed
   });
 
 }

@@ -19,9 +19,7 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
-    print("code: ${k.code} , res: ${k.responseBody}");
-
-    if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
+    if (k.code == ApiResponse.CODE_SUCCESS) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
 
@@ -272,6 +270,35 @@ class Account {
       k.data = links[0];
     }
     return k;
+  }
+
+  static Future<bool> followUser(String token, String username) async
+  {
+      ApiPath endPoint = (ApiPath.followUser).format([username]);
+      Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+      print(response.code);
+      switch(response.code){
+        case ApiResponse.CODE_SUCCESS_NO_BODY:
+          return true;
+        default:
+          return false;
+      }
+  }
+  static Future<bool> unfollowUser(String token, String username) async
+  {
+      ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
+      Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+
+      print(token);
+
+      switch(response.code){
+        case ApiResponse.CODE_SUCCESS_NO_BODY:
+          return true;
+        default:
+          return false;
+    }
   }
 
 

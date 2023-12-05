@@ -68,102 +68,107 @@ class Tweets {
 
     if (providerFunction == ProviderFunction.HOME_PAGE_TWEETS) {
       List<dynamic> responseTweets = tweets["tweetList"];
-      return responseTweets.map((tweet) =>
-                TweetData(
-                  id: tweet["tweetDetails"]["_id"],
-                  referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
-                  description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
-                  viewsNum: 0,
-                  likesNum: tweet["tweetDetails"]["likesNum"],
-                  repliesNum: tweet["tweetDetails"]["repliesNum"],
-                  repostsNum: tweet["tweetDetails"]["repostsNum"],
-                  creationTime: DateTime.parse(tweet["tweetDetails"]["createdAt"]),
-                  type: tweet["type"],
-
-                  mediaType: tweet["tweetDetails"]["media"][0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
-                  media: tweet["tweetDetails"]["media"][0]["data"],
-                  tweetOwner: User(
-                    id: tweet["followingUser"]["username"],
-                    name: tweet["followingUser"]["nickname"],
-                    auth: token,
-                    //bio : "sad",
-                    iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
-                    followers : tweet["followingUser"]["followers_num"],
-                    following : tweet["followingUser"]["following_num"],
-                    active : true,
-
-                  ),
-                  isLiked: tweet["isLiked"],
-                  //who tf made this ?
-                  isRetweeted: tweet["isRtweeted"],
-                ),
-            ).toList();
-    }
-    if (providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS) {
-      List<dynamic> responseTweets = tweets["posts"];
-      return responseTweets.map((tweet) =>
-                TweetData(
-                  id: tweet["id"],
-                  description: tweet["description"] ?? "ERR NOT DISC",
-                  viewsNum: 0,
-                  likesNum: tweet["likesNum"],
-                  repliesNum: tweet["repliesNum"],
-                  repostsNum: tweet["repostsNum"],
-                  creationTime: DateTime.parse(tweet["creation_time"]),
-                  type: tweet["type"],
-
-                  mediaType: tweet["media"][0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
-                  media: tweet["media"][0]["data"],
-                  tweetOwner: User(
-                    id: tweet["tweet_owner"]["username"],
-                    name: tweet["tweet_owner"]["nickname"],
-                    auth: null,
-                    //bio : "sad",
-                    iconLink : tweet["tweet_owner"]["profile_image"] ?? USER_DEFAULT_PROFILE,
-                    followers : tweet["tweet_owner"]["followers_num"],
-                    following : tweet["tweet_owner"]["following_num"],
-                    active : true,
-
-                  ),
-                  isLiked: tweet["isLiked"],
-                  //who tf made this ?
-                  isRetweeted: tweet["isRetweeted"],
-                  referredTweetId: '',
-                ),
-            ).toList();
-    }
-    if (providerFunction == ProviderFunction.GET_TWEET_COMMENTS) {
-      List<dynamic> responseTweets = tweets["data"];
-      print(responseTweets);
-      return responseTweets.map((tweet) =>
-          TweetData(
-            id: tweet["id"],
-            description: tweet["description"] ?? "ERR NOT DISC",
+      return responseTweets.map((tweet) {
+        List<dynamic>? tweetMedia = tweet["tweetDetails"]["media"];
+          return TweetData(
+            id: tweet["tweetDetails"]["_id"],
+            referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
+            description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
             viewsNum: 0,
-            likesNum: tweet["likesNum"],
-            repliesNum: tweet["repliesNum"],
-            repostsNum: tweet["repostsNum"],
-            creationTime: DateTime.parse(tweet["creation_time"]),
+            likesNum: tweet["tweetDetails"]["likesNum"],
+            repliesNum: tweet["tweetDetails"]["repliesNum"],
+            repostsNum: tweet["tweetDetails"]["repostsNum"],
+            creationTime: DateTime.parse(tweet["tweetDetails"]["createdAt"]),
             type: tweet["type"],
 
-            mediaType: tweet["media"][0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
-            media: tweet["media"][0]["data"],
+            mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
+            media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
             tweetOwner: User(
-              id: tweet["tweet_owner"][0]["username"],
-              name: tweet["tweet_owner"][0]["nickname"],
-              auth: null,
+              id: tweet["followingUser"]["username"],
+              name: tweet["followingUser"]["nickname"],
+              auth: token,
+              isFollowed: true,
               //bio : "sad",
-              iconLink : tweet["tweet_owner"][0]["profile_image"] ?? USER_DEFAULT_PROFILE,
-              followers : tweet["tweet_owner"][0]["followers_num"],
-              following : tweet["tweet_owner"][0]["following_num"],
+              iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
+              followers : tweet["followingUser"]["followers_num"],
+              following : tweet["followingUser"]["following_num"],
               active : true,
 
             ),
             isLiked: tweet["isLiked"],
             //who tf made this ?
-            isRetweeted: tweet["isRetweeted"],
-            referredTweetId: '',
+            isRetweeted: tweet["isRtweeted"],
+          );
+        }).toList();
+    }
+    if (providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS) {
+      List<dynamic> responseTweets = tweets["posts"];
+      print(responseTweets);
+      return responseTweets.map((tweet) {
+        List<dynamic>? tweetMedia = tweet["media"];
+        return TweetData(
+          id: tweet["id"],
+          description: tweet["description"] ?? "ERR NOT DISC",
+          viewsNum: 0,
+          likesNum: tweet["likesNum"] ?? 0,
+          repliesNum: tweet["repliesNum"] ?? 0,
+          repostsNum: tweet["repostsNum"] ?? 0,
+          creationTime: DateTime.parse(tweet["creation_time"]),
+          type: tweet["type"],
+
+          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
+          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
+          tweetOwner: User(
+            id: tweet["tweet_owner"]["username"],
+            name: tweet["tweet_owner"]["nickname"],
+            auth: null,
+            //bio : "sad",
+            iconLink : tweet["tweet_owner"]["profile_image"] ?? USER_DEFAULT_PROFILE,
+            followers : tweet["tweet_owner"]["followers_num"],
+            following : tweet["tweet_owner"]["following_num"],
+            active : true,
+
           ),
+          isLiked: tweet["isLiked"],
+          //who tf made this ?
+          isRetweeted: tweet["isRetweeted"],
+          referredTweetId: '',
+        );
+      }).toList();
+    }
+    if (providerFunction == ProviderFunction.GET_TWEET_COMMENTS) {
+      List<dynamic> responseTweets = tweets["data"];
+      return responseTweets.map((tweet) {
+        List<dynamic>? tweetMedia = tweet["media"];
+        return TweetData(
+          id: tweet["id"],
+          description: tweet["description"] ?? "ERR NOT DISC",
+          viewsNum: 0,
+          likesNum: tweet["likesNum"],
+          repliesNum: tweet["repliesNum"],
+          repostsNum: tweet["repostsNum"],
+          creationTime: DateTime.parse(tweet["creation_time"]),
+          type: tweet["type"],
+
+          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
+          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
+          tweetOwner: User(
+            id: tweet["tweet_owner"][0]["username"],
+            name: tweet["tweet_owner"][0]["nickname"],
+            auth: null,
+            //bio : "sad",
+            iconLink : tweet["tweet_owner"][0]["profile_image"] ?? USER_DEFAULT_PROFILE,
+            followers : tweet["tweet_owner"][0]["followers_num"],
+            following : tweet["tweet_owner"][0]["following_num"],
+            active : true,
+
+          ),
+          isLiked: tweet["isLiked"],
+          //who tf made this ?
+          isRetweeted: tweet["isRetweeted"],
+          referredTweetId: '',
+        );
+      }
       ).toList();
     }
 
@@ -206,6 +211,7 @@ class Tweets {
         headers: headers,
         params: {"page":page,"count":count}
     );
+    print(response.responseBody);
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody!.isNotEmpty){
       List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.PROFILE_PAGE_TWEETS);
       cachedTweets = responseTweets.cast();
@@ -290,15 +296,17 @@ class Tweets {
   static Future<bool> likeTweetById(String token,String tweetId) async {
       ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
       var headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-      if(response.code == 201)
-      {
-        return true;
-      }
-      else
-      {
-        debugPrint(response.code.toString());
-        return false;
+      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+      print(response.code);
+      switch(response.code){
+        case ApiResponse.CODE_SUCCESS_NO_BODY:
+          return true;
+        case ApiResponse.CODE_NO_INTERNET:
+        case ApiResponse.CODE_BAD_REQUEST:
+        case ApiResponse.CODE_TIMEOUT:
+          throw "something went wrong, check your connection and try again";
+        default:
+          throw "something went wrong";
       }
   }
 
@@ -306,16 +314,17 @@ class Tweets {
   static Future<bool> unlikeTweetById(String token,String tweetId) async {
     ApiPath endPoint = (ApiPath.unlikeTweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    if(response.code == 201){
-      return true;
-    }
-    else
-    {
-      if (kDebugMode) {
-        print(response.code);
-      }
-      return false;
+    ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_CREATED:
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      case ApiResponse.CODE_NO_INTERNET:
+      case ApiResponse.CODE_BAD_REQUEST:
+      case ApiResponse.CODE_TIMEOUT:
+        throw "something went wrong, check your connection and try again";
+      default:
+        throw "something went wrong";
     }
   }
 

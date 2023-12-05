@@ -74,6 +74,8 @@ class ApiPath{
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
+  static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
+  static ApiPath unfollowUser            = const ApiPath._("/api/user/%s/unfollow");
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
@@ -85,7 +87,7 @@ class ApiPath{
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
-  static ApiPath userProfileTweets       = const ApiPath._("/api/%s/tweets");
+  static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
 
 }

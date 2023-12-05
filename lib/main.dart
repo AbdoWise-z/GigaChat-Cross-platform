@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
@@ -65,9 +66,6 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingRegisterPage.pageRoute,
                 routes: {
-                  // TODO: for test purposes remove later
-                  //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
-
                   Home.pageRoute : (context) => const Home(),
                   ChatPage.pageRoute : (context) => const ChatPage(),
 
@@ -85,6 +83,7 @@ class _GigaChatState extends State<GigaChat> {
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
                   UserProfile.pageRoute : (context) => UserProfile(isCurrUser:true ,username: Auth.getInstance(context).getCurrentUser()!.id),
                   UserListViewPage.pageRoute : (context) => UserListViewPage(),
+                  CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
               );
             }
