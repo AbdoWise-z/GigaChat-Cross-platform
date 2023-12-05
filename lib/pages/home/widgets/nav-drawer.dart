@@ -110,8 +110,8 @@ class _NavDrawerState extends State<NavDrawer> {
                 //TODO : handle account menu
               },
                 icon: const Icon(
-                  Icons.format_list_bulleted_outlined,
-                  size: 14,
+                  Icons.more_vert,
+                  size: 16,
                 ),
               ),
             ],
@@ -179,9 +179,13 @@ class _NavDrawerState extends State<NavDrawer> {
                                 ListTile(
                                   onTap: () async {
                                     //TODO : handle on click
-                                    await Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                                        UserProfile(username: Auth.getInstance(context).getCurrentUser()!.id, isCurrUser: true)
-                                    ));
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserProfile(username: Auth.getInstance(context).getCurrentUser()!.id, isCurrUser: true)
+                                      )
+                                    );
                                     setState(() {
 
                                     });

@@ -89,11 +89,13 @@ class _TweetActionButtonState extends State<TweetActionButton> {
                             widget.isRetweeted ? "Undo Repost" : "Repost",
                             FontAwesomeIcons.retweet,
                             () async {
-                              if (await widget.onPressed()) {
+                              bool success = await widget.onPressed();
+                              widget.count ??= 0;
+                              if (success) {
                                     widget.isRetweeted = !widget.isRetweeted;
-                                    widget.count = widget.isRetweeted == true ? 1 : -1;
+                                    widget.count = widget.count! + (widget.isRetweeted == true ? 1 : -1);
+                                    setState(() {});
                               }
-                              setState(() {});
                             }
                           ],
                           [

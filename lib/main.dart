@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
@@ -63,10 +66,8 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingRegisterPage.pageRoute,
                 routes: {
-                  // TODO: for test purposes remove later
-                  //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
-
                   Home.pageRoute : (context) => const Home(),
+                  ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
                   UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
@@ -80,6 +81,8 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
+                  UserListViewPage.pageRoute : (context) => UserListViewPage(),
+                  CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
               );
             }

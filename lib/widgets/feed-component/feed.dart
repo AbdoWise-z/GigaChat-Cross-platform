@@ -34,7 +34,7 @@ class FeedWidget extends StatefulWidget {
 
 
 class _FeedWidgetState extends State<FeedWidget> {
-  late List<TweetData> _tweetsData;
+  List<TweetData> _tweetsData = [];
   late bool loading;
   late FeedProvider feedProvider;
 
@@ -102,7 +102,7 @@ class _FeedWidgetState extends State<FeedWidget> {
   @override
   void initState() {
     loading = true;
-    feedProvider  = FeedProvider(pageCount: 5);
+    feedProvider  = FeedProvider(pageCount: 10);
     VisibilityDetectorController.instance.updateInterval = const Duration(seconds: 1);
     super.initState();
   }
@@ -118,7 +118,35 @@ class _FeedWidgetState extends State<FeedWidget> {
       );
     }
     List<Widget> tweetWidgets = wrapDataInWidget();
-    return Column(children: tweetWidgets);
+    return tweetWidgets.isEmpty?
+    const Padding(
+      padding: EdgeInsets.fromLTRB(0,150,0,0),
+      child: SizedBox(
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "No posts to show",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                "Try posting something",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    ) :
+    Column(children: tweetWidgets);
   }
 }
 

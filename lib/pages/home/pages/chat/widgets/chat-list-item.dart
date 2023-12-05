@@ -29,13 +29,15 @@ class ChatListItem extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       onLongPress: longPress,
       onTap: press,
-      leading: SizedBox(
+      leading: Container(
         width: 60,
         height: 60,
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Image.network(object.profileImage),
+        margin: EdgeInsets.all(8),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
         ),
+        child: Image.network(object.profileImage,fit: BoxFit.cover,),
       ),
       title: Text(
         object.nickname,
