@@ -14,7 +14,9 @@ class ProfileBanner extends StatelessWidget {
         height: 160,
         width: double.infinity,
         color: Colors.blue,
-        child: Image.network(bannerImageUrl,
+        child: bannerImageUrl == ""?
+        null :
+        Image.network(bannerImageUrl,
           fit: BoxFit.cover,
           alignment: Alignment.bottomCenter,
         ),

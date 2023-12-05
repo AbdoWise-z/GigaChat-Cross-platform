@@ -13,9 +13,8 @@ class User {
   DateTime? joinedDate;
   bool? isCurrUserBlocked;
   bool? isWantedUserBlocked;
-  bool? isCurrUserMuted;
   bool? isWantedUserMuted;
-  bool? isWantedUserFollowed;
+  bool? isFollowed;
   bool? isCurrUser;
 
 
@@ -41,9 +40,8 @@ class User {
     this.active = false,
     this.isCurrUser,
     this.isCurrUserBlocked,
-    this.isCurrUserMuted,
     this.isWantedUserBlocked,
-    this.isWantedUserFollowed,
+    this.isFollowed,
     this.isWantedUserMuted,
   });
 
