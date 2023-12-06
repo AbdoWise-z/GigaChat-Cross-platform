@@ -102,7 +102,7 @@ class _FeedWidgetState extends State<FeedWidget> {
   @override
   void initState() {
     loading = true;
-    feedProvider  = FeedProvider(pageCount: 5);
+    feedProvider  = FeedProvider(pageCount: 10);
     VisibilityDetectorController.instance.updateInterval = const Duration(seconds: 1);
     super.initState();
   }

@@ -146,7 +146,14 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
                         child: TextField(
                           focusNode: node,
                           controller: controller,
-                          maxLength: MAX_POST_LENGTH.toInt(),
+                          onChanged: (str){
+                            if(controller.text.length > MAX_POST_LENGTH){
+                              setState(() {
+
+                              });
+                            }
+                          },
+                          //maxLength: MAX_POST_LENGTH.toInt(),
                           maxLines: null,
                           style: const TextStyle(
                             fontSize: 20,

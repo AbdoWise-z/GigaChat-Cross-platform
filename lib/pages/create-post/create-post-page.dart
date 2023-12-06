@@ -190,7 +190,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     bool canPost = true;
     for (var k in _posts){
-      if (k.currentState != null && k.currentState!.controller.text.isEmpty){
+      if (k.currentState != null && (k.currentState!.controller.text.isEmpty || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
         canPost = false;
         break;
       }
@@ -410,6 +410,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           child: CircularProgressIndicator(
                             backgroundColor: Colors.grey,
                             strokeWidth: 2,
+                            valueColor: _currentActive != null && (_currentActive!.currentState != null &&
+                                _currentActive!.currentState!.controller.text.length > MAX_POST_LENGTH) ? const AlwaysStoppedAnimation(Colors.red) :
+                            const AlwaysStoppedAnimation(Colors.blue),
                             value: _currentActive != null && _currentActive!.currentState != null ? (_currentActive!.currentState!.controller.text.length / MAX_POST_LENGTH) : 0,
                           ),
                         ),

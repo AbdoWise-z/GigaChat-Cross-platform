@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/api/media-class.dart';
-import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
@@ -12,41 +11,39 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:readmore/readmore.dart';
 
-
-Widget textToRichText(String inputText,bool isDarkMode){
-  final RegExp regex = RegExp(r'\B#\w*[a-zA-Z]+\w*');
+// tested successfully
+List<TextSpan> textToRichText(String inputText,bool isDarkMode){
+  final RegExp regex = RegExp(r'\B#\w*');
   List<TextSpan> spans = [];
   inputText.splitMapJoin(
     regex,
     onMatch: (Match match) {
-      spans.add(TextSpan(
-        text: match.group(0),
-        style: const TextStyle(
-            color: Colors.blue
-        ),
-      ));
+      spans.add(
+          TextSpan(
+            text: match.group(0),
+            style: const TextStyle(
+                color: Colors.blue
+            ),
+          )
+      );
       return match.group(0)!;
     },
     onNonMatch: (String nonMatch) {
-      spans.add(TextSpan(text: nonMatch));
+      if (nonMatch.isNotEmpty) {
+        spans.add(TextSpan(text: nonMatch));
+      }
       return nonMatch;
     },
   );
-  return RichText(
-      overflow: TextOverflow.ellipsis,
-      maxLines: MAX_LINES_TO_SHOW,
-      text: TextSpan(
-          children: spans,
-          style: TextStyle(
-              color: isDarkMode ? Colors.white : Colors.black
-          )));
+  return spans;
 
 }
 
@@ -66,38 +63,47 @@ class Tweet extends StatelessWidget {
       required this.isRetweet,
       required this.isSinglePostView
   });
+
+
   // Controllers for the tweet class
-  Future<bool> toggleLikeTweet(String? token,String tweetId) async {
-    //if (token == null) return true;
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTBkMmY5ZjkwODhlODgzMThmZDEwYyIsImlhdCI6MTcwMTEwMzI2NywiZXhwIjoxNzA4ODc5MjY3fQ.Il_1vL2PbOE36g0wW55Lh1M7frJWx73gNIZ0uDuP5yw";
-
-    bool isLikingTweet = !tweetData.isLiked;
-
-    bool success = isLikingTweet ?
-    await Tweets.likeTweetById(token, tweetId) :
-    await Tweets.unlikeTweetById(token, tweetId);
-
-    if(success){
-      tweetData.isLiked = isLikingTweet;
-      tweetData.likesNum += tweetData.isLiked ? 1 : -1;
+  Future<bool> toggleLikeTweet(BuildContext context,String? token,String tweetId) async {
+    if (token == null) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+      return false;
     }
-    return success;
+    
+    bool isLikingTweet = !tweetData.isLiked;
+    try {
+      bool success = isLikingTweet ?
+      await Tweets.likeTweetById(token, tweetId) :
+      await Tweets.unlikeTweetById(token, tweetId);
+
+      if (success) {
+        tweetData.isLiked = isLikingTweet;
+        tweetData.likesNum += tweetData.isLiked ? 1 : -1;
+      }
+      return success;
+    }
+    catch(e){
+      Toast.showToast(context, e.toString());
+      return false;
+    }
   }
 
   Future<bool> toggleRetweetTweet(String? token,String tweetId) async {
-    if (token == null) return false;
+    if (token == null){
+      return false;
+    }
 
     bool isRetweeting = !tweetData.isRetweeted;
-    bool success = isRetweeting ?
-    await Tweets.retweetTweetById(token, tweetId) :
-    false;
+    bool success = isRetweeting ? await Tweets.retweetTweetById(token, tweetId) : await Tweets.unretweetTweetById(token, tweetId);
     // TODO: call the interface here and send the tweet id to retweet it
     if (success)
     {
       tweetData.isRetweeted = isRetweeting;
       tweetData.repostsNum += tweetData.isRetweeted ? 1 : -1;
     }
-    return tweetData.isRetweeted;
+    return success;
   }
 
   // ui part
@@ -135,7 +141,9 @@ class Tweet extends StatelessWidget {
                     child: CircleAvatar(
                         backgroundColor: Colors.white,
                         radius: 20,
-                        backgroundImage: NetworkImage(tweetOwner.iconLink)),
+                        // TODO: handle the errors later
+                        backgroundImage: NetworkImage(tweetOwner.iconLink),
+                    ),
                   ),
                 ),
 
@@ -167,15 +175,24 @@ class Tweet extends StatelessWidget {
                       ),
 
                       // =================== post content ===================
-                      // TODO: make the hashtags and mentions later
-                      textToRichText(tweetData.description,isDarkMode),
+                    RichText(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: MAX_LINES_TO_SHOW,
+                        text: TextSpan(
+                            children: textToRichText(tweetData.description,isDarkMode),
+                            style: TextStyle(
+                                color: isDarkMode ? Colors.white : Colors.black
+                            )
+                        )
+                    ),
 
 
                       // =================== media display here ===================
                       // TODO: add video player and retweet
                       Visibility(
                         visible: (tweetData.media != null),
-                        child: TextButton(
+                        child: tweetData.media == null ? const SizedBox() :
+                        TextButton(
                             onPressed: () {/* TODO: open full screen image*/},
                             onLongPress: () {
                             showModalBottomSheet(
@@ -203,16 +220,42 @@ class Tweet extends StatelessWidget {
                                 width: double.infinity,
                                 constraints: const BoxConstraints(maxHeight: 400),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderRadius: BorderRadius.circular(10.0,),
                                 ),
                                 child: tweetData.mediaType == MediaType.VIDEO ?
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  child:VideoPlayerWidget(videoUrl: tweetData.media!)
+                                  child:VideoPlayerWidget(
+                                      videoUrl: tweetData.media!,
+
+                                  )
                                 ) :
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  child: Image.network(tweetData.media!,fit:BoxFit.fill),
+                                  child: Image.network(
+                                    tweetData.media!,fit:BoxFit.fill,
+                                    loadingBuilder: (context,child,loadingProgress){
+                                      return loadingProgress == null ? child :
+                                      Container(
+                                        color: Colors.transparent,
+                                        child: Center(child: CircularProgressIndicator()),
+                                      );
+                                    },
+                                    errorBuilder: (_,exception, stack){
+                                      return Container(
+                                        color: Colors.transparent,
+                                        child: const Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.warning_amber,color:Colors.red),
+                                              Text("something went wrong",style: TextStyle(color: Colors.red),)
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 )),
                         ),
 
@@ -387,7 +430,7 @@ class Tweet extends StatelessWidget {
         isRetweeted: tweetData.isRetweeted,
 
         onPressed: (){
-          return toggleLikeTweet(userToken,tweetData.id);
+          return toggleLikeTweet(context,userToken,tweetData.id);
         }
       ),
       TweetActionButton(
@@ -514,8 +557,14 @@ class Tweet extends StatelessWidget {
               height: 20,
               width: 80,
               // TODO: must be changed to whatever the current user state with this post owner
-              child: FollowButton(
-                  isFollowed: false, callBack: (bool followed) {})
+              child: Visibility(
+                visible: tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
+                child: FollowButton(
+                    isFollowed: tweetOwner.isFollowed ?? false,
+                    callBack: (bool followed) {},
+                    username: tweetOwner.id
+                ),
+              )
           ),
         ),
         SizedBox(
@@ -535,65 +584,5 @@ class Tweet extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class FollowButton extends StatefulWidget {
-  bool isFollowed;
-  void Function(bool) callBack;
-
-  FollowButton({super.key, required this.isFollowed, required this.callBack});
-
-  @override
-  State<FollowButton> createState() => _FollowButtonState();
-}
-
-class _FollowButtonState extends State<FollowButton> {
-  @override
-  Widget build(BuildContext context) {
-    bool isDarkMode = ThemeProvider.getInstance(context).isDark();
-    return widget.isFollowed
-        ? OutlinedButton(
-            onPressed: () {
-              // that user but for now i will assume it has successeded
-              widget.isFollowed = false;
-              widget.callBack(widget.isFollowed);
-              setState(() {});
-            },
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(15.0), // Set the border radius
-              ),
-              padding: const EdgeInsets.symmetric(vertical: -10.0),
-            ),
-            child: const Text(
-              "Unfollow",
-              style: TextStyle(
-                  fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
-            ))
-        : TextButton(
-            onPressed: () {
-              // TODO: we should send a request for the server and try to follow
-              // that user but for now i will assume it has successeded
-              widget.isFollowed = true;
-              widget.callBack(widget.isFollowed);
-              setState(() {});
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: isDarkMode ? Colors.white : Colors.black,
-              foregroundColor: isDarkMode ? Colors.black : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(15.0), // Set the border radius
-              ),
-              padding: const EdgeInsets.symmetric(vertical: -10.0),
-            ),
-            child: const Text(
-              "Follow",
-              style: TextStyle(
-                  fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
-            ));
   }
 }

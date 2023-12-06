@@ -226,6 +226,17 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
   }
 
   Widget _body(BuildContext context){
+    //TODO: maybe test it someday
+    if(_entities == null || _entities!.isEmpty){
+      return const Center(
+        child: Text("No images found.",
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      );
+    }
     return GridView.custom(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,

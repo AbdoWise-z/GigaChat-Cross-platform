@@ -19,9 +19,7 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
 
-    print("code: ${k.code} , res: ${k.responseBody}");
-
-    if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
+    if (k.code == ApiResponse.CODE_SUCCESS) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
 
@@ -29,7 +27,7 @@ class Account {
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
-      //u.email       = res["data"]["user"]["email"];
+      u.email       = res["data"]["user"]["email"];
       //u.bio         = res["data"]["user"]["bio"];
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
       //u.bannerLink  = res["data"]["user"]["banner_image"];
@@ -81,19 +79,20 @@ class Account {
     if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
+      print(res);
 
       u.active      = true; //TODO: change this later
       u.auth        = res["token"];
-      u.id          = res["data"]["user"]["username"];
-      u.name        = res["data"]["user"]["nickname"];
-      u.email       = res["data"]["user"]["email"];
+      u.id          = res["data"]["suggestedUsername"];
+      //u.name        = res["data"]["user"]["nickname"];
+      u.email       = method.data!;
       //u.bio         = res["data"]["user"]["bio"];
       //u.iconLink    = res["data"]["user"]["profile_image"];
       //u.bannerLink  = res["data"]["user"]["banner_image"];
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
-      u.birthDate   = res["data"]["user"]["birthDate"];
-      u.joinedDate  = res["data"]["user"]["joinedAt"];
+      //u.birthDate   = res["data"]["user"]["birthDate"];
+      //u.joinedDate  = res["data"]["user"]["joinedAt"];
       //u.followers   = res["data"]["user"]["followers_num"];
       //u.following   = res["data"]["user"]["following_num"];
 
@@ -272,6 +271,35 @@ class Account {
       k.data = links[0];
     }
     return k;
+  }
+
+  static Future<bool> followUser(String token, String username) async
+  {
+      ApiPath endPoint = (ApiPath.followUser).format([username]);
+      Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+      print(response.code);
+      switch(response.code){
+        case ApiResponse.CODE_SUCCESS_NO_BODY:
+          return true;
+        default:
+          return false;
+      }
+  }
+  static Future<bool> unfollowUser(String token, String username) async
+  {
+      ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
+      Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+
+      print(token);
+
+      switch(response.code){
+        case ApiResponse.CODE_SUCCESS_NO_BODY:
+          return true;
+        default:
+          return false;
+    }
   }
 
 

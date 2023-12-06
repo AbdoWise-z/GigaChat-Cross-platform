@@ -66,9 +66,6 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  // TODO: for test purposes remove later
-                  //Tweet.pageRoute : (context) => FeedWidget(showFollowingTweets: true,),
-
                   Home.pageRoute : (context) => const Home(),
                   ChatPage.pageRoute : (context) => const ChatPage(),
 
@@ -84,7 +81,6 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
-                  UserProfile.pageRoute : (context) => UserProfile(isCurrUser:true ,username: Auth.getInstance(context).getCurrentUser()!.id),
                   UserListViewPage.pageRoute : (context) => UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
