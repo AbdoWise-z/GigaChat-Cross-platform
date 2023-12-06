@@ -129,7 +129,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     super.initState();
   }
 
-  //TODO: get tweets
+  //TODO: fix feed thing
+  //TODO: refresh after posting
   //TODO: onNotification func (when scrolling so fast)
 
   @override
@@ -403,7 +404,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         tabController: tabController,
                                       ),
                                       SizedBox(
-                                        height: 2100, //TODO: user feed (change height dynamically every getTweets request)
+                                        height: 2400, //TODO: user feed (change height dynamically every getTweets request)
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
@@ -652,36 +653,6 @@ class ProfileInteract extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 30),
         )
       ],
-    );
-  }
-}
-
-class NoPosts extends StatelessWidget {
-  const NoPosts({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 100,
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              "No posts to show",
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            Text(
-              "Try posting something",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }
