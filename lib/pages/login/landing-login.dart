@@ -12,7 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LandingLoginPage extends StatefulWidget {
   const LandingLoginPage({Key? key}) : super(key: key);
-  static const pageRoute = '/landing';
+  static const pageRoute = '/';
 
   @override
   State<LandingLoginPage> createState() => _LandingLoginPageState();
