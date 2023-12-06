@@ -220,8 +220,8 @@ class Account {
       u.bannerLink  = "";
       //u.location  = "";
       //u.website   = "";
-      u.birthDate   = DateTime.parse("1992-10-8");
-      u.joinedDate  = DateTime.parse("1992-10-8");
+      u.birthDate   = DateTime.now();
+      u.joinedDate  = DateTime.now();
       u.followers   = 0;
       u.following   = 0;
 

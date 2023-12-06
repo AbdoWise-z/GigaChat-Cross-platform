@@ -11,13 +11,15 @@ import "package:gigachat/api/user-class.dart";
 
 class Tweets {
 
+  //fixme: don't cache everything into the last list
+
   static Future<ApiResponse<String>> apiSendTweet(String token , IntermediateTweetData tweet) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     List<Map<String,String>> media = [];
     for (var m in tweet.media){
       media.add({
         "data": m.link,
-        "type": m.type == MediaType.IMAGE ? "jpg" : "video",
+        "type": m.type == MediaType.IMAGE ? "jpg" : "mp4",
       });
     }
 
@@ -65,7 +67,7 @@ class Tweets {
 
   static List<TweetData> decodeTweetList(String token, ApiResponse response, ProviderFunction providerFunction){
     final tweets = json.decode(response.responseBody!);
-    print(response.responseBody!);
+    //print(response.responseBody!);
 
     if (providerFunction == ProviderFunction.HOME_PAGE_TWEETS) {
       List<dynamic> responseTweets = tweets["tweetList"];
@@ -105,9 +107,9 @@ class Tweets {
     }
     if (providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS) {
       List<dynamic> responseTweets = tweets["posts"];
-      print(responseTweets);
       return responseTweets.map((tweet) {
         List<dynamic>? tweetMedia = tweet["media"];
+        print(tweet);
         return TweetData(
           id: tweet["id"],
           description: tweet["description"] ?? "ERR NOT DISC",
@@ -191,8 +193,7 @@ class Tweets {
     if (response.code == ApiResponse.CODE_SUCCESS){
 
       if (response.responseBody!.isEmpty){
-        loadCache();
-        return cachedTweets; //TODO: backend fix this pls ?
+        return [getDefaultTweet("System", MediaType.IMAGE)]; //TODO: backend fix this pls ?
       }
       List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.HOME_PAGE_TWEETS);
       cachedTweets = responseTweets.cast();
@@ -202,7 +203,7 @@ class Tweets {
       // i will assume this is the cached tweets for now
       loadCache();
     }
-    return cachedTweets;
+    return cachedTweets.where((element) => element.type == "tweet").toList();
   }
 
   static Future<List<TweetData>> getProfilePageTweets (String token,String userID, String count, String page) async
@@ -213,7 +214,7 @@ class Tweets {
         headers: headers,
         params: {"page":page,"count":count}
     );
-    print(response.responseBody);
+    //print(response.responseBody);
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody!.isNotEmpty){
       List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.PROFILE_PAGE_TWEETS);
       cachedTweets = responseTweets.cast();
@@ -224,7 +225,7 @@ class Tweets {
       // i will assume this is the cached tweets for now
       loadCache();
     }
-    return cachedTweets;
+    return cachedTweets.where((element) => element.type == "tweet").toList();
   }
 
   static Future<List<TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
@@ -235,7 +236,10 @@ class Tweets {
         headers: headers,
         params: {"page":page,"count":count}
     );
-    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody!.isNotEmpty){
+    if (response.code == ApiResponse.CODE_SUCCESS){
+      if (response.responseBody!.isEmpty){
+        return [];
+      }
       List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.GET_TWEET_COMMENTS);
       cachedTweets = responseTweets.cast();
     }
@@ -301,7 +305,7 @@ class Tweets {
       ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
       var headers = Api.getTokenWithJsonHeader("Bearer $token");
       ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-      print(response.code);
+      //print(response.code);
       switch(response.code){
         case ApiResponse.CODE_SUCCESS_NO_BODY:
           return true;
@@ -344,7 +348,7 @@ class Tweets {
     else
     {
       if (kDebugMode) {
-        print(response.code);
+        //print(response.code);
       }
       return false;
     }
@@ -360,7 +364,7 @@ class Tweets {
     else
     {
       if (kDebugMode) {
-        print(response.code);
+        //print(response.code);
       }
       return false;
     }
@@ -369,6 +373,31 @@ class Tweets {
 
 
 TweetData getDefaultTweet(String id,MediaType mediaType){
+  if (id == "System"){
+    return TweetData(
+        id: id,
+        referredTweetId: '',
+
+        description: "Searching for others users is not supported at the moment, will add this in the future",
+
+        mediaType: mediaType,
+        media:
+        mediaType == MediaType.VIDEO ?
+        "https://i.imgur.com/rLr8Swh.mp4"
+            :
+        "https://i.imgur.com/cufIziI.gif",
+        viewsNum: 10,
+        likesNum: 20,
+        repliesNum: 30,
+        repostsNum: 40,
+        creationTime: DateTime.parse("2013-10-02T01:11:18.965+00:00"),
+        type: "Masterpiece", tweetOwner: User(name: "Moa",id: "DedInside"),
+
+        isLiked: false,
+        isRetweeted: false
+    );
+  }
+
   return TweetData(
       id: id,
       referredTweetId: '',
