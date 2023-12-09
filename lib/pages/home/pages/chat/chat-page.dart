@@ -50,17 +50,17 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleSendMessage(ChatMessageObject m){
-    if (m.media != null){
-      m = ChatMessageObject(
-          id: m.id,
-          text: m.text,
-          media: MediaObject(link: "/sdcard/${m.media!.link}", type: m.media!.type),
-          self: m.self,
-          time: m.time,
-          state: m.state,
-          replyTo: m.replyTo
-      );
-    }
+    // just for testing
+    // m = ChatMessageObject(
+    //     id: m.id,
+    //     text: m.text,
+    //     media: m.media,
+    //     self: false,
+    //     time: m.time,
+    //     state: m.state,
+    //     replyTo: m.replyTo
+    // );
+
     _handleNewMessage(m);
   }
 
@@ -124,79 +124,82 @@ class _ChatPageState extends State<ChatPage> {
               child: Column(
                 children: [
                   Expanded(
-                    child: SingleChildScrollView(
-                      controller: _controller,
-                      child: Column(
-                        //chat
-                        children: [
+                    child: StretchingOverscrollIndicator(
+                      axisDirection: AxisDirection.down,
+                      child: SingleChildScrollView(
+                        controller: _controller,
+                        child: Column(
+                          //chat
+                          children: [
 
-                          Container(
-                            width: 70,
-                            height: 70,
-                            clipBehavior: Clip.antiAlias,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle
+                            Container(
+                              width: 70,
+                              height: 70,
+                              clipBehavior: Clip.antiAlias,
+                              decoration: const BoxDecoration(
+                                  shape: BoxShape.circle
+                              ),
+                              child: Image.network(_with.iconLink,fit: BoxFit.cover,),
                             ),
-                            child: Image.network(_with.iconLink,fit: BoxFit.cover,),
-                          ),
 
-                          Text(
-                            _with.name,
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 16,
+                            Text(
+                              _with.name,
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
 
-                          Text(
-                            _with.id,
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 16,
+                            Text(
+                              _with.id,
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
 
-                          const SizedBox(height: 10,),
-                          Text(
-                            "${_with.followers} Followers",
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 14,
+                            const SizedBox(height: 10,),
+                            Text(
+                              "${_with.followers} Followers",
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
 
 
-                          const Divider(
-                            thickness: 1,
-                          ),
+                            const Divider(
+                              thickness: 1,
+                            ),
 
-                          ..._chat.map((e) {
-                            String? title;
-                            var time = e.time!;
-                            if (day != time.day + time.month * 40){
-                              title =  titleFormatter.format(time);
-                              day = time.day + time.month * 40;
-                            }
-                            return Column(
-                              children: [
-                                (title != null) ? Container(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Text(title , style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  ),
-                                ) : const SizedBox.shrink(),
-                                ChatItem(message: e, onLongPress: (m) {}, onSwipe: (m) {}),
-                              ],
-                            );
-                          }).toList(),
+                            ..._chat.map((e) {
+                              String? title;
+                              var time = e.time!;
+                              if (day != time.day + time.month * 40){
+                                title =  titleFormatter.format(time);
+                                day = time.day + time.month * 40;
+                              }
+                              return Column(
+                                children: [
+                                  (title != null) ? Container(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Text(title , style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    ),
+                                  ) : const SizedBox.shrink(),
+                                  ChatItem(message: e, onLongPress: (m) {}, onSwipe: (m) {}),
+                                ],
+                              );
+                            }).toList(),
 
-                          SizedBox(
-                            height: _editorHeight,
-                          )
-                        ],
+                            SizedBox(
+                              height: _editorHeight,
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),

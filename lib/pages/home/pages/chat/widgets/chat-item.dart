@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
-import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/swipe-to.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
@@ -51,13 +50,14 @@ class ChatMessageContent extends StatelessWidget {
   final void Function() onLongPress;
   const ChatMessageContent({super.key, required this.messageObject , required this.replyObject, required this.onLongPress});
 
-  Widget _getMediaObjectFor(ChatMessageObject object){
+  Widget _getMediaObjectFor(ChatMessageObject object , BuildContext context){
     if (object.media == null) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     if (object.media!.type == MediaType.VIDEO){
       return Container(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
@@ -66,11 +66,12 @@ class ChatMessageContent extends StatelessWidget {
       );
     }else{
       return Container(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
         ),
-        child: object.media!.link.startsWith("/sdcard") ? Image.file(File(object.media!.link)) :  Image.network(object.media!.link,),
+        child: object.media!.link.startsWith("/") ? Image.file(File(object.media!.link)) :  Image.network(object.media!.link,),
       );
     }
   }
@@ -195,7 +196,7 @@ class ChatMessageContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: messageObject.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
-                  _getMediaObjectFor(messageObject),
+                  _getMediaObjectFor(messageObject , context),
 
                   SizedBox.square(dimension: messageObject.media == null ? 0 : 5,),
                   Material(
@@ -205,7 +206,7 @@ class ChatMessageContent extends StatelessWidget {
                       bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
                       bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
                     ),
-                    color: messageObject.self ? Colors.blue : Colors.black,
+                    color: messageObject.self ? Colors.blue : Colors.blueGrey,
                     child: InkWell(
 
                       borderRadius: BorderRadius.only(
