@@ -117,11 +117,26 @@ class _BetterFeedState extends State<BetterFeed> {
       );
     }
 
+    if(tweetWidgets.isEmpty)
+      tweetWidgets.add(
+          Container(
+            padding: EdgeInsets.only(top: 100),
+            width: double.infinity,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("stfu and go get some life",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),)
+              ],
+            ),
+          )
+      );
+
     Widget result = Column(children: tweetWidgets);
 
     if (widget.isScrollable) {
       result = RefreshIndicator(
-          onRefresh: () async {refreshFeed();},
+          onRefresh: () async {},
           child: SingleChildScrollView(child: result)
       );
     }

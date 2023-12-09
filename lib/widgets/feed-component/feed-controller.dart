@@ -61,7 +61,6 @@ class FeedController {
               DEFAULT_PAGE_COUNT.toString(),
               (lastFetchedPage! + 1).toString())
         );
-
         break;
       case ProviderFunction.GET_TWEET_COMMENTS:
         appendToMap(

@@ -118,7 +118,7 @@ class Tweets {
             id: specialAccessObject(tweet, accessor["tweetRetweeterID"]!),
             name: specialAccessObject(tweet, accessor["tweetRetweeterName"]!),
             auth: token,
-            isFollowed: specialAccessObject(tweet, accessor["tweetRetweeterIsFollowed"]) ?? true,
+            isFollowed: specialAccessObject(tweet, accessor["tweetRetweeterIsFollowed"]) ?? false,
             bio : specialAccessObject(tweet, accessor["tweetRetweeterBio"]) ?? "",
             iconLink : specialAccessObject(tweet, accessor["tweetRetweeterIcon"]!) ?? USER_DEFAULT_PROFILE,
             followers : specialAccessObject(tweet, accessor["tweetRetweeterFollowers"]),
@@ -254,6 +254,7 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
+      print(token);
       List<TweetData> responseTweets = decodeTweetList(
         token,
         response,
