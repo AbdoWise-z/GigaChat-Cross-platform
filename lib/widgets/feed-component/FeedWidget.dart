@@ -11,7 +11,7 @@ class BetterFeed extends StatefulWidget {
   final ProviderFunction providerFunction;
   final ProviderResultType providerResultType;
   final FeedController feedController;
-  String? username, tweetID;
+  String? username, tweetID, keyword;
 
   BetterFeed({
     super.key,
@@ -20,7 +20,8 @@ class BetterFeed extends StatefulWidget {
     required this.providerResultType,
     required this.feedController,
     this.username,
-    this.tweetID
+    this.tweetID,
+    this.keyword
   });
 
   @override
@@ -39,7 +40,11 @@ class _BetterFeedState extends State<BetterFeed> {
   }
 
   void refreshFeed() async {
-    await _feedController.fetchFeedData(username: widget.username,tweetID: widget.tweetID);
+    await _feedController.fetchFeedData(
+        username: widget.username,
+        tweetID: widget.tweetID,
+        keyword: widget.keyword
+    );
     loading = false;
     setState(() {});
   }
@@ -52,7 +57,7 @@ class _BetterFeedState extends State<BetterFeed> {
       case ProviderResultType.USER_RESULT:
         List<User> userResult = _feedController.getCurrentData().cast<User>();
         return userResult.map((User user){
-                  return UserResult(user: User());
+                  return UserResult(user: user);
         }).toList();
       // The Normal View For Tweets
       case ProviderResultType.TWEET_RESULT:

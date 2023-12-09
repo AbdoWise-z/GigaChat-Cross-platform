@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 
 class SearchKeyword extends StatelessWidget {
   final String tag;
+  final void Function() onPressed;
   final void Function() onIconClick;
-  const SearchKeyword({super.key,required this.tag,required this.onIconClick});
+  const SearchKeyword({
+    super.key,
+    required this.tag,
+    required this.onIconClick,
+    required this.onPressed
+  });
   @override
   Widget build(BuildContext context) {
     return TextButton(
-          onPressed: (){},
+          onPressed: onPressed,
           style: TextButton.styleFrom(
             foregroundColor: Colors.white,
             padding: const EdgeInsets.all(15),
@@ -34,7 +41,15 @@ class UserResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(onPressed: (){},
+    return TextButton(
+      onPressed: (){
+        print("Profile page prints ${user.name}");
+        Navigator.push(context,
+          MaterialPageRoute(
+              builder: (context) => UserProfile(username: user.name, isCurrUser: false)
+          ),
+        );
+      },
       style: TextButton.styleFrom(
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),

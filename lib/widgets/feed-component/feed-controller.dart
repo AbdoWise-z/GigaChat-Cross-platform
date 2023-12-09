@@ -1,4 +1,6 @@
+import 'package:gigachat/api/search-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 
 class FeedController {
@@ -24,7 +26,10 @@ class FeedController {
     return _feedCache == null ? [] : _feedCache!.values.toList();
   }
 
-  Future<List> fetchFeedData({bool? appendToBegin,String? username,String? tweetID}) async {
+  Future<List> fetchFeedData(
+      {bool? appendToBegin,String? username,String? tweetID,String? keyword}
+      ) async
+  {
 
     if (token == null) {
       throw "user is not logged in -- logged from feed controller line 30 -- ";
@@ -38,7 +43,7 @@ class FeedController {
               DEFAULT_PAGE_COUNT.toString(), (lastFetchedPage! + 1).toString()
             )
         );
-
+        break;
       case ProviderFunction.PROFILE_PAGE_TWEETS:
         appendToMap(
           await Tweets.getProfilePageTweets(
@@ -47,6 +52,7 @@ class FeedController {
               DEFAULT_PAGE_COUNT.toString(),
               (lastFetchedPage! + 1).toString())
         );
+        break;
       case ProviderFunction.GET_TWEET_COMMENTS:
         appendToMap(
             await Tweets.getTweetReplies(
@@ -55,6 +61,20 @@ class FeedController {
                 DEFAULT_PAGE_COUNT.toString(),
                 (lastFetchedPage! + 1).toString())
         );
+        break;
+      case ProviderFunction.SEARCH_USERS:
+        List<User> usersResponse =
+          await SearchRequests.searchUsersByKeyword(
+            keyword!,
+            token!,
+            (lastFetchedPage! + 1).toString(),
+            DEFAULT_PAGE_COUNT.toString()
+            );
+        for (User user in usersResponse){
+          _feedCache!.putIfAbsent(user.id, () => user);
+        }
+        print(_feedCache);
+        break;
       default:
         _feedCache = {};
     }

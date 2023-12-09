@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/search-requests.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/providers/auth.dart';
 
 
@@ -23,6 +25,7 @@ class _SearchPageState extends State<SearchPage> {
   String? keyword;
   String? userToken;
   List<String>? searchedTags;
+  List<User>? searchedUsers;
   late TextEditingController textFieldController;
   late Timer timerController;
 
@@ -32,13 +35,16 @@ class _SearchPageState extends State<SearchPage> {
       return;
     }
     searchedTags ??= [];
-    searchedTags!.addAll(await SearchRequests.searchTagsByKeyword(keyword!, userToken!));
+    searchedUsers ??= [];
+    searchedTags = await SearchRequests.searchTagsByKeyword(keyword!, userToken!);
+    searchedUsers = await SearchRequests.searchUsersByKeyword(keyword!, userToken!,"1","5");
     setState(() {});
   }
 
 
   void clearList() {
     searchedTags = [];
+    searchedUsers ??= [];
     setState(() {});
   }
 
@@ -47,9 +53,18 @@ class _SearchPageState extends State<SearchPage> {
     timerController = Timer(REQUEST_COOLDOWN, () { searchKeyword(); });
   }
 
+  void search(String? data){
+    if (data == null || data.isEmpty) {
+      return;
+    }
+    //TODO : pass the data later
+    Navigator.pushNamed(context, SearchResultPage.pageRoute,arguments: {"keyword":data});
+  }
+
   @override
   void initState() {
     super.initState();
+    clearList();
     textFieldController = TextEditingController();
     keyword = "";
     timerController = Timer(REQUEST_COOLDOWN, () { searchKeyword(); });
@@ -58,7 +73,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     keyword ??= "";
-
     try{
       userToken ??= Auth.getInstance(context).getCurrentUser()!.auth;
     } catch (e){
@@ -79,6 +93,9 @@ class _SearchPageState extends State<SearchPage> {
               setState(() {});
             }
             keyword = newKeyword;
+          },
+          onSubmitted: (data){
+            search(data);
           },
           style: const TextStyle(color: Colors.blue),
           decoration: InputDecoration(
@@ -103,16 +120,22 @@ class _SearchPageState extends State<SearchPage> {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: searchedTags == null ? [const SizedBox()] :
-          searchedTags!.map((tag) =>
-              SearchKeyword(
-                tag: tag,
-                onIconClick: () {
-                  reWriteTimer();
-                  textFieldController.text = tag;
-                }
-              )
-          ).toList()
+
+          children: [
+            ...searchedTags!.map((tag) => SearchKeyword(
+              tag: tag,
+              onIconClick: () {
+                textFieldController.text = tag;
+                keyword = tag;
+                reWriteTimer();
+              }, onPressed: () { search(tag); },
+            )).toList(),
+            searchedTags!.isNotEmpty ? const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Divider(thickness: 2),
+            ) : const SizedBox.shrink(),
+            ...searchedUsers!.map((User user) => UserResult(user: user)).toList()
+          ]
         ),
       ),
 

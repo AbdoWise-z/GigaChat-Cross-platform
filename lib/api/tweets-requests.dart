@@ -91,7 +91,7 @@ class Tweets {
     return tweets.map((tweet){
       List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
-      print(tweet);
+      //print(tweet);
       return TweetData(
           id: specialAccessObject(tweet, accessor["id"]!),
           referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
@@ -152,7 +152,7 @@ class Tweets {
           "isLiked": ["isLiked"],
           "isRetweeted": ["isRtweeted"],
           "mediaType": ["tweetDetails","media","type"],
-          "media": ["tweetDetails","media","data"]
+          "media": ["tweetDetails","media","data"],
         }, ApiPath.followingTweets);
   }
 
