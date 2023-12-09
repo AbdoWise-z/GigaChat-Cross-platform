@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-list-page.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-settings-page.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 
 class ChatHomeTab with HomePageTab {
@@ -18,7 +19,7 @@ class ChatHomeTab with HomePageTab {
   List<AppBarAction> getActions(BuildContext context) {
     return [
       AppBarAction(icon: Icons.settings, onClick: () {
-        //TODO: open settings
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatSettingsPage()));
       },),
     ];
   }

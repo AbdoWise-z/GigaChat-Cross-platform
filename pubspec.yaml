@@ -84,6 +84,7 @@ flutter:
   assets:
     - assets/giga-chat-logo-dark.png
     - assets/giga-chat-logo-light.png
+    - assets/done.png
     - assets/google-logo-icon.png
     - assets/create-post-popup.jpg
 

@@ -3,12 +3,17 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
+import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/home/pages/notification/notifications.dart';
+import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 
@@ -28,31 +33,16 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
+  late FeedController followingFeedController;
 
   //TODO: @Osama @Adel , replace with your pages
   late final List<HomePageTab> _pages = [
     FeedHomeTab(),
+    Explore(),
     ChatHomeTab(),
-    ChatHomeTab(),
-    ChatHomeTab(),
+    Notifications(),
     ChatHomeTab(),
   ];
-
-
-  Future<void> test() async{
-    //TODO: was just testing the upload function
-    Permission.manageExternalStorage.request();
-    var f = File("/sdcard/Download/0ac84d5117148db057942650cf7c23c1.jpg");
-    print (await f.length());
-    await f.readAsBytes();
-
-    var k = await Account.apiSetProfileImage(
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTExZjExYTYzYzQ4NmMyNjVjYzFmNiIsImlhdCI6MTY5OTgxNzU2MiwiZXhwIjoxNzA3NTkzNTYyfQ.e_M-aIScz4zagCyuV3guFcUED4zYuYm7RSrp1vnei1A",
-      f,
-    );
-    print("code: ${k.code}");
-    print(k.responseBody);
-  }
 
   void update(void Function() callback){
     setState(callback);
@@ -77,6 +67,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    // MOA Was Here
+    followingFeedController = FeedController(providerFunction: ProviderFunction.HOME_PAGE_TWEETS);
     //test();
     super.initState();
     setPage(0);
@@ -100,9 +92,10 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
-
-    print("update");
-
+    if (value.getCurrentUser() != null) {
+      followingFeedController.setUserToken(value.getCurrentUser()!.auth);
+    }
+    //print("update");
     return SafeArea(
       child: Scaffold(
         drawerDragStartBehavior: DragStartBehavior.start,
@@ -125,7 +118,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
               Expanded(
                 child: TabBarView(
                   controller: _controller,
-                  children: _pages[_currentPage].getTabsWidgets(context)!,
+                  children: _pages[_currentPage].getTabsWidgets(context,feedController: followingFeedController)!,
                 ),
               ),
             ],
