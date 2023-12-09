@@ -91,7 +91,6 @@ class Tweets {
     return tweets.map((tweet){
       List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
-      //print(tweet);
       return TweetData(
           id: specialAccessObject(tweet, accessor["id"]!),
           referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
@@ -113,8 +112,20 @@ class Tweets {
             followers : specialAccessObject(tweet, accessor["tweetOwnerFollowers"]),
             following : specialAccessObject(tweet, accessor["tweetOwnerFollowing"]!),
             active : true,
-
           ),
+
+          reTweeter: accessor["tweetRetweeter"] == null ? null : User(
+            id: specialAccessObject(tweet, accessor["tweetRetweeterID"]!),
+            name: specialAccessObject(tweet, accessor["tweetRetweeterName"]!),
+            auth: token,
+            isFollowed: specialAccessObject(tweet, accessor["tweetRetweeterIsFollowed"]) ?? true,
+            bio : specialAccessObject(tweet, accessor["tweetRetweeterBio"]) ?? "",
+            iconLink : specialAccessObject(tweet, accessor["tweetRetweeterIcon"]!) ?? USER_DEFAULT_PROFILE,
+            followers : specialAccessObject(tweet, accessor["tweetRetweeterFollowers"]),
+            following : specialAccessObject(tweet, accessor["tweetRetweeterFollowing"]!),
+            active : true,
+          ),
+
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
           isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
           mediaType: hasMedia ?
@@ -141,15 +152,25 @@ class Tweets {
           "creationTime": ["tweetDetails","createdAt"],
           "type": ["type"],
 
-          "tweetOwnerID": ["followingUser", "username"],
-          "tweetOwnerName": ["followingUser", "nickname"],
+          "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
+          "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
           "tweetOwnerIsFollowed": null,
           "tweetOwnerBio": null,
-          "tweetOwnerIcon": ["followingUser", "profile_image"],
-          "tweetOwnerFollowers": ["followingUser", "followers_num"],
-          "tweetOwnerFollowing": ["followingUser", "following_num"],
+          "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
+          "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
+          "tweetOwnerFollowing": ["tweetDetails", "tweet_owner", "following_num"],
 
-          "isLiked": ["isLiked"],
+          "tweetRetweeter" : ["followingUser"],
+          "tweetRetweeterID": ["followingUser", "username"],
+          "tweetRetweeterName": ["followingUser", "nickname"],
+          "tweetRetweeterIsFollowed": null,
+          "tweetRetweeterBio": null,
+          "tweetRetweeterIcon": ["followingUser", "profile_image"],
+          "tweetRetweeterFollowers": ["followingUser", "followers_num"],
+          "tweetRetweeterFollowing": ["followingUser", "following_num"],
+
+
+      "isLiked": ["isLiked"],
           "isRetweeted": ["isRtweeted"],
           "mediaType": ["tweetDetails","media","type"],
           "media": ["tweetDetails","media","data"],
@@ -201,7 +222,7 @@ class Tweets {
       "creationTime": ["creation_time"],
       "type": ["type"],
 
-      "tweetOwnerID": ["tweet_owner", "userId"],
+      "tweetOwnerID": ["tweet_owner", "username"],
       "tweetOwnerName": ["tweet_owner", "nickname"],
       "tweetOwnerIsFollowed": null,
       "tweetOwnerBio": null,
@@ -233,9 +254,6 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
-      if (response.responseBody!.isEmpty){
-        return {"1":getDefaultTweet("System", MediaType.IMAGE)}; //TODO: backend fix this pls ?
-      }
       List<TweetData> responseTweets = decodeTweetList(
         token,
         response,
@@ -249,7 +267,7 @@ class Tweets {
     }
     else{
       //TODO: load cached tweets
-      return {"1":getDefaultTweet("System", MediaType.IMAGE)};
+      return {};
     }
   }
 
@@ -360,6 +378,22 @@ class Tweets {
     ApiPath endPoint = (ApiPath.unretweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    if(response.code == 204){
+      return true;
+    }
+    else
+    {
+      if (kDebugMode) {
+        //print(response.code);
+      }
+      return false;
+    }
+  }
+
+  static Future<bool> deleteTweetById(String token,String tweetId) async {
+    ApiPath endPoint = ApiPath.deleteTweet.format([tweetId]);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiDelete(endPoint,headers: headers);
     if(response.code == 204){
       return true;
     }

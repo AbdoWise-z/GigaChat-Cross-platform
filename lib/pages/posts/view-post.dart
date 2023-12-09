@@ -1,8 +1,4 @@
-
-
-
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
@@ -37,7 +33,10 @@ class ViewPostPage extends StatelessWidget {
                 tweetOwner: tweetOwner,
                 tweetData: tweetData,
                 isRetweet: false,
-                isSinglePostView: true
+                isSinglePostView: true,
+                callBackToDelete: (String tweetID){
+                  Navigator.pop(context);
+              },
             ),
 
             BetterFeed(

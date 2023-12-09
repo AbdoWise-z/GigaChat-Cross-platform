@@ -141,7 +141,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     //TODO: add the return result if needed
     if (!context.mounted) return;
-    if (!error) Navigator.pop(context);
+    if (!error) Navigator.pop(context,{"success":true});
     setState(() {
       _loading = false;
     });

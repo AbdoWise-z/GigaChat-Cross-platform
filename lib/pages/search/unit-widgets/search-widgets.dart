@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 
 class SearchKeyword extends StatelessWidget {
   final String tag;
@@ -14,10 +15,11 @@ class SearchKeyword extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = ThemeProvider.getInstance(context).isDark();
     return TextButton(
           onPressed: onPressed,
           style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
+            foregroundColor: isDarkMode ? Colors.white : Colors.black,
             padding: const EdgeInsets.all(15),
             alignment: Alignment.centerLeft
           ),
@@ -41,6 +43,7 @@ class UserResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = ThemeProvider.getInstance(context).isDark();
     return TextButton(
       onPressed: (){
         print("Profile page prints ${user.name}");
@@ -51,7 +54,7 @@ class UserResult extends StatelessWidget {
         );
       },
       style: TextButton.styleFrom(
-          foregroundColor: Colors.white,
+          foregroundColor: isDarkMode ? Colors.white: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       ),
       child: Row(
@@ -69,16 +72,16 @@ class UserResult extends StatelessWidget {
             children: [
               Text(
                 user.name,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: isDarkMode ? Colors.white : Colors.black,
                     fontSize: 16
                 ),
               ),
               Text(user.id,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w300,
-                    color: Colors.grey
+                    color: isDarkMode ? Colors.grey : Colors.grey[850]
                 ),
               ),
             ],

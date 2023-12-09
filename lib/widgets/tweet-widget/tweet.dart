@@ -7,6 +7,7 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
@@ -49,18 +50,21 @@ List<TextSpan> textToRichText(String inputText,bool isDarkMode){
 
 
 class Tweet extends StatelessWidget {
+
   final User tweetOwner;
   final TweetData tweetData;
   late List<Widget> actionButtons;
   final bool isRetweet;
   final bool isSinglePostView;
+  final void Function(String) callBackToDelete;
 
   Tweet({
       super.key,
       required this.tweetOwner,
       required this.tweetData,
       required this.isRetweet,
-      required this.isSinglePostView
+      required this.isSinglePostView,
+      required this.callBackToDelete
   });
 
 
@@ -141,7 +145,9 @@ class Tweet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey),
+                      Visibility(
+                          visible: tweetData.type == "retweet" && tweetData.reTweeter != null,
+                          child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
                       const SizedBox(height: 10),
                       CircleAvatar(
                           backgroundColor: Colors.white,
@@ -164,11 +170,15 @@ class Tweet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // TODO: it must show the one who really reposted the tweet
-                      Text("${currentUserName == tweetOwner.name ? "You" : tweetOwner.name} reposted",style: TextStyle(color: Colors.grey),),
+
+                      Visibility(
+                        visible: tweetData.type == "retweet" && !isSinglePostView,
+                          child: tweetData.reTweeter == null ? Container() :
+                          Text("${currentUserName == tweetData.reTweeter!.name ? "You" : tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
                       // =================== post owner data ===================
                       tweetUserInfo(
                           context,
+                          tweetData.id,
                           tweetOwner,
                           tweetData.creationTime,
                           isSinglePostView,
@@ -406,10 +416,15 @@ class Tweet extends StatelessWidget {
         isRetweet: false,
         isRetweeted: false,
 
-        onPressed: () {
-          Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
+        onPressed: () async {
+          dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
             "reply" : tweetData,
           });
+          if(retArguments["success"] != null && retArguments["success"] == true){
+            tweetData.repliesNum += 1;
+          }
+          print("tweet prints ${tweetData.repliesNum}");
+          return tweetData.repliesNum;
         },
       ),
       TweetActionButton(
@@ -469,6 +484,7 @@ class Tweet extends StatelessWidget {
 
   Widget tweetUserInfo(
       BuildContext context,
+      String tweetId,
       User tweetOwner,
       DateTime tweetDate,
       bool isSinglePostView,
@@ -487,9 +503,6 @@ class Tweet extends StatelessWidget {
       ["Follow @${tweetOwner.id}", Icons.person_add_alt_1_outlined, () {
           // TODO: call the api to follow the post owner
       }], // ===============================================================
-      ["Add/remove from Lists", Icons.add, () {
-
-      }], // ===============================================================
       ["Mute @${tweetOwner.id}", Icons.volume_off, () {
           // TODO: call the api to mute the post owner
       }], // ===============================================================
@@ -497,6 +510,20 @@ class Tweet extends StatelessWidget {
           // TODO: call the api to block the post owner
       }], // ===============================================================
     ];
+    if (Auth.getInstance(context).getCurrentUser() != null){
+      String? currentUserToken = Auth.getInstance(context).getCurrentUser()!.auth;
+      String currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
+      if (tweetOwner.id == currentUserId){
+        dotsBottomSheetData = [
+          ["Delete post",Icons.delete,() async {
+              bool success = await Tweets.deleteTweetById(currentUserToken!,tweetId);
+              if (success){
+                callBackToDelete(tweetId);
+              }
+          }]
+        ];
+      }
+    }
 
     final upperRowNameField = isSinglePostView ?
     Row(
@@ -554,7 +581,18 @@ class Tweet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
 
-        upperRowNameField,
+        GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfile(
+                    username: tweetOwner.id,
+                    isCurrUser: false
+                )),
+              );
+            },
+            child: upperRowNameField
+        ),
 
         const Expanded(child: SizedBox()),
 

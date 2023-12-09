@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
@@ -30,6 +31,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
     userFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     Map<String,dynamic> arguments = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
     String keyword = arguments["keyword"];
+    bool isDarkMode = ThemeProvider.getInstance(context).isDark();
     print(keyword);
     return DefaultTabController(
       initialIndex: 0,
@@ -44,7 +46,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                   Navigator.pop(context);
                 },
                 style: FilledButton.styleFrom(
-                  backgroundColor: Colors.grey[900],
+                  foregroundColor: isDarkMode ? null : Colors.black,
+                  backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[200],
                   alignment: Alignment.centerLeft,
                 ),
                 child: Text(keyword),

@@ -1,4 +1,5 @@
 import 'package:gigachat/api/search-requests.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
@@ -19,7 +20,15 @@ class FeedController {
   }
 
   void appendToMap(Map<String, dynamic> newData) async {
-    _feedCache!.addAll({...newData});
+    if(newData.isNotEmpty){
+      lastFetchedPage = lastFetchedPage! + 1;
+      _feedCache!.addAll({...newData});
+    }
+  }
+
+  void deleteTweet(String tweetID){
+    if (_feedCache == null) return;
+    _feedCache!.remove(tweetID);
   }
 
   List getCurrentData (){
@@ -52,6 +61,7 @@ class FeedController {
               DEFAULT_PAGE_COUNT.toString(),
               (lastFetchedPage! + 1).toString())
         );
+
         break;
       case ProviderFunction.GET_TWEET_COMMENTS:
         appendToMap(
@@ -83,37 +93,3 @@ class FeedController {
   }
 
 }
-
-// Future<List<TweetData>> fetchAndDecodeTweets(
-//     ProviderFunction providerFunction, String userToken, int page,
-//     {String? userID, String? tweetID, bool? appendToBegin}) async {
-//   if (_lastRequestedPage! >= page) {
-//     // the list is already updated with the requested page
-//     return _currentFeedData;
-//   }
-//   _lastRequestedPage = page;
-//   List<TweetData> response = [];
-//   switch (providerFunction) {
-//     case ProviderFunction.HOME_PAGE_TWEETS:
-//       response = await Tweets.getFollowingTweet(
-//           userToken, pageCount.toString(), page.toString());
-//       break;
-//     case ProviderFunction.PROFILE_PAGE_TWEETS:
-//       response = await Tweets.getProfilePageTweets(
-//           userToken, userID!, pageCount.toString(), page.toString());
-//       break;
-//     case ProviderFunction.GET_TWEET_COMMENTS:
-//       response = await Tweets.getTweetReplies(
-//           userToken, tweetID!, pageCount.toString(), page.toString());
-//       break;
-//   }
-//   for (var tweet in response) {
-//     if (!_currentIdsFetched.contains(tweet.id)) {
-//       appendToBegin == null
-//           ? _currentFeedData.add(tweet)
-//           : _currentFeedData.insert(0, tweet);
-//       _currentIdsFetched.add(tweet.id);
-//     }
-//   }
-//   return _currentFeedData;
-// }

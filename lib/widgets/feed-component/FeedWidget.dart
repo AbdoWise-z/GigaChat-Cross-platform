@@ -5,13 +5,14 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class BetterFeed extends StatefulWidget {
   final bool isScrollable;
   final ProviderFunction providerFunction;
   final ProviderResultType providerResultType;
   final FeedController feedController;
-  String? username, tweetID, keyword;
+  String? userId,userName, tweetID, keyword;
 
   BetterFeed({
     super.key,
@@ -19,9 +20,10 @@ class BetterFeed extends StatefulWidget {
     required this.providerFunction,
     required this.providerResultType,
     required this.feedController,
-    this.username,
+    this.userId,
+    this.userName,
     this.tweetID,
-    this.keyword
+    this.keyword,
   });
 
   @override
@@ -41,12 +43,14 @@ class _BetterFeedState extends State<BetterFeed> {
 
   void refreshFeed() async {
     await _feedController.fetchFeedData(
-        username: widget.username,
+        username: widget.userId,
         tweetID: widget.tweetID,
         keyword: widget.keyword
     );
     loading = false;
-    setState(() {});
+    if(mounted) {
+      setState(() {});
+    }
   }
 
 
@@ -61,14 +65,37 @@ class _BetterFeedState extends State<BetterFeed> {
         }).toList();
       // The Normal View For Tweets
       case ProviderResultType.TWEET_RESULT:
-        List<TweetData> userResult = _feedController.getCurrentData().cast<TweetData>();
-        return userResult.map((TweetData tweetData){
-                  return Tweet(
-                      tweetOwner: tweetData.tweetOwner,
-                      tweetData: tweetData,
-                      isRetweet: tweetData.isRetweeted,
-                      isSinglePostView: false
+        List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
+        int i = 0;
+        return tweetResult.map((TweetData tweetData){
+                  if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
+                    tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
+                  }
+                  i = i + 1;
+                  Tweet noDetector = Tweet(
+                    tweetOwner: tweetData.tweetOwner,
+                    tweetData: tweetData,
+                    isRetweet: tweetData.isRetweeted,
+                    isSinglePostView: false,
+                    callBackToDelete: (String tweetID){
+                      _feedController.deleteTweet(tweetID);
+                      setState(() {});
+                    },
                   );
+                  if (i == tweetResult.length) {
+                    return VisibilityDetector(
+                      key: Key(_feedController.lastFetchedPage.toString()),
+                      child: noDetector,
+                      onVisibilityChanged: (VisibilityInfo info){
+                        if (info.visibleFraction * 100 >= 50){
+                          refreshFeed();
+                        }
+                      }
+                  );
+                  }
+                  else {
+                    return noDetector;
+                  }
         }).toList();
     }
   }
@@ -93,7 +120,10 @@ class _BetterFeedState extends State<BetterFeed> {
     Widget result = Column(children: tweetWidgets);
 
     if (widget.isScrollable) {
-      result = SingleChildScrollView(child: result);
+      result = RefreshIndicator(
+          onRefresh: () async {refreshFeed();},
+          child: SingleChildScrollView(child: result)
+      );
     }
 
     return result;

@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void clearList() {
     searchedTags = [];
-    searchedUsers ??= [];
+    searchedUsers = [];
     setState(() {});
   }
 
