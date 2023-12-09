@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
@@ -13,12 +12,11 @@ import 'package:gigachat/pages/profile/widgets/banner.dart';
 import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
+import '../../util/Toast.dart';
 
 class UserProfile extends StatefulWidget {
   final String username;
@@ -117,7 +115,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
-  void onEditProfileClick () async {
+  void onEditProfileClick() async {
     var res = await Navigator.push(context,
         MaterialPageRoute(builder: (context) =>
             EditProfile(
@@ -141,6 +139,33 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
+  void followUser() async {
+    bool success = await Account.followUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+    if(success){
+      setState(() {
+        isWantedUserFollowed = true;
+      });
+    }else{
+      if(context.mounted){
+        Toast.showToast(context, "Action failed. Please try again.");
+      }
+    }
+  }
+
+  void unfollowUser() async {
+    bool success = await Account.unfollowUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+    if(success){
+      setState(() {
+        isWantedUserFollowed = false;
+      });
+    }else{
+      if(context.mounted){
+        Toast.showToast(context, "Action failed. Please try again.");
+      }
+    }
+  }
+
+
   @override
   void initState()  {
     tabController = TabController(length: 4, vsync: this);
@@ -150,7 +175,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   //TODO: get tweets
   //TODO: refresh tweets
-  //TODO: onNotification func (when scrolling so fast)
+  //TODO: onNotification func (when scrolling so fast) (fix performance (setState only the avatar))
 
   @override
   Widget build(BuildContext context) {
@@ -184,26 +209,32 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           },
         ),
         leadingWidth: 60,
-        actions: (showName && !widget.isCurrUser && isWantedUserFollowed != null && !isWantedUserFollowed!) ?
+        actions: (showName
+            && (!widget.isCurrUser && !isCurrUser!)
+            && (isWantedUserFollowed != null && !isWantedUserFollowed!)
+            && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
         <Widget>[
           Padding(
               padding: const EdgeInsets.all(8.0),
-              child: FollowButton(
-                backgroundColor: Colors.white,
-                textColor: Colors.black,
-                onPressed: (){
-                  //TODO: follow user
-                },
-              )
+              child: ProfileInteract(
+                isCurrUser: widget.isCurrUser,
+                isHeader: true,
+                onTapEditProfile: onEditProfileClick,
+                onTapFollow: followUser,
+                onTapUnfollow: unfollowUser,
+              ),
           ),
         ] :
         <Widget>[
-          ProfileAppBarIcon(
-            icon: Icons.search,
-            onPressed: (){
-              //TODO: navigate to search page with user filter
-            },
-            toolTip: 'Search',
+          Visibility(
+            visible: (isCurrUserBlocked != null && !isCurrUserBlocked!),
+            child: ProfileAppBarIcon(
+              icon: Icons.search,
+              onPressed: (){
+                //TODO: navigate to search page with user filter
+              },
+              toolTip: 'Search',
+            ),
           ),
           ProfileAppBarIcon(
             icon: Icons.more_vert,
@@ -325,13 +356,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       ProfileInteract(
+                                        isHeader: false,
                                         isCurrUser: widget.isCurrUser,
                                         isWantedUserFollowed : isWantedUserFollowed,
                                         isWantedUserBlocked : isWantedUserBlocked,
                                         onTapEditProfile: onEditProfileClick,
                                         onTapDM: (){}, //TODO: DM user
-                                        onTapFollow: (){}, //TODO: follow user
-                                        onTapUnfollow: (){}, //TODO: unfollow user
+                                        onTapFollow: followUser,
+                                        onTapUnfollow: unfollowUser,
                                       ),
                                       Text(
                                         name,

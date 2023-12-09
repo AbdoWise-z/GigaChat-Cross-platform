@@ -4,16 +4,18 @@ import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 import '../../../providers/theme-provider.dart';
 
 class ProfileInteract extends StatelessWidget {
-  const ProfileInteract({Key? key,required this.isCurrUser,required this.onTapDM,
+  const ProfileInteract({Key? key,required this.isCurrUser, this.onTapDM,
     required this.onTapEditProfile,required this.onTapFollow,
-    this.isWantedUserFollowed, required this.onTapUnfollow, this.isWantedUserBlocked}) : super(key: key);
+    this.isWantedUserFollowed, required this.onTapUnfollow,
+    this.isWantedUserBlocked, required this.isHeader}) : super(key: key);
 
   final bool isCurrUser;
   final bool? isWantedUserFollowed;
   final bool? isWantedUserBlocked;
-  final void Function() onTapEditProfile;
+  final bool isHeader;
+  final void Function()? onTapEditProfile;
   final void Function() onTapFollow;
-  final void Function() onTapDM;
+  final void Function()? onTapDM;
   final void Function() onTapUnfollow;
 
 
@@ -24,7 +26,7 @@ class ProfileInteract extends StatelessWidget {
       children: [
         const Expanded(child: SizedBox()),
         Visibility(
-          visible: !isCurrUser,
+          visible: !isCurrUser && !isHeader,
           child: Container(
             width: 35,
             height: 35,
