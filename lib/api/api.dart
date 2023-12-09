@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
+import 'package:sprintf/sprintf.dart';
 
 
 class UploadFile{
@@ -50,6 +51,14 @@ class ApiPath{
   Uri url({Map<String,dynamic>? params}) {
     return Uri.http(API_LINK , _path , params);
   }
+  static ApiPath fromString(String str){
+    return ApiPath._(str);
+  }
+  ApiPath format(List list){
+    String str;
+    str = sprintf(_path,list);
+    return ApiPath._(str);
+  }
   ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
@@ -65,13 +74,23 @@ class ApiPath{
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
+  static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
+  static ApiPath unfollowUser            = const ApiPath._("/api/user/%s/unfollow");
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
-  static ApiPath comments                = const ApiPath._("/api/tweets/replies");
+  static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
   static ApiPath media                   = const ApiPath._("/api/media");
+  static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
+  static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
+  static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
+  static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
+  static ApiPath unretweet               = const ApiPath._("/api/tweets/unretweet");
+
 }
 
 class Api {

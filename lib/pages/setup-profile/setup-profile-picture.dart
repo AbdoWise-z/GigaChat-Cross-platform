@@ -57,38 +57,41 @@ class _PickProfilePictureState extends State<PickProfilePicture> {
             leadingIcon: null,
             showDefault: false,
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                 const SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Pick a profile picture",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                   const SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Pick a profile picture",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
+                          ),
                         ),
-                      ),
-                      Text("Have a favourite selfie? Upload it now.",
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      )
-                    ],
+                        Text("Have a favourite selfie? Upload it now.",
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                UploadImage(
-                  onImagePicked: (File file){
-                    setState(() {
-                      selectedImage = file;
-                    });
-                  },
-                ),
-              ],
+                  UploadImage(
+                    onImagePicked: (File file){
+                      setState(() {
+                        selectedImage = file;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 50,),
+                ],
+              ),
             ),
           ),
           bottomSheet: AuthFooter(

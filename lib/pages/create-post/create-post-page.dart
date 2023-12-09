@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:gigachat/api/api.dart';
@@ -17,6 +19,8 @@ import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'dart:math';
+
+import 'package:photo_manager/photo_manager.dart';
 
 class CreatePostPage extends StatefulWidget {
   static const String pageRoute = "/create-post";
@@ -63,7 +67,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     Auth auth = Auth.getInstance(context);
-    FeedProvider feed = FeedProvider(context);
+    FeedProvider feed = FeedProvider(pageCount: 5);
 
     String? ref;
     if (_replyTweet != null) {
@@ -73,12 +77,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
     bool error = false;
     for (var k in _posts){
       var state = k.currentState!;
-      List<String> paths = state.media;
+      List<TypedEntity> paths = state.media;
       List<UploadFile> files = paths.map(
               (e) => UploadFile(
-                path: "/sdcard/$e",
-                type: MediaObject.TypeOf(e) == MediaType.IMAGE ? "image" : "video",
-                subtype: MediaObject.TypeOf(e) == MediaType.IMAGE ? "png" : "mp4"
+                path: e.path.path,
+                type: e.type == AssetType.image ? "image" : "video",
+                subtype: e.type == AssetType.image ? "png" : "mp4"
               )
       ).toList();
 
@@ -97,7 +101,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         description: state.controller.text,
         media: files.map((e) => MediaObject(
           link: urls[files.indexOf(e)],
-          type: MediaObject.TypeOf(e.path),
+          type: e.type == "video" ? MediaType.VIDEO : MediaType.IMAGE,
         )).toList(growable: false),
         referredTweetId: ref,
         type: ref == null ? TweetType.TWEET : TweetType.REPLY,
@@ -190,18 +194,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     bool canPost = true;
     for (var k in _posts){
-      if (k.currentState != null && k.currentState!.controller.text.isEmpty){
+      if (k.currentState != null && (k.currentState!.controller.text.isEmpty || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
         canPost = false;
         break;
       }
     }
 
     if (_replyTweet == null) {
-      var params = ModalRoute
+      if (ModalRoute
           .of(context)!
           .settings
-          .arguments as Map;
-      _replyTweet = params["reply"];
+          .arguments != null) {
+        var params = ModalRoute
+            .of(context)!
+            .settings
+            .arguments as Map;
+        _replyTweet = params["reply"];
+      }
     }
 
     bool canAddAnother = _currentActive != null;
@@ -391,10 +400,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             var state = _currentActive!.currentState!;
                             //if you somehow was able to click before the app even builds
                             //then you deserve the app crash in your face :)
-                            List<String> items = state.media;
-                            var selected = await Gallery.selectFromGallery(context , selected: items);
+                            List<TypedEntity> items = state.media;
+                            var selected = await Gallery.selectFromGallery(context , selected: items.map((e) => e.path).toList() , canSkip: true);
                             state.setState(() {
-                              state.media = selected; //totally crashable btw
+                              state.media = selected.map((e) => TypedEntity(path: e.path, type: e.type == AssetType.other ? items[items.indexWhere((element) => e.path.path == element.path.path)].type : e.type)).toList();
                             });
 
                           } : null,
@@ -410,6 +419,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           child: CircularProgressIndicator(
                             backgroundColor: Colors.grey,
                             strokeWidth: 2,
+                            valueColor: _currentActive != null && (_currentActive!.currentState != null &&
+                                _currentActive!.currentState!.controller.text.length > MAX_POST_LENGTH) ? const AlwaysStoppedAnimation(Colors.red) :
+                            const AlwaysStoppedAnimation(Colors.blue),
                             value: _currentActive != null && _currentActive!.currentState != null ? (_currentActive!.currentState!.controller.text.length / MAX_POST_LENGTH) : 0,
                           ),
                         ),

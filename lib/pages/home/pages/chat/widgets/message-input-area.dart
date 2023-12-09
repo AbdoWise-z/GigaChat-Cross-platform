@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 
 
@@ -18,7 +19,7 @@ class MessageInputArea extends StatefulWidget {
 }
 
 class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerProviderStateMixin{
-  String? _media;
+  TypedEntity? _media;
   late final AnimationController _controller = AnimationController(vsync: this , duration: const Duration(milliseconds: 400));
   late final FocusNode _node = FocusNode();
 
@@ -167,7 +168,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                         //then you deserve the app crash in your face :)
                         var selected = await Gallery.selectFromGallery(
                           context ,
-                          selected: _media == null ? [] : [_media!],
+                          selected: _media == null ? [] : [_media!.path],
                           canSkip: true,
                           selectMax: 1,
                         );
@@ -216,7 +217,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                                 ChatMessageObject(
                                   id: "none",
                                   text: _textEditingController.text,
-                                  media: _media == null ? null : MediaObject(link: _media!, type: MediaObject.TypeOf(_media!)),
+                                  media: _media == null ? null : MediaObject(link: _media!.path.path, type: _media!.type == AssetType.image ? MediaType.IMAGE : MediaType.VIDEO),
                                   self: true,
                                   time: DateTime.now(),
                                   state: ChatMessageObject.STATE_SENDING,

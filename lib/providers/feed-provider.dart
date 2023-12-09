@@ -1,36 +1,86 @@
-import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
-import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/api.dart';
+import 'package:gigachat/widgets/feed-component/feed.dart';
 
 class FeedProvider
 {
-  late List<TweetData> _currentFeedData;
-  //late User _currentUser;
-  static FeedProvider? _instance;
+  List<TweetData> _currentFeedData = [];
+  List<String> _currentIdsFetched = [];
+  int? _lastRequestedPage;
+  int pageCount = 5;
 
 
-  // Private Constructor
-  FeedProvider._internal(BuildContext context){
-    //_currentUser = Auth.getInstance(context).getCurrentUser()!;
-    _currentFeedData = [];
+  FeedProvider({
+    required this.pageCount
+  }){
+    _lastRequestedPage = 0;
   }
 
-  // Getting An Instance Of The Object
-  factory FeedProvider(BuildContext context){
-    _instance ??= FeedProvider._internal(context);
-    return _instance!;
-  }
-
-
-  Future<List<TweetData>> getFollowingTweets(User user) async
+  Future<List<TweetData>> getFollowingTweets(String userToken,int page) async
   {
-    List<TweetData>? response = await Tweets.getFollowingTweet(user.auth);
+    return fetchAndDecodeTweets(ProviderFunction.HOME_PAGE_TWEETS, userToken, page);
+  }
 
-    _currentFeedData = response ?? [];
-    // TODO: Response must be formatted here but we will move on for now
+  Future<List<TweetData>> getUserProfileTweets(String userToken,int page,String userID) async
+  {
+    return fetchAndDecodeTweets(ProviderFunction.PROFILE_PAGE_TWEETS, userToken, page,userID: userID);
+  }
+
+  Future<List<TweetData>> getTweetReplies(String userToken,int page,String tweetID) async
+  {
+    return fetchAndDecodeTweets(ProviderFunction.GET_TWEET_COMMENTS, userToken, page,tweetID: tweetID);
+  }
+
+  Future<List<TweetData>> fetchAndDecodeTweets(
+      ProviderFunction providerFunction,
+      String userToken,
+      int page,
+      {
+        String? userID,
+        String? tweetID
+      }
+      ) async {
+
+    if (_lastRequestedPage! >= page)
+    {
+      // the list is already updated with the requested page
+      return _currentFeedData;
+    }
+    _lastRequestedPage = page;
+    List<TweetData> response = [];
+    switch(providerFunction){
+      case ProviderFunction.HOME_PAGE_TWEETS:
+        response = await Tweets.getFollowingTweet(
+            userToken,
+            pageCount.toString(),
+            page.toString()
+        );
+        break;
+      case ProviderFunction.PROFILE_PAGE_TWEETS:
+        response = await Tweets.getProfilePageTweets(
+            userToken,
+            userID!,
+            pageCount.toString(),
+            page.toString()
+        );
+        break;
+      case ProviderFunction.GET_TWEET_COMMENTS:
+        response = await Tweets.getTweetReplies(
+            userToken,
+            tweetID!,
+            pageCount.toString(),
+            page.toString()
+        );
+        break;
+    }
+    for (var tweet in response) {
+      if(!_currentIdsFetched.contains(tweet.id)){
+        _currentFeedData.add(tweet);
+        _currentIdsFetched.add(tweet.id);
+      }
+    }
     return _currentFeedData;
   }
 

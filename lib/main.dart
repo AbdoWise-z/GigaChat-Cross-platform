@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
@@ -6,13 +8,17 @@ import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
+import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
+import 'package:gigachat/pages/profile/profile-image-view.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
+import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -20,7 +26,7 @@ import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/feed-provider.dart';
+import 'pages/user-verification/verification-code-page.dart';
 
 
 void main() async {
@@ -75,6 +81,7 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
+                  UserListViewPage.pageRoute : (context) => UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                 },
               );

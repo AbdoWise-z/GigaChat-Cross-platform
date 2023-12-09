@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/services/upload-image/upload-camera-image.dart';
 import 'package:gigachat/services/upload-image/upload-local-image.dart';
 
-bool done = false;
+
 
 //for drawing the borders of the UPLOAD image widget
 class IntermittentCurvedContainer extends CustomPainter {
@@ -72,6 +72,7 @@ class UploadImage extends StatefulWidget {
 class UploadImageState extends State<UploadImage> {
 
   File selectedImage = File("");
+  bool done = false;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,7 @@ class UploadImageState extends State<UploadImage> {
               PopupMenuItem(
                 child: const Text("Take photo"),
                 onTap: () async {
-                  selectedImage = await getImageFromCamera();
+                  selectedImage = await getImageFromCamera(false);
                   if(selectedImage.path.isNotEmpty){
                     setState(() {
                       done = true;
@@ -99,7 +100,7 @@ class UploadImageState extends State<UploadImage> {
               ),
               PopupMenuItem(
                   onTap: () async {
-                    selectedImage = await getImageFromGallery();
+                    selectedImage = await getImageFromGallery(false);
                     if(selectedImage.path.isNotEmpty){
                       setState(() {
                         done = true;

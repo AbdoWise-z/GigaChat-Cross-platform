@@ -43,9 +43,16 @@ class FeedHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        FeedWidget(tweetDataSource: FeedProvider(context).getFollowingTweets),
-        ];
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.HOME_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()!.auth,
+        ),
+
+        ScrollableFeedWidget(
+          providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
+          userID: Auth.getInstance(context).getCurrentUser()?.auth,
+        ),
+      ];
     }
     return const [
       Padding(
@@ -67,8 +74,8 @@ class FeedHomeTab with HomePageTab {
   @override
   Widget? getFloatingActionButton(BuildContext context) {
     return FloatingActionMenu(
-      icon: const Icon(Icons.add),
-      tappedIcon: const Icon(Icons.post_add_rounded),
+      icon: const Icon(Icons.add,color: Colors.white,),
+      tappedIcon: const Icon(Icons.post_add_rounded,color: Colors.white,),
       title: const Padding(
         padding: EdgeInsets.only(right: 25),
         child: Text(

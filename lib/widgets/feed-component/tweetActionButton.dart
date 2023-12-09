@@ -36,9 +36,9 @@ class _TweetActionButtonState extends State<TweetActionButton> {
 
     return widget.isLikeButton!
         ? Expanded(
-            child: ElevatedButton(
+            child: TextButton(
               onPressed: () {},
-              style: ElevatedButton.styleFrom(
+              style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.grey,
                   padding: EdgeInsets.zero,
@@ -72,8 +72,8 @@ class _TweetActionButtonState extends State<TweetActionButton> {
           )
         : Expanded(
             child: Center(
-            child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
+            child: TextButton.icon(
+                style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: !widget.isRetweet || !widget.isRetweeted
                         ? Colors.grey
@@ -89,11 +89,13 @@ class _TweetActionButtonState extends State<TweetActionButton> {
                             widget.isRetweeted ? "Undo Repost" : "Repost",
                             FontAwesomeIcons.retweet,
                             () async {
-                              if (await widget.onPressed()) {
+                              bool success = await widget.onPressed();
+                              widget.count ??= 0;
+                              if (success) {
                                     widget.isRetweeted = !widget.isRetweeted;
-                                    widget.count = widget.isRetweeted == true ? 1 : -1;
+                                    widget.count = widget.count! + (widget.isRetweeted == true ? 1 : -1);
+                                    setState(() {});
                               }
-                              setState(() {});
                             }
                           ],
                           [

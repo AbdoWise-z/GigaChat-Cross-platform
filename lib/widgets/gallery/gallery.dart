@@ -1,21 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/widgets/gallery/sub-pages/request-permissions-page.dart';
 import 'package:gigachat/widgets/gallery/widgets/ImageGridItem.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class Gallery{
 
-  static Future<List<String>> selectFromGallery(
+  static Future<List<TypedEntity>> selectFromGallery(
       BuildContext context ,
       { int selectMax = MEDIA_UPLOAD_LIMIT ,
         cameraEnabled = true ,
         canSkip = false ,
-        List<String> selected = const []
+        List<File> selected = const []
       }) async {
 
-    List<String> paths =
+    List<TypedEntity> paths =
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -36,7 +39,7 @@ class _GalleryWidget extends StatefulWidget {
   final bool canSkip;
   final int selectMax;
   final bool cameraEnabled;
-  final List<String> selected;
+  final List<File> selected;
 
   const _GalleryWidget({
     required this.canSkip,
@@ -57,12 +60,12 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
   List<AssetPathEntity> _paths = [];
   int _currentPath = 0;
   AssetPathEntity? _path;
-  List<AssetEntity>? _entities;
+  List<MediaEntity>? _entities;
   int _page = 0;
   final int _sizePerPage = 30;
   int _totalCount = 0;
 
-  List<String> _selectedPaths = [];
+  List<TypedEntity> _selectedPaths = [];
 
   void _exit(){
     Navigator.pop(context , _selectedPaths);
@@ -76,14 +79,37 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
     //check for permissions
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
     if (!ps.hasAccess) {
-      PhotoManager.openSetting();
-      setState(() {
-        _loading = false;
-      });
-      return;
+      await PhotoManager.openSetting();
+      if (!ps.hasAccess) {
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
+    }
+
+    if (! await Permission.manageExternalStorage.isGranted){
+      var k = await Permission.manageExternalStorage.request();
+      if (k != PermissionStatus.granted){
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
+    }
+
+    if (! await Permission.accessMediaLocation.isGranted){
+      var k = await Permission.accessMediaLocation.request();
+      if (k != PermissionStatus.granted){
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
     }
 
     _paths = await PhotoManager.getAssetPathList();
+    //print("paths: $_paths");
     if (_paths.isEmpty){
       setState(() {
         _loading = false;
@@ -101,11 +127,15 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       _loading = true;
     });
 
+    //print("Loading Path : $p");
+
     _currentPath = p;
     _path = _paths[p];
     _page = -1;
     _entities = [];
     _totalCount = await _path!.assetCountAsync;
+
+    //print("Loading Path : {#: $p , path_name: ${_path!.name} , total: $_totalCount}");
 
     _loadMore();
 
@@ -122,8 +152,20 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       size: _sizePerPage,
     );
 
+    //print("Loaded: $entities");
+    //print((await entities[0].file)?.path);
+    List<MediaEntity> media = [];
+    for (AssetEntity e in entities){
+      media.add(
+        MediaEntity(
+          entity: e,
+          path: (await e.file)!,
+        )
+      );
+    }
+
     setState(() {
-      _entities!.addAll(entities);
+      _entities!.addAll(media);
       _page++;
       _loadingMore = false;
     });
@@ -133,7 +175,7 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
   void initState() {
     super.initState();
     _loadGallery();
-    _selectedPaths.addAll(widget.selected);
+    _selectedPaths.addAll(widget.selected.map((e) => TypedEntity(path: e, type: AssetType.other)));
   }
 
   @override
@@ -226,6 +268,17 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
   }
 
   Widget _body(BuildContext context){
+    if(_entities == null || _entities!.isEmpty){
+      return const Center(
+        child: Text("No Media found.",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      );
+    }
+
     return GridView.custom(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -236,20 +289,16 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
               !_loadingMore && _entities!.length < _totalCount) {
             _loadMore();
           }
-          final AssetEntity entity = _entities![index];
-          return ImageGridItem(
+          final MediaEntity entity = _entities![index];
+          return GalleryGridItem(
             key: ValueKey<int>(index),
             entity: entity,
-            option: const ThumbnailOption(
-              size: ThumbnailSize.square(200),
-              format: ThumbnailFormat.jpeg,
-            ),
             onTap: () {
               setState(() {
-                int i = _selectedPaths.indexOf("${entity.relativePath}${entity.title}");
+                int i = _selectedPaths.indexWhere((e) => e.path.path == entity.path.path);
                 if (i < 0) {
                   if (_selectedPaths.length < widget.selectMax) {
-                    _selectedPaths.add("${entity.relativePath}${entity.title}");
+                    _selectedPaths.add(TypedEntity(path: entity.path, type: entity.entity.type));
                     if (widget.selectMax == 1){
                       //TODO: should I implement another behavior ?
                     }
@@ -259,8 +308,8 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
                 }
               });
             },
-            selected: _selectedPaths.contains("${entity.relativePath}${entity.title}"),
-            enabled: _selectedPaths.length < widget.selectMax || _selectedPaths.contains("${entity.relativePath}${entity.title}"),
+            selected: _selectedPaths.indexWhere((e) => e.path.path == entity.path.path) >= 0,
+            enabled: _selectedPaths.length < widget.selectMax || _selectedPaths.indexWhere((e) => e.path.path == entity.path.path) >= 0,
           );
         },
         childCount: _entities!.length,
@@ -274,4 +323,18 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       ),
     );
   }
+}
+
+class MediaEntity {
+  final AssetEntity entity;
+  final File path;
+
+  MediaEntity({required this.entity, required this.path});
+}
+
+class TypedEntity {
+  final File path;
+  final AssetType type;
+
+  TypedEntity({required this.path, required this.type});
 }

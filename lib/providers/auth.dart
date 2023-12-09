@@ -13,7 +13,7 @@ class Auth extends ChangeNotifier{
   }
 
   //TODO: change back to null
-  User? _currentUser = User();
+  User? _currentUser;
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
     var res = await Account.apiLogin(username , password);
@@ -123,6 +123,30 @@ class Auth extends ChangeNotifier{
     return;
   }
 
+  Future<void> setUserInfo(String name,String bio,String website, String location,DateTime birthDate,
+      { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiUpdateUserInfo(_currentUser!.auth! , name,bio,website,location,birthDate);
+    if (res.data!){
+      _currentUser!.name = name;
+      _currentUser!.birthDate = birthDate;
+      _currentUser!.website = website;
+      _currentUser!.location = location;
+      _currentUser!.bio = bio;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
 
+  Future<void> setUserBannerImage(File img , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
+    var res = await Account.apiSetBannerImage(_currentUser!.auth! , img);
+    if (res.data != null){
+      _currentUser!.iconLink = res.data!;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
 
 }
