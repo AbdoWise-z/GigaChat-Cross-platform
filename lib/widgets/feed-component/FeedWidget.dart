@@ -112,12 +112,12 @@ class _BetterFeedState extends State<BetterFeed> {
     if(tweetWidgets == null){
       return const Column(
         children: [
-          Text("nothing to see here go get some life")
+          Text("nothing to show ... yet")
         ],
       );
     }
 
-    if(tweetWidgets.isEmpty)
+    if(tweetWidgets.isEmpty) {
       tweetWidgets.add(
           Container(
             padding: EdgeInsets.only(top: 100),
@@ -126,11 +126,12 @@ class _BetterFeedState extends State<BetterFeed> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("stfu and go get some life",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),)
+                Text("nothing to show ... yet",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),)
               ],
             ),
           )
       );
+    }
 
     Widget result = Column(children: tweetWidgets);
 

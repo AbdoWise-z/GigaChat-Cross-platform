@@ -154,7 +154,7 @@ class Tweets {
 
           "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
           "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
-          "tweetOwnerIsFollowed": null,
+          "tweetOwnerIsFollowed": ["tweetDetails","isFollowed"],
           "tweetOwnerBio": null,
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
