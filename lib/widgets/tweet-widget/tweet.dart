@@ -49,7 +49,6 @@ List<TextSpan> textToRichText(String inputText,bool isDarkMode){
 
 
 class Tweet extends StatelessWidget {
-  static String pageRoute = "/test";
   final User tweetOwner;
   final TweetData tweetData;
   late List<Widget> actionButtons;
@@ -114,6 +113,7 @@ class Tweet extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (_,__,___) {
         bool isDarkMode = ThemeProvider.getInstance(context).isDark();
+        String currentUserName = Auth.getInstance(context).getCurrentUser()!.name;
         return TextButton(
           style: TextButton.styleFrom(
               backgroundColor: Colors.transparent,
@@ -128,7 +128,7 @@ class Tweet extends StatelessWidget {
                   });
                 },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -136,14 +136,20 @@ class Tweet extends StatelessWidget {
                 // =================== user avatar ===================
                 Visibility(
                   visible: !isSinglePostView,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 20,
-                        // TODO: handle the errors later
-                        backgroundImage: NetworkImage(tweetOwner.iconLink),
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey),
+                      const SizedBox(height: 10),
+                      CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 20,
+                          // TODO: handle the errors later
+                          backgroundImage: NetworkImage(tweetOwner.iconLink),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -158,7 +164,8 @@ class Tweet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
+                      // TODO: it must show the one who really reposted the tweet
+                      Text("${currentUserName == tweetOwner.name ? "You" : tweetOwner.name} reposted",style: TextStyle(color: Colors.grey),),
                       // =================== post owner data ===================
                       tweetUserInfo(
                           context,
@@ -238,7 +245,7 @@ class Tweet extends StatelessWidget {
                                       return loadingProgress == null ? child :
                                       Container(
                                         color: Colors.transparent,
-                                        child: Center(child: CircularProgressIndicator()),
+                                        child: const Center(child: CircularProgressIndicator()),
                                       );
                                     },
                                     errorBuilder: (_,exception, stack){
@@ -300,7 +307,7 @@ class Tweet extends StatelessWidget {
                                   onPressed: (){
                                     Navigator.pushNamed(context, UserListViewPage.pageRoute,
                                       arguments: {
-                                      "pageTitle": "Reposted By",
+                                        "pageTitle": "Reposted By",
                                         "tweetID" : tweetData.id,
                                         "providerType" : UserListViewFunction.GET_TWEET_REPOSTERS
                                     });

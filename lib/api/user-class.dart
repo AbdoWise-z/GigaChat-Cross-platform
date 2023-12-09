@@ -11,11 +11,16 @@ class User {
   String website;
   DateTime? birthDate;
   DateTime? joinedDate;
+  bool? isCurrUserBlocked;
+  bool? isWantedUserBlocked;
+  bool? isWantedUserMuted;
+  bool? isFollowed;
+  bool? isCurrUser;
+
 
   int followers;
   int following;
   bool active;
-  bool? isFollowed;
 
   User({
     this.id = "@Abdo-ww",
@@ -33,7 +38,11 @@ class User {
     this.followers = 0,
     this.following = 0,
     this.active = false,
-    this.isFollowed = false,
+    this.isCurrUser,
+    this.isCurrUserBlocked,
+    this.isWantedUserBlocked,
+    this.isFollowed,
+    this.isWantedUserMuted,
   });
 
 }

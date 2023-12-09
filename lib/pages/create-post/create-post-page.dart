@@ -14,7 +14,6 @@ import 'package:gigachat/pages/create-post/widgets/hint-dialog.dart';
 import 'package:gigachat/pages/create-post/widgets/post-editor.dart';
 import 'package:gigachat/pages/create-post/widgets/post-static-viewer.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
@@ -28,6 +27,19 @@ class CreatePostPage extends StatefulWidget {
 
   @override
   State<CreatePostPage> createState() => _CreatePostPageState();
+}
+
+
+Future<bool> sendTweet(User from , IntermediateTweetData data , {
+  void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
+  var res = await Tweets.apiSendTweet(from.auth! , data);
+  if (res.data != null){
+    if (success != null) success(res);
+    return true;
+  }else{
+    if (error != null) error(res);
+    return false;
+  }
 }
 
 class _CreatePostPageState extends State<CreatePostPage> {
@@ -67,7 +79,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     Auth auth = Auth.getInstance(context);
-    FeedProvider feed = FeedProvider(pageCount: 5);
 
     String? ref;
     if (_replyTweet != null) {
@@ -106,7 +117,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         referredTweetId: ref,
         type: ref == null ? TweetType.TWEET : TweetType.REPLY,
       );
-      if (!await feed.sendTweet(
+      if (!await sendTweet(
         auth.getCurrentUser()!,
         data ,
         success: (v) => ref = v.data!,

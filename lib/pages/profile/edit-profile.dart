@@ -1,8 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/api.dart';
-import 'package:gigachat/api/media-class.dart';
-import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';

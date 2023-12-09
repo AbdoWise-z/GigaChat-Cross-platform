@@ -82,6 +82,7 @@ class ApiPath{
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
   static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
+  static ApiPath unretweet                 = const ApiPath._("/api/tweets/unretweet");
   static ApiPath media                   = const ApiPath._("/api/media");
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
@@ -89,8 +90,10 @@ class ApiPath{
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
-  static ApiPath unretweet               = const ApiPath._("/api/tweets/unretweet");
 
+  static ApiPath searchUsers             = const ApiPath._("/api/user/search");
+  static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
+  static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
 }
 
 class Api {
@@ -200,7 +203,6 @@ class Api {
         headers: headers,
       ).timeout(API_TIMEOUT);
       //dynamic responsePayload = json.decode(response.body);
-
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
     } on SocketException {
       return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);

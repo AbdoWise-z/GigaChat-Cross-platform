@@ -2,15 +2,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
+import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
+import 'package:gigachat/pages/profile/widgets/avatar.dart';
+import 'package:gigachat/pages/profile/widgets/banner.dart';
+import 'package:gigachat/pages/profile/widgets/interact.dart';
+import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
 
@@ -39,6 +45,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late DateTime joinedDate;
   late int following;
   late int followers;
+  //only wanted user details
+  late bool? isCurrUserBlocked;
+  late bool? isWantedUserBlocked;
+  late bool? isWantedUserMuted;
+  late bool? isWantedUserFollowed;
+  late bool? isCurrUser;
 
 
   //page details
@@ -51,6 +63,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false,false,false];
+  late FeedController feedController;
 
   double max = 317;
 
@@ -60,7 +73,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       loading = true;
     });
     Auth auth = Auth.getInstance(context);
-    var res = await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!);
+    var res = widget.isCurrUser? await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!) :
+        await Account.apiUserProfile(auth.getCurrentUser()!.auth!, widget.username);
     User u = res.data!;
 
     name = u.name;
@@ -74,6 +88,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     bio = u.bio;
     max = bio != ""? 390 : 317;
     website = u.website;
+    isCurrUserBlocked = u.isCurrUserBlocked;
+    isWantedUserBlocked = u.isWantedUserBlocked;
+    isWantedUserMuted = u.isWantedUserMuted;
+    isWantedUserFollowed = u.isFollowed;
+    isCurrUser = u.isCurrUser;
+
 
     setState(() {
       loading = false;
@@ -124,21 +144,21 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
+    feedController = FeedController(providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS);
     tabController = TabController(length: 4, vsync: this);
     getData();
     super.initState();
   }
 
-  //TODO: fix feed thing
-  //TODO: refresh after posting
+  //TODO: get tweets
+  //TODO: refresh tweets
   //TODO: onNotification func (when scrolling so fast)
 
   @override
   Widget build(BuildContext context) {
-
-
-
-    return loading? const BlockingLoadingPage(): Scaffold(
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+    return loading? const BlockingLoadingPage():
+    Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: showName? Column(
@@ -166,8 +186,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           },
         ),
         leadingWidth: 60,
-        actions:  (showName && !widget.isCurrUser)?
-        [
+        actions: (showName && (!widget.isCurrUser && !isCurrUser! ) && isWantedUserFollowed != null && !isWantedUserFollowed!) ?
+        <Widget>[
           Padding(
               padding: const EdgeInsets.all(8.0),
               child: FollowButton(
@@ -179,7 +199,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
               )
           ),
         ] :
-        [
+        <Widget>[
           ProfileAppBarIcon(
             icon: Icons.search,
             onPressed: (){
@@ -190,11 +210,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           ProfileAppBarIcon(
             icon: Icons.more_vert,
             toolTip: 'Menu',
-            onPressed: () {  //doesn't do anything just for looks :p
+            onPressed: () {
               showMenu(
                 context: context,
                 position: const RelativeRect.fromLTRB(6, 5, 5, 0),
-                items: [
+                items: widget.isCurrUser? <PopupMenuItem>[ //doesn't do anything just for looks :p
                   PopupMenuItem(
                     child: const Text("Share"),
                     onTap: (){},
@@ -207,6 +227,24 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     child: const Text("Lists you're on"),
                     onTap: (){},
                   )
+                ] : <PopupMenuItem>[
+                  isWantedUserMuted != null && isWantedUserMuted!?
+                  PopupMenuItem(
+                    child: const Text("Unmute"),
+                    onTap: (){}, //TODO: unmute user
+                  ): PopupMenuItem(
+                    child: const Text("Mute"),
+                    onTap: (){}, //TODO: mute user
+                  ),
+                  isWantedUserBlocked != null && isWantedUserBlocked!?
+                  PopupMenuItem(
+                    child: const Text("Unblock"),
+                    onTap: (){}, //TODO: unblock user
+                  ):
+                  PopupMenuItem(
+                    child: const Text("Block"),
+                    onTap: (){}, //TODO: block user
+                  ),
                 ],
               );
             },
@@ -215,7 +253,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         flexibleSpace: collapsed? FlexibleSpaceBar(
           background: ColorFiltered(
             colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-            child: bannerImageUrl == ""?
+            child: bannerImageUrl == "" ?
             Container(color: Colors.blue,) :
             Image.network(bannerImageUrl,
               fit: BoxFit.cover,
@@ -254,34 +292,33 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         ProfileBanner(
                           bannerImageUrl: bannerImageUrl,
                           onTap: ()async{
-                            if(bannerImageUrl != ""){
-                              var res = await Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      ProfileImageView(
-                                        isProfileAvatar: false,
-                                        imageUrl: bannerImageUrl,
-                                        avatarImageUrl: avatarImageUrl,
-                                        name: name,
-                                        birthDate: birthDate,
-                                        bio: bio,
-                                        website: website,
-                                      )
-                                  )
-                              );
-                              if(res != null){
-                                setState(() {
-                                  name = res["name"];
-                                  bio = res["bio"];
-                                  website = res["website"];
-                                  birthDate = res["birthDate"];
-                                  bannerImageUrl = res["bannerImageUrl"];
-                                  avatarImageUrl = res["avatarImageUrl"];
-                                });
-                              }
-                            }
-                            else{
-                              onEditProfileClick();
-                            }
+                             if(bannerImageUrl != ""){
+                               var res = await Navigator.push(context,
+                                   MaterialPageRoute(builder: (context) =>
+                                       ProfileImageView(
+                                         isProfileAvatar: false,
+                                         imageUrl: bannerImageUrl,
+                                         avatarImageUrl: avatarImageUrl,
+                                         name: name,
+                                         birthDate: birthDate,
+                                         bio: bio,
+                                         website: website,
+                                       )
+                                   )
+                               );
+                               if(res != null){
+                                 setState(() {
+                                   name = res["name"];
+                                   bio = res["bio"];
+                                   website = res["website"];
+                                   birthDate = res["birthDate"];
+                                   bannerImageUrl = res["bannerImageUrl"];
+                                   avatarImageUrl = res["avatarImageUrl"];
+                                 });
+                               }
+                             }else{
+                               onEditProfileClick();
+                             }
                           },
                         ),
                         Padding(
@@ -291,9 +328,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     children: [
                                       ProfileInteract(
                                         isCurrUser: widget.isCurrUser,
+                                        isWantedUserFollowed : isWantedUserFollowed,
+                                        isWantedUserBlocked : isWantedUserBlocked,
                                         onTapEditProfile: onEditProfileClick,
                                         onTapDM: (){}, //TODO: DM user
                                         onTapFollow: (){}, //TODO: follow user
+                                        onTapUnfollow: (){}, //TODO: unfollow user
                                       ),
                                       Text(
                                         name,
@@ -404,14 +444,16 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         tabController: tabController,
                                       ),
                                       SizedBox(
-                                        height: 2400, //TODO: user feed (change height dynamically every getTweets request)
+                                        height: 2100, //TODO: user feed (change height dynamically every getTweets request)
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
-                                              FeedWidget(
-                                                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                                                userToken: Auth.getInstance(context).getCurrentUser()!.auth,
-                                                userID: username,
+                                              BetterFeed(
+                                                  isScrollable: false,
+                                                  providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                                                  providerResultType: ProviderResultType.TWEET_RESULT,
+                                                  feedController: feedController,
+                                                username: username,
                                               ),
                                               Container(color: Colors.red,child: Center(child: Text("2"),),),
                                               Container(color: Colors.red,child: Center(child: Text("3"),),),
@@ -463,196 +505,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         ),
       ),
       floatingActionButton: FeedHomeTab().getFloatingActionButton(context),  //TODO: change later
-    );
-  }
-}
-
-
-class ProfileAppBarIcon extends StatelessWidget {
-  final IconData icon;
-  final void Function()? onPressed;
-  final String toolTip;
-  const ProfileAppBarIcon({Key? key,required this.icon,required this.onPressed,required this.toolTip}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        width: 35,
-        height: 30,
-        decoration: const BoxDecoration(
-          color: Colors.black38,
-          shape: BoxShape.circle,
-        ),
-        child: IconButton(
-          iconSize: 22,
-          tooltip: toolTip,
-          icon: Icon(icon),color: Colors.white,
-          onPressed: onPressed,
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileTabBar extends StatelessWidget {
-  const ProfileTabBar({Key? key, this.tabController,this.onTap}) : super(key: key);
-
-  final TabController? tabController;
-  static const List<String> tabs = [
-    "Posts" , "Replies", "Media", " Likes",
-  ];
-  final void Function(int)? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return TabBar(
-        controller: tabController,
-        tabs: tabs.map((e) => Text(e)).toList(),
-      onTap: onTap,
-      tabAlignment: TabAlignment.fill,
-    );
-  }
-}
-
-class FollowButton extends StatelessWidget {
-  const FollowButton({Key? key,this.backgroundColor,this.onPressed,this.textColor,this.padding}) : super(key: key);
-
-  final void Function()? onPressed;
-  final Color? textColor;
-  final Color? backgroundColor;
-  final EdgeInsetsGeometry? padding;
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: backgroundColor,
-        padding: padding,
-      ),
-      child: Text(
-        "Follow",
-        style: TextStyle(
-          color: textColor,
-        ),//TODO: change later
-      ),
-    );
-  }
-}
-
-class ProfileAvatar extends StatelessWidget {
-  const ProfileAvatar({Key? key,required this.avatarImageUrl,
-    required this.avatarPadding,required this.avatarRadius,required this.onTap}) : super(key: key);
-
-  final double avatarRadius;
-  final EdgeInsetsGeometry avatarPadding;
-  final String avatarImageUrl;
-  final void Function()? onTap;
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      splashFactory: NoSplash.splashFactory,
-      onTap: onTap,
-      child: AnimatedContainer(
-        margin: avatarPadding,
-        width: 2 * avatarRadius,
-        height: 2 * avatarRadius,
-        transformAlignment: AlignmentDirectional.bottomCenter,
-        duration: const Duration(milliseconds: 10),
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-                color: ThemeProvider.getInstance(context).isDark()? Colors.black : Colors.white,
-                width: 3)
-        ),
-        child: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          radius: avatarRadius,
-          backgroundImage: avatarImageUrl == ""? null : NetworkImage(avatarImageUrl,),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileBanner extends StatelessWidget {
-  const ProfileBanner({Key? key,required this.bannerImageUrl,required this.onTap}) : super(key: key);
-
-  final String bannerImageUrl;
-  final void Function()? onTap;
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      splashFactory: NoSplash.splashFactory,
-      onTap: onTap,
-      child: Container(
-        height: 160,
-        width: double.infinity,
-        color: Colors.blue,
-        child: bannerImageUrl == ""?
-        Container(color: Colors.blue,) :
-        Image.network(bannerImageUrl,
-          fit: BoxFit.cover,
-          alignment: Alignment.bottomCenter,
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileInteract extends StatelessWidget {
-  const ProfileInteract({Key? key,required this.isCurrUser,required this.onTapDM,
-    required this.onTapEditProfile,required this.onTapFollow}) : super(key: key);
-
-  final bool isCurrUser;
-  final void Function() onTapEditProfile;
-  final void Function() onTapFollow;
-  final void Function() onTapDM;
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: SizedBox()),
-        Visibility(
-          visible: !isCurrUser,
-          child: Container(
-            width: 35,
-            height: 35,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(width: 1,
-                    color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black)
-            ),
-            child: IconButton(
-              icon: Icon(Icons.mail_outline,
-                size: 17.5,
-                color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black,
-              ),
-              onPressed: onTapDM,
-            ),
-          ),
-        ),
-        const SizedBox(width: 10,),
-        isCurrUser? OutlinedButton(
-          onPressed: onTapEditProfile,
-          style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              )
-          ),
-          child: const Text("Edit profile",style: TextStyle(fontWeight: FontWeight.bold),),
-        ) :
-        FollowButton(
-          onPressed: onTapFollow,
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-        )
-      ],
     );
   }
 }

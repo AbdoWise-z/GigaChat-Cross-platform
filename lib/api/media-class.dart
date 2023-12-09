@@ -2,6 +2,7 @@
 enum MediaType{
   IMAGE,
   VIDEO,
+  NONE
 }
 
 class MediaObject {
