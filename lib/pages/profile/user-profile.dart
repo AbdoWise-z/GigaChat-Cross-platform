@@ -2,9 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
@@ -13,9 +13,9 @@ import 'package:gigachat/pages/profile/widgets/banner.dart';
 import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
@@ -63,6 +63,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false,false,false];
+  late FeedController feedController;
 
   double max = 317;
 
@@ -143,6 +144,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
+    feedController = FeedController(providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS);
     tabController = TabController(length: 4, vsync: this);
     getData();
     super.initState();
@@ -154,7 +156,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     return loading? const BlockingLoadingPage():
     Scaffold(
       extendBodyBehindAppBar: true,
@@ -184,7 +186,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           },
         ),
         leadingWidth: 60,
-        actions: (showName && !widget.isCurrUser && isWantedUserFollowed != null && !isWantedUserFollowed!) ?
+        actions: (showName && (!widget.isCurrUser && !isCurrUser! ) && isWantedUserFollowed != null && !isWantedUserFollowed!) ?
         <Widget>[
           Padding(
               padding: const EdgeInsets.all(8.0),
@@ -446,10 +448,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
-                                              FeedWidget(
-                                                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                                                userToken: Auth.getInstance(context).getCurrentUser()!.auth,
-                                                userID: username,
+                                              BetterFeed(
+                                                  isScrollable: false,
+                                                  providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                                                  providerResultType: ProviderResultType.TWEET_RESULT,
+                                                  feedController: feedController,
+                                                username: username,
                                               ),
                                               Container(color: Colors.red,child: Center(child: Text("2"),),),
                                               Container(color: Colors.red,child: Center(child: Text("3"),),),

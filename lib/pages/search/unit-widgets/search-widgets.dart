@@ -46,7 +46,7 @@ class UserResult extends StatelessWidget {
         print("Profile page prints ${user.name}");
         Navigator.push(context,
           MaterialPageRoute(
-              builder: (context) => UserProfile(username: user.name, isCurrUser: false)
+              builder: (context) => UserProfile(username: user.id, isCurrUser: false)
           ),
         );
       },
