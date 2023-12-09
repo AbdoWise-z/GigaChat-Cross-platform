@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
-import 'package:gigachat/pages/notification/subPages/notificationSetting..dart';
+import 'package:gigachat/pages/home/pages/notification/subPages/notificationSetting.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class Notifications with HomePageTab {
   @override
@@ -34,7 +35,7 @@ class Notifications with HomePageTab {
   }
 
   @override
-  List<Widget>? getTabsWidgets(BuildContext context) {
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     return const <Widget>[
       All(),
       Verified(),

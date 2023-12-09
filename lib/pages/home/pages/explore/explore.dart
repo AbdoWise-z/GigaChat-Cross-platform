@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
-import 'package:gigachat/pages/explore/subPages/explore-setting-page.dart';
+import 'package:gigachat/pages/home/pages/explore/subPages/explore-setting-page.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/pages/search/search.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class Explore with HomePageTab {
   @override
@@ -19,7 +21,23 @@ class Explore with HomePageTab {
 
   @override
   AppBarSearch? getSearchBar(BuildContext context) {
-    return AppBarSearch(hint: "Search", onClick: () => {
+    return AppBarSearch(hint: "Search", onClick: () {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return const SearchPage();
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var tween = Tween(begin: 0.0, end: 1.0);
+            var fadeAnimation = tween.animate(animation);
+            return FadeTransition(
+              opacity: fadeAnimation,
+              child: child,
+            );
+          },
+        ),
+      );
     });
   }
 
@@ -34,7 +52,7 @@ class Explore with HomePageTab {
   }
 
   @override
-  List<Widget>? getTabsWidgets(BuildContext context) {
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     return const <Widget>[
       NothingYet(),
       Trending(),

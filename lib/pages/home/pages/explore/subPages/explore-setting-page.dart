@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/explore/subPages/choose-location.dart';
+
+import 'choose-location.dart';
 
 class SettingPage extends StatefulWidget {
   @override
