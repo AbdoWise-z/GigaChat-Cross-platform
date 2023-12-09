@@ -3,6 +3,7 @@ import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-info-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/message-input-area.dart';
@@ -50,17 +51,17 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleSendMessage(ChatMessageObject m){
-    if (m.media != null){
-      m = ChatMessageObject(
-          id: m.id,
-          text: m.text,
-          media: MediaObject(link: "/sdcard/${m.media!.link}", type: m.media!.type),
-          self: m.self,
-          time: m.time,
-          state: m.state,
-          replyTo: m.replyTo
-      );
-    }
+    // just for testing
+    // m = ChatMessageObject(
+    //     id: m.id,
+    //     text: m.text,
+    //     media: m.media,
+    //     self: false,
+    //     time: m.time,
+    //     state: m.state,
+    //     replyTo: m.replyTo
+    // );
+
     _handleNewMessage(m);
   }
 
@@ -87,43 +88,144 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle
+
+            IconButton(
+              onPressed: () {
+                //TODO: navigate to the profile page
+              },
+              icon: Container(
+                width: 40,
+                height: 40,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      _with.iconLink,
+                    ),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  border: Border.all(
+                    width: 0,
+                  ),
+                ),
               ),
-              child: Image.network(_with.iconLink,fit: BoxFit.cover,),
             ),
 
             const SizedBox(width: 10,),
 
-            Text(
-              _with.name,
-              overflow: TextOverflow.ellipsis,
-              softWrap: true,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+            TextButton(
+              onPressed: () {
+                //TODO: open a bottom sheet to follow the user
+                showModalBottomSheet(context: context, builder: (_) {
+                  return SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            width: 40,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(height: 10,),
+
+                          Text(
+                            _with.name,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).textTheme.bodyLarge!.color,
+                            ),
+                          ),
+
+                          SizedBox(height: 10,),
+
+                          ListTile(
+                            leading: Container(
+                              width: 40,
+                              height: 40,
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    _with.iconLink,
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                                borderRadius: const BorderRadius.all(Radius.circular(50)),
+                                border: Border.all(
+                                  width: 0,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              _with.name,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).textTheme.bodyLarge!.color,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "@${_with.id}",
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+
+                            //TODO: REPLACE WITH FOLLOW BUTTON
+                            trailing: !_with.isFollowed! ?
+                            ElevatedButton(onPressed: () {}, child: Text("Follow")) :
+                            OutlinedButton(onPressed: () {}, child: Text("Following")),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                });
+              },
+              child: Text(
+                _with.name,
+                overflow: TextOverflow.ellipsis,
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                ),
               ),
-            ),
+            )
           ],
         ),
         actions: [
           IconButton(onPressed: () {
             //TODO Implement info
-          }, icon: Icon(Icons.info_outline)),
+            Navigator.push(context, MaterialPageRoute(builder: (_) => ChatInfoPage(_with)));
+          }, icon: const Icon(Icons.info_outline)),
         ],
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Column(
-                children: [
-                  Expanded(
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                Expanded(
+                  child: StretchingOverscrollIndicator(
+                    axisDirection: AxisDirection.down,
                     child: SingleChildScrollView(
                       controller: _controller,
                       child: Column(
@@ -200,54 +302,54 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            AnimatedOpacity(
-              opacity: _visiable ? 1 : 0,
-              duration: const Duration(milliseconds: 300),
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: Transform.translate(
-                  offset: Offset(-20, -_editorHeight),
-                  child: Material(
-                    clipBehavior: Clip.antiAlias,
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_downward_outlined),
-                      onPressed: () {
-                        _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
-                      },
-                    ),
+          ),
+          AnimatedOpacity(
+            opacity: _visiable ? 1 : 0,
+            duration: const Duration(milliseconds: 300),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: Transform.translate(
+                offset: Offset(-20, -_editorHeight),
+                child: Material(
+                  clipBehavior: Clip.antiAlias,
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_downward_outlined),
+                    onPressed: () {
+                      _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
+                    },
                   ),
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                key: editor,
-                padding: const EdgeInsets.all(8.0),
-                child: MessageInputArea(
-                  onMessage: (m) {
-                    _handleSendMessage(m);
-                  },
-                  onSizeChange: () {
-                    setState(() {
-                      _editorHeight = editor.currentContext!.size!.height;
-                    });
-                  },
-                  onOpen: () {
-                    Future.delayed(const Duration(milliseconds: 400) , () {
-                      _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
-                    });
-                  },
-                ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              key: editor,
+              padding: const EdgeInsets.all(8.0),
+              child: MessageInputArea(
+                onMessage: (m) {
+                  _handleSendMessage(m);
+                },
+                onSizeChange: () {
+                  setState(() {
+                    _editorHeight = editor.currentContext!.size!.height;
+                  });
+                },
+                onOpen: () {
+                  Future.delayed(const Duration(milliseconds: 400) , () {
+                    _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
+                  });
+                },
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
