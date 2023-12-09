@@ -1,85 +1,86 @@
+
 import 'package:flutter/material.dart';
+import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
-import 'menu-fab.dart';
-
-class DummyPage with HomePageTab{
+class FeedHomeTab with HomePageTab {
 
   @override
   List<AppBarAction> getActions(BuildContext context) {
-    return [
-      AppBarAction(icon: Icons.settings, onClick: () => {})
-    ];
+    return [];
+  }
+
+  @override
+  int getInitialTab(BuildContext context) {
+    return 0;
+  }
+
+  @override
+  int getNotificationsCount(BuildContext context) {
+    return 0;
   }
 
   @override
   AppBarSearch? getSearchBar(BuildContext context) {
-    return AppBarSearch(hint: "This is a search bar", onClick: () => {
-    });
-  }
-
-  @override
-  AppBarTabs? getTabs(BuildContext context) {
-    //return null;
-    return AppBarTabs(tabs: ["tab-0" , "tab-1" , "tab-2"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
-  }
-
-
-  @override
-  String? getTitle(BuildContext context) {
     return null;
   }
 
   @override
-  List<Widget>? getTabsWidgets(BuildContext context) {
-    return const <Widget>[
-      Placeholder(),
-      Center(child: Text("مفيش حاجة فعلية لسه")),
-      Center(child: Text("Ayyy this is tab-2")),
+  AppBarTabs? getTabs(BuildContext context) {
+    return AppBarTabs(tabs: ["For you" , "Following"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
+  }
+
+  @override
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
+    if (Auth.getInstance(context).isLoggedIn){
+      return [
+        BetterFeed(
+            isScrollable: true,
+            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+            providerResultType: ProviderResultType.TWEET_RESULT,
+            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
+        ),
+        BetterFeed(
+            isScrollable: true,
+            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+            providerResultType: ProviderResultType.TWEET_RESULT,
+            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
+        ),
+
+      ];
+    }
+    return const [
+      Padding(
+        padding: EdgeInsets.all(32.0),
+        child: Text("Login to view :)"),
+      ),
+      Padding(
+        padding: EdgeInsets.all(32.0),
+        child: Text("Login to view :)"),
+      ),
     ];
   }
 
   @override
   Widget? getPage(BuildContext context) {
-    //if I didn't use tabs .. this will be called instead of getTabsWidgets()
-    return Placeholder();
-  }
-
-  @override
-  bool isAppBarPinned(BuildContext context) {
-    return true;
-  }
-
-  static const _actionTitles = ['Create Post', 'Upload Photo', 'Upload Video'];
-
-  void _showAction(BuildContext context, int index) {
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Text(_actionTitles[index]),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('CLOSE'),
-            ),
-          ],
-        );
-      },
-    );
+    return null; //will never be called since taps is not null
   }
 
   @override
   Widget? getFloatingActionButton(BuildContext context) {
     return FloatingActionMenu(
-      icon: const Icon(Icons.add),
-      tappedIcon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.add,color: Colors.white,),
+      tappedIcon: const Icon(Icons.post_add_rounded,color: Colors.white,),
       title: const Padding(
         padding: EdgeInsets.only(right: 25),
         child: Text(
-          "Main Title" ,
+          "Post" ,
           style: TextStyle(
             fontSize: 22,
             color: Colors.white,
@@ -87,7 +88,7 @@ class DummyPage with HomePageTab{
         ),
       ),
       onTab: () {
-        print("you clicked me ?");
+        Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
       } ,
       items: [
         FloatingActionMenuItem(
@@ -96,7 +97,7 @@ class DummyPage with HomePageTab{
             child: IconButton(
               splashRadius: 25,
               color: Colors.blue,
-              icon: const Icon(Icons.accessible_forward_outlined),
+              icon: const Icon(Icons.photo_camera_back_outlined),
               onPressed: () {
                 print("that worked !");
               },
@@ -105,7 +106,7 @@ class DummyPage with HomePageTab{
           title: const Padding(
             padding: EdgeInsets.only(right: 25),
             child: Text(
-              "life" ,
+              "Photos" ,
               style: TextStyle(
                 fontSize: 22,
                 color: Colors.white,
@@ -119,7 +120,7 @@ class DummyPage with HomePageTab{
             child: IconButton(
               splashRadius: 25,
               color: Colors.blue,
-              icon: const Icon(Icons.account_tree_sharp),
+              icon: const Icon(Icons.mic_rounded),
               onPressed: () {
                 print("that worked !");
               },
@@ -128,7 +129,7 @@ class DummyPage with HomePageTab{
           title: const Padding(
             padding: EdgeInsets.only(right: 25),
             child: Text(
-              "my" ,
+              "Spaces" ,
               style: TextStyle(
                 fontSize: 22,
                 color: Colors.white,
@@ -143,7 +144,7 @@ class DummyPage with HomePageTab{
             child: IconButton(
               splashRadius: 25,
               color: Colors.blue,
-              icon: const Icon(Icons.access_alarm_outlined),
+              icon: const Icon(Icons.camera_outlined),
               onPressed: () {
                 print("that worked !");
               },
@@ -152,7 +153,7 @@ class DummyPage with HomePageTab{
           title: const Padding(
             padding: EdgeInsets.only(right: 25),
             child: Text(
-              "fk" ,
+              "GoLive" ,
               style: TextStyle(
                 fontSize: 22,
                 color: Colors.white,
@@ -164,4 +165,3 @@ class DummyPage with HomePageTab{
     );
   }
 }
-

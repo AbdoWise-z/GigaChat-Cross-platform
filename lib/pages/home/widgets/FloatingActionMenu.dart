@@ -45,6 +45,7 @@ class _FloatingActionMenuState extends State<FloatingActionMenu> with SingleTick
       child: Transform.scale(
         scale: _open ? _controller.value < 0.5 ? _controller.value * 0.2 * 2 + 1.0 : (1.0 - _controller.value) * 0.2 * 2 + 1.0 : 1.0,
         child: FloatingActionButton(
+          backgroundColor: Colors.blue,
           heroTag: "I wasted 2 hours on this ...",
           onPressed: () async {
             if (widget.items.isEmpty && false){
@@ -143,6 +144,7 @@ class _FabMenuScreenState extends State<_FabMenuScreen> with SingleTickerProvide
 
           children: [
             FloatingActionButton(
+              backgroundColor: Colors.blue,
               onPressed: () {
                 Navigator.pop(context);
                 widget.onTab();

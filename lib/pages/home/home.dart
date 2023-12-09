@@ -1,36 +1,66 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
-import 'package:gigachat/pages/home/widgets/app-bar.dart';
-import 'package:gigachat/pages/home/widgets/home-page-tab-example.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
+import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
+import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/theme-provider.dart';
-import 'package:provider/provider.dart';
-import 'package:gigachat/pages/notification/notifications.dart';
-import 'package:gigachat/pages/explore/explore.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+
 class Home extends StatefulWidget {
-  static const String pageRoute = "/";
+  static const String pageRoute = "/home";
   const Home({super.key});
 
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Home> createState() => HomeState();
+
+
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin {
+class HomeState extends State<Home> with TickerProviderStateMixin {
   TabController? _controller;
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
+  late FeedController followingFeedController;
+
   //TODO: @Osama @Adel , replace with your pages
-  final List<HomePageTab> _pages = [
-    DummyPage(),
-    Explore(),
-    DummyPage(),
-    Notifications(),
-    DummyPage(),
+  late final List<HomePageTab> _pages = [
+    FeedHomeTab(),
+    SearchHomeTab(),
+    ChatHomeTab(),
+    ChatHomeTab(),
+    ChatHomeTab(),
   ];
+
+
+  Future<void> test() async{
+    //TODO: was just testing the upload function
+    Permission.manageExternalStorage.request();
+    var f = File("/sdcard/Download/0ac84d5117148db057942650cf7c23c1.jpg");
+    print (await f.length());
+    await f.readAsBytes();
+
+    var k = await Account.apiSetProfileImage(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NTExZjExYTYzYzQ4NmMyNjVjYzFmNiIsImlhdCI6MTY5OTgxNzU2MiwiZXhwIjoxNzA3NTkzNTYyfQ.e_M-aIScz4zagCyuV3guFcUED4zYuYm7RSrp1vnei1A",
+      f,
+    );
+    print("code: ${k.code}");
+    print(k.responseBody);
+  }
+
+  void update(void Function() callback){
+    setState(callback);
+  }
 
   void setPage(int p){
     _controller = null;
@@ -51,6 +81,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    // MOA Was Here
+    followingFeedController = FeedController(providerFunction: ProviderFunction.HOME_PAGE_TWEETS);
+    //test();
     super.initState();
     setPage(0);
     _scrollController.addListener(() {
@@ -71,86 +104,91 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Auth>(
-      builder: (BuildContext context, value, Widget? child) {
-        bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
-        return SafeArea(
-          child: Scaffold(
-            drawerDragStartBehavior: DragStartBehavior.start,
-            drawer: const NavDrawer(),
-            body: NestedScrollView(
-              controller: _scrollController,
-              headerSliverBuilder: (ctx , innerBoxIsScrolled) => <Widget>[
-                buildAppBar(
-                  ctx,
-                  _pages[_currentPage].isAppBarPinned(context),
-                  isLoggedIn ? value.getCurrentUser()!.iconLink : null,
-                  _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search */
-                  _pages[_currentPage].getSearchBar(context),
-                  _pages[_currentPage].getActions(context),
-                  _controller,
-                  _pages[_currentPage].getTabs(context),
-
-                ),
-              ],
-              body: _controller != null ? TabBarView(
-                controller: _controller,
-                children: _pages[_currentPage].getTabsWidgets(context)!,
-              ) : _pages[_currentPage].getPage(context)!,
+    bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
+    Auth value = Auth.getInstance(context);
+    if (value.getCurrentUser() != null) {
+      followingFeedController.setUserToken(value.getCurrentUser()!.auth);
+    }
+    //print("update");
+    return SafeArea(
+      child: Scaffold(
+        drawerDragStartBehavior: DragStartBehavior.start,
+        drawer: const NavDrawer(),
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (_ , __) => [
+            HomeAppBar(
+              pinned: _pages[_currentPage].isAppBarPinned(context),
+              userImage: isLoggedIn ? value.getCurrentUser()!.iconLink : null,
+              title: _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
+              searchBar: _pages[_currentPage].getSearchBar(context),
+              actions: _pages[_currentPage].getActions(context),
+              controller: _controller,
+              tabs: _pages[_currentPage].getTabs(context),
             ),
-            floatingActionButton: _hidBottomControls ? null : _pages[_currentPage].getFloatingActionButton(context),
-            bottomNavigationBar: AnimatedContainer(
-              height: _hidBottomControls ? 0 : 50,
-              duration: const Duration(milliseconds: 100),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
-                child: Row(
-                  children: [
 
-                    BottomBarItem(
-                      icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
-                      click: () => setPage(0),
-                      notify: _pages[0].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
-                      click: () => setPage(1),
-                      notify: _pages[1].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
-                      click: () => setPage(2),
-                      notify: _pages[2].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
-                      click: () => setPage(3),
-                      notify: _pages[3].getNotificationsCount(context),
-                    ),
-
-                    const Expanded(child: SizedBox()),
-
-                    BottomBarItem(
-                      icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
-                      click: () => setPage(4),
-                      notify: _pages[4].getNotificationsCount(context),
-                    ),
-                  ],
+          ], body: _controller != null ? Column(
+            children: [
+              Expanded(
+                child: TabBarView(
+                  controller: _controller,
+                  children: _pages[_currentPage].getTabsWidgets(context,feedController: followingFeedController)!,
                 ),
               ),
+            ],
+          ) : _pages[_currentPage].getPage(context)!,
+        ),
+        floatingActionButton: _hidBottomControls && !_pages[_currentPage].isBottomNavPinned(context) ? null : _pages[_currentPage].getFloatingActionButton(context),
+        bottomNavigationBar: AnimatedContainer(
+          height: _hidBottomControls && !_pages[_currentPage].isBottomNavPinned(context) ? 0 : 50,
+          duration: const Duration(milliseconds: 100),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
+            child: Row(
+              children: [
+
+                BottomBarItem(
+                  icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
+                  click: () => setPage(0),
+                  notify: _pages[0].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
+                  click: () => setPage(1),
+                  notify: _pages[1].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
+                  click: () => setPage(2),
+                  notify: _pages[2].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
+                  click: () => setPage(3),
+                  notify: _pages[3].getNotificationsCount(context),
+                ),
+
+                const Expanded(child: SizedBox()),
+
+                BottomBarItem(
+                  icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
+                  click: () => setPage(4),
+                  notify: _pages[4].getNotificationsCount(context),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

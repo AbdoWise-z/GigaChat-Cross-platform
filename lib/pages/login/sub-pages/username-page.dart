@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/widgets/login-app-bar.dart';
-import 'package:gigachat/widgets/page-footer.dart';
-import 'package:gigachat/widgets/page-title.dart';
-import 'package:gigachat/widgets/username-input-field.dart';
+import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/widgets/auth/auth-app-bar.dart';
+import 'package:gigachat/widgets/auth/auth-footer.dart';
+import 'package:gigachat/widgets/text-widgets/page-title.dart';
+import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 
 class UsernameLoginPage extends StatefulWidget {
+  static const String pageRoute = "/login/username";
+  static const String inputFieldKey = "username-page-input-field";
+  static const String nextButtonKey = "username-page-next-button";
+
   const UsernameLoginPage({super.key});
 
   @override
@@ -23,7 +27,6 @@ class _UsernamePageState extends State<UsernameLoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     username = "";
     isValid = false;
@@ -32,7 +35,15 @@ class _UsernamePageState extends State<UsernameLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: LoginAppBar(context),
+      appBar: AuthAppBar(
+        context,
+        leadingIcon: IconButton(
+          onPressed: () {
+            Navigator.popUntil(context, ModalRoute.withName('/'));
+          },
+          icon: const Icon(Icons.close),
+        ),
+      ),
       body: Column(
         children: [
           // Page Title
@@ -45,36 +56,38 @@ class _UsernamePageState extends State<UsernameLoginPage> {
                 const SizedBox(height: 20),
                 // Username Input Field
                 TextDataFormField(
-                    validator: InputValidations.verifyUsername,
+                    key: const Key(UsernameLoginPage.inputFieldKey),
                     onChange: (editedUsername) {
                       setState(() {
                         username = editedUsername;
-                        isValid = InputValidations.verifyUsername(username) == null;
+                        isValid = username.isNotEmpty;
                       });
-                    }
-                ),
+                    }),
               ],
             ),
           ),
           // Empty Space
           const Expanded(child: SizedBox()),
           // Page Footer
-          LoginFooter(
-            disableNext: !isValid,
-            proceedButtonName: "Next",
-            onPressed: () async {
-            if (InputValidations.verifyUsername(username) == null)
-            {
-              Navigator.pushReplacement(
+          AuthFooter(
+            rightButtonKey: const Key(UsernameLoginPage.nextButtonKey),
+
+            rightButtonLabel: "Next",
+            disableRightButton: !isValid,
+            onRightButtonPressed: (){
+              Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder:
-                          (context)=>
-                          PasswordLoginPage(username: username)
-                  )
-              );
-            }
-          },)
+                  MaterialPageRoute(builder: (context) => PasswordLoginPage(username: username)));
+            },
+
+            leftButtonLabel: "Forget password?",
+            onLeftButtonPressed: (){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ForgetPassword(username: "")));
+            },
+            showLeftButton: true,
+          )
         ],
       ),
     );

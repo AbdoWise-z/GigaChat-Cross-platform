@@ -21,7 +21,7 @@ class ThemeProvider extends ChangeNotifier {
     return _themeName;
   }
 
-  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "light" {
+  ThemeProvider() : _theme = ThemeData.dark() , _themeName = "dark" {
     init();
   }
 
@@ -98,6 +98,7 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
       );
     }else if (_themeName == "light"){
       _theme = ThemeData.light().copyWith(
@@ -161,6 +162,8 @@ class ThemeProvider extends ChangeNotifier {
           indicatorSize: TabBarIndicatorSize.label,
           indicator: TabIndicator(),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(),}),
+
       );
     }
   }
