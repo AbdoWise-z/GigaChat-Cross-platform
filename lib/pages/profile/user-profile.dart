@@ -2,15 +2,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
 
@@ -39,6 +39,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late DateTime joinedDate;
   late int following;
   late int followers;
+  late FeedController feedController;
 
 
   //page details
@@ -102,6 +103,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   void initState()  {
     tabController = TabController(length: 4, vsync: this);
     getData();
+    feedController = FeedController(providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS);
     super.initState();
   }
 
@@ -110,7 +112,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     return loading? const BlockingLoadingPage(): Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -396,10 +398,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
-                                              FeedWidget(
-                                                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                                                userToken: Auth.getInstance(context).getCurrentUser()!.auth,
-                                                userID: username,
+                                              BetterFeed(
+                                                  isScrollable: false,
+                                                  providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                                                  providerResultType: ProviderResultType.TWEET_RESULT,
+                                                  feedController: feedController,
+                                                  username: username,
                                               ),
                                               Container(color: Colors.red,child: Center(child: Text("2"),),),
                                               Container(color: Colors.red,child: Center(child: Text("3"),),),

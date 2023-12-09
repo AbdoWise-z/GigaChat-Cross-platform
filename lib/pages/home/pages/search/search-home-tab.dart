@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/pages/Search/search.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class SearchHomeTab with HomePageTab
 {
@@ -58,7 +59,7 @@ class SearchHomeTab with HomePageTab
   }
 
   @override
-  List<Widget>? getTabsWidgets(BuildContext context){
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}){
     return null;
   }
 

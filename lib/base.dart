@@ -16,3 +16,16 @@ const double MAX_POST_LENGTH = 200;
 
 // constants for the tweet widget
 const int MAX_LINES_TO_SHOW = 8;
+
+enum ProviderFunction{
+  HOME_PAGE_TWEETS,
+  PROFILE_PAGE_TWEETS,
+  GET_TWEET_COMMENTS,
+  SEARCH_RESULT,
+  NONE
+}
+
+enum ProviderResultType{
+  USER_RESULT,
+  TWEET_RESULT
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 //every home page tab should implement this :)
 
@@ -20,7 +21,7 @@ mixin HomePageTab {
   }
   int getInitialTab(BuildContext context){return 0;}
   List<AppBarAction> getActions(BuildContext context){ return []; }
-  List<Widget>? getTabsWidgets(BuildContext context){
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}){
     return null;
   }
   Widget? getPage(BuildContext context){

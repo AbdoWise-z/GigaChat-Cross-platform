@@ -19,15 +19,10 @@ import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
-import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
-
-import 'pages/user-verification/verification-code-page.dart';
 
 
 void main() async {

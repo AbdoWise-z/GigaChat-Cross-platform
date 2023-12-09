@@ -49,7 +49,6 @@ List<TextSpan> textToRichText(String inputText,bool isDarkMode){
 
 
 class Tweet extends StatelessWidget {
-  static String pageRoute = "/test";
   final User tweetOwner;
   final TweetData tweetData;
   late List<Widget> actionButtons;
@@ -110,7 +109,7 @@ class Tweet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initActionButtons(context, tweetData, isSinglePostView);
-    print(Auth.getInstance(context).getCurrentUser()!.email);
+
     return Consumer<ThemeProvider>(
       builder: (_,__,___) {
         bool isDarkMode = ThemeProvider.getInstance(context).isDark();

@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
-
 import '../base.dart';
 import 'api.dart';
 import "package:gigachat/api/user-class.dart";
@@ -50,10 +48,7 @@ class Tweets {
     return k;
   }
 
-  //final String GET_FOLLOWING_TWEETS_API = "$API_LINK/api/homepage/following";
-  //List<Tweet>? serverResponse;
 
-  static List<TweetData> cachedTweets = loadCache();
   static List<TweetData> loadCache() {
     // TODO: load cache here later
     return [
@@ -65,192 +60,199 @@ class Tweets {
     ];
   }
 
-  static List<TweetData> decodeTweetList(String token, ApiResponse response, ProviderFunction providerFunction){
-    final tweets = json.decode(response.responseBody!);
-    //print(response.responseBody!);
-
-    if (providerFunction == ProviderFunction.HOME_PAGE_TWEETS) {
-      List<dynamic> responseTweets = tweets["tweetList"];
-      return responseTweets.map((tweet) {
-        List<dynamic>? tweetMedia = tweet["tweetDetails"]["media"];
-        print(tweet);
-        return TweetData(
-          id: tweet["tweetDetails"]["_id"],
-          referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
-          description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
-          viewsNum: 0,
-          likesNum: tweet["tweetDetails"]["likesNum"],
-          repliesNum: tweet["tweetDetails"]["repliesNum"],
-          repostsNum: tweet["tweetDetails"]["repostsNum"],
-          creationTime: DateTime.parse(tweet["tweetDetails"]["createdAt"]),
-          type: tweet["type"],
-
-          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
-          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
-          tweetOwner: User(
-            id: tweet["followingUser"]["username"],
-            name: tweet["followingUser"]["nickname"],
-            auth: token,
-            isFollowed: true,
-            //bio : "sad",
-            iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
-            followers : tweet["followingUser"]["followers_num"],
-            following : tweet["followingUser"]["following_num"],
-            active : true,
-
-          ),
-          isLiked: tweet["isLiked"],
-          //who tf made this ?
-          isRetweeted: tweet["isRtweeted"],
-        );
-      }).toList();
+  static specialAccessObject(dynamic obj, List<String>? fullPath){
+    dynamic currentObject = obj;
+    if (fullPath == null){
+      return null;
     }
-    if (providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS) {
-      List<dynamic> responseTweets = tweets["posts"];
-      return responseTweets.map((tweet) {
-        List<dynamic>? tweetMedia = tweet["media"];
-        print(tweet);
-        return TweetData(
-          id: tweet["id"],
-          description: tweet["description"] ?? "ERR NOT DISC",
-          viewsNum: 0,
-          likesNum: tweet["likesNum"] ?? 0,
-          repliesNum: tweet["repliesNum"] ?? 0,
-          repostsNum: tweet["repostsNum"] ?? 0,
-          creationTime: DateTime.parse(tweet["creation_time"]),
-          type: tweet["type"],
 
-          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
-          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
-          tweetOwner: User(
-            id: tweet["tweet_owner"]["username"],
-            name: tweet["tweet_owner"]["nickname"],
-            auth: null,
-            //bio : "sad",
-            iconLink : tweet["tweet_owner"]["profile_image"] ?? USER_DEFAULT_PROFILE,
-            followers : tweet["tweet_owner"]["followers_num"],
-            following : tweet["tweet_owner"]["following_num"],
-            active : true,
-
-          ),
-          isLiked: tweet["isLiked"],
-          //who tf made this ?
-          isRetweeted: tweet["isRetweeted"],
-          referredTweetId: '',
-        );
-      }).toList();
-    }
-    if (providerFunction == ProviderFunction.GET_TWEET_COMMENTS) {
-      List<dynamic> responseTweets = tweets["data"];
-      return responseTweets.map((tweet) {
-        List<dynamic>? tweetMedia = tweet["media"];
-        return TweetData(
-          id: tweet["id"],
-          description: tweet["description"] ?? "ERR NOT DISC",
-          viewsNum: 0,
-          likesNum: tweet["likesNum"],
-          repliesNum: tweet["repliesNum"],
-          repostsNum: tweet["repostsNum"],
-          creationTime: DateTime.parse(tweet["creation_time"]),
-          type: tweet["type"],
-
-          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
-          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
-          tweetOwner: User(
-            id: tweet["tweet_owner"][0]["username"],
-            name: tweet["tweet_owner"][0]["nickname"],
-            auth: null,
-            //bio : "sad",
-            iconLink : tweet["tweet_owner"][0]["profile_image"] ?? USER_DEFAULT_PROFILE,
-            followers : tweet["tweet_owner"][0]["followers_num"],
-            following : tweet["tweet_owner"][0]["following_num"],
-            active : true,
-
-          ),
-          isLiked: tweet["isLiked"],
-          //who tf made this ?
-          isRetweeted: tweet["isRetweeted"],
-          referredTweetId: '',
-        );
+    for (var path in fullPath) {
+      currentObject = currentObject[path];
+      if (path == "media")
+      {
+          currentObject = currentObject[0];
       }
-      ).toList();
     }
 
-    return [];
+    return currentObject;
+  }
+
+  static List<TweetData> decodeTweetList(
+      String token,
+      ApiResponse response,
+      Map<String,List<String>?> accessor
+      )
+  {
+    if (response.responseBody == null || response.responseBody!.isEmpty){
+      return [];
+    }
+    //print(response.responseBody);
+    final List tweets = specialAccessObject(json.decode(response.responseBody!), accessor["data"]);
+    return tweets.map((tweet){
+      List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
+      bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
+      print(tweet);
+      return TweetData(
+          id: specialAccessObject(tweet, accessor["id"]!),
+          referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
+          description: specialAccessObject(tweet, accessor["description"]!) ?? "",
+          viewsNum: specialAccessObject(tweet, accessor["viewsNum"]) ?? 0,
+          likesNum: specialAccessObject(tweet, accessor["likesNum"]!),
+          repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
+          repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
+          creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
+          type: specialAccessObject(tweet, accessor["type"]!),
+
+          tweetOwner: User(
+            id: specialAccessObject(tweet, accessor["tweetOwnerID"]!),
+            name: specialAccessObject(tweet, accessor["tweetOwnerName"]!),
+            auth: token,
+            isFollowed: specialAccessObject(tweet, accessor["tweetOwnerIsFollowed"]) ?? true,
+            bio : specialAccessObject(tweet, accessor["tweetOwnerBio"]) ?? "",
+            iconLink : specialAccessObject(tweet, accessor["tweetOwnerIcon"]!) ?? USER_DEFAULT_PROFILE,
+            followers : specialAccessObject(tweet, accessor["tweetOwnerFollowers"]),
+            following : specialAccessObject(tweet, accessor["tweetOwnerFollowing"]!),
+            active : true,
+
+          ),
+          isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
+          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
+          mediaType: hasMedia ?
+          (specialAccessObject(tweet, accessor["mediaType"]!) == "jpg" ? MediaType.IMAGE : MediaType.VIDEO) : MediaType.NONE,
+          media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
+      );
+    }).toList();
   }
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
 
-  static Future<List<TweetData>> getFollowingTweet (String token,String count, String page) async
+  static Future<Map<String,TweetData>> getFollowingTweet (String token,String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+          "data" : ["tweetList"],
+          "base" : ["tweetDetails"],
+          "id": ["tweetDetails","_id"],
+          "referredTweetId": ["tweetDetails","referredTweetId"],
+          "description": ["tweetDetails","description"],
+          "viewsNum": null,
+          "likesNum": ["tweetDetails", "likesNum"],
+          "repliesNum": ["tweetDetails", "repliesNum"],
+          "repostsNum": ["tweetDetails", "repostsNum"],
+          "creationTime": ["tweetDetails","createdAt"],
+          "type": ["type"],
+
+          "tweetOwnerID": ["followingUser", "username"],
+          "tweetOwnerName": ["followingUser", "nickname"],
+          "tweetOwnerIsFollowed": null,
+          "tweetOwnerBio": null,
+          "tweetOwnerIcon": ["followingUser", "profile_image"],
+          "tweetOwnerFollowers": ["followingUser", "followers_num"],
+          "tweetOwnerFollowing": ["followingUser", "following_num"],
+
+          "isLiked": ["isLiked"],
+          "isRetweeted": ["isRtweeted"],
+          "mediaType": ["tweetDetails","media","type"],
+          "media": ["tweetDetails","media","data"]
+        }, ApiPath.followingTweets);
+  }
+
+  static Future<Map<String,TweetData>> getProfilePageTweets (String token,String userID, String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["posts"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": null,
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRetweeted"],
+      "mediaType": ["media","type"],
+      "media": ["media","data"]
+    }, ApiPath.userProfileTweets.format([userID]));
+  }
+
+  static Future<Map<String, TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["data"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "userId"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": null,
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRetweeted"],
+      "mediaType": ["media","type"],
+      "media": ["media","data"]
+    }, ApiPath.comments.format([tweetID]));
+  }
+
+  static Future<Map<String,TweetData>> fetchTweetsWithApiInterface
+      (
+        String token,
+        String count,
+        String page,
+        Map<String,List<String>?> accessor,
+        ApiPath endPointPath
+      ) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(
-        ApiPath.followingTweets,
+        endPointPath,
         headers: headers,
         params: {"page":page,"count":count}
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
-
       if (response.responseBody!.isEmpty){
-        return [getDefaultTweet("System", MediaType.IMAGE)]; //TODO: backend fix this pls ?
+        return {"1":getDefaultTweet("System", MediaType.IMAGE)}; //TODO: backend fix this pls ?
       }
-      List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.HOME_PAGE_TWEETS);
-      cachedTweets = responseTweets.cast();
+      List<TweetData> responseTweets = decodeTweetList(
+        token,
+        response,
+        accessor
+      );
+      Map<String,TweetData> mappedIdTweets = {};
+      for(TweetData tweet in responseTweets){
+        mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
+      }
+      return mappedIdTweets;
     }
     else{
       //TODO: load cached tweets
-      // i will assume this is the cached tweets for now
-      loadCache();
+      return {"1":getDefaultTweet("System", MediaType.IMAGE)};
     }
-    return cachedTweets.where((element) => element.type == "tweet").toList();
   }
 
-  static Future<List<TweetData>> getProfilePageTweets (String token,String userID, String count, String page) async
-  {
-    var headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiGet(
-        ApiPath.userProfileTweets.format([userID]),
-        headers: headers,
-        params: {"page":page,"count":count}
-    );
-    //print(response.responseBody);
-    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody!.isNotEmpty){
-      List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.PROFILE_PAGE_TWEETS);
-      cachedTweets = responseTweets.cast();
-    }
-    else
-    {
-      //TODO: load cached tweets
-      // i will assume this is the cached tweets for now
-      loadCache();
-    }
-    return cachedTweets.where((element) => element.type == "tweet").toList();
-  }
-
-  static Future<List<TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
-  {
-    var headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiGet(
-        ApiPath.comments.format([tweetID]),
-        headers: headers,
-        params: {"page":page,"count":count}
-    );
-    if (response.code == ApiResponse.CODE_SUCCESS){
-      if (response.responseBody!.isEmpty){
-        return [];
-      }
-      List<dynamic> responseTweets = decodeTweetList(token,response,ProviderFunction.GET_TWEET_COMMENTS);
-      cachedTweets = responseTweets.cast();
-    }
-    else
-    {
-      //TODO: load cached tweets
-      // i will assume this is the cached tweets for now
-      loadCache();
-    }
-    return cachedTweets;
-  }
 
   static Future<List<User>> getTweetLikers(String token, String tweetId,String page) async
   {

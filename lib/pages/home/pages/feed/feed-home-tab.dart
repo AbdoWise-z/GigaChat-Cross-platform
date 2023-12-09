@@ -1,16 +1,13 @@
 
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/api.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
-import "package:gigachat/api/user-class.dart";
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class FeedHomeTab with HomePageTab {
 
@@ -40,18 +37,22 @@ class FeedHomeTab with HomePageTab {
   }
 
   @override
-  List<Widget>? getTabsWidgets(BuildContext context) {
+  List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     if (Auth.getInstance(context).isLoggedIn){
       return [
-        ScrollableFeedWidget(
-          providerType: ProviderFunction.HOME_PAGE_TWEETS,
-          userID: Auth.getInstance(context).getCurrentUser()!.auth,
+        BetterFeed(
+            isScrollable: true,
+            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+            providerResultType: ProviderResultType.TWEET_RESULT,
+            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
+        ),
+        BetterFeed(
+            isScrollable: true,
+            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+            providerResultType: ProviderResultType.TWEET_RESULT,
+            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
         ),
 
-        ScrollableFeedWidget(
-          providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-          userID: Auth.getInstance(context).getCurrentUser()?.auth,
-        ),
       ];
     }
     return const [

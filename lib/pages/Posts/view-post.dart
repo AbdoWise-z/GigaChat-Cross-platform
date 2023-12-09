@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
+import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 
 class ViewPostPage extends StatelessWidget {
@@ -25,7 +26,8 @@ class ViewPostPage extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     tweetOwner = args["tweetOwner"];
     tweetData = args["tweetData"];
-
+    FeedController feedController = FeedController(providerFunction: ProviderFunction.GET_TWEET_COMMENTS);
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     return Scaffold(
       appBar: AuthAppBar(context, leadingIcon: null,showDefault: true),
       body: SingleChildScrollView(
@@ -38,9 +40,11 @@ class ViewPostPage extends StatelessWidget {
                 isSinglePostView: true
             ),
 
-            FeedWidget(
-                providerType: ProviderFunction.GET_TWEET_COMMENTS,
-                userToken: Auth.getInstance(context).getCurrentUser()?.auth!,
+            BetterFeed(
+                isScrollable: false,
+                providerFunction: ProviderFunction.GET_TWEET_COMMENTS,
+                providerResultType: ProviderResultType.TWEET_RESULT,
+                feedController: feedController,
                 tweetID: tweetData.id,
             )
           ],
