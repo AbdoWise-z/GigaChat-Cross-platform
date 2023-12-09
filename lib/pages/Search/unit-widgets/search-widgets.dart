@@ -1,0 +1,76 @@
+import 'package:flutter/material.dart';
+import 'package:gigachat/api/user-class.dart';
+
+class SearchKeyword extends StatelessWidget {
+  final String tag;
+  final void Function() onIconClick;
+  const SearchKeyword({super.key,required this.tag,required this.onIconClick});
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+          onPressed: (){},
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.all(15),
+            alignment: Alignment.centerLeft
+          ),
+          child: Row(
+            children: [
+              Text("#$tag", style: const TextStyle(fontSize: 17)),
+              const Expanded(child: SizedBox()),
+              GestureDetector(
+                onTap: onIconClick,
+                child: const Icon(Icons.arrow_outward),
+              )
+            ],
+          ),
+        );
+  }
+}
+
+class UserResult extends StatelessWidget {
+  final User user;
+  const UserResult({super.key,required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(onPressed: (){},
+      style: TextButton.styleFrom(
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundImage: NetworkImage(user.iconLink),
+          ),
+          const SizedBox(width: 10,),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.name,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16
+                ),
+              ),
+              Text(user.id,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w300,
+                    color: Colors.grey
+                ),
+              ),
+            ],
+          ),
+          const Expanded(child: SizedBox()),
+        ],
+      ),
+    );
+  }
+}

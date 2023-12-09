@@ -18,19 +18,19 @@ class FeedProvider
     _lastRequestedPage = 0;
   }
 
-  Future<List<TweetData>> getFollowingTweets(String userToken,int page) async
+  Future<List<TweetData>> getFollowingTweets(String userToken,int page,{bool? appendToBegin}) async
   {
-    return fetchAndDecodeTweets(ProviderFunction.HOME_PAGE_TWEETS, userToken, page);
+    return fetchAndDecodeTweets(ProviderFunction.HOME_PAGE_TWEETS, userToken, page,appendToBegin: appendToBegin);
   }
 
-  Future<List<TweetData>> getUserProfileTweets(String userToken,int page,String userID) async
+  Future<List<TweetData>> getUserProfileTweets(String userToken,int page,String userID,{bool? appendToBegin}) async
   {
-    return fetchAndDecodeTweets(ProviderFunction.PROFILE_PAGE_TWEETS, userToken, page,userID: userID);
+    return fetchAndDecodeTweets(ProviderFunction.PROFILE_PAGE_TWEETS, userToken, page,userID: userID,appendToBegin: appendToBegin);
   }
 
-  Future<List<TweetData>> getTweetReplies(String userToken,int page,String tweetID) async
+  Future<List<TweetData>> getTweetReplies(String userToken,int page,String tweetID,{bool? appendToBegin}) async
   {
-    return fetchAndDecodeTweets(ProviderFunction.GET_TWEET_COMMENTS, userToken, page,tweetID: tweetID);
+    return fetchAndDecodeTweets(ProviderFunction.GET_TWEET_COMMENTS, userToken, page,tweetID: tweetID,appendToBegin: appendToBegin);
   }
 
   Future<List<TweetData>> fetchAndDecodeTweets(
@@ -39,7 +39,8 @@ class FeedProvider
       int page,
       {
         String? userID,
-        String? tweetID
+        String? tweetID,
+        bool? appendToBegin
       }
       ) async {
 
@@ -77,7 +78,7 @@ class FeedProvider
     }
     for (var tweet in response) {
       if(!_currentIdsFetched.contains(tweet.id)){
-        _currentFeedData.add(tweet);
+        appendToBegin == null ? _currentFeedData.add(tweet) : _currentFeedData.insert(0, tweet);
         _currentIdsFetched.add(tweet.id);
       }
     }

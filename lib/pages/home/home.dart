@@ -6,6 +6,7 @@ import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -32,7 +33,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   //TODO: @Osama @Adel , replace with your pages
   late final List<HomePageTab> _pages = [
     FeedHomeTab(),
-    ChatHomeTab(),
+    SearchHomeTab(),
     ChatHomeTab(),
     ChatHomeTab(),
     ChatHomeTab(),
@@ -100,9 +101,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
-
-    print("update");
-
+    //print("update");
     return SafeArea(
       child: Scaffold(
         drawerDragStartBehavior: DragStartBehavior.start,

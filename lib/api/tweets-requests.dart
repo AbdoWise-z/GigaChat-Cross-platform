@@ -74,36 +74,36 @@ class Tweets {
       return responseTweets.map((tweet) {
         List<dynamic>? tweetMedia = tweet["tweetDetails"]["media"];
         print(tweet);
-          return TweetData(
-            id: tweet["tweetDetails"]["_id"],
-            referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
-            description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
-            viewsNum: 0,
-            likesNum: tweet["tweetDetails"]["likesNum"],
-            repliesNum: tweet["tweetDetails"]["repliesNum"],
-            repostsNum: tweet["tweetDetails"]["repostsNum"],
-            creationTime: DateTime.parse(tweet["tweetDetails"]["createdAt"]),
-            type: tweet["type"],
+        return TweetData(
+          id: tweet["tweetDetails"]["_id"],
+          referredTweetId: tweet["tweetDetails"]["referredTweetId"] ?? "",
+          description: tweet["tweetDetails"]["description"] ?? "ERR NOT DISC",
+          viewsNum: 0,
+          likesNum: tweet["tweetDetails"]["likesNum"],
+          repliesNum: tweet["tweetDetails"]["repliesNum"],
+          repostsNum: tweet["tweetDetails"]["repostsNum"],
+          creationTime: DateTime.parse(tweet["tweetDetails"]["createdAt"]),
+          type: tweet["type"],
 
-            mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
-            media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
-            tweetOwner: User(
-              id: tweet["followingUser"]["username"],
-              name: tweet["followingUser"]["nickname"],
-              auth: token,
-              isFollowed: true,
-              //bio : "sad",
-              iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
-              followers : tweet["followingUser"]["followers_num"],
-              following : tweet["followingUser"]["following_num"],
-              active : true,
+          mediaType: tweetMedia == null || tweetMedia.isEmpty ? MediaType.IMAGE : (tweetMedia[0]["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO),
+          media: tweetMedia == null || tweetMedia.isEmpty ? null : tweetMedia[0]["data"],
+          tweetOwner: User(
+            id: tweet["followingUser"]["username"],
+            name: tweet["followingUser"]["nickname"],
+            auth: token,
+            isFollowed: true,
+            //bio : "sad",
+            iconLink : tweet["followingUser"]["profile_image"] ?? USER_DEFAULT_PROFILE,
+            followers : tweet["followingUser"]["followers_num"],
+            following : tweet["followingUser"]["following_num"],
+            active : true,
 
-            ),
-            isLiked: tweet["isLiked"],
-            //who tf made this ?
-            isRetweeted: tweet["isRtweeted"],
-          );
-        }).toList();
+          ),
+          isLiked: tweet["isLiked"],
+          //who tf made this ?
+          isRetweeted: tweet["isRtweeted"],
+        );
+      }).toList();
     }
     if (providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS) {
       List<dynamic> responseTweets = tweets["posts"];
@@ -265,12 +265,12 @@ class Tweets {
       List<dynamic> users = jsonResponse["data"];
       return users.map(
               (user) => User(
-                    id: user["username"] ?? "",
-                    name: user["nickname"],
-                    bio: user["bio"] ?? "",
-                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png",
-                    isFollowed: user["isFollowed"],
-                )
+              id: user["username"] ?? "",
+              name: user["nickname"],
+              bio: user["bio"] ?? "",
+              isFollowed: user["isFollowed"],
+              iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png"
+          )
       ).toList();
     }
     return [];
@@ -288,12 +288,12 @@ class Tweets {
       List<dynamic> users = jsonResponse["data"];
       return users.map(
               (user) => User(
-                    id: user["username"] ?? "",
-                    name: user["nickname"],
-                    bio: user["bio"] ?? "",
-                    iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png",
-                    isFollowed: user["isFollowed"],
-                )
+              id: user["username"] ?? "",
+              name: user["nickname"],
+              bio: user["bio"] ?? "",
+              isFollowed: user["isFollowed"],
+              iconLink: user["profile_image"] ?? "https://i.imgur.com/C1bPcWq.png"
+          )
       ).toList();
     }
     return [];
@@ -302,20 +302,20 @@ class Tweets {
 
   /// returns true if the tweet is successfully liked, false if it failed
   static Future<bool> likeTweetById(String token,String tweetId) async {
-      ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
-      var headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-      //print(response.code);
-      switch(response.code){
-        case ApiResponse.CODE_SUCCESS_NO_BODY:
-          return true;
-        case ApiResponse.CODE_NO_INTERNET:
-        case ApiResponse.CODE_BAD_REQUEST:
-        case ApiResponse.CODE_TIMEOUT:
-          throw "something went wrong, check your connection and try again";
-        default:
-          throw "something went wrong";
-      }
+    ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPost(endPoint,headers: headers);
+    //print(response.code);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      case ApiResponse.CODE_NO_INTERNET:
+      case ApiResponse.CODE_BAD_REQUEST:
+      case ApiResponse.CODE_TIMEOUT:
+        throw "something went wrong, check your connection and try again";
+      default:
+        throw "something went wrong";
+    }
   }
 
   /// returns true if the tweet is successfully unliked, false if it failed
@@ -410,7 +410,7 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
       media:
       mediaType == MediaType.VIDEO ?
       "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
-      :
+          :
       "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
       viewsNum: 10,
       likesNum: 20,

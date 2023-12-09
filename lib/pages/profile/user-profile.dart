@@ -98,30 +98,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
-  void onEditProfileClick () async {
-    var res = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) =>
-            EditProfile(
-              name: name,
-              bannerImageUrl: bannerImageUrl,
-              avatarImageUrl: avatarImageUrl,
-              bio: bio,
-              website: website,
-              birthDate: birthDate,
-            )
-        ));
-    if(res != null){
-      setState(() {
-        name = res["name"];
-        bio = res["bio"];
-        website = res["website"];
-        birthDate = res["birthDate"];
-        bannerImageUrl = res["bannerImageUrl"];
-        avatarImageUrl = res["avatarImageUrl"];
-      });
-    }
-  }
-
   @override
   void initState()  {
     tabController = TabController(length: 4, vsync: this);
@@ -129,14 +105,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     super.initState();
   }
 
-  //TODO: fix feed thing
-  //TODO: refresh after posting
+  //TODO: get tweets
   //TODO: onNotification func (when scrolling so fast)
 
   @override
   Widget build(BuildContext context) {
-
-
 
     return loading? const BlockingLoadingPage(): Scaffold(
       extendBodyBehindAppBar: true,
@@ -215,9 +188,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         flexibleSpace: collapsed? FlexibleSpaceBar(
           background: ColorFiltered(
             colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-            child: bannerImageUrl == ""?
-            Container(color: Colors.blue,) :
-            Image.network(bannerImageUrl,
+            child: Image.network(bannerImageUrl,
               fit: BoxFit.cover,
               alignment: Alignment.bottomCenter,
             ),
@@ -254,34 +225,29 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         ProfileBanner(
                           bannerImageUrl: bannerImageUrl,
                           onTap: ()async{
-                            if(bannerImageUrl != ""){
-                              var res = await Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      ProfileImageView(
-                                        isProfileAvatar: false,
-                                        imageUrl: bannerImageUrl,
-                                        avatarImageUrl: avatarImageUrl,
-                                        name: name,
-                                        birthDate: birthDate,
-                                        bio: bio,
-                                        website: website,
-                                      )
-                                  )
-                              );
-                              if(res != null){
-                                setState(() {
-                                  name = res["name"];
-                                  bio = res["bio"];
-                                  website = res["website"];
-                                  birthDate = res["birthDate"];
-                                  bannerImageUrl = res["bannerImageUrl"];
-                                  avatarImageUrl = res["avatarImageUrl"];
-                                });
-                              }
-                            }
-                            else{
-                              onEditProfileClick();
-                            }
+                             var res = await Navigator.push(context,
+                                 MaterialPageRoute(builder: (context) =>
+                                     ProfileImageView(
+                                       isProfileAvatar: false,
+                                       imageUrl: bannerImageUrl,
+                                       avatarImageUrl: avatarImageUrl,
+                                       name: name,
+                                       birthDate: birthDate,
+                                       bio: bio,
+                                       website: website,
+                                     )
+                                 )
+                             );
+                             if(res != null){
+                               setState(() {
+                                 name = res["name"];
+                                 bio = res["bio"];
+                                 website = res["website"];
+                                 birthDate = res["birthDate"];
+                                 bannerImageUrl = res["bannerImageUrl"];
+                                 avatarImageUrl = res["avatarImageUrl"];
+                               });
+                             }
                           },
                         ),
                         Padding(
@@ -291,7 +257,29 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     children: [
                                       ProfileInteract(
                                         isCurrUser: widget.isCurrUser,
-                                        onTapEditProfile: onEditProfileClick,
+                                        onTapEditProfile: ()async{
+                                          var res = await Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) =>
+                                                  EditProfile(
+                                                    name: name,
+                                                    bannerImageUrl: bannerImageUrl,
+                                                    avatarImageUrl: avatarImageUrl,
+                                                    bio: bio,
+                                                    website: website,
+                                                    birthDate: birthDate,
+                                                  )
+                                              ));
+                                          if(res != null){
+                                            setState(() {
+                                              name = res["name"];
+                                              bio = res["bio"];
+                                              website = res["website"];
+                                              birthDate = res["birthDate"];
+                                              bannerImageUrl = res["bannerImageUrl"];
+                                              avatarImageUrl = res["avatarImageUrl"];
+                                            });
+                                          }
+                                        },
                                         onTapDM: (){}, //TODO: DM user
                                         onTapFollow: (){}, //TODO: follow user
                                       ),
@@ -404,7 +392,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         tabController: tabController,
                                       ),
                                       SizedBox(
-                                        height: 2400, //TODO: user feed (change height dynamically every getTweets request)
+                                        height: 1000, //TODO: user feed (change height dynamically every getTweets request)
                                         child: TabBarView(
                                             controller: tabController,
                                             children: [
@@ -593,9 +581,7 @@ class ProfileBanner extends StatelessWidget {
         height: 160,
         width: double.infinity,
         color: Colors.blue,
-        child: bannerImageUrl == ""?
-        Container(color: Colors.blue,) :
-        Image.network(bannerImageUrl,
+        child: Image.network(bannerImageUrl,
           fit: BoxFit.cover,
           alignment: Alignment.bottomCenter,
         ),
@@ -656,5 +642,4 @@ class ProfileInteract extends StatelessWidget {
     );
   }
 }
-
 

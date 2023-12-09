@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
-import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
@@ -29,18 +28,19 @@ class FeedWidget extends StatefulWidget {
   });
 
   @override
-  State<FeedWidget> createState() => _FeedWidgetState();
+  State<FeedWidget> createState() => FeedWidgetState();
+
 }
 
 
-class _FeedWidgetState extends State<FeedWidget> {
+class FeedWidgetState extends State<FeedWidget> {
   List<TweetData> _tweetsData = [];
   late bool loading;
   late FeedProvider feedProvider;
 
 
-  void fetchTweets(String? userToken,int page) async {
-    if (userToken == null)
+  void fetchTweets(int page,{bool? appendToBegin}) async {
+    if (widget.userToken == null)
     {
       _tweetsData = [];
       loading = false;
@@ -51,8 +51,9 @@ class _FeedWidgetState extends State<FeedWidget> {
     switch(widget.providerType){
       case ProviderFunction.HOME_PAGE_TWEETS:
           _tweetsData = await feedProvider.getFollowingTweets(
-            userToken,
-            page
+              widget.userToken!,
+            page,
+            appendToBegin: appendToBegin
           );
         break;
       case ProviderFunction.PROFILE_PAGE_TWEETS:
@@ -61,16 +62,18 @@ class _FeedWidgetState extends State<FeedWidget> {
           break;
         }
         _tweetsData = await feedProvider.getUserProfileTweets(
-            userToken,
+            widget.userToken!,
             page,
             widget.userID!,
+          appendToBegin: appendToBegin
         );
         break;
       case ProviderFunction.GET_TWEET_COMMENTS:
         _tweetsData = await feedProvider.getTweetReplies(
-            userToken,
+            widget.userToken!,
             page,
-            widget.tweetID!
+            widget.tweetID!,
+          appendToBegin: appendToBegin
         );
     }
 
@@ -85,7 +88,7 @@ class _FeedWidgetState extends State<FeedWidget> {
           onVisibilityChanged: (VisibilityInfo visibilityInfo){
             if(visibilityInfo.visibleFraction * 100 > 50 && (tweet.key+1) % DEFAULT_PAGE_COUNT == 0)
             {
-              fetchTweets(widget.userToken, ((tweet.key + 1) ~/ DEFAULT_PAGE_COUNT) + 1);
+              fetchTweets(((tweet.key + 1) ~/ DEFAULT_PAGE_COUNT) + 1);
             }
           },
           key: Key(tweet.value.id),
@@ -99,6 +102,13 @@ class _FeedWidgetState extends State<FeedWidget> {
     ).toList();
   }
 
+
+
+  void refresh(){
+    // TODO: find a solution for the page
+    fetchTweets(0,appendToBegin: true);
+  }
+
   @override
   void initState() {
     loading = true;
@@ -110,7 +120,7 @@ class _FeedWidgetState extends State<FeedWidget> {
   @override
   Widget build(BuildContext context) {
     if (loading){
-      fetchTweets(Auth.getInstance(context).getCurrentUser()!.auth,1);
+      fetchTweets(1);
       return SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.width * 1.5,
@@ -125,6 +135,8 @@ class _FeedWidgetState extends State<FeedWidget> {
 
 
 class ScrollableFeedWidget extends StatefulWidget {
+
+
   final String? userID;
   final ProviderFunction providerType;
 
@@ -139,13 +151,26 @@ class ScrollableFeedWidget extends StatefulWidget {
 }
 
 class _ScrollableFeedWidgetState extends State<ScrollableFeedWidget> {
+
+  GlobalKey? feedWidgetRef;
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: FeedWidget(
-            userToken:widget.userID,
-            providerType: widget.providerType,
-        ),
+    feedWidgetRef ??= GlobalKey();
+    return RefreshIndicator(
+      onRefresh: ()async{
+        if (feedWidgetRef == null || feedWidgetRef!.currentState == null) return;
+
+        FeedWidgetState currentChildState = feedWidgetRef!.currentState as FeedWidgetState;
+        currentChildState.refresh();
+        },
+      child: SingleChildScrollView(
+          child: FeedWidget(
+              key: feedWidgetRef,
+              userToken:widget.userID,
+              providerType: widget.providerType,
+          ),
+      ),
     );
   }
 }

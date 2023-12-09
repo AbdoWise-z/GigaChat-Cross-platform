@@ -13,7 +13,7 @@ mixin HomePageTab {
   bool isAppBarPinned(BuildContext context){return true;}
   bool isBottomNavPinned(BuildContext context){return false;}
   AppBarSearch? getSearchBar(BuildContext context){
-    return null;
+    return AppBarSearch(hint: "search", onClick: (){Navigator.pushNamed(context, "/search");});
   }
   AppBarTabs? getTabs(BuildContext context){
     return null;
