@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:video_player/video_player.dart';
 
-class ImageGridItem extends StatefulWidget {
+class GalleryGridItem extends StatefulWidget {
   final bool enabled;
-  final AssetEntity entity;
-  final ThumbnailOption option;
+  final MediaEntity entity;
   final Function() onTap;
   final bool selected;
-  const ImageGridItem({
+  const GalleryGridItem({
     Key? key,
     required this.enabled,
     required this.entity,
-    required this.option,
     required this.onTap,
     required this.selected
   }) : assert(enabled || !selected), super(key: key);
 
   @override
-  State<ImageGridItem> createState() => _ImageGridItemState();
+  State<GalleryGridItem> createState() => _GalleryGridItemState();
 }
 
-class _ImageGridItemState extends State<ImageGridItem> with SingleTickerProviderStateMixin{
+class _GalleryGridItemState extends State<GalleryGridItem> with SingleTickerProviderStateMixin{
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+  VideoPlayerController? videoPlayerController;
+
+  Future<void> _initVideoPlayer() async {
+    if (widget.entity.entity.type != AssetType.video) return;
+    videoPlayerController = VideoPlayerController.file(widget.entity.path);
+    await videoPlayerController!.initialize();
+    await videoPlayerController!.setVolume(0); //play muted
+    await videoPlayerController!.play();
+
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (videoPlayerController != null){
+      videoPlayerController!.dispose();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _initVideoPlayer();
     _controller.addListener(() {
       setState(() {});
     });
@@ -58,13 +78,13 @@ class _ImageGridItemState extends State<ImageGridItem> with SingleTickerProvider
               Positioned.fill(
                 child: Padding(
                   padding: const EdgeInsets.all(2.0),
-                  child: AssetEntityImage(
-                    widget.entity,
-                    isOriginal: false,
-                    thumbnailSize: widget.option.size,
-                    thumbnailFormat: widget.option.format,
+                  child: widget.entity.entity.type == AssetType.image ? Image.file(
+                    widget.entity.path,
                     fit: BoxFit.cover,
-                  ),
+                  ) : videoPlayerController == null ? const Padding(
+                    padding: EdgeInsets.all(34.0),
+                    child: CircularProgressIndicator(),
+                  ) : VideoPlayer(videoPlayerController!),
                 ),
               ),
               Visibility(

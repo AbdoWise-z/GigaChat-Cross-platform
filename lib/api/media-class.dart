@@ -5,9 +5,6 @@ enum MediaType{
 }
 
 class MediaObject {
-  static MediaType TypeOf(String path){
-    return MediaType.IMAGE;
-  }
   final String link;
   final MediaType type;
 
