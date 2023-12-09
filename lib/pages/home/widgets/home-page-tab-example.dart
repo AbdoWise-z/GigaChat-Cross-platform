@@ -17,7 +17,6 @@ class DummyPage with HomePageTab{
   @override
   AppBarSearch? getSearchBar(BuildContext context) {
     return AppBarSearch(hint: "This is a search bar", onClick: () => {
-
     });
   }
 
@@ -26,6 +25,7 @@ class DummyPage with HomePageTab{
     //return null;
     return AppBarTabs(tabs: ["tab-0" , "tab-1" , "tab-2"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
   }
+
 
   @override
   String? getTitle(BuildContext context) {

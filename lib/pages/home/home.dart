@@ -7,8 +7,8 @@ import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
-
-
+import 'package:gigachat/pages/notification/notifications.dart';
+import 'package:gigachat/pages/explore/explore.dart';
 class Home extends StatefulWidget {
   static const String pageRoute = "/";
   const Home({super.key});
@@ -26,9 +26,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   //TODO: @Osama @Adel , replace with your pages
   final List<HomePageTab> _pages = [
     DummyPage(),
+    Explore(),
     DummyPage(),
-    DummyPage(),
-    DummyPage(),
+    Notifications(),
     DummyPage(),
   ];
 
