@@ -40,9 +40,11 @@ class HomeAppBar extends StatelessWidget {
       pinned: pinned,
       floating: true,
       snap: true,
-      leading: SizedBox(
+      // TODO: make this sized box again just to see the avatar
+      leading: Container(
         width: 40,
         height: 40,
+
         child: IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
           icon: userImage == null ? const Icon(

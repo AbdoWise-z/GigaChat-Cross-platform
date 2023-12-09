@@ -10,7 +10,9 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 enum UserListViewFunction{
   GET_TWEET_LIKERS,
-  GET_TWEET_REPOSTERS
+  GET_TWEET_REPOSTERS,
+  GET_USER_FOLLOWERS,
+  GET_USER_FOLLOWINGS,
 }
 
 class UserListViewPage extends StatefulWidget {
@@ -34,8 +36,13 @@ class _UserListViewPageState extends State<UserListViewPage> {
         currentList = await Tweets.getTweetLikers(userToken,tweetID,page.toString());
       case UserListViewFunction.GET_TWEET_REPOSTERS:
         currentList = await Tweets.getTweetRetweeters(userToken, tweetID, page.toString());
+
+      case UserListViewFunction.GET_USER_FOLLOWERS:
+        currentList = await Tweets.getTweetRetweeters(userToken, tweetID, page.toString());
+      case UserListViewFunction.GET_USER_FOLLOWINGS:
+        // TODO: Handle this case.
       case null:
-        currentList = [];
+        currentList = await Tweets.getTweetRetweeters(userToken, tweetID, page.toString());
     }
     loading = false;
     if(mounted) setState(() {});

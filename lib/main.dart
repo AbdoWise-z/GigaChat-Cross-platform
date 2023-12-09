@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/Search/search.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
@@ -16,17 +17,13 @@ import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
-import 'package:gigachat/pages/temp.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
-
-import 'pages/user-verification/verification-code-page.dart';
 
 
 void main() async {
@@ -83,6 +80,8 @@ class _GigaChatState extends State<GigaChat> {
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
                   UserListViewPage.pageRoute : (context) => UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
+                  SearchPage.pageRoute : (context) => const SearchPage(),
+                  SearchResultPage.pageRoute : (context) => const SearchResultPage()
                 },
               );
             }

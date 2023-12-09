@@ -82,6 +82,7 @@ class ApiPath{
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
   static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
+  static ApiPath unretweet                 = const ApiPath._("/api/tweets/unretweet");
   static ApiPath media                   = const ApiPath._("/api/media");
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
@@ -89,8 +90,11 @@ class ApiPath{
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
-  static ApiPath unretweet               = const ApiPath._("/api/tweets/unretweet");
 
+  static ApiPath searchUsers             = const ApiPath._("/api/user/search");
+  static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
+  static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
+  static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
 }
 
 class Api {
@@ -200,7 +204,6 @@ class Api {
         headers: headers,
       ).timeout(API_TIMEOUT);
       //dynamic responsePayload = json.decode(response.body);
-
       return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
     } on SocketException {
       return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
@@ -286,6 +289,39 @@ class Api {
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
     return _apiPatchFilesImpl<T>(path.url() , headers , body , files , encoding!);
+  }
+
+
+
+  static Future<ApiResponse<T>> _apiDeleteNoFilesImpl<T>(Uri url , Map<String,String>? headers , Encoding encoding) async {
+    try {
+      var response = await http.delete(
+        url,
+        headers: headers,
+        encoding: encoding,
+      ).timeout(API_TIMEOUT);
+      return ApiResponse<T>(code: response.statusCode, responseBody: response.body);
+    } on SocketException {
+      return ApiResponse<T>(code: ApiResponse.CODE_NO_INTERNET, responseBody: null);
+    } on TimeoutException {
+      return ApiResponse<T>(code: ApiResponse.CODE_TIMEOUT, responseBody: null);
+    } on Error catch (e) {
+      print(e);
+      return ApiResponse<T>(code: ApiResponse.CODE_UNKNOWN, responseBody: null);
+    }
+  }
+
+  static Future<ApiResponse<T>> apiDelete<T>(
+      ApiPath path ,
+      {
+        Map<String,dynamic>? params ,
+        Map<String,String>? headers ,
+        Encoding? encoding ,
+      }
+      ){
+    encoding ??= Encoding.getByName("utf-8");
+
+    return _apiDeleteNoFilesImpl<T>(path.url(params: params) , headers , encoding!);
   }
 
 }
