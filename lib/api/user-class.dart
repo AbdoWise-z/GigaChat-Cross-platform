@@ -33,7 +33,7 @@ class User {
     this.followers = 0,
     this.following = 0,
     this.active = false,
-    this.isFollowed
+    this.isFollowed = false,
   });
 
 }
