@@ -13,10 +13,12 @@ import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/feed-component/feed.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
+import '../../base.dart';
 import '../../util/Toast.dart';
+import '../../widgets/feed-component/FeedWidget.dart';
+import '../../widgets/feed-component/feed-controller.dart';
 
 class UserProfile extends StatefulWidget {
   final String username;
@@ -53,16 +55,20 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   //page details
   bool loading = true;
-  ScrollController scrollController = ScrollController();
+  late ScrollController scrollController;
   TabController? tabController;
-  bool collapsed = false;
-  bool showName = false;
   double avatarRadius = 35;
   EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
+  double showNamePosition = 162;
+  double collapsePosition = 80;
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false,false,false];
-
+  late FeedController feedController;
+  List<String> tabs = [
+    "Posts" , "Replies", "Media", " Likes",
+  ];
   double max = 317;
+  final ValueNotifier<double> scroll = ValueNotifier<double>(0);
 
   //get user data
   void getData() async {
@@ -97,19 +103,21 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     });
   }
 
-  void onTapBarClick(int index) {
+  void onTapBarClick(int index, int durationMS) {
     if(prevTabIndex != index){
-      prevTabIndex = index;
+      setState(() {
+        prevTabIndex = index;
+      });
       if(index == 1 && !isLoaded[1]){
-        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         isLoaded[1] = true;
      }
       if(index == 2 && !isLoaded[2]){
-        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         isLoaded[2] = true;
       }
       if(index == 3 && !isLoaded[3]){
-        scrollController.animateTo(295, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         isLoaded[3] = true;
       }
     }
@@ -168,14 +176,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
+    scrollController = ScrollController();
     tabController = TabController(length: 4, vsync: this);
+    tabController!.addListener(() {
+      if(!tabController!.indexIsChanging){
+        int index = tabController!.index;
+        onTapBarClick(index, 100);
+      }
+    });
+    feedController = FeedController(
+      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+      token: Auth.getInstance(context).getCurrentUser()!.auth!,
+    );
     getData();
     super.initState();
   }
 
-  //TODO: get tweets
-  //TODO: refresh tweets
-  //TODO: onNotification func (when scrolling so fast) (fix performance (setState only the avatar))
+  //TODO: get likes, media, replies
 
   @override
   Widget build(BuildContext context) {
@@ -183,321 +200,352 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     return loading? const BlockingLoadingPage():
     Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: showName? Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name,
-              style: const TextStyle(
-                  fontSize: 23,
-                  color: Colors.white
-              ),
-            ),
-            const Text("2 Posts",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ), //TODO: num of posts
-          ],
-        ) : null,
-        backgroundColor: Colors.transparent,
-        leading: ProfileAppBarIcon(
-          toolTip: 'Navigate Up',
-          icon: Icons.arrow_back,
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        ),
-        leadingWidth: 60,
-        actions: (showName
-            && (!widget.isCurrUser && !isCurrUser!)
-            && (isWantedUserFollowed != null && !isWantedUserFollowed!)
-            && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
-        <Widget>[
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ProfileInteract(
-                isCurrUser: widget.isCurrUser,
-                isHeader: true,
-                onTapEditProfile: onEditProfileClick,
-                onTapFollow: followUser,
-                onTapUnfollow: unfollowUser,
-              ),
-          ),
-        ] :
-        <Widget>[
-          Visibility(
-            visible: (isCurrUserBlocked != null && !isCurrUserBlocked!),
-            child: ProfileAppBarIcon(
-              icon: Icons.search,
-              onPressed: (){
-                //TODO: navigate to search page with user filter
-              },
-              toolTip: 'Search',
-            ),
-          ),
-          ProfileAppBarIcon(
-            icon: Icons.more_vert,
-            toolTip: 'Menu',
-            onPressed: () {
-              showMenu(
-                context: context,
-                position: const RelativeRect.fromLTRB(6, 5, 5, 0),
-                items: widget.isCurrUser? <PopupMenuItem>[ //doesn't do anything just for looks :p
-                  PopupMenuItem(
-                    child: const Text("Share"),
-                    onTap: (){},
-                  ),
-                  PopupMenuItem(
-                    child: const Text("Draft"),
-                    onTap: (){},
-                  ),
-                  PopupMenuItem(
-                    child: const Text("Lists you're on"),
-                    onTap: (){},
-                  )
-                ] : <PopupMenuItem>[
-                  isWantedUserMuted != null && isWantedUserMuted!?
-                  PopupMenuItem(
-                    child: const Text("Unmute"),
-                    onTap: (){}, //TODO: unmute user
-                  ): PopupMenuItem(
-                    child: const Text("Mute"),
-                    onTap: (){}, //TODO: mute user
-                  ),
-                  isWantedUserBlocked != null && isWantedUserBlocked!?
-                  PopupMenuItem(
-                    child: const Text("Unblock"),
-                    onTap: (){}, //TODO: unblock user
-                  ):
-                  PopupMenuItem(
-                    child: const Text("Block"),
-                    onTap: (){}, //TODO: block user
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-        flexibleSpace: collapsed? FlexibleSpaceBar(
-          background: ColorFiltered(
-            colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-            child: bannerImageUrl == "" ?
-            Container(color: Colors.blue,) :
-            Image.network(bannerImageUrl,
-              fit: BoxFit.cover,
-              alignment: Alignment.bottomCenter,
-            ),
-          ),
-        ) : null
-      ),
-
       body: NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification){
-          double pos = scrollController.position.pixels;
-          if(pos < max){
-            setState(() {
-              collapsed = pos > 80 ? true : false;
-              showName = pos > 162 ? true : false;
-              avatarRadius = pos < 140? 35 - 0.2 * pos : 20;
-              avatarPadding = pos < 140? EdgeInsets.fromLTRB(8 + 0.2 * pos, 122 + 0.46 * pos, 0, 0) :
-              const EdgeInsets.fromLTRB(24, 160, 0, 0);
-            });
-          }
+          scroll.value = scrollController.position.pixels;
           return true;
         },
         child: RefreshIndicator(
-          onRefresh: ()async{
-            //TODO: refresh user page
+          onRefresh: () async {
+            setState(() {});
           },
           child: Stack(
             children: [
-              SingleChildScrollView(
+              NestedScrollView(
                 controller: scrollController,
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        ProfileBanner(
-                          bannerImageUrl: bannerImageUrl,
-                          onTap: ()async{
-                             if(bannerImageUrl != ""){
-                               var res = await Navigator.push(context,
-                                   MaterialPageRoute(builder: (context) =>
-                                       ProfileImageView(
-                                         isProfileAvatar: false,
-                                         imageUrl: bannerImageUrl,
-                                         avatarImageUrl: avatarImageUrl,
-                                         name: name,
-                                         birthDate: birthDate,
-                                         bio: bio,
-                                         website: website,
-                                       )
-                                   )
-                               );
-                               if(res != null){
-                                 setState(() {
-                                   name = res["name"];
-                                   bio = res["bio"];
-                                   website = res["website"];
-                                   birthDate = res["birthDate"];
-                                   bannerImageUrl = res["bannerImageUrl"];
-                                   avatarImageUrl = res["avatarImageUrl"];
-                                 });
-                               }
-                             }else{
-                               onEditProfileClick();
-                             }
-                          },
-                        ),
-                        Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      ProfileInteract(
-                                        isHeader: false,
-                                        isCurrUser: widget.isCurrUser,
-                                        isWantedUserFollowed : isWantedUserFollowed,
-                                        isWantedUserBlocked : isWantedUserBlocked,
-                                        onTapEditProfile: onEditProfileClick,
-                                        onTapDM: (){}, //TODO: DM user
-                                        onTapFollow: followUser,
-                                        onTapUnfollow: unfollowUser,
-                                      ),
-                                      Text(
-                                        name,
-                                        style: const TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold
-                                        ),
-                                      ),
-                                      Text("@$username"),
-                                      bio == "" ? const Text("") :
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(0,10,0,0),
-                                        child: SizedBox(
-                                          height: 80,
-                                            child: Text(bio)
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20,),
-                                      Row(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.location_on_outlined, size: 15,),
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 5),
-                                                child: Text(location),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 10,),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.cake, size: 15,),
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 5),
-                                                child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate )}"),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10,),
-                                      Row(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.date_range, size: 15,),
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 5),
-                                                child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 10,),
-                                          Row(
-                                            children: [
-                                              const Icon(CupertinoIcons.link, size: 15,),
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 5),
-                                                child: Text(website), //TODO: change later (detect urls)
-                                              ),
-                                            ],
+                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    ValueListenableBuilder(
+                      valueListenable: scroll,
+                      builder: (context,value,_) {
+                        return SliverAppBar(
+                          pinned: true,
+                          expandedHeight: 130,
+                          title: value > showNamePosition ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name,
+                                style: const TextStyle(
+                                    fontSize: 23,
+                                    color: Colors.white
+                                ),
+                              ),
+                              Text(prevTabIndex == 3? "2 Likes" : "2 Posts",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ), //TODO: num of posts & likes
+                            ],
+                          ) : null,
+                          backgroundColor: Colors.transparent,
+                          leading: ProfileAppBarIcon(
+                            toolTip: 'Navigate Up',
+                            icon: Icons.arrow_back,
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                          ),
+                          leadingWidth: 60,
+                          actions: (value > showNamePosition
+                              && (!widget.isCurrUser && !isCurrUser!)
+                              && (isWantedUserFollowed != null && !isWantedUserFollowed!)
+                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
+                          <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ProfileInteract(
+                                avatarIsVisible: false,
+                                avatarImageUrl: avatarImageUrl,
+                                isCurrUser: widget.isCurrUser,
+                                isHeader: true,
+                                onTapEditProfile: onEditProfileClick,
+                                onTapFollow: followUser,
+                                onTapUnfollow: unfollowUser,
+                                isWantedUserFollowed: isWantedUserFollowed,
+                                isWantedUserBlocked: isCurrUserBlocked,
+                              ),
+                            ),
+                          ] :
+                          <Widget>[
+                            Visibility(
+                              visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!) || (isCurrUserBlocked != null && !isCurrUserBlocked!),
+                              child: ProfileAppBarIcon(
+                                icon: Icons.search,
+                                onPressed: (){
+                                  //TODO: navigate to search page with user filter
+                                },
+                                toolTip: 'Search',
+                              ),
+                            ),
+                            ProfileAppBarIcon(
+                              icon: Icons.more_vert,
+                              toolTip: 'Menu',
+                              onPressed: () {
+                                showMenu(
+                                  context: context,
+                                  position: const RelativeRect.fromLTRB(6, 5, 5, 0),
+                                  items: widget.isCurrUser? <PopupMenuItem>[ //doesn't do anything just for looks :p
+                                    PopupMenuItem(
+                                      child: const Text("Share"),
+                                      onTap: (){},
+                                    ),
+                                    PopupMenuItem(
+                                      child: const Text("Draft"),
+                                      onTap: (){},
+                                    ),
+                                    PopupMenuItem(
+                                      child: const Text("Lists you're on"),
+                                      onTap: (){},
+                                    )
+                                  ] : <PopupMenuItem>[
+                                    isWantedUserMuted != null && isWantedUserMuted!?
+                                    PopupMenuItem(
+                                      child: const Text("Unmute"),
+                                      onTap: (){}, //TODO: unmute user
+                                    ): PopupMenuItem(
+                                      child: const Text("Mute"),
+                                      onTap: (){}, //TODO: mute user
+                                    ),
+                                    isWantedUserBlocked != null && isWantedUserBlocked!?
+                                    PopupMenuItem(
+                                      child: const Text("Unblock"),
+                                      onTap: (){}, //TODO: unblock user
+                                    ):
+                                    PopupMenuItem(
+                                      child: const Text("Block"),
+                                      onTap: (){}, //TODO: block user
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                          flexibleSpace: value > collapsePosition ? ColorFiltered(
+                            colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
+                            child: bannerImageUrl == "" ?
+                            Container(color: Colors.blue,) :
+                            Image.network(bannerImageUrl,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.bottomCenter,
+                            ),
+                          ) :
+                          ProfileBanner(
+                              bannerImageUrl: bannerImageUrl,
+                              onTap: ()async{
+                                if(bannerImageUrl != ""){
+                                  var res = await Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) =>
+                                          ProfileImageView(
+                                            isProfileAvatar: false,
+                                            imageUrl: bannerImageUrl,
+                                            avatarImageUrl: avatarImageUrl,
+                                            name: name,
+                                            birthDate: birthDate,
+                                            bio: bio,
+                                            website: website,
                                           )
-                                        ],
-                                      ),
-                                      const SizedBox(height: 15,),
-                                      Row(
-                                        children: [
-                                          InkWell(
-                                            onTap: (){
-                                              //TODO: list of Following
-                                            },
-                                            splashFactory: NoSplash.splashFactory,
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "$following",
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const Text(" Following"),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10,),
-                                          InkWell(
-                                            onTap: (){
-                                              //TODO: list of Followers
-                                            },
-                                            splashFactory: NoSplash.splashFactory,
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "$followers",
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const Text(" Followers"),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 20,),
-                                      ProfileTabBar(
-                                        tabController: tabController,
-                                      ),
-                                      SizedBox(
-                                        height: 2100, //TODO: user feed (change height dynamically every getTweets request)
-                                        child: TabBarView(
-                                            controller: tabController,
-                                            children: [
-                                              FeedWidget(
-                                                providerType: ProviderFunction.PROFILE_PAGE_TWEETS,
-                                                userToken: Auth.getInstance(context).getCurrentUser()!.auth,
-                                                userID: username,
-                                              ),
-                                              Container(color: Colors.red,child: Center(child: Text("2"),),),
-                                              Container(color: Colors.red,child: Center(child: Text("3"),),),
-                                              Container(color: Colors.red,child: Center(child: Text("4"),),),
-                                            ]
+                                      )
+                                  );
+                                  if(res != null){
+                                    setState(() {
+                                      name = res["name"];
+                                      bio = res["bio"];
+                                      website = res["website"];
+                                      birthDate = res["birthDate"];
+                                      bannerImageUrl = res["bannerImageUrl"];
+                                      avatarImageUrl = res["avatarImageUrl"];
+                                    });
+                                  }
+                                }else{
+                                  onEditProfileClick();
+                                }
+                              },
+                            ),
+                        );
+                      }
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: scroll,
+                              builder: (context,value,_) {
+                                return ProfileInteract(
+                                  avatarIsVisible: value > collapsePosition,
+                                  isHeader: false,
+                                  avatarImageUrl: avatarImageUrl,
+                                  isCurrUser: widget.isCurrUser,
+                                  isWantedUserFollowed : isWantedUserFollowed,
+                                  isWantedUserBlocked : isWantedUserBlocked,
+                                  onTapEditProfile: onEditProfileClick,
+                                  onTapDM: (){}, //TODO: DM user
+                                  onTapFollow: followUser,
+                                  onTapUnfollow: unfollowUser,
+                                );
+                              }
+                            ),
+                            Text(
+                              name,
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                            Text("@$username"),
+                            bio == "" ? const Text("") :
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0,10,0,0),
+                              child: SizedBox(
+                                  height: 80,
+                                  child: Text(bio)
+                              ),
+                            ),
+                            const SizedBox(height: 20,),
+                            Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on_outlined, size: 15,),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      child: Text(location),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10,),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.cake, size: 15,),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate )}"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10,),
+                            Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.date_range, size: 15,),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10,),
+                                Row(
+                                  children: [
+                                    const Icon(CupertinoIcons.link, size: 15,),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      child: Text(website), //TODO: change later (detect urls)
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 15,),
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    //TODO: list of Following
+                                  },
+                                  splashFactory: NoSplash.splashFactory,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "$following",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      const Text(" Following"),
                                     ],
                                   ),
                                 ),
-                      ],
+                                const SizedBox(width: 10,),
+                                InkWell(
+                                  onTap: (){
+                                    //TODO: list of Followers
+                                  },
+                                  splashFactory: NoSplash.splashFactory,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "$followers",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const Text(" Followers"),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20,),
+                          ],
+                        ),
+                      )
                     ),
-                    ProfileAvatar(
+                    SliverPersistentHeader(delegate: _SliverAppBarDelegate(
+                        Container(
+                          color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
+                          child: TabBar(
+                            controller: tabController,
+                            tabs: tabs.map((e) => Text(e)).toList(),
+                            onTap: (index){
+                                onTapBarClick(index,10);
+                              },
+                            tabAlignment: TabAlignment.fill,
+                          ),
+                        )
+                      ),
+                      pinned: true,
+                    )
+                  ];
+                },
+                body: TabBarView(
+                  controller: tabController,
+                  children: [
+                    BetterFeed(
+                      isScrollable: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: username,
+                      userName: name,
+                    ),
+                    BetterFeed(
+                      isScrollable: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: username,
+                      userName: name,
+                    ),
+                    Container(color: Colors.red,child: Center(child: Text("3"),),),
+                    Container(color: Colors.red,child: Center(child: Text("4"),),),
+                  ],
+                )
+              ),
+              ValueListenableBuilder(
+                valueListenable: scroll,
+                builder: (context,value,_) {
+                  return Visibility(
+                    visible: value <= collapsePosition,
+                    child: ProfileAvatar(
                       avatarImageUrl: avatarImageUrl,
-                      avatarPadding: avatarPadding,
-                      avatarRadius: avatarRadius,
+                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
+                      avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
                       onTap: () async {
                         var res = await Navigator.push(context,
                             MaterialPageRoute(builder: (context) =>
@@ -511,22 +559,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         }
                       },
                     ),
-                  ],
-                )
-              ),
-              Visibility(
-                visible: scrollController.hasClients && scrollController.position.pixels > (max - 5),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10,80,10,10),
-                  child: Container(
-                    color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
-                    width: double.infinity,
-                    child: ProfileTabBar(
-                      tabController: tabController,
-                      onTap: onTapBarClick,
-                    ),
-                  ),
-                ),
+                  );
+                }
               ),
             ],
           ),
@@ -538,3 +572,24 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 }
 
 
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final Container _tabBar;
+
+  _SliverAppBarDelegate(this._tabBar);
+
+  @override
+  double get minExtent => 39;
+
+  @override
+  double get maxExtent => 39;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return _tabBar;
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
+  }
+}

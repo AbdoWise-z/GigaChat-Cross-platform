@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 
 import '../../../providers/theme-provider.dart';
+import 'avatar.dart';
 
 class ProfileInteract extends StatelessWidget {
   const ProfileInteract({Key? key,required this.isCurrUser, this.onTapDM,
     required this.onTapEditProfile,required this.onTapFollow,
     this.isWantedUserFollowed, required this.onTapUnfollow,
-    this.isWantedUserBlocked, required this.isHeader}) : super(key: key);
+    this.isWantedUserBlocked, required this.isHeader,
+    required this.avatarImageUrl, required this.avatarIsVisible}) : super(key: key);
 
   final bool isCurrUser;
   final bool? isWantedUserFollowed;
   final bool? isWantedUserBlocked;
   final bool isHeader;
+  final bool avatarIsVisible;
+  final String avatarImageUrl;
   final void Function()? onTapEditProfile;
   final void Function() onTapFollow;
   final void Function()? onTapDM;
@@ -23,8 +27,20 @@ class ProfileInteract extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: avatarIsVisible ? MainAxisAlignment.start : MainAxisAlignment.end,
       children: [
-        const Expanded(child: SizedBox()),
+        Visibility(
+          visible: avatarIsVisible,
+          child: ProfileAvatar(
+            avatarImageUrl: avatarImageUrl,
+            avatarPadding: const EdgeInsets.fromLTRB(13, 0, 0, 5),
+            avatarRadius: 20,
+            onTap: (){},  //TODO:
+          ),
+        ),
+        Visibility(
+          visible: avatarIsVisible,
+            child: Expanded(child: SizedBox.shrink(),)),
         Visibility(
           visible: !isCurrUser && !isHeader,
           child: Container(

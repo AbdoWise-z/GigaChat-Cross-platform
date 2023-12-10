@@ -12,21 +12,21 @@ class ProfileAvatar extends StatelessWidget {
   final void Function()? onTap;
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      splashFactory: NoSplash.splashFactory,
-      onTap: onTap,
-      child: AnimatedContainer(
-        margin: avatarPadding,
-        width: 2 * avatarRadius,
-        height: 2 * avatarRadius,
-        transformAlignment: AlignmentDirectional.bottomCenter,
-        duration: const Duration(milliseconds: 10),
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-                color: ThemeProvider.getInstance(context).isDark()? Colors.black : Colors.white,
-                width: 3)
-        ),
+    return AnimatedContainer(
+      margin: avatarPadding,
+      width: 2 * avatarRadius,
+      height: 2 * avatarRadius,
+      transformAlignment: AlignmentDirectional.bottomCenter,
+      duration: const Duration(milliseconds: 10),
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+              color: ThemeProvider.getInstance(context).isDark()? Colors.black : Colors.white,
+              width: 3)
+      ),
+      child: InkWell(
+        onTap: onTap,
+        splashFactory: NoSplash.splashFactory,
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: avatarRadius,
