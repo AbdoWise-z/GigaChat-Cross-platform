@@ -9,7 +9,8 @@ class ProfileInteract extends StatelessWidget {
     required this.onTapEditProfile,required this.onTapFollow,
     this.isWantedUserFollowed, required this.onTapUnfollow,
     this.isWantedUserBlocked, required this.isHeader,
-    required this.avatarImageUrl, required this.avatarIsVisible}) : super(key: key);
+    required this.avatarImageUrl, required this.avatarIsVisible,
+    this.onTapUnblock}) : super(key: key);
 
   final bool isCurrUser;
   final bool? isWantedUserFollowed;
@@ -21,6 +22,8 @@ class ProfileInteract extends StatelessWidget {
   final void Function() onTapFollow;
   final void Function()? onTapDM;
   final void Function() onTapUnfollow;
+  final void Function()? onTapUnblock;
+
 
 
 
@@ -40,9 +43,9 @@ class ProfileInteract extends StatelessWidget {
         ),
         Visibility(
           visible: avatarIsVisible,
-            child: Expanded(child: SizedBox.shrink(),)),
+            child: const Expanded(child: SizedBox.shrink(),)),
         Visibility(
-          visible: !isCurrUser && !isHeader,
+          visible: !isCurrUser && !isHeader && (isWantedUserBlocked != null && !isWantedUserBlocked!),
           child: Container(
             width: 35,
             height: 35,
@@ -52,6 +55,7 @@ class ProfileInteract extends StatelessWidget {
                     color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black)
             ),
             child: IconButton(
+              splashRadius: 17.5,
               icon: Icon(Icons.mail_outline,
                 size: 17.5,
                 color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black,
@@ -71,11 +75,11 @@ class ProfileInteract extends StatelessWidget {
           child: const Text("Edit profile",style: TextStyle(fontWeight: FontWeight.bold),),
         ) : (isWantedUserBlocked != null && isWantedUserBlocked!) ?
         OutlinedButton(
-          onPressed: onTapEditProfile,
+          onPressed: onTapUnblock,
           style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.red),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Colors.red)
               )
           ),
           child: const Text("Blocked",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red),),

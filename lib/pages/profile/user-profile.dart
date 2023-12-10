@@ -67,7 +67,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   List<String> tabs = [
     "Posts" , "Replies", "Media", " Likes",
   ];
-  double max = 317;
   final ValueNotifier<double> scroll = ValueNotifier<double>(0);
 
   //get user data
@@ -89,7 +88,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     following = u.following;
     followers = u.followers;
     bio = u.bio;
-    max = bio != ""? 390 : 317;
     website = u.website;
     isCurrUserBlocked = u.isCurrUserBlocked;
     isWantedUserBlocked = u.isWantedUserBlocked;
@@ -171,6 +169,155 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         Toast.showToast(context, "Action failed. Please try again.");
       }
     }
+  }
+
+  void muteUser() async {
+    bool success = await Account.muteUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+    if(success){
+      setState(() {
+        isWantedUserMuted = true;
+        Toast.showToast(context, "You muted @$username.");
+      });
+    }else{
+      if(context.mounted){
+        Toast.showToast(context, "Action failed. Please try again.");
+      }
+    }
+  }
+
+  void unmuteUser() async {
+    bool success = await Account.unmuteUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+    if(success){
+      setState(() {
+        isWantedUserMuted = false;
+        Toast.showToast(context, "You unmuted @$username.");
+      });
+    }else{
+      if(context.mounted){
+        Toast.showToast(context, "Action failed. Please try again.");
+      }
+    }
+  }
+
+  void blockUser() async {
+    showDialog(context: context,
+        builder: (context) =>
+            AlertDialog(
+              content: SizedBox(
+                width: 300,
+                height: 160,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Block @$username?",style: const TextStyle(fontWeight: FontWeight.bold),),
+                    const SizedBox(height: 15,),
+                    Text("@$username will no longer be able to follow or message you,"
+                        "and you will not see notifications from @$username"),
+                    Row(
+                      children: [
+                        const Expanded(child: SizedBox.shrink()),
+                        TextButton(
+                          onPressed: (){
+                            Navigator.pop(context);
+                          },
+                          child: Text("Cancel",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            bool success = await Account.blockUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+                            if(success){
+                              setState(() {
+                                isWantedUserBlocked = true;
+                                if(context.mounted){
+                                  Navigator.pop(context);
+                                  Toast.showToast(context, "You blocked @$username.");
+                                }
+                              });
+                            }else{
+                              if(context.mounted){
+                                Toast.showToast(context, "Action failed. Please try again.");
+                              }
+                            }
+                          },
+                          child: Text("Block",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            )
+    );
+  }
+
+  void unblockUser() async {
+    showDialog(context: context,
+        builder: (context) =>
+            AlertDialog(
+              content: SizedBox(
+                width: 300,
+                height: 160,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Unblock @$username?",style: const TextStyle(fontWeight: FontWeight.bold),),
+                    const SizedBox(height: 15,),
+                    const Text("They will be able to follow you and view your posts"),
+                    Row(
+                      children: [
+                        const Expanded(child: SizedBox.shrink()),
+                        TextButton(
+                          onPressed: (){
+                            Navigator.pop(context);
+                          },
+                          child: Text("Cancel",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            bool success = await Account.unblockUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
+                            if(success){
+                              setState(() {
+                                isWantedUserBlocked = false;
+                                if(context.mounted){
+                                  Navigator.pop(context);
+                                  Toast.showToast(context, "You unblocked @$username.");
+                                }
+                              });
+                            }else{
+                              if(context.mounted){
+                                Toast.showToast(context, "Action failed. Please try again.");
+                              }
+                            }
+                          },
+                          child: Text("Unblock",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ThemeProvider.getInstance(context).isDark()? Colors.white : Colors.black
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            )
+    );
   }
 
 
@@ -300,20 +447,20 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   ] : <PopupMenuItem>[
                                     isWantedUserMuted != null && isWantedUserMuted!?
                                     PopupMenuItem(
+                                      onTap: unmuteUser,
                                       child: const Text("Unmute"),
-                                      onTap: (){}, //TODO: unmute user
                                     ): PopupMenuItem(
+                                      onTap: muteUser,
                                       child: const Text("Mute"),
-                                      onTap: (){}, //TODO: mute user
                                     ),
                                     isWantedUserBlocked != null && isWantedUserBlocked!?
                                     PopupMenuItem(
+                                      onTap: unblockUser,
                                       child: const Text("Unblock"),
-                                      onTap: (){}, //TODO: unblock user
                                     ):
                                     PopupMenuItem(
+                                      onTap: blockUser,
                                       child: const Text("Block"),
-                                      onTap: (){}, //TODO: block user
                                     ),
                                   ],
                                 );
@@ -331,11 +478,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           ) :
                           ProfileBanner(
                               bannerImageUrl: bannerImageUrl,
-                              onTap: ()async{
+                              onTap:  () async {
                                 if(bannerImageUrl != ""){
                                   var res = await Navigator.push(context,
                                       MaterialPageRoute(builder: (context) =>
                                           ProfileImageView(
+                                            isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
                                             isProfileAvatar: false,
                                             imageUrl: bannerImageUrl,
                                             avatarImageUrl: avatarImageUrl,
@@ -356,7 +504,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       avatarImageUrl = res["avatarImageUrl"];
                                     });
                                   }
-                                }else{
+                                }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
                                   onEditProfileClick();
                                 }
                               },
@@ -373,17 +521,22 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                             ValueListenableBuilder(
                               valueListenable: scroll,
                               builder: (context,value,_) {
-                                return ProfileInteract(
-                                  avatarIsVisible: value > collapsePosition,
-                                  isHeader: false,
-                                  avatarImageUrl: avatarImageUrl,
-                                  isCurrUser: widget.isCurrUser,
-                                  isWantedUserFollowed : isWantedUserFollowed,
-                                  isWantedUserBlocked : isWantedUserBlocked,
-                                  onTapEditProfile: onEditProfileClick,
-                                  onTapDM: (){}, //TODO: DM user
-                                  onTapFollow: followUser,
-                                  onTapUnfollow: unfollowUser,
+                                return Visibility(
+                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!),
+                                  child: ProfileInteract(
+                                    avatarIsVisible: value > collapsePosition,
+                                    isHeader: false,
+                                    avatarImageUrl: avatarImageUrl,
+                                    isCurrUser: widget.isCurrUser,
+                                    isWantedUserFollowed : isWantedUserFollowed,
+                                    isWantedUserBlocked : isWantedUserBlocked,
+                                    onTapEditProfile: onEditProfileClick,
+                                    onTapDM: (){}, //TODO: DM user
+                                    onTapFollow: followUser,
+                                    onTapUnfollow: unfollowUser,
+                                    onTapUnblock: unblockUser,
+                                  ),
                                 );
                               }
                             ),
@@ -395,7 +548,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               ),
                             ),
                             Text("@$username"),
-                            bio == "" ? const Text("") :
+                            bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
+                            const Text("") :
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0,10,0,0),
                               child: SizedBox(
@@ -452,68 +606,80 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               ],
                             ),
                             const SizedBox(height: 15,),
-                            Row(
-                              children: [
-                                InkWell(
-                                  onTap: (){
-                                    //TODO: list of Following
-                                  },
-                                  splashFactory: NoSplash.splashFactory,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "$following",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
+                            Visibility(
+                              visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                  || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
+                                  && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
+                              child: Row(
+                                children: [
+                                  InkWell(
+                                    onTap: (){
+                                      //TODO: list of Following
+                                    },
+                                    splashFactory: NoSplash.splashFactory,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "$following",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const Text(" Following"),
-                                    ],
+                                        const Text(" Following"),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 10,),
-                                InkWell(
-                                  onTap: (){
-                                    //TODO: list of Followers
-                                  },
-                                  splashFactory: NoSplash.splashFactory,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "$followers",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 10,),
+                                  InkWell(
+                                    onTap: (){
+                                      //TODO: list of Followers
+                                    },
+                                    splashFactory: NoSplash.splashFactory,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "$followers",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const Text(" Followers"),
-                                    ],
+                                        const Text(" Followers"),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 20,),
                           ],
                         ),
                       )
                     ),
-                    SliverPersistentHeader(delegate: _SliverAppBarDelegate(
-                        Container(
-                          color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
-                          child: TabBar(
-                            controller: tabController,
-                            tabs: tabs.map((e) => Text(e)).toList(),
-                            onTap: (index){
-                                onTapBarClick(index,10);
-                              },
-                            tabAlignment: TabAlignment.fill,
-                          ),
-                        )
+                    SliverVisibility(
+                      visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                              || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
+                              && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
+                      sliver: SliverPersistentHeader(delegate: _SliverAppBarDelegate(
+                          Container(
+                            color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
+                            child: TabBar(
+                              controller: tabController,
+                              tabs: tabs.map((e) => Text(e)).toList(),
+                              onTap: (index){
+                                  onTapBarClick(index,10);
+                                },
+                              tabAlignment: TabAlignment.fill,
+                            ),
+                          )
+                        ),
+                        pinned: true,
                       ),
-                      pinned: true,
                     )
                   ];
                 },
-                body: TabBarView(
+                body: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                    || (isWantedUserBlocked != null && !isWantedUserBlocked!)?
+                TabBarView(
                   controller: tabController,
                   children: [
                     BetterFeed(
@@ -535,7 +701,37 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     Container(color: Colors.red,child: Center(child: Text("3"),),),
                     Container(color: Colors.red,child: Center(child: Text("4"),),),
                   ],
-                )
+                ) :
+                (isCurrUserBlocked != null && isCurrUserBlocked!) ?
+                    Column(
+                      children: [
+                        const Divider(thickness: 1,height: 1,),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text("You are blocked from following @$username "
+                              "and viewing @$username posts."),
+                        ),
+                        const Divider(thickness: 1,height: 1,),
+                      ],
+                    ) :
+                    Container(
+                      height: 300,
+                      color: Colors.blueGrey[900],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Divider(thickness: 1,height: 1,),
+                          const SizedBox(height: 50,),
+                          Text(
+                            "@$username is blocked",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
               ),
               ValueListenableBuilder(
                 valueListenable: scroll,
@@ -549,7 +745,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       onTap: () async {
                         var res = await Navigator.push(context,
                             MaterialPageRoute(builder: (context) =>
-                                ProfileImageView(isProfileAvatar: true, imageUrl: avatarImageUrl)
+                                ProfileImageView(
+                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                    isProfileAvatar: true,
+                                    imageUrl: avatarImageUrl,
+                                )
                             )
                         );
                         if(res != null){

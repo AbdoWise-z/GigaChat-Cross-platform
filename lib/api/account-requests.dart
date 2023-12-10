@@ -197,6 +197,7 @@ class Account {
     User u = User();
     if(k.code == ApiResponse.CODE_SUCCESS){
       var res = json.decode(k.responseBody!);
+      print(token);
       print(res);
       u.id          = res["user"]["username"];
       u.name        = res["user"]["nickname"];
@@ -352,6 +353,62 @@ class Account {
           return true;
         default:
           return false;
+    }
+  }
+
+  static Future<bool> muteUser(String token, String username) async
+  {
+    ApiPath endPoint = (ApiPath.muteUser).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    print(response.code);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static Future<bool> unmuteUser(String token, String username) async
+  {
+    ApiPath endPoint = (ApiPath.unmuteUser).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    print(response.code);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static Future<bool> blockUser(String token, String username) async
+  {
+    ApiPath endPoint = (ApiPath.blockUser).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    print(response.code);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static Future<bool> unblockUser(String token, String username) async
+  {
+    ApiPath endPoint = (ApiPath.unblockUser).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
+    print(response.code);
+    switch(response.code){
+      case ApiResponse.CODE_SUCCESS_NO_BODY:
+        return true;
+      default:
+        return false;
     }
   }
 
