@@ -56,6 +56,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
             MaterialPageRoute(
               builder: (context) => VerificationCodePage(
                 isRegister: false,
+                isVerify: false,
                 method: m,
               ),
             ),

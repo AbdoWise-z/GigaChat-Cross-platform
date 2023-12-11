@@ -18,6 +18,9 @@ import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/search/search-result.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-information/change-email.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-information/verify-password.dart';
+import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -81,7 +84,10 @@ class _GigaChatState extends State<GigaChat> {
                   UserListViewPage.pageRoute : (context) => UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                   SearchPage.pageRoute : (context) => const SearchPage(),
-                  SearchResultPage.pageRoute : (context) => const SearchResultPage()
+                  SearchResultPage.pageRoute : (context) => const SearchResultPage(),
+                  MainSettings.pageRoute : (context) => const MainSettings(),
+                  VerifyPasswordPage.pageRoute : (context) => const VerifyPasswordPage(),
+                  ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
                 },
               );
             }

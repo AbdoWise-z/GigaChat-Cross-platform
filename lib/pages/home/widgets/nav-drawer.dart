@@ -331,8 +331,9 @@ class _NavDrawerState extends State<NavDrawer> {
                             ),
                             children: [
                               ListTile(
-                                onTap: () {
+                                onTap: () async {
                                   //TODO : sub-menu action 1
+                                  await Navigator.pushNamed(context, '/settings');
                                 },
                                 horizontalTitleGap: 15,
                                 leading: const Padding(
