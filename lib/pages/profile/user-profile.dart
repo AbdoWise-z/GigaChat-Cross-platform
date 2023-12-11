@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
@@ -55,18 +56,19 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   //page details
   bool loading = true;
+
   late ScrollController scrollController;
-  TabController? tabController;
-  double avatarRadius = 35;
-  EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
-  double showNamePosition = 162;
-  double collapsePosition = 80;
+  late FeedController feedController;
+  late TabController tabController;
+
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false,false,false];
-  late FeedController feedController;
-  List<String> tabs = [
-    "Posts" , "Replies", "Media", " Likes",
-  ];
+
+  double avatarRadius = 35;
+  double showNamePosition = 162;
+  double collapsePosition = 80;
+  EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
+
   final ValueNotifier<double> scroll = ValueNotifier<double>(0);
 
   //get user data
@@ -107,15 +109,30 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         prevTabIndex = index;
       });
       if(index == 1 && !isLoaded[1]){
-        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 315 && bio == ""){
+          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
+        else if(scrollController.position.pixels > 390 && bio != ""){
+          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
         isLoaded[1] = true;
      }
       if(index == 2 && !isLoaded[2]){
-        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 315 && bio == ""){
+          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
+        else if(scrollController.position.pixels > 390 && bio != ""){
+          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
         isLoaded[2] = true;
       }
       if(index == 3 && !isLoaded[3]){
-        scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 315 && bio == ""){
+          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
+        else if(scrollController.position.pixels > 390 && bio != ""){
+          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        }
         isLoaded[3] = true;
       }
     }
@@ -325,9 +342,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   void initState()  {
     scrollController = ScrollController();
     tabController = TabController(length: 4, vsync: this);
-    tabController!.addListener(() {
-      if(!tabController!.indexIsChanging){
-        int index = tabController!.index;
+    tabController.addListener(() {
+      if(!tabController.indexIsChanging){
+        int index = tabController.index;
         onTapBarClick(index, 100);
       }
     });
@@ -340,6 +357,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   }
 
   //TODO: get likes, media, replies
+  //TODO: auto add when creating post
 
   @override
   Widget build(BuildContext context) {
@@ -532,7 +550,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     isWantedUserFollowed : isWantedUserFollowed,
                                     isWantedUserBlocked : isWantedUserBlocked,
                                     onTapEditProfile: onEditProfileClick,
-                                    onTapDM: (){}, //TODO: DM user
+                                    onTapDM: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChatPage()
+                                        )
+                                      );
+                                    }, //TODO: DM user
                                     onTapFollow: followUser,
                                     onTapUnfollow: unfollowUser,
                                     onTapUnblock: unblockUser,
@@ -662,13 +688,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       sliver: SliverPersistentHeader(delegate: _SliverAppBarDelegate(
                           Container(
                             color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
-                            child: TabBar(
-                              controller: tabController,
-                              tabs: tabs.map((e) => Text(e)).toList(),
+                            child: ProfileTabBar(
+                              tabController: tabController,
                               onTap: (index){
                                   onTapBarClick(index,10);
                                 },
-                              tabAlignment: TabAlignment.fill,
                             ),
                           )
                         ),
