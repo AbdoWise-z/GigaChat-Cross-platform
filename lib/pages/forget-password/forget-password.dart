@@ -50,7 +50,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           MaterialPageRoute(
             builder: (context) =>
                 VerificationMethodPage(
-                    methods: m
+                  isLogged: false,
+                  methods: m
                 ),
           ),
         );

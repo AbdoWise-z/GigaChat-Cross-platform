@@ -159,6 +159,17 @@ class Auth extends ChangeNotifier{
     return;
   }
 
+  Future<void> changeUserPassword(String oldPassword, String newPassword , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
+    var res = await Account.apiChangePassword(_currentUser!.auth! , oldPassword, newPassword);
+    if (res.data != null){
+      _currentUser!.auth = res.data;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
   Future<void> setUserInfo(String name,String bio,String website, String location,DateTime birthDate,
       { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiUpdateUserInfo(_currentUser!.auth! , name,bio,website,location,birthDate);

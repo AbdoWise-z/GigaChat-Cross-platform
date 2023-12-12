@@ -368,6 +368,23 @@ class Account {
     return k;
   }
 
+  static Future<ApiResponse<String>> apiChangePassword(String token, String oldPassword, String newPassword) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiPatch<String>(
+      ApiPath.updatePassword,
+      body: json.encode({
+        "oldPassword": oldPassword,
+        "newPassword": newPassword,
+      }),
+      headers: headers,
+    );
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      k.data = res["token"];
+    }
+    return k;
+  }
+
   static Future<bool> followUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.followUser).format([username]);

@@ -41,10 +41,11 @@ class _AccountInformationState extends State<AccountInformation> {
                 color: Colors.blueGrey,
               ),
             ),
-            const ListTile(
+            ListTile(
+              onTap: (){},
               splashColor: Colors.transparent,
-              title: MainText(text: "Phone",size: 17,),
-              subtitle: MainText(
+              title: const MainText(text: "Phone",size: 17,),
+              subtitle: const MainText(
                 text: "Add",
                 color: Colors.blueGrey,
               ),
@@ -82,7 +83,7 @@ class _AccountInformationState extends State<AccountInformation> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text("Log out",style: TextStyle(fontWeight: FontWeight.bold),),
+                                const Text("Log out",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
                                 const SizedBox(height: 15,),
                                 const MainText(text: "Logging out will remove all Gigachat data from this device"),
                                 Row(

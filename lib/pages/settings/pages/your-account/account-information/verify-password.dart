@@ -30,6 +30,7 @@ class _LoginPasswordPageState extends State<VerifyPasswordPage> {
   late final Auth authProvider;
   TextEditingController inputPassword = TextEditingController();
   bool loading = false;
+  bool passwordIsVisible = false;
   final passwordFieldKey = GlobalKey<FormFieldState>();
 
 
@@ -94,34 +95,18 @@ class _LoginPasswordPageState extends State<VerifyPasswordPage> {
                 const SizedBox(height: 15),
                 const MainText(text: "Re-enter your Gigachat password to continue.",color: Colors.blueGrey,),
                 const SizedBox(height: 20),
-                TextFormField(
-                  key: passwordFieldKey,
-                  controller: inputPassword,
-                  autofocus: true,
-                  validator: (value){
-                    if(InputValidations.isValidPassword(value) is String){
-                      isButtonDisabled = true;
-                      return "Invalid password";
-                    }else {
-                      isButtonDisabled = false;
-                      return null;
-                    }
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onChanged: (String input) async {
-                    setState(() {
-                      isButtonDisabled = true;
-                    });
-                    await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
-                    setState(() {});
-                  },
-                  decoration: InputDecoration(
-                      labelText: "Password",
-                      border: const OutlineInputBorder(),
-                      suffixIcon: inputPassword.text.isEmpty? null :
-                      (passwordFieldKey.currentState == null || passwordFieldKey.currentState!.isValid)? const Icon(Icons.check_circle_sharp,color: CupertinoColors.systemGreen,) :
-                      const Icon(Icons.error,color: Colors.red,)
-                  ),
+                PasswordFormField(
+                    onChanged: (str){},
+                    validator: (value){
+                      if(InputValidations.isValidPassword(value) is String){
+                        isButtonDisabled = true;
+                        return "Invalid password";
+                      }else{
+                        isButtonDisabled = false;
+                        return null;
+                      }
+                    },
+                    label: "Password"
                 )
               ],
             ),

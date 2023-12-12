@@ -87,7 +87,7 @@ class ApiPath{
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
   static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
-  static ApiPath unretweet                 = const ApiPath._("/api/tweets/unretweet");
+  static ApiPath unretweet               = const ApiPath._("/api/tweets/unretweet");
   static ApiPath media                   = const ApiPath._("/api/media");
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");

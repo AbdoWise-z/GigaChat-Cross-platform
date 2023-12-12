@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/account-information.dart';
+import 'package:gigachat/pages/settings/pages/your-account/change-your-password/change-your-password.dart';
 import 'package:gigachat/pages/settings/settings-titles.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/pages/settings/widgets/settings-tile.dart';
@@ -46,8 +47,12 @@ class _AccountSettingsState extends State<AccountSettings> {
             SettingsTile(
               icon: Icons.lock_outline,
               onTap: (){
-
-              }, //TODO:
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) =>
+                        const ChangePasswordPage(),
+                  )
+                );
+              },
               mainText: "Change your password",
               description: "Change your password at any time",
             ),
