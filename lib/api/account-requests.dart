@@ -13,7 +13,7 @@ class Account {
     var k = await Api.apiPost<User>(
       ApiPath.login,
       body: json.encode({
-        "email": userName,
+        "query": userName,
         "password": password,
       }),
       headers: Api.JSON_TYPE_HEADER,

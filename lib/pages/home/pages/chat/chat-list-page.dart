@@ -101,7 +101,6 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   void initState() {
     super.initState();
-    print("init state");
     _loadChats();
   }
 
@@ -118,73 +117,76 @@ class _ChatListPageState extends State<ChatListPage> {
       }
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return StretchingOverscrollIndicator(
+      axisDirection: AxisDirection.down,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-          Visibility(
-            visible: pinned.isNotEmpty,
-            child: const Padding(
-              key: ValueKey(1),
-              padding: EdgeInsets.only(
-                left: 8,
-                top: 20,
-              ),
-              child: Text(
-                "Pinned conversations",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
+            Visibility(
+              visible: pinned.isNotEmpty,
+              child: const Padding(
+                key: ValueKey(1),
+                padding: EdgeInsets.only(
+                  left: 8,
+                  top: 20,
+                ),
+                child: Text(
+                  "Pinned conversations",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          ...
-          pinned.map((e) => ChatListItem(
-            object: e,
-            longPress: () {
-              _createDialog(e);
-            },
-            press: () {
-              //TODO: implement the real chat
-              Navigator.pushNamed(context, "/chat");
-            },
-          )).toList()
-          ,
+            ...
+            pinned.map((e) => ChatListItem(
+              object: e,
+              longPress: () {
+                _createDialog(e);
+              },
+              press: () {
+                //TODO: implement the real chat
+                Navigator.pushNamed(context, "/chat");
+              },
+            )).toList()
+            ,
 
-          Visibility(
-            visible: pinned.isNotEmpty && notPinned.isNotEmpty,
-            child: const Padding(
-              key: ValueKey(1),
-              padding: EdgeInsets.only(
-                left: 8,
-                top: 20,
-              ),
-              child: Text(
-                "All conversations",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
+            Visibility(
+              visible: pinned.isNotEmpty && notPinned.isNotEmpty,
+              child: const Padding(
+                key: ValueKey(1),
+                padding: EdgeInsets.only(
+                  left: 8,
+                  top: 20,
+                ),
+                child: Text(
+                  "All conversations",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          ...
-          notPinned.map((e) => ChatListItem(
-            object: e,
-            longPress: () {
-              _createDialog(e);
-            },
-            press: () {
-              //TODO: implement the real chat
-              Navigator.pushNamed(context, "/chat");
-            },
-          )).toList()
-          ,
-        ],
+            ...
+            notPinned.map((e) => ChatListItem(
+              object: e,
+              longPress: () {
+                _createDialog(e);
+              },
+              press: () {
+                //TODO: implement the real chat
+                Navigator.pushNamed(context, "/chat");
+              },
+            )).toList()
+            ,
+          ],
+        ),
       ),
     );
   }

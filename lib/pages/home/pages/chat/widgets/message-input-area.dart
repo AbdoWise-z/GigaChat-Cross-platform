@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
+import 'package:gigachat/widgets/local-video-player.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 
@@ -72,6 +73,12 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+  }
+
   final GlobalKey _textFieldKey = GlobalKey();
   double _dx = 0;
   double _mh = 0;
@@ -83,26 +90,49 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _media != null ? Container(
-          width: 80 + 30.0 * _appear.value, //these numbers are totally based on my taste
-          height: 80 + 30.0 * _appear.value,
+          width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+          height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
           alignment: Alignment.topRight,
-          margin: const EdgeInsets.only(bottom: 5,right: 15),
+          margin: const EdgeInsets.only(bottom: 5,right: 5),
           decoration: BoxDecoration(
-            image: DecorationImage(image: FileImage(new File("/sdcard/$_media"))),
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(18)
           ),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.black54,
-            child: IconButton(
-              iconSize: 18,
-              icon: const Icon(Icons.remove , weight: 2,),
-              onPressed: () {
-                setState(() {
-                  _media = null;
-                });
-              },
-            ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              Container(
+                color: Theme.of(context).textTheme.bodyLarge!.color,
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: _media!.type == AssetType.image ? Image.file(
+                  _media!.path,
+                  fit: BoxFit.fill,
+                ) :SizedBox(
+                  width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+                  height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
+                  child: LocalVideoPlayer(
+                    file: _media!.path.path,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.black54,
+                  child: IconButton(
+                    iconSize: 18,
+                    icon: const Icon(Icons.remove , weight: 2,),
+                    onPressed: () {
+                      setState(() {
+                        _media = null;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ) : const SizedBox.shrink(),
 
@@ -124,7 +154,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                   opacity: _appear.value,
                   child: Transform.translate(
                     offset: Offset(-_dx/2 * (1.0 - _appear.value), 0),
-                    child: Container(
+                    child: SizedBox(
                       height: _height.value == 1 ? null : _height.value * _mh,
                       child: Padding(
                         padding: const EdgeInsets.symmetric( horizontal: 12.0),
@@ -138,6 +168,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                           },
                           style: const TextStyle(
                             fontSize: 16,
+                            color: Colors.black,
                           ),
                           decoration: InputDecoration(
                             enabledBorder: InputBorder.none,
@@ -166,22 +197,28 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                       onPressed: () async {
                         //if you somehow was able to click before the app even builds
                         //then you deserve the app crash in your face :)
+                        var m = _media;
+
+                        setState(() {
+                          _media = null;
+                        });
+
                         var selected = await Gallery.selectFromGallery(
                           context ,
-                          selected: _media == null ? [] : [_media!.path],
+                          selected: m == null ? [] : [m!.path],
                           canSkip: true,
                           selectMax: 1,
                         );
+
                         setState(() {
                           if (selected.isNotEmpty){
                             _media = selected[0];
-                          }else{
-                            _media = null;
+                            print(_media!.path.path);
                           }
                         });
 
                       },
-                      icon: const Icon(Icons.photo_outlined) ,
+                      icon: const Icon(Icons.photo_outlined , color: Colors.black,) ,
                     ),
 
                     Expanded(
@@ -236,7 +273,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                         ),
                       ),
                     ),
-                    SizedBox(width: 8,),
+                    const SizedBox(width: 8,),
                   ],
                 ),
               ],

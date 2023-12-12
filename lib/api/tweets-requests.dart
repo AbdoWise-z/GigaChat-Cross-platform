@@ -118,7 +118,7 @@ class Tweets {
             id: specialAccessObject(tweet, accessor["tweetRetweeterID"]!),
             name: specialAccessObject(tweet, accessor["tweetRetweeterName"]!),
             auth: token,
-            isFollowed: specialAccessObject(tweet, accessor["tweetRetweeterIsFollowed"]) ?? true,
+            isFollowed: specialAccessObject(tweet, accessor["tweetRetweeterIsFollowed"]) ?? false,
             bio : specialAccessObject(tweet, accessor["tweetRetweeterBio"]) ?? "",
             iconLink : specialAccessObject(tweet, accessor["tweetRetweeterIcon"]!) ?? USER_DEFAULT_PROFILE,
             followers : specialAccessObject(tweet, accessor["tweetRetweeterFollowers"]),
@@ -154,7 +154,7 @@ class Tweets {
 
           "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
           "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
-          "tweetOwnerIsFollowed": null,
+          "tweetOwnerIsFollowed": ["tweetDetails","isFollowed"],
           "tweetOwnerBio": null,
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
@@ -194,7 +194,7 @@ class Tweets {
 
       "tweetOwnerID": ["tweet_owner", "username"],
       "tweetOwnerName": ["tweet_owner", "nickname"],
-      "tweetOwnerIsFollowed": null,
+      "tweetOwnerIsFollowed": ["isFollowed"],
       "tweetOwnerBio": null,
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
@@ -254,6 +254,7 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
+      print(token);
       List<TweetData> responseTweets = decodeTweetList(
         token,
         response,
