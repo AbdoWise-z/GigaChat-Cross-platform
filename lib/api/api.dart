@@ -68,9 +68,14 @@ class ApiPath{
   static ApiPath signUp                  = const ApiPath._("/api/user/signup");
   static ApiPath checkBirthDate          = const ApiPath._("/api/user/checkBirthDate");
   static ApiPath confirmEmail            = const ApiPath._("/api/user/confirmEmail");
+  static ApiPath verifyEmail             = const ApiPath._("/api/user/verifyEmail");
   static ApiPath resendConfirmEmail      = const ApiPath._("/api/user/resendConfirmEmail");
   static ApiPath assignPassword          = const ApiPath._("/api/user/AssignPassword");
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
+  static ApiPath updatePassword          = const ApiPath._("/api/user/updatePassword");
+  static ApiPath verifyPassword          = const ApiPath._("/api/user/confirmPassword");
+  static ApiPath updateUsername          = const ApiPath._("/api/user/updateUsername");
+  static ApiPath updateEmail             = const ApiPath._("/api/user/updateEmail");
   static ApiPath login                   = const ApiPath._("/api/user/login");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");

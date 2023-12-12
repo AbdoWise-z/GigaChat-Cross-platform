@@ -13,6 +13,8 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 
+import '../home/home.dart';
+
 const String CODE_VERIFICATION_DESCRIPTION =
     "Check your email to get your confirmation"
     " code. if you need to request a new code, go back and reselect confirmation";
@@ -21,8 +23,9 @@ class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
   bool isRegister;
+  bool isVerify;
   ContactMethod method;
-  VerificationCodePage({super.key, required this.isRegister , required this.method});
+  VerificationCodePage({super.key, required this.isRegister , required this.method,required this.isVerify});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
@@ -98,11 +101,17 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     await auth.verifyMethod(
       m,
       code,
-
+      auth.getCurrentUser() != null? auth.getCurrentUser()!.auth : null,
+      widget.isVerify,
       success: (res) {
-        if (widget.isRegister){
+        if(widget.isVerify && widget.isRegister){
+          Navigator.popUntil(context, (route) => false);
+          Navigator.pushNamed(context, Home.pageRoute);
+        }
+        else if (widget.isRegister){
           Navigator.pushReplacementNamed(context, CreatePassword.pageRoute);
-        }else{
+        }
+        else{
           Navigator.push(context, MaterialPageRoute(builder: (context) => const NewPasswordPage()));
         }
       },

@@ -46,7 +46,8 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
         MaterialPageRoute(
           builder: (context) =>
               VerificationMethodPage(
-                  methods: m
+                isLogged: false,
+                methods: m
               ),
         ),
       );

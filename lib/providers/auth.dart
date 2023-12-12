@@ -61,10 +61,14 @@ class Auth extends ChangeNotifier{
     }
   }
 
-  Future<void> verifyMethod(ContactMethod method , String code , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
-    var res = await Account.apiVerifyMethod(method , code);
+  Future<void> verifyMethod(ContactMethod method , String code ,String? token,bool isVerify, { void Function(ApiResponse<dynamic>)? success , void Function(ApiResponse<dynamic>)? error}) async {
+    var res = await Account.apiVerifyMethod(method , code, isVerify,token);
     if (res.data != null){
-      _currentUser = res.data;
+      if(!isVerify) {
+        _currentUser = res.data;
+      }else{
+        _currentUser!.email = res.data;
+      }
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
@@ -116,6 +120,49 @@ class Auth extends ChangeNotifier{
     if (res.data!){
       //update the new username
       _currentUser!.id = name;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> changeUserUsername(String name , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiChangeUsername(_currentUser!.auth! , name);
+    if (res.data!){
+      //update the new username
+      _currentUser!.id = name;
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> verifyUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiVerifyPassword(_currentUser!.auth! , password);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> changeUserEmail(String email , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiChangeEmail(_currentUser!.auth! , email);
+    if (res.data != null){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> changeUserPassword(String oldPassword, String newPassword , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
+    var res = await Account.apiChangePassword(_currentUser!.auth! , oldPassword, newPassword);
+    if (res.data != null){
+      _currentUser!.auth = res.data;
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
