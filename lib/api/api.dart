@@ -81,6 +81,10 @@ class ApiPath{
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
   static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
   static ApiPath unfollowUser            = const ApiPath._("/api/user/%s/unfollow");
+  static ApiPath muteUser                = const ApiPath._("/api/user/%s/mute");
+  static ApiPath unmuteUser              = const ApiPath._("/api/user/%s/unmute");
+  static ApiPath blockUser               = const ApiPath._("/api/user/%s/block");
+  static ApiPath unblockUser             = const ApiPath._("/api/user/%s/unblock");
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
