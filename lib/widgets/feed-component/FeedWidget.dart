@@ -4,6 +4,7 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
+import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
@@ -12,7 +13,7 @@ import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
 class BetterFeed extends StatefulWidget {
-  final bool isScrollable;
+  final bool removeController;
   final ProviderFunction providerFunction;
   final ProviderResultType providerResultType;
   final FeedController feedController;
@@ -20,7 +21,7 @@ class BetterFeed extends StatefulWidget {
 
   BetterFeed({
     super.key,
-    required this.isScrollable,
+    required this.removeController,
     required this.providerFunction,
     required this.providerResultType,
     required this.feedController,
@@ -64,6 +65,32 @@ class _BetterFeedState extends State<BetterFeed> {
     );
   }
 
+
+  Future<void> addComment(BuildContext context,TweetData tweetData) async {
+    dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
+      "reply" : tweetData,
+    });
+
+    if(retArguments["success"] != null && retArguments["success"] == true){
+
+      List<TweetData> tweetList = retArguments["tweets"];
+      if(
+      widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS
+      &&
+      widget.tweetID! == tweetData.id
+      ){
+        Map<String,TweetData> mappedTweets = {};
+        for (TweetData tweetData in tweetList){
+          mappedTweets.putIfAbsent(tweetData.id, () => tweetData);
+        }
+        _feedController.appendToBegin(mappedTweets);
+      }
+
+      tweetData.repliesNum += 1;
+      setState(() {});
+    }
+  }
+
   List<Widget>? wrapDataInWidget() {
     switch(widget.providerResultType){
       // The Result Of Searching For User
@@ -88,6 +115,7 @@ class _BetterFeedState extends State<BetterFeed> {
                       _feedController.deleteTweet(tweetID);
                       setState(() {});
                     },
+                    onCommentButtonClicked: () => addComment(context, tweetData),
                   );
         }).toList();
     }
@@ -122,8 +150,8 @@ class _BetterFeedState extends State<BetterFeed> {
           return RefreshIndicator(
               onRefresh: () async {},
               child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(children: widgetList!),
+                  controller: widget.removeController == true ? null : _scrollController,
+                  child: Column(children: widgetList),
               )
           );
         }

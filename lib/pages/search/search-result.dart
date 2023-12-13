@@ -73,24 +73,25 @@ class _SearchResultPageState extends State<SearchResultPage> {
             isScrollable: true,
             tabs: <Widget>[
               Tab(text: "Top"),
-              Tab(text: "Users"),
+              Tab(text: "People"),
             ],
           ),
         ),
         body: TabBarView(
           children: <Widget>[
             BetterFeed(
-                isScrollable: true,
                 providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                 providerResultType: ProviderResultType.TWEET_RESULT,
-                feedController: latestFeedController
+                feedController: latestFeedController,
+              removeController: false,
             ),
             BetterFeed(
-                isScrollable: true,
                 providerFunction: ProviderFunction.SEARCH_USERS,
                 providerResultType: ProviderResultType.USER_RESULT,
                 feedController: userFeedController,
                 keyword: keyword,
+
+              removeController: false,
             ),
           ],
         ),

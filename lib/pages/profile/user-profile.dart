@@ -13,6 +13,7 @@ import 'package:gigachat/pages/profile/widgets/banner.dart';
 import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:intl/intl.dart';
 import '../../api/user-class.dart';
@@ -24,6 +25,7 @@ import '../../widgets/feed-component/feed-controller.dart';
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
+  static const profileFeed = 'profileFeed';
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
   static const pageRoute = '/user-profile';
@@ -97,6 +99,26 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isWantedUserFollowed = u.isFollowed;
     isCurrUser = u.isCurrUser;
 
+    scrollController = ScrollController();
+    scrollController.addListener(() async {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
+      {
+        await feedController.fetchFeedData(username: username);
+        setState(() {});
+      }
+    });
+
+    if(!context.mounted) return;
+
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+    feedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeed + username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false
+    );
+
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     setState(() {
       loading = false;
@@ -340,7 +362,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
-    scrollController = ScrollController();
+
     tabController = TabController(length: 4, vsync: this);
     tabController.addListener(() {
       if(!tabController.indexIsChanging){
@@ -348,10 +370,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         onTapBarClick(index, 100);
       }
     });
-    feedController = FeedController(
-      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-      token: Auth.getInstance(context).getCurrentUser()!.auth!,
-    );
+
     getData();
     super.initState();
   }
@@ -707,7 +726,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   controller: tabController,
                   children: [
                     BetterFeed(
-                      isScrollable: true,
+                      removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,
@@ -715,7 +734,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       userName: name,
                     ),
                     BetterFeed(
-                      isScrollable: true,
+                      removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,

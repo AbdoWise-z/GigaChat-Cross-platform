@@ -12,6 +12,7 @@ import 'package:gigachat/pages/home/pages/notification/notifications.dart';
 import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
+import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
@@ -152,7 +153,28 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
 
                 BottomBarItem(
                   icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
-                  click: () => setPage(1),
+                  click: () {
+                    if (_currentPage == 1) {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) {
+                            return const SearchPage();
+                          },
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            var tween = Tween(begin: 0.0, end: 1.0);
+                            var fadeAnimation = tween.animate(animation);
+                            return FadeTransition(
+                              opacity: fadeAnimation,
+                              child: child,
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      setPage(1);
+                    }
+                  },
                   notify: _pages[1].getNotificationsCount(context),
                 ),
 

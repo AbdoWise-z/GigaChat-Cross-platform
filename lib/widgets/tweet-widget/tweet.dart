@@ -57,6 +57,7 @@ class Tweet extends StatefulWidget {
   final bool isRetweet;
   final bool isSinglePostView;
   final void Function(String) callBackToDelete;
+  final void Function() onCommentButtonClicked;
 
   Tweet({
       super.key,
@@ -64,7 +65,8 @@ class Tweet extends StatefulWidget {
       required this.tweetData,
       required this.isRetweet,
       required this.isSinglePostView,
-      required this.callBackToDelete
+      required this.callBackToDelete,
+    required this.onCommentButtonClicked
   });
 
   @override
@@ -138,8 +140,9 @@ class _TweetState extends State<Tweet> {
                       "tweetData": widget.tweetData,
                       "tweetOwner": widget.tweetOwner
                     });
-
-                    setState(() {});
+                    if (context.mounted) {
+                      setState(() {});
+                    }
                   },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
@@ -391,16 +394,7 @@ class _TweetState extends State<Tweet> {
         isRetweet: false,
         isRetweeted: false,
 
-        onPressed: () async {
-          dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
-            "reply" : tweetData,
-          });
-          if(retArguments["success"] != null && retArguments["success"] == true){
-            tweetData.repliesNum += 1;
-          }
-          print("tweet prints ${tweetData.repliesNum}");
-          return tweetData.repliesNum;
-        },
+        onPressed: widget.onCommentButtonClicked,
       ),
       TweetActionButton(
         icon: FontAwesomeIcons.retweet,

@@ -1,11 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
@@ -52,16 +54,16 @@ class FeedHomeTab with HomePageTab {
           );
       return [
         BetterFeed(
-                isScrollable: true,
                 providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                 providerResultType: ProviderResultType.TWEET_RESULT,
-                feedController: feedController ?? homeFeedController
+                feedController: feedController ?? homeFeedController,
+                removeController: false,
         ),
        BetterFeed(
-                  isScrollable: true,
                   providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                   providerResultType: ProviderResultType.TWEET_RESULT,
-                  feedController: feedController ?? homeFeedController
+                  feedController: feedController ?? homeFeedController,
+                  removeController: false,
        ),
 
       ];
@@ -99,8 +101,26 @@ class FeedHomeTab with HomePageTab {
         ),
       ),
       onTab: () async {
-        Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
-      } ,
+        dynamic returnArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
+        if (returnArguments != null && returnArguments["success"] != null && returnArguments["success"] == true){
+          List<TweetData> tweetData =  returnArguments["tweets"];
+
+          Map<String,TweetData> mappedTweets = {};
+          for(TweetData tweet in tweetData){
+            mappedTweets.putIfAbsent(tweet.id, () => tweet);
+          }
+
+          if(!context.mounted) return;
+
+          FeedProvider.getInstance(context).getFeedControllerById(
+              context: context,
+              id: UserProfile.profileFeed + Auth.getInstance(context).getCurrentUser()!.id,
+              providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+              clearData: false
+          ).appendToBegin(mappedTweets);
+        }
+
+        } ,
       items: [
         FloatingActionMenuItem(
           icon: CircleAvatar(

@@ -36,7 +36,7 @@ class MediaData{
 class TweetData
 {
   final String id;
-  final String referredTweetId;
+  final String? referredTweetId;
   final String description;
 
   final List<MediaData>? media;
@@ -76,3 +76,23 @@ class TweetData
     required this.media
   });
 }
+
+// TweetData convertToTweetData(String id, IntermediateTweetData intermediateTweetData, User user){
+//   return TweetData(
+//       id: id,
+//       referredTweetId: ,
+//       description: description,
+//       viewsNum: viewsNum,
+//       likesNum: likesNum,
+//       repliesNum: repliesNum,
+//       repostsNum: repostsNum,
+//       creationTime: creationTime,
+//       type: type,
+//       tweetOwner: tweetOwner,
+//       isLiked: isLiked,
+//       isRetweeted: isRetweeted,
+//       media: media
+//   );
+
+
+// }
