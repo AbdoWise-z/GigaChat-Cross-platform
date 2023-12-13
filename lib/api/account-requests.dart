@@ -35,8 +35,8 @@ class Account {
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
-      //u.followers   = res["data"]["user"]["followers_num"];
-      //u.following   = res["data"]["user"]["following_num"];
+      u.followers   = res["data"]["user"]["followers_num"];
+      u.following   = res["data"]["user"]["followings_num"];
 
       k.data = u;
     }

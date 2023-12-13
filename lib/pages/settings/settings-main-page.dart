@@ -30,7 +30,7 @@ class _MainSettingsState extends State<MainSettings> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 15),
                 child: GestureDetector(
-                  onTap: (){},
+                  onTap: (){},  //TODO: search settings
                   child: Container(
                     constraints: const BoxConstraints.expand(height: 40),
                     padding: const EdgeInsets.all(10),
