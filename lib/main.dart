@@ -18,13 +18,14 @@ import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/search/search-result.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-information/change-email.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-information/verify-password.dart';
+import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/tweet-widget/full-screen-tweet.dart';
 import 'package:provider/provider.dart';
 
 
@@ -53,7 +54,6 @@ class _GigaChatState extends State<GigaChat> {
       providers: [
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
       ],
       child: Consumer<ThemeProvider>(
@@ -85,7 +85,9 @@ class _GigaChatState extends State<GigaChat> {
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                   SearchPage.pageRoute : (context) => const SearchPage(),
                   SearchResultPage.pageRoute : (context) => const SearchResultPage(),
-                  FullScreenImage.pageRoute : (context) => const FullScreenImage()
+                  MainSettings.pageRoute : (context) => const MainSettings(),
+                  VerifyPasswordPage.pageRoute : (context) => const VerifyPasswordPage(),
+                  ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
                 },
               );
             }

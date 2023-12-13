@@ -40,6 +40,7 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
           MaterialPageRoute(
             builder: (context) => VerificationCodePage(
               isRegister: true ,
+              isVerify: false,
               method: res.data!,
             ),
           ),

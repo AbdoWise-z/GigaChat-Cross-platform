@@ -18,8 +18,9 @@ const String CONFIRMATION_METHOD_DESCRIPTION =
 class VerificationMethodPage extends StatefulWidget {
   String pageRoute = "/test";
   List<ContactMethod> methods;
+  bool isLogged;
 
-  VerificationMethodPage({super.key, required this.methods});
+  VerificationMethodPage({super.key, required this.methods, required this.isLogged});
 
   @override
   State<VerificationMethodPage> createState() => _VerificationMethodPageState();
@@ -56,6 +57,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
             MaterialPageRoute(
               builder: (context) => VerificationCodePage(
                 isRegister: false,
+                isVerify: false,
                 method: m,
               ),
             ),
@@ -81,9 +83,9 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            widget.isLogged? Navigator.pop(context) : Navigator.popUntil(context, ModalRoute.withName('/'));
           },
-          icon: const Icon(Icons.close),
+          icon: widget.isLogged? const Icon(Icons.arrow_back): const Icon(Icons.close),
         ),
       ),
       body: Padding(
