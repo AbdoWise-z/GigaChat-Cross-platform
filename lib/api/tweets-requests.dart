@@ -68,9 +68,13 @@ class Tweets {
 
     for (var path in fullPath) {
       currentObject = currentObject[path];
-      if (path == "media")
-      {
-          currentObject = currentObject[0];
+      if(path == "media"){
+        List<MediaData> mediaList = [];
+        for (var media in currentObject){
+          MediaType mediaType = media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO;
+          mediaList.add(MediaData(mediaType: mediaType, mediaUrl: media["data"]));
+        }
+        return mediaList;
       }
     }
 
@@ -96,7 +100,7 @@ class Tweets {
           referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
           description: specialAccessObject(tweet, accessor["description"]!) ?? "",
           viewsNum: specialAccessObject(tweet, accessor["viewsNum"]) ?? 0,
-          likesNum: specialAccessObject(tweet, accessor["likesNum"]!),
+          likesNum: specialAccessObject(tweet, accessor["likesNum"]!) ?? 0,
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
           creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
@@ -128,8 +132,6 @@ class Tweets {
 
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
           isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
-          mediaType: hasMedia ?
-          (specialAccessObject(tweet, accessor["mediaType"]!) == "jpg" ? MediaType.IMAGE : MediaType.VIDEO) : MediaType.NONE,
           media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
       );
     }).toList();
@@ -170,10 +172,9 @@ class Tweets {
           "tweetRetweeterFollowing": ["followingUser", "following_num"],
 
 
-      "isLiked": ["isLiked"],
+          "isLiked": ["isLiked"],
           "isRetweeted": ["isRtweeted"],
-          "mediaType": ["tweetDetails","media","type"],
-          "media": ["tweetDetails","media","data"],
+          "media": ["tweetDetails","media"],
         }, ApiPath.followingTweets);
   }
 
@@ -202,8 +203,7 @@ class Tweets {
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
-      "mediaType": ["media","type"],
-      "media": ["media","data"]
+      "media": ["media"]
     }, ApiPath.userProfileTweets.format([userID]));
   }
 
@@ -232,8 +232,7 @@ class Tweets {
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
-      "mediaType": ["media","type"],
-      "media": ["media","data"]
+      "media": ["media"]
     }, ApiPath.comments.format([tweetID]));
   }
 
@@ -254,7 +253,6 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
-      print(token);
       List<TweetData> responseTweets = decodeTweetList(
         token,
         response,
@@ -264,6 +262,7 @@ class Tweets {
       for(TweetData tweet in responseTweets){
         mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
       }
+
       return mappedIdTweets;
     }
     else{
@@ -416,13 +415,10 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
         referredTweetId: '',
 
         description: "Searching for others users is not supported at the moment, will add this in the future",
-
-        mediaType: mediaType,
-        media:
-        mediaType == MediaType.VIDEO ?
+        media: [MediaData(mediaType: mediaType, mediaUrl: mediaType == MediaType.VIDEO ?
         "https://i.imgur.com/rLr8Swh.mp4"
             :
-        "https://i.imgur.com/cufIziI.gif",
+        "https://i.imgur.com/cufIziI.gif")],
         viewsNum: 10,
         likesNum: 20,
         repliesNum: 30,
@@ -443,12 +439,10 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
       "Bonjour, friends.According to the the prophecy: “The people will all be dissolved into the waters. And only the Hydro Archon will remain, weeping on her throne.” Let me take you back about 500 years ago in fontaine, where the main characters are The (previous) Hydro Archon, Dragon Neuvillette and an important person named Furina. The Hydro Archon created the Oratrice to deliver proper justice. They all lived happily until the cataclysm (I would like to make a note here that this cataclysm might be or might not be the khaenriahn one), which befelled the beloved Hydro Archon.",
 
 
-      mediaType: mediaType,
-      media:
-      mediaType == MediaType.VIDEO ?
-      "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
+      media: [MediaData(mediaType: mediaType, mediaUrl: mediaType == MediaType.VIDEO ?
+      "https://i.imgur.com/rLr8Swh.mp4"
           :
-      "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
+      "https://i.imgur.com/cufIziI.gif")],
       viewsNum: 10,
       likesNum: 20,
       repliesNum: 30,

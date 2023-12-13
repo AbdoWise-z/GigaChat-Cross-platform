@@ -4,7 +4,6 @@ import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/confirm-email.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/text-widgets/page-description.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
@@ -101,7 +100,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     valid = value.isNotEmpty;
                   });
                 },
-                value: email),
+                value: email
+            ),
             const Expanded(child: SizedBox()),
 
             AuthFooter(

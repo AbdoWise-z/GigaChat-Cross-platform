@@ -82,6 +82,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
+          autofocus: true,
           controller: textFieldController,
           onChanged: (String newKeyword) {
             // TODO: fetch new search

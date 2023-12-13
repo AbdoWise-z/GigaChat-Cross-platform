@@ -20,9 +20,9 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
   void initState() {
     super.initState();
   }
-
+  //TODO: @yuki revise this
   Widget _getImageWidget(){
-    if (widget.tweet.media == null) {
+    if (widget.tweet.media == null || widget.tweet.media![0].mediaUrl == null) {
       return const SizedBox.shrink();
     }
     
@@ -36,7 +36,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
         ),
         clipBehavior: Clip.antiAlias,
         child: Image.network(
-          widget.tweet.media!,
+          widget.tweet.media![0].mediaUrl!,
           fit: BoxFit.cover,
         ),
       ),

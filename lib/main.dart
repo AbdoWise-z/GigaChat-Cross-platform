@@ -24,9 +24,12 @@ import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
+
+import 'widgets/tweet-widget/full-screen-tweet.dart';
 
 
 void main() async {
@@ -54,6 +57,7 @@ class _GigaChatState extends State<GigaChat> {
       providers: [
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
       ],
       child: Consumer<ThemeProvider>(
@@ -88,6 +92,7 @@ class _GigaChatState extends State<GigaChat> {
                   MainSettings.pageRoute : (context) => const MainSettings(),
                   VerifyPasswordPage.pageRoute : (context) => const VerifyPasswordPage(),
                   ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
+                  FullScreenImage.pageRoute : (context) => const FullScreenImage()
                 },
               );
             }
