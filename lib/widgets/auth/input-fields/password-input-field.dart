@@ -48,6 +48,10 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
     Icons.visibility_off_outlined;
 
     return TextFormField(
+      autofocus: true,
+      style: const TextStyle(
+          letterSpacing: 4
+      ),
       key: widget.passwordKey,
       onChanged: (value) async {
         await Future.delayed(const Duration(milliseconds: 50));
@@ -63,6 +67,9 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
       },
 
       decoration: InputDecoration(
+        labelStyle: const TextStyle(
+          letterSpacing: 0,
+        ),
         label: Text(widget.label),
         border: const OutlineInputBorder(),
         suffixIcon:
