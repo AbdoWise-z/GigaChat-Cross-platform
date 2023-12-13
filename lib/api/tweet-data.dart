@@ -1,4 +1,5 @@
 import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 
 enum TweetType {
@@ -21,14 +22,24 @@ class IntermediateTweetData{
   });
 }
 
+class MediaData{
+  static int tagNumber = 0;
+  MediaType mediaType;
+  String mediaUrl;
+  String? tag;
+  MediaData({required this.mediaType, required this.mediaUrl}){
+    tag = "Media $mediaUrl $tagNumber";
+    tagNumber++;
+  }
+}
+
 class TweetData
 {
   final String id;
   final String referredTweetId;
   final String description;
 
-  final MediaType mediaType;
-  final String? media;
+  final List<MediaData>? media;
   final List<MediaObject> mediaL;
 
   int viewsNum;
@@ -62,7 +73,6 @@ class TweetData
     required this.isLiked,
     this.reTweeter,
     required this.isRetweeted,
-    required this.mediaType,
-    required this.media,
+    required this.media
   });
 }

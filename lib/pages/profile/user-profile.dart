@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
@@ -13,6 +14,7 @@ import 'package:gigachat/pages/profile/widgets/banner.dart';
 import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
@@ -26,6 +28,7 @@ class UserProfile extends StatefulWidget {
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
   static const pageRoute = '/user-profile';
+  static const profileFeed = 'profileFeed';
 
   @override
   State<UserProfile> createState() => _UserProfileState();
@@ -94,6 +97,16 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isWantedUserFollowed = u.isFollowed;
     isCurrUser = u.isCurrUser;
 
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+
+    feedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeed + username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false
+    );
+
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     setState(() {
       loading = false;
@@ -144,10 +157,19 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
-    feedController = FeedController(providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS);
     tabController = TabController(length: 4, vsync: this);
     getData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    if (username == Auth.getInstance(context).getCurrentUser()!.id) {
+      FeedProvider.getInstance(context).removeFeed(UserProfile.profileFeed + username);
+    }
   }
 
   //TODO: get tweets
@@ -156,7 +178,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     return loading? const BlockingLoadingPage():
     Scaffold(
       extendBodyBehindAppBar: true,

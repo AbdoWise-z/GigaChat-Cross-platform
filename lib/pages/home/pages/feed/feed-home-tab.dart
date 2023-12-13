@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:provider/provider.dart';
 
 class FeedHomeTab with HomePageTab {
 
@@ -39,19 +42,27 @@ class FeedHomeTab with HomePageTab {
   @override
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     if (Auth.getInstance(context).isLoggedIn){
+      FeedProvider feedProvider = FeedProvider.getInstance(context);
+      FeedController homeFeedController =
+          feedProvider.getFeedControllerById(
+              context: context,
+              id: Home.feedID,
+              providerFunction: ProviderFunction.NONE,
+              clearData: false
+          );
       return [
         BetterFeed(
-            isScrollable: true,
-            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
-            providerResultType: ProviderResultType.TWEET_RESULT,
-            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
+                isScrollable: true,
+                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                providerResultType: ProviderResultType.TWEET_RESULT,
+                feedController: feedController ?? homeFeedController
         ),
-        BetterFeed(
-            isScrollable: true,
-            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
-            providerResultType: ProviderResultType.TWEET_RESULT,
-            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
-        ),
+       BetterFeed(
+                  isScrollable: true,
+                  providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                  providerResultType: ProviderResultType.TWEET_RESULT,
+                  feedController: feedController ?? homeFeedController
+       ),
 
       ];
     }
@@ -87,7 +98,7 @@ class FeedHomeTab with HomePageTab {
           ),
         ),
       ),
-      onTab: () {
+      onTab: () async {
         Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
       } ,
       items: [

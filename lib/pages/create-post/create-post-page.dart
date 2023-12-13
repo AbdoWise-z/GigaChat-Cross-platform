@@ -13,9 +13,12 @@ import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/create-post/widgets/hint-dialog.dart';
 import 'package:gigachat/pages/create-post/widgets/post-editor.dart';
 import 'package:gigachat/pages/create-post/widgets/post-static-viewer.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'dart:math';
 
@@ -141,6 +144,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     //TODO: add the return result if needed
     if (!context.mounted) return;
+    // FeedController profileFeedController =
+    // FeedProvider.getInstance(context).
+    // getFeedControllerById(
+    //     context: context,
+    //     id: UserProfile.profileFeed,
+    //     providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+    //     clearData: false
+    // );
+
     if (!error) Navigator.pop(context,{"success":true});
     setState(() {
       _loading = false;

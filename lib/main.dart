@@ -21,8 +21,10 @@ import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/tweet-widget/full-screen-tweet.dart';
 import 'package:provider/provider.dart';
 
 
@@ -51,6 +53,7 @@ class _GigaChatState extends State<GigaChat> {
       providers: [
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
       ],
       child: Consumer<ThemeProvider>(
@@ -81,7 +84,8 @@ class _GigaChatState extends State<GigaChat> {
                   UserListViewPage.pageRoute : (context) => UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                   SearchPage.pageRoute : (context) => const SearchPage(),
-                  SearchResultPage.pageRoute : (context) => const SearchResultPage()
+                  SearchResultPage.pageRoute : (context) => const SearchResultPage(),
+                  FullScreenImage.pageRoute : (context) => const FullScreenImage()
                 },
               );
             }

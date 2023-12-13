@@ -13,12 +13,14 @@ import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 
 class Home extends StatefulWidget {
   static const String pageRoute = "/home";
+  static const String feedID = "HomeFeed";
   const Home({super.key});
 
 
@@ -68,7 +70,14 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   void initState() {
     // MOA Was Here
-    followingFeedController = FeedController(providerFunction: ProviderFunction.HOME_PAGE_TWEETS);
+    followingFeedController = FeedProvider.getInstance(context).
+    getFeedControllerById(
+        context: context,
+        id: Home.feedID,
+        providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+        clearData: false
+    );
+
     //test();
     super.initState();
     setPage(0);

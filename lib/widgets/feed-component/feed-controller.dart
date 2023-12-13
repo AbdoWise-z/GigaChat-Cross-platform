@@ -1,94 +1,139 @@
+import 'package:flutter/cupertino.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/search-requests.dart';
-import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
-import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 
 class FeedController {
-  String? token;
-  Map<String, dynamic>? _feedCache;
-  ProviderFunction providerFunction;
-  int? lastFetchedPage;
 
-  FeedController({this.token, required this.providerFunction}) {
-    _feedCache = {};
-    lastFetchedPage = 0;
+  FeedProvider? feedProvider;
+  String? token;
+  List<dynamic>? _feedData;
+  List<String>? _feedKeys;
+
+  bool loading = true;
+  ProviderFunction providerFunction;
+  int lastFetchedPage = 0;
+
+
+  FeedController(BuildContext context, {this.token, required this.providerFunction}) {
+    _feedData = [];
+    _feedKeys = [];
+    loading = true;
+    feedProvider = FeedProvider.getInstance(context);
   }
 
   void setUserToken(String? userToken) {
     token = userToken;
   }
 
-  void appendToMap(Map<String, dynamic> newData) async {
-    if(newData.isNotEmpty){
-      lastFetchedPage = lastFetchedPage! + 1;
-      _feedCache!.addAll({...newData});
-    }
+  bool isLoading(){
+    return loading;
+  }
+
+  void appendToLast(Map<String, dynamic> newData) {
+    newData.forEach((key, value) {
+      if(! _feedKeys!.contains(key)){
+        _feedKeys!.add(key);
+        _feedData!.add(value);
+      }
+    });
+    feedProvider!.updateFeeds();
+  }
+
+  void resetFeed(){
+    _feedData = [];
+    _feedKeys = [];
+    lastFetchedPage = 0;
+    loading = true;
+  }
+
+  void appendToBegin(Map<String, dynamic> newData) {
+    newData.forEach((key, value) {
+      if(! _feedKeys!.contains(key)){
+        _feedKeys!.insert(0,key);
+        _feedData!.insert(0,value);
+      }
+    });
+    feedProvider!.updateFeeds();
   }
 
   void deleteTweet(String tweetID){
-    if (_feedCache == null) return;
-    _feedCache!.remove(tweetID);
+    if (_feedData == null) return;
+    int idx = _feedKeys!.indexOf(tweetID);
+    _feedData!.removeAt(idx);
+    _feedKeys!.removeAt(idx);
+    feedProvider!.updateFeeds();
   }
 
-  List getCurrentData (){
-    return _feedCache == null ? [] : _feedCache!.values.toList();
+  List getCurrentData () {
+    return _feedData!;
   }
 
-  Future<List> fetchFeedData(
-      {bool? appendToBegin,String? username,String? tweetID,String? keyword}
-      ) async
+  Future<void> fetchFeedData({
+    bool? toBegin,
+    String? username,
+    String? tweetID,
+    String? keyword
+  }) async
   {
-
     if (token == null) {
       throw "user is not logged in -- logged from feed controller line 30 -- ";
     }
 
-    // TODO: you can add here what ever provider you want
-    switch (providerFunction) {
+    int nextPage = lastFetchedPage + 1;
+
+    Map<String,dynamic> response = {};
+    switch(providerFunction){
       case ProviderFunction.HOME_PAGE_TWEETS:
-        appendToMap(
-            await Tweets.getFollowingTweet(token!,
-              DEFAULT_PAGE_COUNT.toString(), (lastFetchedPage! + 1).toString()
-            )
+        response = await Tweets.getFollowingTweet(
+            token!,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
         );
         break;
       case ProviderFunction.PROFILE_PAGE_TWEETS:
-        appendToMap(
-          await Tweets.getProfilePageTweets(
-              token!,
-              username!,
-              DEFAULT_PAGE_COUNT.toString(),
-              (lastFetchedPage! + 1).toString())
+        if (username == null) return;
+        response = await Tweets.getProfilePageTweets(
+            token!,
+            username,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
         );
         break;
       case ProviderFunction.GET_TWEET_COMMENTS:
-        appendToMap(
-            await Tweets.getTweetReplies(
-                token!,
-                tweetID!,
-                DEFAULT_PAGE_COUNT.toString(),
-                (lastFetchedPage! + 1).toString())
+        response = await Tweets.getTweetReplies(
+            token!,
+            tweetID!,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
         );
         break;
       case ProviderFunction.SEARCH_USERS:
-        List<User> usersResponse =
-          await SearchRequests.searchUsersByKeyword(
+        response = await SearchRequests.searchUsersByKeywordMapped(
             keyword!,
             token!,
-            (lastFetchedPage! + 1).toString(),
+            nextPage.toString(),
             DEFAULT_PAGE_COUNT.toString()
-            );
-        for (User user in usersResponse){
-          _feedCache!.putIfAbsent(user.id, () => user);
-        }
-        print(_feedCache);
+        );
         break;
       default:
-        _feedCache = {};
     }
 
-    return _feedCache!.values.toList();
+
+    if (response.isNotEmpty){
+      lastFetchedPage = nextPage;
+    }
+
+    if (toBegin != null && toBegin == true){
+      appendToBegin(response);
+    }
+    else {
+      appendToLast(response);
+    }
+
+    loading = false;
   }
 
 }

@@ -22,6 +22,17 @@ class SearchRequests{
     }
   }
 
+
+  static Future<Map<String, User>> searchUsersByKeywordMapped
+      (String keyword,String token,String page,String count) async {
+    List<User> users = await searchUsersByKeyword(keyword, token, page, count);
+    Map<String,User> mapped_users = {};
+    for(User user in users){
+      mapped_users.putIfAbsent(user.id, () => user);
+    }
+    return mapped_users;
+  }
+
   static Future<List<User>> searchUsersByKeyword(String keyword,String token,String page,String count) async {
     ApiPath path = ApiPath.searchUsers;
     var headers = Api.getTokenWithJsonHeader("Bearer $token");

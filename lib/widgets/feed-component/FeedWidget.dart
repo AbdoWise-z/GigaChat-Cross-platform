@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
+import 'package:gigachat/pages/home/pages/explore/explore.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import 'package:provider/provider.dart';
 
 class BetterFeed extends StatefulWidget {
   final bool isScrollable;
@@ -31,29 +35,34 @@ class BetterFeed extends StatefulWidget {
 }
 
 class _BetterFeedState extends State<BetterFeed> {
-  bool? loading;
   late FeedController _feedController;
+  late Timer timer;
+  late ScrollController _scrollController;
+
 
   @override
   void initState() {
-    loading = true;
     _feedController = widget.feedController;
+    _feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+    timer = Timer(const Duration(seconds: 1), () { });
+    _scrollController = ScrollController();
+    _scrollController.addListener(() async {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent)
+      {
+        await refreshFeed();
+        setState(() {});
+      }
+    });
     super.initState();
   }
 
-  void refreshFeed() async {
-    await _feedController.fetchFeedData(
+  Future<void> refreshFeed() async {
+   await _feedController.fetchFeedData(
         username: widget.userId,
         tweetID: widget.tweetID,
         keyword: widget.keyword
     );
-    loading = false;
-    if(mounted) {
-      setState(() {});
-    }
   }
-
-
 
   List<Widget>? wrapDataInWidget() {
     switch(widget.providerResultType){
@@ -66,13 +75,11 @@ class _BetterFeedState extends State<BetterFeed> {
       // The Normal View For Tweets
       case ProviderResultType.TWEET_RESULT:
         List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
-        int i = 0;
         return tweetResult.map((TweetData tweetData){
                   if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
                     tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
                   }
-                  i = i + 1;
-                  Tweet noDetector = Tweet(
+                  return Tweet(
                     tweetOwner: tweetData.tweetOwner,
                     tweetData: tweetData,
                     isRetweet: tweetData.isRetweeted,
@@ -82,67 +89,46 @@ class _BetterFeedState extends State<BetterFeed> {
                       setState(() {});
                     },
                   );
-                  if (i == tweetResult.length) {
-                    return VisibilityDetector(
-                      key: Key(_feedController.lastFetchedPage.toString()),
-                      child: noDetector,
-                      onVisibilityChanged: (VisibilityInfo info){
-                        if (info.visibleFraction * 100 >= 50){
-                          refreshFeed();
-                        }
-                      }
-                  );
-                  }
-                  else {
-                    return noDetector;
-                  }
         }).toList();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading!){
-      refreshFeed();
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Consumer<FeedProvider>(
+        builder: (_,__,___){
+          if (_feedController.isLoading()){
+            refreshFeed();
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    List<Widget>? tweetWidgets = wrapDataInWidget();
+          List<Widget>? widgetList = wrapDataInWidget();
 
-    if(tweetWidgets == null){
-      return const Column(
-        children: [
-          Text("nothing to show ... yet")
-        ],
-      );
-    }
+          if(widgetList == null || widgetList.isEmpty)
+          {
+            return RefreshIndicator(
+                child: SingleChildScrollView(
+                    child: SizedBox(
+                        height: 0.5 * MediaQuery.of(context).size.height,
+                        child: const NothingYet()
+                    )
+                ),
+                onRefresh: () async {
 
-    if(tweetWidgets.isEmpty) {
-      tweetWidgets.add(
-          Container(
-            padding: EdgeInsets.only(top: 100),
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text("nothing to show ... yet",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),)
-              ],
-            ),
-          )
-      );
-    }
+                }
+            );
+          }
 
-    Widget result = Column(children: tweetWidgets);
+          return RefreshIndicator(
+              onRefresh: () async {},
+              child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(children: widgetList!),
+              )
+          );
+        }
+    );
 
-    if (widget.isScrollable) {
-      result = RefreshIndicator(
-          onRefresh: () async {},
-          child: SingleChildScrollView(child: result)
-      );
-    }
-
-    return result;
   }
 
 }
