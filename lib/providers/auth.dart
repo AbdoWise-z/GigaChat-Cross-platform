@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
+import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
@@ -19,10 +20,20 @@ class Auth extends ChangeNotifier{
     var res = await Account.apiLogin(username , password);
     if (res.data != null){
       _currentUser = res.data;
-      if (success != null) success(res);
+      WebSocketsProvider prov = WebSocketsProvider();
+      //fixme: yeah backend stuff
+      //fixme: Websockets needs to be fixed
+      if (await prov.init("malek") || true){
+        if (success != null) success(res);
+        
+      }else{
+        _currentUser = null;
+        if (error != null) error(res);
+      }
     }else{
       if (error != null) error(res);
     }
+
   }
 
   User? getCurrentUser(){

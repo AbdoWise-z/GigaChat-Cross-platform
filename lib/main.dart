@@ -26,7 +26,10 @@ import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:provider/provider.dart';
+
+import 'api/user-class.dart';
 
 
 void main() async {
@@ -52,6 +55,7 @@ class _GigaChatState extends State<GigaChat> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<WebSocketsProvider>(create: (context) => WebSocketsProvider()),
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),

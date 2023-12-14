@@ -1,6 +1,8 @@
 //TODO: add constants here
 //const String API_LINK = "127.0.0.1:5000";
 const String API_LINK = "backend.gigachat.cloudns.org";
+const String API_WEBSOCKS_LINK = "http://10.0.2.2:3000";
+
 const Duration API_TIMEOUT = Duration(seconds: 5);
 const int DEFAULT_PAGE_COUNT = 5;
 const String USER_DEFAULT_PROFILE = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.jpg";

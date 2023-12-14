@@ -1,13 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-info-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/message-input-area.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatPage extends StatefulWidget {
   static const String pageRoute = "/chat";
@@ -15,18 +22,20 @@ class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatPage> createState() => ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  final DateFormat titleFormatter = DateFormat('EEEE, MMMM d');
+class ChatPageState extends State<ChatPage> {
   double _sideButtonTrigger = 150;
   bool _visiable = false;
-
-  User _with = User();
-  List<ChatMessageObject> _chat = [];
+  late final StreamSocket _chatSocket;
+  bool _ready = false;
+  late final User _with;
+  final List<ChatMessageObject> _chat = [];
+  late final Uuid uuid;
 
   final GlobalKey editor = GlobalKey();
+  final GlobalKey chatList = GlobalKey();
   double _editorHeight = 0;
   final ScrollController _controller = ScrollController();
 
@@ -48,42 +57,109 @@ class _ChatPageState extends State<ChatPage> {
         }
       }
     });
-  }
+    _chatSocket = WebSocketsProvider.getInstance(context).getStream("chat");
+    uuid = const Uuid();
+    _ready = false;
 
-  void _handleSendMessage(ChatMessageObject m){
-    // just for testing
-    // m = ChatMessageObject(
-    //     id: m.id,
-    //     text: m.text,
-    //     media: m.media,
-    //     self: false,
-    //     time: m.time,
-    //     state: m.state,
-    //     replyTo: m.replyTo
-    // );
-
-    _handleNewMessage(m);
-  }
-
-  void _handleNewMessage(ChatMessageObject m){
-    setState(() {
-      _chat.add(m);
-      if (_controller.offset == _controller.position.maxScrollExtent){
-        Future.delayed(Duration(milliseconds: 100) , () {
-          _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 100), curve: Curves.easeIn);
-        });
+    _chatSocket.stream.listen((event) {
+      var data = jsonDecode(event);
+      if (data["type"] == "message"){
+        ChatMessageObject obj = ChatMessageObject();
+        User current = Auth.getInstance(context).getCurrentUser()!;
+        obj.fromMap(data["data"], current.id);
+        _handleNewMessage(obj);
+      } else {
+        _handleMessageDeleted(data["uuid"]);
       }
     });
   }
 
-  void _handleMessageDeleted(ChatMessageObject m){
+  Future<bool> sendMessage(ChatMessageObject m) async {
+    User current = Auth.getInstance(context).getCurrentUser()!;
+    WebSocketsProvider ws = WebSocketsProvider();
+    if (m.media != null){
+      //if we have a media, we first try to upload it..
+      ApiResponse<List> link = await Media.uploadMedia(current.auth! , [
+        UploadFile(path: m.media!.link , type: m.media!.type == MediaType.IMAGE ? "image" : "video" , subtype: m.media!.type == MediaType.IMAGE ? "png" : "mp4")
+      ]);
+      if (link.data == null || link.data!.isEmpty){
+        return false;
+      }
+      m.media = MediaObject(link: link.data![0], type: m.media!.type);
+    }
+    var data = m.toMap(current.id, _with.id);
+    ws.send("chat" , jsonEncode({
+      "type": "message",
+      "data": data,
+    }));
+    return true;
+  }
 
+  void _handleSendMessage(ChatMessageObject m) async {
+    m.id = uuid.v4();
+    m.state = ChatMessageObject.STATE_SENDING;
+    _handleNewMessage(m); //mark as sending and send
+    if (! await sendMessage(m)){ //failed
+      _handleMessageFailed(m);
+    }
+  }
+
+  void _handleNewMessage(ChatMessageObject m){
+    if (m.self){
+      if (m.state == ChatMessageObject.STATE_SENDING){
+        _chat.add(m);
+      } else if (m.state == ChatMessageObject.STATE_SENT){
+        int index = _chat.lastIndexWhere((element) => element.id == m.id);
+        if (index == -1){ //didn't find this message (account is open on another phone ?)
+          _chat.add(m);
+        }else{
+          _chat[index].state = ChatMessageObject.STATE_SENT;
+        }
+      }
+    }else{
+      _chat.add(m);
+    }
+
+    chatList.currentState!.setState(() {
+      // update the chat list builder state to make it re-build
+    });
+
+    if (_controller.offset == _controller.position.maxScrollExtent){
+      Future.delayed(const Duration(milliseconds: 100) , () {
+        _controller.animateTo(_controller.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
+      });
+    }
+
+    // setState(() {
+    //
+    // });
+  }
+
+  void _handleMessageDeleted(String uuid){
+
+  }
+
+  void _handleMessageFailed(ChatMessageObject m){
+    int index = _chat.lastIndexWhere((element) => element.id == m.id);
+    if (index == -1){ //didn't find this message (account is open on another phone ?)
+      //_chat.add(m); should never happen
+    }else{
+      _chat[index].state = ChatMessageObject.STATE_FAILED;
+    }
+    chatList.currentState!.setState(() {
+      // update the chat list builder state to make it re-build
+    });
   }
 
 
   @override
   Widget build(BuildContext context) {
-    int day = -1;
+    if (!_ready){
+      _ready = true;
+      var args = ModalRoute.of(context)!.settings.arguments! as Map;
+      _with = args["user"];
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -268,32 +344,14 @@ class _ChatPageState extends State<ChatPage> {
                           ),
                           const SizedBox(height: 20,),
 
-
                           const Divider(
                             thickness: 1,
                           ),
 
-                          ..._chat.map((e) {
-                            String? title;
-                            var time = e.time!;
-                            if (day != time.day + time.month * 40){
-                              title =  titleFormatter.format(time);
-                              day = time.day + time.month * 40;
-                            }
-                            return Column(
-                              children: [
-                                (title != null) ? Container(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Text(title , style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  ),
-                                ) : const SizedBox.shrink(),
-                                ChatItem(message: e, onLongPress: (m) {}, onSwipe: (m) {}),
-                              ],
-                            );
-                          }).toList(),
+                          ChatColumn(
+                            key: chatList,
+                            chat: _chat,
+                          ),
 
                           SizedBox(
                             height: _editorHeight,
@@ -354,3 +412,58 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 }
+
+class ChatColumn extends StatefulWidget {
+  final List<ChatMessageObject> chat;
+  const ChatColumn({super.key , required this.chat});
+
+  @override
+  State<ChatColumn> createState() => _ChatColumnState();
+}
+
+class _ChatColumnState extends State<ChatColumn> {
+  final DateFormat titleFormatter = DateFormat('EEEE, MMMM d');
+
+  @override
+  Widget build(BuildContext context) {
+    int day = -1;
+    return Column(
+      children: [
+        ...widget.chat.map((e) {
+          String? title;
+          var time = e.time!;
+          if (day != time.day + time.month * 40){
+            title =  titleFormatter.format(time);
+            day = time.day + time.month * 40;
+          }
+          return Column(
+            children: [
+              (title != null) ? Container(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(title , style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                ),
+              ) : const SizedBox.shrink(),
+              ChatItem(message: e, onLongPress: (m) {
+
+              }, onPress: (m) async {
+                if (m.state == ChatMessageObject.STATE_FAILED){ //on failed , resend this thing
+                  ChatPageState pageState = context.findAncestorStateOfType<ChatPageState>()!;
+                  m.state = ChatMessageObject.STATE_SENDING;
+                  pageState.chatList.currentState!.setState(() {});
+                  if (! await pageState.sendMessage(m)){ //failed
+                    m.state = ChatMessageObject.STATE_FAILED;
+                    pageState.chatList.currentState!.setState(() {});
+                  }
+                }
+              }, onSwipe: (m) {}),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+}
+

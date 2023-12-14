@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/providers/auth.dart';
 
@@ -150,7 +151,9 @@ class _ChatListPageState extends State<ChatListPage> {
               },
               press: () {
                 //TODO: implement the real chat
-                Navigator.pushNamed(context, "/chat");
+                Navigator.pushNamed(context, "/chat" , arguments: {
+                  "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage)
+                });
               },
             )).toList()
             ,
@@ -181,7 +184,9 @@ class _ChatListPageState extends State<ChatListPage> {
               },
               press: () {
                 //TODO: implement the real chat
-                Navigator.pushNamed(context, "/chat");
+                Navigator.pushNamed(context, "/chat" , arguments: {
+                  "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage)
+                });
               },
             )).toList()
             ,
