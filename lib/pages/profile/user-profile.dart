@@ -16,6 +16,7 @@ import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../api/user-class.dart';
@@ -135,29 +136,29 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         prevTabIndex = index;
       });
       if(index == 1 && !isLoaded[1]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[1] = true;
      }
       if(index == 2 && !isLoaded[2]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[2] = true;
       }
       if(index == 3 && !isLoaded[3]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[3] = true;
       }
@@ -662,14 +663,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                Text("@${widget.username}"),
+                                MainText(text: "@${widget.username}", color:Colors.grey ,),
                                 bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
                                 const Text("") :
                                 Padding(
                                   padding: const EdgeInsets.fromLTRB(0,10,0,0),
                                   child: SizedBox(
                                       height: 80,
-                                      child: Text(bio)
+                                      child: MainText(text: bio)
                                   ),
                                 ),
                                 const SizedBox(height: 20,),
@@ -677,20 +678,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.location_on_outlined, size: 15,),
+                                        const Icon(Icons.location_on_outlined, size: 15,color: Colors.grey,),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                                          child: Text(location),
+                                          child: MainText(text: location,color: Colors.grey,),
                                         ),
                                       ],
                                     ),
                                     const SizedBox(width: 10,),
                                     Row(
                                       children: [
-                                        const Icon(Icons.cake, size: 15,),
+                                        const Icon(Icons.cake, size: 15,color: Colors.grey,),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                                          child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate )}"),
+                                          child: MainText(
+                                            text: "Born ${DateFormat.yMMMMd('en_US').format(birthDate )}",
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -701,20 +705,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.date_range, size: 15,),
+                                        const Icon(Icons.date_range, size: 15,color: Colors.grey,),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                                          child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                          child: MainText(
+                                            text: "Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}",
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
                                     const SizedBox(width: 10,),
                                     Row(
                                       children: [
-                                        const Icon(CupertinoIcons.link, size: 15,),
+                                        const Icon(CupertinoIcons.link, size: 15,color: Colors.grey,),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                                          child: Text(website), //TODO: change later (detect urls)
+                                          child: MainText(text: website, color: Colors.grey,), //TODO: change later (detect urls)
                                         ),
                                       ],
                                     )
@@ -741,7 +748,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            const Text(" Following"),
+                                            const MainText(text: " Following",color: Colors.grey,),
                                           ],
                                         ),
                                       ),
@@ -760,7 +767,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            const Text(" Followers"),
+                                            const MainText(text: " Followers", color: Colors.grey,),
                                           ],
                                         ),
                                       ),
