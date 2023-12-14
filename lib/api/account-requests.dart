@@ -212,8 +212,8 @@ class Account {
       //u.website   = res["user"]["website"];
       u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
-      u.followers   = res["user"]["followers_num"];
-      u.following   = res["user"]["followings_num"];
+      //u.followers   = res["user"]["followers_num"];
+      //u.following   = res["user"]["followings_num"];
 
     }else{
       u.id          = "";
@@ -386,89 +386,63 @@ class Account {
     return k;
   }
 
-  static Future<bool> followUser(String token, String username) async
+  static Future<ApiResponse<bool>> followUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.followUser).format([username]);
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-      print(response.code);
-      switch(response.code){
-        case ApiResponse.CODE_SUCCESS_NO_BODY:
-          return true;
-        default:
-          return false;
-      }
+      var k = await Api.apiPost<bool>(endPoint,headers: headers);
+      print(k.code);
+      k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      return k;
   }
-  static Future<bool> unfollowUser(String token, String username) async
+  static Future<ApiResponse<bool>> unfollowUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-
+      var k = await Api.apiPost<bool>(endPoint,headers: headers);
       print(token);
-
-      switch(response.code){
-        case ApiResponse.CODE_SUCCESS_NO_BODY:
-          return true;
-        default:
-          return false;
-    }
+      k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      return k;
   }
 
-  static Future<bool> muteUser(String token, String username) async
+  static Future<ApiResponse<bool>> muteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.muteUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> unmuteUser(String token, String username) async
+  static Future<ApiResponse<bool>> unmuteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unmuteUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> blockUser(String token, String username) async
+  static Future<ApiResponse<bool>> blockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.blockUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> unblockUser(String token, String username) async
+  static Future<ApiResponse<bool>> unblockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unblockUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
 
