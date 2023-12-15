@@ -423,6 +423,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
               return true;
             },
             child: RefreshIndicator(
+              notificationPredicate: (notification){
+                return notification.depth == 2;
+              },
               onRefresh: () async {
                 setState(() {
                   getData();

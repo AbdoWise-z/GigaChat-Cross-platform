@@ -45,22 +45,22 @@ class _EditProfileState extends State<EditProfile> {
   bool failed = false;
   bool bannerChanged = false;
   bool avatarChanged = false;
+  bool bannerDeleted = false;
 
   void editImage(bool isProfileAvatar){
     File selectedImage;
-    Auth auth = Auth.getInstance(context);
     showMenu(
       context: context,
       position: const RelativeRect.fromLTRB(55, 325, 55, 325),
-      items: [
+      items: isProfileAvatar? <PopupMenuEntry>[
         PopupMenuItem(
           child: const Text("Take photo"),
           onTap: () async {
             selectedImage = await getImageFromCamera(!isProfileAvatar);
             if(selectedImage.path.isNotEmpty){
               setState(() {
-                isProfileAvatar ? avatarChanged = true : bannerChanged = true;
-                isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
+                avatarChanged = true;
+                selectedAvatar = selectedImage;
               });
             }
           },
@@ -70,14 +70,49 @@ class _EditProfileState extends State<EditProfile> {
               selectedImage = await getImageFromGallery(!isProfileAvatar);
               if(selectedImage.path.isNotEmpty){
                 setState(() {
-                  isProfileAvatar ? avatarChanged = true : bannerChanged = true;
-                  isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
+                  avatarChanged = true;
+                  selectedAvatar = selectedImage;
                 });
               }
             },
             child: const Text("Choose existing photo              ")
         ),
+      ] : <PopupMenuEntry>[
+        PopupMenuItem(
+          child: const Text("Take photo"),
+          onTap: () async {
+            selectedImage = await getImageFromCamera(!isProfileAvatar);
+            if(selectedImage.path.isNotEmpty){
+              setState(() {
+                bannerChanged = true;
+                selectedBanner = selectedImage;
+              });
+            }
+          },
+        ),
+        PopupMenuItem(
+            onTap: () async {
+              selectedImage = await getImageFromGallery(!isProfileAvatar);
+              if(selectedImage.path.isNotEmpty){
+                setState(() {
+                  bannerChanged = true;
+                  selectedBanner = selectedImage;
+                });
+              }
+            },
+            child: const Text("Choose existing photo              ")
+        ),
+        PopupMenuItem(
+          onTap: () {
+            setState(() {
+              newBannerImageUrl = "";
+              bannerDeleted = true;
+            });
+          },
+          child: Text("Remove header"),
+        )
       ],
+
     );
 }
 
@@ -132,6 +167,16 @@ class _EditProfileState extends State<EditProfile> {
     if(infoChanged){
       await auth.setUserInfo(inputName.text, inputBio.text,
         inputWebsite.text, "Cairo, Egypt", nonFormattedDate,
+        error: (res){
+          failed = true;
+        }
+      );
+    }
+    if(bannerDeleted){
+      await auth.deleteUserBanner(
+        success: (res){
+          newBannerImageUrl = "";
+        },
         error: (res){
           failed = true;
         }

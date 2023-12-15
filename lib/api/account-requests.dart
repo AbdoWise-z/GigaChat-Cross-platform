@@ -461,7 +461,7 @@ class Account {
       headers: headers,
     );
     print("delete banner: ${k.code}");
-    k.data = k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
     return k;
   }
 
