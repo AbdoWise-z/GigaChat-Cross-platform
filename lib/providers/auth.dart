@@ -262,4 +262,15 @@ class Auth extends ChangeNotifier{
     return;
   }
 
+  Future<void> deleteUserBanner({ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiDeleteBannerImage(_currentUser!.auth!);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+
 }
