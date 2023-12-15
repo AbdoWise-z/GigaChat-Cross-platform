@@ -480,12 +480,18 @@ class Account {
     print(k.code);
     if(k.code == ApiResponse.CODE_SUCCESS){
       var res = json.decode(k.responseBody!);
-      k.data = res["users"];
-    }
+      List temp = res["users"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
 
-    // List<User> users = k.data.map((user)=> User(
-    //
-    // ));
+      k.data = users;
+    }
 
     return k;
   }
@@ -505,7 +511,17 @@ class Account {
     print(k.code);
     if(k.code == ApiResponse.CODE_SUCCESS){
       var res = json.decode(k.responseBody!);
-      k.data = res["users"];
+      List temp = res["users"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
     }
     return k;
   }
@@ -524,7 +540,16 @@ class Account {
     print(k.code);
     if(k.code == ApiResponse.CODE_SUCCESS){
       var res = json.decode(k.responseBody!);
-      k.data = res["data"];
+      List temp = res["data"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
     }
     return k;
   }
@@ -543,7 +568,17 @@ class Account {
     print(k.code);
     if(k.code == ApiResponse.CODE_SUCCESS){
       var res = json.decode(k.responseBody!);
-      k.data = res["data"];
+      List temp = res["data"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
     }
     return k;
   }
