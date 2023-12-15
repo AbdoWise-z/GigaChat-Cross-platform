@@ -51,6 +51,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late DateTime joinedDate;
   late int following;
   late int followers;
+  late int numOfPosts;
+  late int numOfLikes;
   //only wanted user details
   late bool? isCurrUserBlocked;
   late bool? isWantedUserBlocked;
@@ -102,6 +104,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isWantedUserMuted = u.isWantedUserMuted;
     isWantedUserFollowed = u.isFollowed;
     isCurrUser = u.isCurrUser;
+    numOfPosts = u.numOfPosts;
+    numOfLikes = u.numOfLikes;
 
 
     scrollController = ScrollController();
@@ -447,7 +451,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                           color: Colors.white
                                       ),
                                     ),
-                                    Text(prevTabIndex == 3? "2 Likes" : "2 Posts",
+                                    Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
                                       style: const TextStyle(
                                         color: Colors.white,
                                       ),

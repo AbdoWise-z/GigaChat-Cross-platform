@@ -212,8 +212,10 @@ class Account {
       //u.website   = res["user"]["website"];
       u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
-      //u.followers   = res["user"]["followers_num"];
-      //u.following   = res["user"]["followings_num"];
+      //u.followers = res["user"]["followers_num"];
+      //u.following = res["user"]["followings_num"];
+      u.numOfPosts  = res["user"]["num_of_posts"];
+      u.numOfLikes  = res["user"]["num_of_likes"];
 
     }else{
       u.id          = "";
@@ -228,6 +230,8 @@ class Account {
       u.joinedDate  = DateTime.now();
       u.followers   = 0;
       u.following   = 0;
+      u.numOfPosts  = 0;
+      u.numOfLikes  = 0;
 
     }
     k.data = u;
@@ -261,6 +265,8 @@ class Account {
       u.isWantedUserBlocked   = res["user"]["is_wanted_user_blocked"];
       u.isCurrUser            = res["user"]["is_curr_user"];
       u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
+      u.numOfPosts            = res["user"]["num_of_posts"];
+      u.numOfLikes            = res["user"]["num_of_likes"];
 
 
     }else{
@@ -272,10 +278,12 @@ class Account {
       u.bannerLink  = "";
       //u.location  = "";
       //u.website   = "";
-      u.birthDate   = DateTime.parse("1992-10-8");
-      u.joinedDate  = DateTime.parse("1992-10-8");
+      u.birthDate   = DateTime.now();
+      u.joinedDate  = DateTime.now();
       u.followers   = 0;
       u.following   = 0;
+      u.numOfPosts  = 0;
+      u.numOfLikes  = 0;
       u.isFollowed  = false;
       u.isWantedUserMuted  = false;
       u.isWantedUserBlocked  = false;
