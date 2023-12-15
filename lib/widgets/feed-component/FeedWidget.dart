@@ -113,11 +113,6 @@ class _BetterFeedState extends State<BetterFeed> {
                   if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
                     tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
                   }
-                  if(tweetData.description == "wow") {
-                    print(widget.userId);
-
-                  }
-
 
                   bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
                   bool sameUser = tweetData.tweetOwner.id == Auth.getInstance(context).getCurrentUser()!.id;
@@ -172,7 +167,10 @@ class _BetterFeedState extends State<BetterFeed> {
           finalWidget = widget.removeRefreshIndicator ? finalWidget :
               RefreshIndicator(
                   child: finalWidget,
-                  onRefresh: () async {}
+                  onRefresh: () async {
+                    _feedController.resetFeed();
+                    setState(() {});
+                  }
               );
           return finalWidget;
         }

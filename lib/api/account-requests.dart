@@ -405,7 +405,7 @@ class Account {
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
       ApiResponse response = await Api.apiPost(endPoint,headers: headers);
 
-      print(token);
+      print(response.code);
 
       switch(response.code){
         case ApiResponse.CODE_SUCCESS_NO_BODY:

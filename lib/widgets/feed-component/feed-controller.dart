@@ -122,6 +122,13 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         break;
+      case ProviderFunction.SEARCH_TWEETS:
+        response = await SearchRequests.searchTweetsByKeywordMapped(
+            keyword!,
+            token!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
       default:
     }
 

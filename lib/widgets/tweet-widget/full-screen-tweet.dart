@@ -1,12 +1,19 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dismissible_page/dismissible_page.dart';
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/base.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet.dart';
+import 'package:gigachat/widgets/video-player.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:video_player/video_player.dart';
 
 class FullScreenImage extends StatefulWidget {
   final double initialHeight = 200;
@@ -36,7 +43,13 @@ class _FullScreenImageState extends State<FullScreenImage> {
 
       Widget photoView = image.mediaType == MediaType.VIDEO ?
           // TODO: handle the video later
-      const SizedBox()
+      VideoPlayerWidget(
+        videoUrl: image.mediaUrl,
+        holdVideo: false,
+        autoPlay: true,
+        showControllers: true,
+        tag: image.tag!,
+      )
           :
       PhotoView(
           minScale: PhotoViewComputedScale.contained,
@@ -61,8 +74,11 @@ class _FullScreenImageState extends State<FullScreenImage> {
   Widget build(BuildContext context) {
 
     Map<String,dynamic> argument = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
-    List<MediaData> images = argument["image"];
+    TweetData tweetData = argument["tweetData"];
+    FeedController parentFeed = argument["parentFeed"];
+    List<MediaData> images = tweetData.media!;
     currentPage ??= argument["index"];
+    User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
     return Scaffold(
         backgroundColor: Colors.black,
@@ -110,11 +126,37 @@ class _FullScreenImageState extends State<FullScreenImage> {
               child: ValueListenableBuilder(
                 valueListenable:upperValueNotifier,
                 builder: (context,_,__){
-                  return Container(
-                    height: 100,
-                    alignment: Alignment.bottomCenter,
-                    color: Colors.blue,
-                    child: Text("TESTING"),
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppBar(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(backgroundImage: NetworkImage(tweetData.tweetOwner.iconLink)),
+                          SizedBox(width: 10,),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(tweetData.tweetOwner.name),
+                              Text("@${tweetData.tweetOwner.id}",style: TextStyle(color: Colors.grey),)
+                            ],
+                          ),
+                          const Expanded(child: SizedBox()),
+                          SizedBox(
+                            width: 80,
+                            height: 30,
+                            child: FollowButton(
+                              isFollowed: tweetData.tweetOwner.isFollowed!,
+                              callBack: (_){},
+                              username: tweetData.tweetOwner.id,
+                            )
+                          )
+                        ],
+                      ),
+
+                    ],
                   );
                 },
               ),
@@ -124,9 +166,47 @@ class _FullScreenImageState extends State<FullScreenImage> {
               offset: Offset(0,upperValueNotifier.value),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: 100,
-                  color: Colors.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                        children: initActionButtons(
+                        context: context,
+                        tweetData: tweetData,
+                        singlePostView: false,
+                        onCommentButtonClicked: () async {
+                          return await commentTweet(context, tweetData);
+                        },
+                            onRetweetButtonClicked: () async {
+                              bool isRetweeting = !tweetData.isRetweeted;
+                              bool success =  await toggleRetweetTweet(currentUser.auth,tweetData);
+                              if (!isRetweeting){
+                                if(tweetData.tweetOwner.id == currentUser.id) {
+                                  parentFeed.deleteTweet(tweetData.id);
+                                  parentFeed.updateFeeds();
+                                }
+                                else {
+                                  parentFeed.updateFeeds();
+                                  setState(() {});
+                                }
+                              }
+                              else{
+                                parentFeed.updateFeeds();
+                                setState(() {});();
+                              }
+                              return success;
+                            },
+                            onLikeButtonClicked: () async{
+                              bool success =  await toggleLikeTweet(context,currentUser.auth,tweetData);
+                              if (success){
+                                parentFeed.updateFeeds();
+                                setState(() {});
+                              }
+                              return success;
+                            }
+                        )
+                    )
+                  ],
                 ),
               ),
             ),

@@ -23,7 +23,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   void initState() {
-    latestFeedController = FeedController(context, providerFunction: ProviderFunction.HOME_PAGE_TWEETS);
+    latestFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_TWEETS);
     userFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_USERS);
 
     super.initState();
@@ -80,9 +80,10 @@ class _SearchResultPageState extends State<SearchResultPage> {
         body: TabBarView(
           children: <Widget>[
             BetterFeed(
-                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                providerFunction: ProviderFunction.SEARCH_TWEETS,
                 providerResultType: ProviderResultType.TWEET_RESULT,
                 feedController: latestFeedController,
+                keyword: keyword,
                 removeController: false,
                 removeRefreshIndicator: false,
             ),
