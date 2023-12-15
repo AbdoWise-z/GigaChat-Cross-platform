@@ -65,7 +65,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     isButtonDisabled = formKey.currentState == null || currPassword.text.isEmpty
-    || newPassword.text.isEmpty || confirmPassword.text.isEmpty || !formKey.currentState!.validate();
+    || newPassword.text.isEmpty || confirmPassword.text.isEmpty;
     return Scaffold(
       appBar: AppBar(
         title: const SettingsAppBarTitle(text: "Update password"),
@@ -84,6 +84,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     children: [
                       const MainText(text: "Current password",color: Colors.blueGrey,),
                       TextFormField(
+                        style: const TextStyle(
+                          letterSpacing: 4
+                        ),
                         obscureText: true,
                         autofocus: true,
                         controller: currPassword,
@@ -95,10 +98,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const SizedBox(height: 20,),
                       const MainText(text: "New password",color: Colors.blueGrey,),
                       TextFormField(
+                        style: const TextStyle(
+                            letterSpacing: 4
+                        ),
                         obscureText: true,
                         controller: newPassword,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: const InputDecoration(
+                          hintStyle: TextStyle(
+                            letterSpacing: 4
+                          ),
                           hintText: "At least 8 characters",
                           errorMaxLines: 2,
                         ),
@@ -122,9 +130,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const SizedBox(height: 20,),
                       const MainText(text: "Confirm password",color: Colors.blueGrey,),
                       TextFormField(
+                        style: const TextStyle(
+                            letterSpacing: 4
+                        ),
                         obscureText: true,
                         controller: confirmPassword,
                         decoration: const InputDecoration(
+                          hintStyle: TextStyle(
+                              letterSpacing: 4
+                          ),
                           hintText: "At least 8 characters"
                         ),
                         onChanged: (String input) async {
@@ -145,7 +159,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 )
               ),
               TextButton(
-                onPressed: isButtonDisabled? null :() => changePassword(currPassword.text, newPassword.text),
+                onPressed: isButtonDisabled? null :
+                  () {
+                    if(formKey.currentState!.validate()){
+                      changePassword(currPassword.text, newPassword.text);
+                    }
+                },
                 style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,

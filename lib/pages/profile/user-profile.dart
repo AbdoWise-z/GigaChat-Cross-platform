@@ -734,7 +734,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       userId: username,
                       userName: name,
                     ),
-                    BetterFeed(
+                    BetterFeed(  //TODO:
                       removeController: true,
                       removeRefreshIndicator: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
@@ -743,9 +743,22 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       userId: username,
                       userName: name,
                     ),
-                    Container(color: Colors.red,child: Center(child: Text("3"),),),
-                    Container(color: Colors.red,child: Center(child: Text("4"),),),
-                  ],
+                    BetterFeed(  //TODO:
+                      removeController: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: username,
+                      userName: name,
+                    ),
+                    BetterFeed( //TODO:
+                      removeController: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: username,
+                      userName: name,
+                    ),                  ],
                 ) :
                 (isCurrUserBlocked != null && isCurrUserBlocked!) ?
                     Column(

@@ -73,7 +73,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     List<TweetData> returnList = [];
 
     for (var k in _posts){
-      if (k.currentState!.controller.text.isEmpty){
+      if (k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty){
         Toast.showToast(context, "post cannot be empty");
         setState(() {
           _loading = false;
@@ -240,7 +240,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     bool canPost = true;
     for (var k in _posts){
-      if (k.currentState != null && (k.currentState!.controller.text.isEmpty || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
+      if (k.currentState != null
+          && ((k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty) || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
         canPost = false;
         break;
       }
