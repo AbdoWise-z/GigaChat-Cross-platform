@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
-import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -15,9 +13,9 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
-import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -56,17 +54,21 @@ class Tweet extends StatefulWidget {
   final TweetData tweetData;
   final bool isRetweet;
   final bool isSinglePostView;
+  final bool cancelSameUserNavigation;
   final void Function(String) callBackToDelete;
   final void Function() onCommentButtonClicked;
+  final FeedController? parentFeed;
 
-  Tweet({
+  const Tweet({
       super.key,
       required this.tweetOwner,
       required this.tweetData,
       required this.isRetweet,
       required this.isSinglePostView,
       required this.callBackToDelete,
-    required this.onCommentButtonClicked
+      required this.onCommentButtonClicked,
+      required this.parentFeed,
+      required this.cancelSameUserNavigation
   });
 
   @override
@@ -92,13 +94,24 @@ class _TweetState extends State<Tweet> {
       if (success) {
         widget.tweetData.isLiked = isLikingTweet;
         widget.tweetData.likesNum += widget.tweetData.isLiked ? 1 : -1;
-        setState(() {});
       }
+      updateState();
       return success;
     }
     catch(e){
-      Toast.showToast(context, e.toString());
+      if (context.mounted) {
+        Toast.showToast(context, e.toString());
+      }
       return false;
+    }
+  }
+
+  void updateState(){
+    if (widget.parentFeed == null) {
+      setState(() {});
+    }
+    else {
+      widget.parentFeed!.updateFeeds();
     }
   }
 
@@ -108,15 +121,37 @@ class _TweetState extends State<Tweet> {
     }
 
     bool isRetweeting = !widget.tweetData.isRetweeted;
-    bool success = isRetweeting ? await Tweets.retweetTweetById(token, tweetId) : await Tweets.unretweetTweetById(token, tweetId);
-    // TODO: call the interface here and send the tweet id to retweet it
+    bool success = isRetweeting ?
+    await Tweets.retweetTweetById(token, tweetId) :
+    await Tweets.unretweetTweetById(token, tweetId);
     if (success)
     {
       widget.tweetData.isRetweeted = isRetweeting;
       widget.tweetData.repostsNum += widget.tweetData.isRetweeted ? 1 : -1;
-      setState(() {});
+
+      if (!isRetweeting){
+        widget.parentFeed?.deleteTweet(tweetId);
+      }
+      else {
+        updateState();
+      }
     }
     return success;
+  }
+
+  void navigateToUserProfile({required String currentUserId,required String tweetOwnerId}){
+    // if it's the same user don't navigate to the profile from the tweet
+    if (tweetOwnerId == currentUserId && widget.cancelSameUserNavigation){
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => UserProfile(
+          username: tweetOwnerId,
+          isCurrUser: false
+      )),
+    );
   }
 
   // ui part
@@ -127,7 +162,7 @@ class _TweetState extends State<Tweet> {
     return Consumer<ThemeProvider>(
       builder: (_,__,___) {
         bool isDarkMode = ThemeProvider.getInstance(context).isDark();
-        String currentUserName = Auth.getInstance(context).getCurrentUser()!.name;
+        User currentUser = Auth.getInstance(context).getCurrentUser()!;
         return TextButton(
           style: TextButton.styleFrom(
               backgroundColor: Colors.transparent,
@@ -138,7 +173,8 @@ class _TweetState extends State<Tweet> {
               : () async {
                     await Navigator.pushNamed(context, ViewPostPage.pageRoute, arguments: {
                       "tweetData": widget.tweetData,
-                      "tweetOwner": widget.tweetOwner
+                      "tweetOwner": widget.tweetOwner,
+                      "cancelNavigationToUser" : widget.cancelSameUserNavigation
                     });
                     if (context.mounted) {
                       setState(() {});
@@ -162,11 +198,17 @@ class _TweetState extends State<Tweet> {
                           visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
                           child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
                       const SizedBox(height: 10),
-                      CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 20,
-                          // TODO: handle the errors later
-                          backgroundImage: NetworkImage(widget.tweetOwner.iconLink),
+                      GestureDetector(
+                        onTap: () => navigateToUserProfile(
+                          currentUserId: currentUser.id,
+                          tweetOwnerId: widget.tweetOwner.id
+                        ),
+                        child: CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 20,
+                            // TODO: handle the errors later
+                            backgroundImage: NetworkImage(widget.tweetOwner.iconLink),
+                        ),
                       ),
                     ],
                   ),
@@ -187,7 +229,7 @@ class _TweetState extends State<Tweet> {
                       Visibility(
                         visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
                           child: widget.tweetData.reTweeter == null ? Container() :
-                          Text("${currentUserName == widget.tweetData.reTweeter!.name ? "You" : widget.tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
+                          Text("${currentUser.name == widget.tweetData.reTweeter!.name ? "You" : widget.tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
                       // =================== post owner data ===================
                       tweetUserInfo(
                           context,
@@ -487,20 +529,32 @@ class _TweetState extends State<Tweet> {
           ["Delete post",Icons.delete,() async {
               bool success = await Tweets.deleteTweetById(currentUserToken!,tweetId);
               if (success){
-                widget.callBackToDelete(tweetId);
+                if (widget.parentFeed == null ){
+                  Navigator.pop(context);
+                }
+                else {
+                  widget.parentFeed?.deleteTweet(tweetId);
+                }
+                updateState();
               }
           }]
         ];
       }
     }
-
+    final currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
     final upperRowNameField = isSinglePostView ?
     Row(
       children: [
-        CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 20,
-            backgroundImage: NetworkImage(tweetOwner.iconLink)
+        GestureDetector(
+          onTap: () => navigateToUserProfile(
+              currentUserId: currentUserId,
+              tweetOwnerId: tweetOwner.id
+          ),
+          child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 20,
+              backgroundImage: NetworkImage(tweetOwner.iconLink)
+          ),
         ),
         const SizedBox(
           width: 10,
@@ -550,18 +604,7 @@ class _TweetState extends State<Tweet> {
       mainAxisSize: MainAxisSize.min,
       children: [
 
-        GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserProfile(
-                    username: tweetOwner.id,
-                    isCurrUser: false
-                )),
-              );
-            },
-            child: upperRowNameField
-        ),
+        upperRowNameField,
 
         const Expanded(child: SizedBox()),
 

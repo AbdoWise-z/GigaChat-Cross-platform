@@ -13,6 +13,9 @@ class TweetMedia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    if (mediaList.length == 4)
+      print("fox");
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: StaggeredGrid.count(
@@ -29,8 +32,9 @@ class TweetMedia extends StatelessWidget {
                 if (index == 1 && mediaList.length == 2){
                   mainCount = 2;
                 }
-                return StaggeredGridTile.fit(
-                  crossAxisCellCount: 1,
+                return StaggeredGridTile.count(
+                  mainAxisCellCount: mainCount,
+                  crossAxisCellCount: crossCount,
                   child: imageEntity(context, index),
                 );
               }).toList()
@@ -43,21 +47,23 @@ class TweetMedia extends StatelessWidget {
 
     MediaData imageData = mediaList[index];
 
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(context, FullScreenImage.pageRoute,
-            arguments: {
-              "image": mediaList,
-              "index" : index
-            });
-      },
-      child: Hero(
-          tag: imageData.tag!,
-          child:
-          imageData.mediaType == MediaType.VIDEO ?
-          SizedBox()
-              :
-          Image.network(imageData.mediaUrl,fit: BoxFit.fitWidth,)
+    return Container(
+      child: GestureDetector(
+        onTap: (){
+          Navigator.pushNamed(context, FullScreenImage.pageRoute,
+              arguments: {
+                "image": mediaList,
+                "index" : index
+              });
+        },
+        child: Hero(
+            tag: imageData.tag!,
+            child:
+            imageData.mediaType == MediaType.VIDEO ?
+            SizedBox()
+                :
+            Image.network(imageData.mediaUrl,fit: BoxFit.cover,)
+        ),
       ),
     );
 

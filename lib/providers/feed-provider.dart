@@ -16,9 +16,15 @@ class FeedProvider extends ChangeNotifier{
     return Provider.of<FeedProvider>(context , listen: false);
   }
 
-  void removeFeed(String feedID){
+  void removeFeedById(String feedID){
     _controllers.remove(feedID);
   }
+
+  void removeFeedByObject(FeedController feedController){
+    _controllers.removeWhere((key, value) => value == feedController);
+  }
+
+
 
   FeedController getFeedControllerById({
     required BuildContext context,

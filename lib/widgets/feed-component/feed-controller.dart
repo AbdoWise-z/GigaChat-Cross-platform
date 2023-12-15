@@ -39,7 +39,7 @@ class FeedController {
         _feedData!.add(value);
       }
     });
-    feedProvider!.updateFeeds();
+    updateFeeds();
   }
 
   void resetFeed(){
@@ -56,7 +56,7 @@ class FeedController {
         _feedData!.insert(0,value);
       }
     });
-    feedProvider!.updateFeeds();
+    updateFeeds();
   }
 
   void deleteTweet(String tweetID){
@@ -64,6 +64,10 @@ class FeedController {
     int idx = _feedKeys!.indexOf(tweetID);
     _feedData!.removeAt(idx);
     _feedKeys!.removeAt(idx);
+    updateFeeds();
+  }
+
+  void updateFeeds(){
     feedProvider!.updateFeeds();
   }
 

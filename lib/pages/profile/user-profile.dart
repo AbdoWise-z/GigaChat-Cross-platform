@@ -727,6 +727,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   children: [
                     BetterFeed(
                       removeController: true,
+                      removeRefreshIndicator: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,
@@ -735,6 +736,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     ),
                     BetterFeed(
                       removeController: true,
+                      removeRefreshIndicator: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,
