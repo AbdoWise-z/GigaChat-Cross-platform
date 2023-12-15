@@ -815,6 +815,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           feedController: feedController,
                           userId: widget.username,
                           userName: name,
+                          removeRefreshIndicator: true,
                         ),
                         BetterFeed(  //TODO:
                           removeController: true,
@@ -823,6 +824,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           feedController: feedController,
                           userId: widget.username,
                           userName: name,
+                          removeRefreshIndicator: true,
                         ),
                         BetterFeed(  //TODO:
                           removeController: true,
@@ -831,6 +833,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           feedController: feedController,
                           userId: widget.username,
                           userName: name,
+                          removeRefreshIndicator: true,
                         ),
                         BetterFeed( //TODO:
                           removeController: true,
@@ -839,7 +842,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           feedController: feedController,
                           userId: widget.username,
                           userName: name,
-                        ),                  ],
+                          removeRefreshIndicator: true,
+                        ),
+                      ],
                     ) :
                     (isCurrUserBlocked != null && isCurrUserBlocked!) ?
                         Column(

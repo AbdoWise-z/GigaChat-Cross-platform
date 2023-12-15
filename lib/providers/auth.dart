@@ -198,6 +198,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> follow(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.followUser(_currentUser!.auth! ,username);
+    print(res.code);
     if (res.data!){
       _currentUser!.following++;
       notifyListeners();
@@ -210,6 +211,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> unfollow(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unfollowUser(_currentUser!.auth! ,username);
+    print(res.code);
     if (res.data!){
       _currentUser!.following--;
       notifyListeners();

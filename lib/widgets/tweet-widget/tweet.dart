@@ -430,8 +430,8 @@ class _TweetState extends State<Tweet> {
         Icons.person_add_alt_1_outlined, () {
           if(currentUser != null){
             tweetOwner.isFollowed! ?
-            Account.unfollowUser(currentUser.auth!, tweetOwner.id) :
-            Account.followUser(currentUser.auth!, tweetOwner.id);
+            Auth.getInstance(context).unfollow(tweetOwner.id) :
+            Auth.getInstance(context).follow(tweetOwner.id);
           }
       }], // ===============================================================
       ["Mute @${tweetOwner.id}", Icons.volume_off, () {
@@ -533,12 +533,11 @@ class _TweetState extends State<Tweet> {
           child: SizedBox(
               height: 20,
               width: 80,
-              // TODO: must be changed to whatever the current user state with this post owner
-              child: Visibility(
+               child: Visibility(
                 visible: tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
                 child: FollowButton(
                     isFollowed: tweetOwner.isFollowed ?? false,
-                    callBack: (bool followed) {},
+                    callBack: (bool followed) {tweetOwner.isFollowed = followed;},
                     username: tweetOwner.id
                 ),
               )

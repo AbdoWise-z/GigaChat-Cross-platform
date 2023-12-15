@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 
@@ -77,19 +78,22 @@ class UserResult extends StatelessWidget {
               SizedBox(
                 width: 80,
                 height: 30,
-                child: FollowButton(
-                    isFollowed: user.isFollowed!,
-                    callBack: (_){},
-                    username: user.id
+                child: Visibility(
+                  visible: Auth.getInstance(context).getCurrentUser()!.id != user.id,
+                  child: FollowButton(
+                      isFollowed: user.isFollowed!,
+                      callBack: (isFollowed){user.isFollowed = isFollowed;},
+                      username: user.id
+                  ),
                 ),
               )
             ],
           ),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(),
+              CircleAvatar(backgroundColor: Colors.transparent),
               SizedBox(width: 10,),
               Text("ajdoklasjdklasdlkasmdlk",style: TextStyle(color: Colors.white),)
             ],

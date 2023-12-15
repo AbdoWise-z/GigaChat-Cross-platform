@@ -96,7 +96,14 @@ class _UserListViewPageState extends State<UserListViewPage> {
                 child: SizedBox(
                     width: 100,
                     height: 25,
-                    child: FollowButton(isFollowed: user.value.isFollowed!, callBack: (bool followed){}, username: user.value.id)
+                    child: Visibility(
+                      visible: Auth.getInstance(context).getCurrentUser()!.id != user.value.id,
+                      child: FollowButton(
+                          isFollowed: user.value.isFollowed!,
+                          callBack: (bool followed){user.value.isFollowed = followed;},
+                          username: user.value.id
+                      ),
+                    )
                 ),
               ),
             ],

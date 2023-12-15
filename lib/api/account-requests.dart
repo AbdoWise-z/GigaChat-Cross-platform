@@ -407,8 +407,8 @@ class Account {
   {
       ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-      var k = await Api.apiPost<bool>(endPoint,headers: headers);
       print(token);
+      var k = await Api.apiPost<bool>(endPoint,headers: headers);
       k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
       return k;
   }
@@ -482,6 +482,11 @@ class Account {
       var res = json.decode(k.responseBody!);
       k.data = res["users"];
     }
+
+    // List<User> users = k.data.map((user)=> User(
+    //
+    // ));
+
     return k;
   }
 
