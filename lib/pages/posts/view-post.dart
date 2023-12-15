@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
@@ -56,10 +55,17 @@ class _ViewPostPageState extends State<ViewPostPage> {
   }
 
   @override
+  void dispose() {
+    //FeedProvider.getInstance(context).removeFeedByObject(feedController);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     tweetOwner = args["tweetOwner"];
     tweetData = args["tweetData"];
+    bool cancelNavigationToUser = args["cancelNavigationToUser"];
 
     feedController = FeedProvider.getInstance(context).getFeedControllerById(
         context: context,
@@ -79,12 +85,10 @@ class _ViewPostPageState extends State<ViewPostPage> {
                 tweetData: tweetData,
                 isRetweet: false,
                 isSinglePostView: true,
-                callBackToDelete: (String tweetID){
-                  Navigator.pop(context);
-              },
-              onCommentButtonClicked: (){
-                  addComment(context);
-              },
+                callBackToDelete: (String tweetID){Navigator.pop(context);},
+                onCommentButtonClicked: (){addComment(context);},
+                parentFeed: null,
+                cancelSameUserNavigation: cancelNavigationToUser,
             ),
 
             BetterFeed(
@@ -93,6 +97,8 @@ class _ViewPostPageState extends State<ViewPostPage> {
                 feedController: feedController,
                 tweetID: tweetData.id,
                 removeController: false,
+                removeRefreshIndicator: false,
+              cancelNavigationToUserProfile: cancelNavigationToUser ? cancelNavigationToUser : null,
             )
           ],
         ),

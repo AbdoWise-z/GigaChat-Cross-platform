@@ -39,7 +39,7 @@ class FeedController {
         _feedData!.add(value);
       }
     });
-    feedProvider!.updateFeeds();
+    updateFeeds();
   }
 
   void resetFeed(){
@@ -56,7 +56,7 @@ class FeedController {
         _feedData!.insert(0,value);
       }
     });
-    feedProvider!.updateFeeds();
+    updateFeeds();
   }
 
   void deleteTweet(String tweetID){
@@ -64,6 +64,10 @@ class FeedController {
     int idx = _feedKeys!.indexOf(tweetID);
     _feedData!.removeAt(idx);
     _feedKeys!.removeAt(idx);
+    updateFeeds();
+  }
+
+  void updateFeeds(){
     feedProvider!.updateFeeds();
   }
 
@@ -118,6 +122,13 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         break;
+      case ProviderFunction.SEARCH_TWEETS:
+        response = await SearchRequests.searchTweetsByKeywordMapped(
+            keyword!,
+            token!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
       default:
     }
 

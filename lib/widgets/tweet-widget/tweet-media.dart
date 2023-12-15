@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/widgets/video-player.dart';
 import 'full-screen-tweet.dart';
 
 
 class TweetMedia extends StatelessWidget {
-  final List<MediaData> mediaList;
+  final TweetData tweetData;
+  final FeedController? parentFeed;
 
-  TweetMedia({super.key, required this.mediaList});
+  const TweetMedia({super.key, required this.tweetData, required this.parentFeed});
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
+    List<MediaData> mediaList = tweetData.media!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: StaggeredGrid.count(
@@ -29,8 +32,9 @@ class TweetMedia extends StatelessWidget {
                 if (index == 1 && mediaList.length == 2){
                   mainCount = 2;
                 }
-                return StaggeredGridTile.fit(
-                  crossAxisCellCount: 1,
+                return StaggeredGridTile.count(
+                  mainAxisCellCount: mainCount,
+                  crossAxisCellCount: crossCount,
                   child: imageEntity(context, index),
                 );
               }).toList()
@@ -40,28 +44,36 @@ class TweetMedia extends StatelessWidget {
 
 
   Widget imageEntity(context, index){
-
+    List<MediaData> mediaList = tweetData.media!;
     MediaData imageData = mediaList[index];
-
     return GestureDetector(
       onTap: (){
         Navigator.pushNamed(context, FullScreenImage.pageRoute,
             arguments: {
-              "image": mediaList,
-              "index" : index
+              "tweetData": tweetData,
+              "index" : index,
+              "parentFeed":parentFeed
             });
       },
-      child: Hero(
-          tag: imageData.tag!,
-          child:
-          imageData.mediaType == MediaType.VIDEO ?
-          SizedBox()
-              :
-          Image.network(imageData.mediaUrl,fit: BoxFit.fitWidth,)
+      child: SizedBox(
+        width: 200,
+        child: Hero(
+            tag: mediaList[index].tag!,
+            child:
+            imageData.mediaType == MediaType.VIDEO ?
+            VideoPlayerWidget(
+              videoUrl: mediaList[index].mediaUrl,
+              autoPlay: false,
+              holdVideo: true,
+              showControllers: false,
+              tag: mediaList[index].tag!,
+            )
+                :
+            Image.network(mediaList[index].mediaUrl,fit: BoxFit.cover,)
+        ),
       ),
     );
 
   }
-
 }
 

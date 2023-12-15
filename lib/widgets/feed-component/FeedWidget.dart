@@ -14,14 +14,18 @@ import 'package:provider/provider.dart';
 
 class BetterFeed extends StatefulWidget {
   final bool removeController;
+  final bool removeRefreshIndicator;
   final ProviderFunction providerFunction;
   final ProviderResultType providerResultType;
   final FeedController feedController;
+  bool? cancelNavigationToUserProfile;
+
   String? userId,userName, tweetID, keyword;
 
   BetterFeed({
     super.key,
     required this.removeController,
+    required this.removeRefreshIndicator,
     required this.providerFunction,
     required this.providerResultType,
     required this.feedController,
@@ -29,7 +33,10 @@ class BetterFeed extends StatefulWidget {
     this.userName,
     this.tweetID,
     this.keyword,
-  });
+    this.cancelNavigationToUserProfile
+  }){
+    cancelNavigationToUserProfile ??= false;
+  }
 
   @override
   State<BetterFeed> createState() => _BetterFeedState();
@@ -106,6 +113,10 @@ class _BetterFeedState extends State<BetterFeed> {
                   if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
                     tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
                   }
+
+                  bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
+                  bool sameUser = tweetData.tweetOwner.id == Auth.getInstance(context).getCurrentUser()!.id;
+
                   return Tweet(
                     tweetOwner: tweetData.tweetOwner,
                     tweetData: tweetData,
@@ -116,6 +127,9 @@ class _BetterFeedState extends State<BetterFeed> {
                       setState(() {});
                     },
                     onCommentButtonClicked: () => addComment(context, tweetData),
+                    parentFeed: _feedController,
+                    cancelSameUserNavigation: cancellationPosition && sameUser
+                    ,
                   );
         }).toList();
     }
@@ -132,28 +146,33 @@ class _BetterFeedState extends State<BetterFeed> {
 
           List<Widget>? widgetList = wrapDataInWidget();
 
+          Widget finalWidget = Container();
+
           if(widgetList == null || widgetList.isEmpty)
           {
-            return RefreshIndicator(
-                child: SingleChildScrollView(
-                    child: SizedBox(
-                        height: 0.5 * MediaQuery.of(context).size.height,
-                        child: const NothingYet()
-                    )
-                ),
-                onRefresh: () async {
-
-                }
+            finalWidget = SingleChildScrollView(
+                child: SizedBox(
+                    height: 0.5 * MediaQuery.of(context).size.height,
+                    child: const NothingYet()
+                )
+            );
+          }
+          else{
+            finalWidget = SingleChildScrollView(
+              controller: widget.removeController == true ? null : _scrollController,
+              child: Column(children: widgetList),
             );
           }
 
-          return RefreshIndicator(
-              onRefresh: () async {},
-              child: SingleChildScrollView(
-                  controller: widget.removeController == true ? null : _scrollController,
-                  child: Column(children: widgetList),
-              )
-          );
+          finalWidget = widget.removeRefreshIndicator ? finalWidget :
+              RefreshIndicator(
+                  child: finalWidget,
+                  onRefresh: () async {
+                    _feedController.resetFeed();
+                    setState(() {});
+                  }
+              );
+          return finalWidget;
         }
     );
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 
 class SearchKeyword extends StatelessWidget {
   final String tag;
@@ -57,38 +59,47 @@ class UserResult extends StatelessWidget {
           foregroundColor: isDarkMode ? Colors.white: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(user.iconLink),
-          ),
-          const SizedBox(width: 10,),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                user.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black,
-                    fontSize: 16
-                ),
+              CircleAvatar(backgroundImage: NetworkImage(user.iconLink)),
+              SizedBox(width: 10,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(user.name),
+                  Text("@${user.id}",style: TextStyle(color: Colors.grey),)
+                ],
               ),
-              Text(user.id,
-                style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    color: isDarkMode ? Colors.grey : Colors.grey[850]
+              Expanded(child: SizedBox()),
+              SizedBox(
+                width: 80,
+                height: 30,
+                child: Visibility(
+                  visible: Auth.getInstance(context).getCurrentUser()!.id != user.id,
+                  child: FollowButton(
+                      isFollowed: user.isFollowed!,
+                      callBack: (isFollowed){user.isFollowed = isFollowed;},
+                      username: user.id
+                  ),
                 ),
-              ),
+              )
             ],
           ),
-          const Expanded(child: SizedBox()),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(backgroundColor: Colors.transparent),
+              SizedBox(width: 10,),
+              Text("ajdoklasjdklasdlkasmdlk",style: TextStyle(color: Colors.white),)
+            ],
+          )
         ],
-      ),
+      )
     );
   }
 }

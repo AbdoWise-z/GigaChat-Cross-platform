@@ -325,7 +325,6 @@ class Tweets {
     ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-    //print(response.code);
     switch(response.code){
       case ApiResponse.CODE_SUCCESS_NO_BODY:
         return true;

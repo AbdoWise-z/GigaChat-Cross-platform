@@ -58,12 +58,14 @@ class FeedHomeTab with HomePageTab {
                 providerResultType: ProviderResultType.TWEET_RESULT,
                 feedController: feedController ?? homeFeedController,
                 removeController: false,
+                removeRefreshIndicator: false,
         ),
        BetterFeed(
                   providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                   providerResultType: ProviderResultType.TWEET_RESULT,
                   feedController: feedController ?? homeFeedController,
                   removeController: false,
+                  removeRefreshIndicator: false,
        ),
 
       ];

@@ -212,12 +212,12 @@ class _EditProfileState extends State<EditProfile> {
                           width: double.infinity,
                           child: bannerChanged? Image.file(
                             selectedBanner,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ) :
                           newBannerImageUrl == ""? null :
                           Image.network(
                             newBannerImageUrl,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),

@@ -62,7 +62,13 @@ class ChatMessageContent extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
         ),
-        child: VideoPlayerWidget(videoUrl: object.media!.link,),
+        child: VideoPlayerWidget(
+          videoUrl: object.media!.link,
+          tag: object.media!.link,
+          showControllers: true,
+          autoPlay: true,
+          holdVideo: false,
+        ),
       );
     }else{
       return Container(
