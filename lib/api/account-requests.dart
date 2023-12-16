@@ -503,8 +503,8 @@ class Account {
         ApiPath.userBlockList,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);
@@ -514,8 +514,6 @@ class Account {
       List<User> users = temp.map((e) => User(
         id: e["username"],
         name: e["nickname"],
-        followers: e["followers_num"],
-        following: e["followings_num"],
         iconLink: e["profile_image"],
       )).toList();
 
@@ -543,8 +541,6 @@ class Account {
         id: e["username"],
         name: e["nickname"],
         isFollowed: e["isFollowed"],
-        followers: e["followers_num"],
-        following: e["followings_num"],
         iconLink: e["profile_image"],
       )).toList();
 

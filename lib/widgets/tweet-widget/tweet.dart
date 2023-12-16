@@ -127,6 +127,12 @@ class _TweetState extends State<Tweet> {
             singlePostView: widget.isSinglePostView,
             onCommentButtonClicked: () async {
                int ret = await commentTweet(context, widget.tweetData,widget.parentFeed);
+               if(context.mounted) {
+                 FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+                 FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+                 FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+                 FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+               }
             },
             onRetweetButtonClicked: () async {
               bool isRetweeting = !widget.tweetData.isRetweeted;
@@ -140,12 +146,24 @@ class _TweetState extends State<Tweet> {
               else{
                 updateState();
               }
+              if(context.mounted) {
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+              }
               return success;
             },
             onLikeButtonClicked: () async{
               bool success =  await toggleLikeTweet(context,currentUser.auth,widget.tweetData);
               if (success){
                 updateState();
+              }
+              if(context.mounted) {
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
               }
               return success;
             }
@@ -184,7 +202,7 @@ class _TweetState extends State<Tweet> {
                   visible: !widget.isSinglePostView,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Visibility(

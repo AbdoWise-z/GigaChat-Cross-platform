@@ -29,7 +29,11 @@ import '../../widgets/feed-component/feed-controller.dart';
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
-  static const profileFeed = 'profileFeed';
+  static const profileFeedPosts = 'profileFeedPosts';
+  static const profileFeedReplies = 'profileFeedReplies';
+  static const profileFeedLikes = 'profileFeedLikes';
+  static const profileFeedMadia = 'profileFeedMadia';
+
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
   static const pageRoute = '/user-profile';
@@ -123,7 +127,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     FeedProvider feedProvider = FeedProvider.getInstance(context);
     feedController = feedProvider.getFeedControllerById(
         context: context,
-        id: UserProfile.profileFeed + widget.username,
+        id: UserProfile.profileFeedPosts + widget.username,
         providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
         clearData: false
     );
@@ -296,6 +300,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 widget.username,
                               success: (res){
                                 setState(() {
+                                  if(context.mounted) {
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+                                  }
                                   isWantedUserBlocked = true;
                                   isWantedUserFollowed = false;
                                   followers--;
@@ -422,8 +432,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           return true;
         },
         child: RefreshIndicator(
+          notificationPredicate: (notification){
+            return notification.depth == 2;
+          },
           onRefresh: () async {
             setState(() {
+              scroll.value = 0;
               getData();
             });
           },

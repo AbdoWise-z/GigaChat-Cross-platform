@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
+import 'package:gigachat/providers/auth.dart';
 
 import '../../../../../widgets/text-widgets/main-text.dart';
 
@@ -32,7 +35,12 @@ class MuteAndBlockSettings extends StatelessWidget {
               splashColor: Colors.transparent,
               title: const MainText(text: "Blocked accounts",),
               onTap: (){
-                //TODO:
+                Navigator.pushNamed(context, UserListViewPage.pageRoute,arguments: {
+                  "pageTitle": "Blocked accounts",
+                  "tweetID" : null,
+                  "userID" : Auth.getInstance(context).getCurrentUser()!.id,
+                  "providerFunction" : ProviderFunction.GET_USER_BLOCKLIST
+                });
               },
             ),
             ListTile(
@@ -40,7 +48,12 @@ class MuteAndBlockSettings extends StatelessWidget {
               minVerticalPadding: 20,
               title: const MainText(text: "Muted accounts",),
               onTap: (){
-                //TODO:
+                Navigator.pushNamed(context, UserListViewPage.pageRoute,arguments: {
+                  "pageTitle": "Muted accounts",
+                  "tweetID" : null,
+                  "userID" : Auth.getInstance(context).getCurrentUser()!.id,
+                  "providerFunction" : ProviderFunction.GET_USER_MUTEDLIST
+                });
               },
             ),
           ],

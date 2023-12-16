@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/tweets-requests.dart';
-import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
-import 'package:gigachat/providers/theme-provider.dart';
-import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class UserListViewPage extends StatefulWidget {
   static const pageRoute = "/list-view";

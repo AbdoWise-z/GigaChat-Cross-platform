@@ -195,6 +195,27 @@ class FeedController {
         response = mapUserListIntoMap(users);
         break;
 
+      case ProviderFunction.GET_USER_BLOCKLIST:
+        List<User> users = (
+            await Account.getUserBlockedList(
+                token!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
+
+      case ProviderFunction.GET_USER_MUTEDLIST:
+        List<User> users = (
+            await Account.getUserMutedList(
+                token!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
 
       case ProviderFunction.GET_TWEET_LIKERS:
         List<User> users = await Tweets.getTweetLikers(

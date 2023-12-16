@@ -41,7 +41,9 @@ class SearchKeyword extends StatelessWidget {
 
 class UserResult extends StatelessWidget {
   final User user;
-  const UserResult({super.key,required this.user});
+  final bool? isBlocked;
+  final bool? isMuted;
+  const UserResult({super.key,required this.user, this.isBlocked, this.isMuted});
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +77,26 @@ class UserResult extends StatelessWidget {
                 ],
               ),
               const Expanded(child: SizedBox()),
+              Visibility(
+                visible: isMuted != null && isMuted!,
+                child: IconButton(
+                    onPressed: (){
+
+                    }, icon: const Icon(Icons.volume_off_sharp,color: Colors.red,)
+                ),
+              ),
               SizedBox(
                 width: 80,
                 height: 30,
                 child: Visibility(
                   visible: Auth.getInstance(context).getCurrentUser()!.id != user.id,
-                  child: FollowButton(
+                  child: (isBlocked ?? false)? ElevatedButton(
+                    onPressed: (){
+
+                    },
+                    child: SizedBox()
+                  ):
+                  FollowButton(
                       isFollowed: user.isFollowed!,
                       callBack: (isFollowed){user.isFollowed = isFollowed;},
                       username: user.id

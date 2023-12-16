@@ -114,7 +114,11 @@ class _BetterFeedState extends State<BetterFeed> {
       case ProviderResultType.USER_RESULT:
         List<User> userResult = _feedController.getCurrentData().cast<User>();
         return userResult.map((User user){
-                  return UserResult(user: user);
+                  return UserResult(
+                    user: user,
+                    isBlocked: widget.providerFunction == ProviderFunction.GET_USER_BLOCKLIST,
+                    isMuted: widget.providerFunction == ProviderFunction.GET_USER_MUTEDLIST
+                  );
         }).toList();
       // The Normal View For Tweets
       case ProviderResultType.TWEET_RESULT:

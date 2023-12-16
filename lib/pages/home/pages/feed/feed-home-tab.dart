@@ -116,7 +116,7 @@ class FeedHomeTab with HomePageTab {
 
           FeedProvider.getInstance(context).getFeedControllerById(
               context: context,
-              id: UserProfile.profileFeed + Auth.getInstance(context).getCurrentUser()!.id,
+              id: UserProfile.profileFeedPosts + Auth.getInstance(context).getCurrentUser()!.id,
               providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
               clearData: false
           ).appendToBegin(mappedTweets);
