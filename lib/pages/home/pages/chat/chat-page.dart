@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/api.dart';
@@ -16,7 +17,6 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/util/Toast.dart';
-import 'package:gigachat/widgets/PositionRetainedScrollPhysics.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,7 +42,7 @@ class ChatPageState extends State<ChatPage> {
   final GlobalKey editor = GlobalKey();
   final GlobalKey chatList = GlobalKey();
   double _editorHeight = 0;
-  final ScrollController _controller = ScrollController();
+  final RetainableScrollController _controller = RetainableScrollController();
 
   bool _loading = false;
   bool _loadingMore = false;
@@ -86,6 +86,7 @@ class ChatPageState extends State<ChatPage> {
         _loading = false;
       }else{
         _loadingMore = false;
+        _controller.retainOffset();
         if (_controller.offset - _loadMessagesTrigger <= 0){
           _loadMessages(more: true);
         }
@@ -375,7 +376,6 @@ class ChatPageState extends State<ChatPage> {
                       child: StretchingOverscrollIndicator(
                         axisDirection: AxisDirection.down,
                         child: SingleChildScrollView(
-                          physics: const PositionRetainedScrollPhysics(),
                           controller: _controller,
                           child: Column(
                             //chat
@@ -492,13 +492,12 @@ class ChatPageState extends State<ChatPage> {
                     },
                     onSizeChange: () {
                       setState(() {
-
                         _editorHeight = editor.currentContext!.size!.height;
                       });
                     },
                     onOpen: () {
                       Future.delayed(const Duration(milliseconds: 400) , () {
-                        _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
+                        _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: max(50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round(),0) + 1), curve: Curves.fastOutSlowIn);
                       });
                     },
                   ),
@@ -570,3 +569,84 @@ class _ChatColumnState extends State<ChatColumn> {
   }
 }
 
+
+class RetainableScrollController extends ScrollController {
+  RetainableScrollController({
+    super.initialScrollOffset,
+    super.keepScrollOffset,
+    super.debugLabel,
+  });
+
+  @override
+  ScrollPosition createScrollPosition(
+      ScrollPhysics physics,
+      ScrollContext context,
+      ScrollPosition? oldPosition,
+      ) {
+    return RetainableScrollPosition(
+      physics: physics,
+      context: context,
+      initialPixels: initialScrollOffset,
+      keepScrollOffset: keepScrollOffset,
+      oldPosition: oldPosition,
+      debugLabel: debugLabel,
+    );
+  }
+
+  void retainOffset() {
+    position.retainOffset();
+  }
+
+
+  @override
+  RetainableScrollPosition get position =>
+      super.position as RetainableScrollPosition;
+}
+
+class RetainableScrollPosition extends ScrollPositionWithSingleContext {
+  RetainableScrollPosition({
+    required super.physics,
+    required super.context,
+    super.initialPixels = 0.0,
+    super.keepScrollOffset,
+    super.oldPosition,
+    super.debugLabel,
+  });
+
+  double? _oldPixels;
+  double? _oldMaxScrollExtent;
+
+  bool get shouldRestoreRetainedOffset =>
+      _oldMaxScrollExtent != null && _oldPixels != null;
+
+  void retainOffset() {
+    if (!hasPixels) return;
+    _oldPixels = pixels;
+    _oldMaxScrollExtent = maxScrollExtent;
+    print("_oldPixels: $_oldPixels , _oldMaxScrollExtent: $_oldMaxScrollExtent");
+  }
+
+  /// when the viewport layouts its children, it would invoke [applyContentDimensions] to
+  /// update the [minScrollExtent] and [maxScrollExtent].
+  /// When it happens, [shouldRestoreRetainedOffset] would determine if correcting the current [pixels],
+  /// so that the final scroll offset is matched to the previous items' scroll offsets.
+  /// Therefore, avoiding scrolling down/up when the new item is inserted into the first index of the list.
+  @override
+  bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    final applied = super.applyContentDimensions(minScrollExtent, maxScrollExtent);
+
+    bool isPixelsCorrected = false;
+
+    if (shouldRestoreRetainedOffset) {
+      final diff = maxScrollExtent - _oldMaxScrollExtent!;
+      if (_oldPixels! >= minScrollExtent && diff > 0) {
+        correctPixels(pixels + diff);
+        isPixelsCorrected = true;
+      }
+      _oldMaxScrollExtent = null;
+      _oldPixels = null;
+    }
+
+    return applied && !isPixelsCorrected;
+  }
+}
