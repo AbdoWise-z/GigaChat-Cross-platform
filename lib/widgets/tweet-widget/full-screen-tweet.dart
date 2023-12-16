@@ -175,7 +175,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
                         tweetData: tweetData,
                         singlePostView: false,
                         onCommentButtonClicked: () async {
-                          return await commentTweet(context, tweetData);
+                          return await commentTweet(context, tweetData,parentFeed);
                         },
                             onRetweetButtonClicked: () async {
                               bool isRetweeting = !tweetData.isRetweeted;

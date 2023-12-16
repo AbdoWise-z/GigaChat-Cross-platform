@@ -6,6 +6,7 @@ import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/posts/list-view-page.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
@@ -413,506 +414,520 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   Widget build(BuildContext context) {
 
     return loading? const BlockingLoadingPage():
-    Scaffold(
-      extendBodyBehindAppBar: true,
-      body: NotificationListener<ScrollUpdateNotification>(
-        onNotification: (notification){
-          scroll.value = scrollController.position.pixels;
-          return true;
-        },
-        child: RefreshIndicator(
-          notificationPredicate: (notification){
-            return notification.depth == 2;
-          },
-          onRefresh: () async {
-            setState(() {
-              scroll.value = 0;
-              getData();
-            });
-          },
-          child: Stack(
-            children: [
-              NestedScrollView(
-                controller: scrollController,
-                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                  return <Widget>[
-                    ValueListenableBuilder(
-                      valueListenable: scroll,
-                      builder: (context,value,_) {
-                        return SliverAppBar(
-                          pinned: true,
-                          expandedHeight: 130,
-                          title: Visibility(
-                            visible: value > showNamePosition,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(name,
-                                  style: const TextStyle(
-                                      fontSize: 23,
-                                      color: Colors.white
-                                  ),
-                                ),
-                                Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ), //TODO: num of posts & likes
-                              ],
-                            ),
-                          ),
-                          backgroundColor: Colors.transparent,
-                          leading: ProfileAppBarIcon(
-                            toolTip: 'Navigate Up',
-                            icon: Icons.arrow_back,
-                            onPressed: (){
-                              Navigator.pop(context);
-                            },
-                          ),
-                          leadingWidth: 60,
-                          actions: (value > showNamePosition
-                              && (!widget.isCurrUser && !isCurrUser!)
-                              && (isWantedUserFollowed != null && !isWantedUserFollowed!)
-                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
-                          <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ProfileInteract(
-                                avatarIsVisible: false,
-                                avatarImageUrl: avatarImageUrl,
-                                isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                isHeader: true,
-                                onTapEditProfile: onEditProfileClick,
-                                onTapFollow: followUser,
-                                onTapUnfollow: unfollowUser,
-                                isWantedUserFollowed: isWantedUserFollowed,
-                                isWantedUserBlocked: isCurrUserBlocked,
-                              ),
-                            ),
-                          ] :
-                          <Widget>[
-                            Visibility(
-                              visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!) || (isCurrUserBlocked != null && !isCurrUserBlocked!),
-                              child: ProfileAppBarIcon(
-                                icon: Icons.search,
-                                onPressed: (){
-                                  //TODO: navigate to search page with user filter
-                                },
-                                toolTip: 'Search',
-                              ),
-                            ),
-                            ProfileAppBarIcon(
-                              icon: Icons.more_vert,
-                              toolTip: 'Menu',
-                              onPressed: () {
-                                showMenu(
-                                  context: context,
-                                  position: const RelativeRect.fromLTRB(6, 5, 5, 0),
-                                  items: widget.isCurrUser? <PopupMenuItem>[ //doesn't do anything just for looks :p
-                                    PopupMenuItem(
-                                      child: const Text("Share"),
-                                      onTap: (){},
+    Consumer<Auth>(
+      builder: (_,a,___) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          body: NotificationListener<ScrollUpdateNotification>(
+            onNotification: (notification){
+              scroll.value = scrollController.position.pixels;
+              return true;
+            },
+            child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  getData();
+                });
+              },
+              child: Stack(
+                children: [
+                  NestedScrollView(
+                    controller: scrollController,
+                    headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                      return <Widget>[
+                        ValueListenableBuilder(
+                          valueListenable: scroll,
+                          builder: (context,value,_) {
+                            return SliverAppBar(
+                              pinned: true,
+                              expandedHeight: 130,
+                              title: Visibility(
+                                visible: value > showNamePosition,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(name,
+                                      style: const TextStyle(
+                                          fontSize: 23,
+                                          color: Colors.white
+                                      ),
                                     ),
-                                    PopupMenuItem(
-                                      child: const Text("Draft"),
-                                      onTap: (){},
-                                    ),
-                                    PopupMenuItem(
-                                      child: const Text("Lists you're on"),
-                                      onTap: (){},
-                                    )
-                                  ] : <PopupMenuItem>[
-                                    isWantedUserMuted != null && isWantedUserMuted!?
-                                    PopupMenuItem(
-                                      onTap: unmuteUser,
-                                      child: const Text("Unmute"),
-                                    ): PopupMenuItem(
-                                      onTap: muteUser,
-                                      child: const Text("Mute"),
-                                    ),
-                                    isWantedUserBlocked != null && isWantedUserBlocked!?
-                                    PopupMenuItem(
-                                      onTap: unblockUser,
-                                      child: const Text("Unblock"),
-                                    ):
-                                    PopupMenuItem(
-                                      onTap: blockUser,
-                                      child: const Text("Block"),
-                                    ),
+                                    Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ), //TODO: num of posts & likes
                                   ],
-                                );
-                              },
-                            ),
-                          ],
-                          flexibleSpace: value > collapsePosition ?
-                          Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              bannerImageUrl == "" ?
-                              Container(color: Colors.blue,) :
-                              Image.network(bannerImageUrl,
-                                fit: BoxFit.cover,
-                                alignment: Alignment.bottomCenter,
-                              ),
-                              Positioned(
-                                top: 160,
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                    sigmaX: 2,
-                                    sigmaY: 2,
-                                  ),
-                                  child: Container(),
                                 ),
                               ),
-                              TweenAnimationBuilder(
-                                tween: Tween<double>(begin: 0, end: 0.5),
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeIn,
-                                builder: (_,value, __) {
-                                  return Container(
-                                    color: Colors.black.withOpacity(value),
-                                  );
+                              backgroundColor: Colors.transparent,
+                              leading: ProfileAppBarIcon(
+                                toolTip: 'Navigate Up',
+                                icon: Icons.arrow_back,
+                                onPressed: (){
+                                  Navigator.pop(context);
                                 },
-                              )
-                            ],
-                          ) :
-                          Stack(
-                            children: [
-                              ProfileBanner(
-                                  bannerImageUrl: bannerImageUrl,
-                                  onTap:  () async {
-                                    if(bannerImageUrl != ""){
-                                      var res = await Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) =>
-                                              ProfileImageView(
-                                                isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                                isProfileAvatar: false,
-                                                imageUrl: bannerImageUrl,
-                                                avatarImageUrl: avatarImageUrl,
-                                                name: name,
-                                                birthDate: birthDate,
-                                                bio: bio,
-                                                website: website,
-                                              )
-                                          )
-                                      );
-                                      if(res != null){
-                                        setState(() {
-                                          name = res["name"];
-                                          bio = res["bio"];
-                                          website = res["website"];
-                                          birthDate = res["birthDate"];
-                                          bannerImageUrl = res["bannerImageUrl"];
-                                          avatarImageUrl = res["avatarImageUrl"];
-                                        });
-                                      }
-                                    }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
-                                      onEditProfileClick();
-                                    }
-                                  },
-                                ),
-                              Positioned(
-                                top: 160,
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                    sigmaX: value * (2/collapsePosition),
-                                    sigmaY: value * (2/collapsePosition),
-                                  ),
-                                  child: Container(),
-                                ),
                               ),
-                            ],
-                          ),
-                        );
-                      }
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ValueListenableBuilder(
-                              valueListenable: scroll,
-                              builder: (context,value,_) {
-                                return Visibility(
-                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!),
+                              leadingWidth: 60,
+                              actions: (value > showNamePosition
+                                  && (!widget.isCurrUser && !isCurrUser!)
+                                  && (isWantedUserFollowed != null && !isWantedUserFollowed!)
+                                  && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
+                              <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
                                   child: ProfileInteract(
-                                    avatarIsVisible: value > collapsePosition,
-                                    isHeader: false,
+                                    avatarIsVisible: false,
                                     avatarImageUrl: avatarImageUrl,
                                     isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isWantedUserFollowed : isWantedUserFollowed,
-                                    isWantedUserBlocked : isWantedUserBlocked,
+                                    isHeader: true,
                                     onTapEditProfile: onEditProfileClick,
-                                    onTapDM: (){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChatPage()
-                                        )
-                                      );
-                                    }, //TODO: DM user
                                     onTapFollow: followUser,
                                     onTapUnfollow: unfollowUser,
-                                    onTapUnblock: unblockUser,
+                                    isWantedUserFollowed: isWantedUserFollowed,
+                                    isWantedUserBlocked: isCurrUserBlocked,
                                   ),
-                                );
-                              }
-                            ),
-                            Text(
-                              name,
-                              style: const TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                            MainText(text: "@${widget.username}", color:Colors.grey ,),
-                            bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
-                            const Text("") :
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0,10,0,0),
-                              child: SizedBox(
-                                  height: 80,
-                                  child: MainText(text: bio)
-                              ),
-                            ),
-                            const SizedBox(height: 20,),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.location_on_outlined, size: 15,color: Colors.grey,),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: MainText(text: location,color: Colors.grey,),
-                                    ),
-                                  ],
                                 ),
-                                const SizedBox(width: 10,),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.cake, size: 15,color: Colors.grey,),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: MainText(
-                                        text: "Born ${DateFormat.yMMMMd('en_US').format(birthDate )}",
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
+                              ] :
+                              <Widget>[
+                                Visibility(
+                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!) || (isCurrUserBlocked != null && !isCurrUserBlocked!),
+                                  child: ProfileAppBarIcon(
+                                    icon: Icons.search,
+                                    onPressed: (){
+                                      //TODO: navigate to search page with user filter
+                                    },
+                                    toolTip: 'Search',
+                                  ),
+                                ),
+                                ProfileAppBarIcon(
+                                  icon: Icons.more_vert,
+                                  toolTip: 'Menu',
+                                  onPressed: () {
+                                    showMenu(
+                                      context: context,
+                                      position: const RelativeRect.fromLTRB(6, 5, 5, 0),
+                                      items: widget.isCurrUser? <PopupMenuItem>[ //doesn't do anything just for looks :p
+                                        PopupMenuItem(
+                                          child: const Text("Share"),
+                                          onTap: (){},
+                                        ),
+                                        PopupMenuItem(
+                                          child: const Text("Draft"),
+                                          onTap: (){},
+                                        ),
+                                        PopupMenuItem(
+                                          child: const Text("Lists you're on"),
+                                          onTap: (){},
+                                        )
+                                      ] : <PopupMenuItem>[
+                                        isWantedUserMuted != null && isWantedUserMuted!?
+                                        PopupMenuItem(
+                                          onTap: unmuteUser,
+                                          child: const Text("Unmute"),
+                                        ): PopupMenuItem(
+                                          onTap: muteUser,
+                                          child: const Text("Mute"),
+                                        ),
+                                        isWantedUserBlocked != null && isWantedUserBlocked!?
+                                        PopupMenuItem(
+                                          onTap: unblockUser,
+                                          child: const Text("Unblock"),
+                                        ):
+                                        PopupMenuItem(
+                                          onTap: blockUser,
+                                          child: const Text("Block"),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 10,),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.date_range, size: 15,color: Colors.grey,),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: MainText(
-                                        text: "Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}",
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 10,),
-                                Row(
-                                  children: [
-                                    const Icon(CupertinoIcons.link, size: 15,color: Colors.grey,),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: MainText(text: website, color: Colors.grey,), //TODO: change later (detect urls)
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 15,),
-                            Visibility(
-                              visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                                  || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
-                                  && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
-                              child: Row(
+                              flexibleSpace: value > collapsePosition ?
+                              Stack(
+                                fit: StackFit.expand,
                                 children: [
-                                  InkWell(
-                                    onTap: (){
-                                      //TODO: list of Following
-                                    },
-                                    splashFactory: NoSplash.splashFactory,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          widget.isCurrUser?
-                                          "${auth.getCurrentUser()!.following}" : "$following",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const MainText(text: " Following",color: Colors.grey,),
-                                      ],
+                                  bannerImageUrl == "" ?
+                                  Container(color: Colors.blue,) :
+                                  Image.network(bannerImageUrl,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment.bottomCenter,
+                                  ),
+                                  Positioned(
+                                    top: 160,
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                        sigmaX: 2,
+                                        sigmaY: 2,
+                                      ),
+                                      child: Container(),
                                     ),
                                   ),
-                                  const SizedBox(width: 10,),
-                                  InkWell(
-                                    onTap: (){
-                                      //TODO: list of Followers
+                                  TweenAnimationBuilder(
+                                    tween: Tween<double>(begin: 0, end: 0.5),
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeIn,
+                                    builder: (_,value, __) {
+                                      return Container(
+                                        color: Colors.black.withOpacity(value),
+                                      );
                                     },
-                                    splashFactory: NoSplash.splashFactory,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          widget.isCurrUser?
-                                          "${auth.getCurrentUser()!.followers}" : "$followers",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const MainText(text: " Followers", color: Colors.grey,),
-                                      ],
+                                  )
+                                ],
+                              ) :
+                              Stack(
+                                children: [
+                                  ProfileBanner(
+                                      bannerImageUrl: bannerImageUrl,
+                                      onTap:  () async {
+                                        if(bannerImageUrl != ""){
+                                          var res = await Navigator.push(context,
+                                              MaterialPageRoute(builder: (context) =>
+                                                  ProfileImageView(
+                                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                                    isProfileAvatar: false,
+                                                    imageUrl: bannerImageUrl,
+                                                    avatarImageUrl: avatarImageUrl,
+                                                    name: name,
+                                                    birthDate: birthDate,
+                                                    bio: bio,
+                                                    website: website,
+                                                  )
+                                              )
+                                          );
+                                          if(res != null){
+                                            setState(() {
+                                              name = res["name"];
+                                              bio = res["bio"];
+                                              website = res["website"];
+                                              birthDate = res["birthDate"];
+                                              bannerImageUrl = res["bannerImageUrl"];
+                                              avatarImageUrl = res["avatarImageUrl"];
+                                            });
+                                          }
+                                        }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
+                                          onEditProfileClick();
+                                        }
+                                      },
+                                    ),
+                                  Positioned(
+                                    top: 160,
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                        sigmaX: value * (2/collapsePosition),
+                                        sigmaY: value * (2/collapsePosition),
+                                      ),
+                                      child: Container(),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 20,),
-                          ],
+                            );
+                          }
                         ),
-                      )
-                    ),
-                    SliverVisibility(
-                      visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                              || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
-                              && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
-                      sliver: SliverPersistentHeader(delegate: _SliverAppBarDelegate(
-                          Container(
-                            color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
-                            child: ProfileTabBar(
-                              tabController: tabController,
-                              onTap: (index){
-                                  onTapBarClick(index,10);
-                                },
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ValueListenableBuilder(
+                                  valueListenable: scroll,
+                                  builder: (context,value,_) {
+                                    return Visibility(
+                                      visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                        || (isCurrUserBlocked != null && !isCurrUserBlocked!),
+                                      child: ProfileInteract(
+                                        avatarIsVisible: value > collapsePosition,
+                                        isHeader: false,
+                                        avatarImageUrl: avatarImageUrl,
+                                        isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                        isWantedUserFollowed : isWantedUserFollowed,
+                                        isWantedUserBlocked : isWantedUserBlocked,
+                                        onTapEditProfile: onEditProfileClick,
+                                        onTapDM: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ChatPage()
+                                            )
+                                          );
+                                        }, //TODO: DM user
+                                        onTapFollow: followUser,
+                                        onTapUnfollow: unfollowUser,
+                                        onTapUnblock: unblockUser,
+                                      ),
+                                    );
+                                  }
+                                ),
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                MainText(text: "@${widget.username}", color:Colors.grey ,),
+                                bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
+                                const Text("") :
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0,10,0,0),
+                                  child: SizedBox(
+                                      height: 80,
+                                      child: MainText(text: bio)
+                                  ),
+                                ),
+                                const SizedBox(height: 20,),
+                                Row(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.location_on_outlined, size: 15,color: Colors.grey,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                                          child: MainText(text: location,color: Colors.grey,),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.cake, size: 15,color: Colors.grey,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                                          child: MainText(
+                                            text: "Born ${DateFormat.yMMMMd('en_US').format(birthDate )}",
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10,),
+                                Row(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.date_range, size: 15,color: Colors.grey,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                                          child: MainText(
+                                            text: "Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}",
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    Row(
+                                      children: [
+                                        const Icon(CupertinoIcons.link, size: 15,color: Colors.grey,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                                          child: MainText(text: website, color: Colors.grey,), //TODO: change later (detect urls)
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(height: 15,),
+                                Visibility(
+                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                      || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
+                                      && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
+                                  child: Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: (){
+                                          Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                            arguments: {
+                                              "pageTitle": "following",
+                                              "tweetID" : null,
+                                              "userID" : username,
+                                              "providerFunction": ProviderFunction.GET_USER_FOLLOWINGS
+                                            }
+                                          );
+                                        },
+                                        splashFactory: NoSplash.splashFactory,
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              widget.isCurrUser?
+                                              "${a.getCurrentUser()!.following}" : "$following",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const MainText(text: " Following",color: Colors.grey,),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      InkWell(
+                                        onTap: (){
+                                          Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                              arguments: {
+                                                "pageTitle": "followers",
+                                                "tweetID" : null,
+                                                "userID" : username,
+                                                "providerFunction": ProviderFunction.GET_USER_FOLLOWERS
+                                              }
+                                          );
+                                        },
+                                        splashFactory: NoSplash.splashFactory,
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              widget.isCurrUser?
+                                              "${a.getCurrentUser()!.followers}" : "$followers",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const MainText(text: " Followers", color: Colors.grey,),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 20,),
+                              ],
                             ),
                           )
                         ),
-                        pinned: true,
-                      ),
-                    )
-                  ];
-                },
-                body: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                    || (isWantedUserBlocked != null && !isWantedUserBlocked!)?
-                TabBarView(
-                  controller: tabController,
-                  children: [
-                    BetterFeed(
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(  //TODO:
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(  //TODO:
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed( //TODO:
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                  ],
-                ) :
-                (isCurrUserBlocked != null && isCurrUserBlocked!) ?
-                    Column(
+                        SliverVisibility(
+                          visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                  || ((isWantedUserBlocked != null && !isWantedUserBlocked!)
+                                  && (isCurrUserBlocked != null && !isCurrUserBlocked!)),
+                          sliver: SliverPersistentHeader(delegate: _SliverAppBarDelegate(
+                              Container(
+                                color: ThemeProvider.getInstance(context).isDark() ? Colors.black : Colors.white,
+                                child: ProfileTabBar(
+                                  tabController: tabController,
+                                  onTap: (index){
+                                      onTapBarClick(index,10);
+                                    },
+                                ),
+                              )
+                            ),
+                            pinned: true,
+                          ),
+                        )
+                      ];
+                    },
+                    body: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                        || (isWantedUserBlocked != null && !isWantedUserBlocked!)?
+                    TabBarView(
+                      controller: tabController,
                       children: [
-                        const Divider(thickness: 1,height: 1,),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text("You are blocked from following @${widget.username} "
-                              "and viewing @${widget.username} posts."),
+                        BetterFeed(
+                          removeController: true,
+                          providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                          providerResultType: ProviderResultType.TWEET_RESULT,
+                          feedController: feedController,
+                          userId: widget.username,
+                          userName: name,
+                          removeRefreshIndicator: true,
                         ),
-                        const Divider(thickness: 1,height: 1,),
+                        BetterFeed(
+                          removeController: true,
+                          providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                          providerResultType: ProviderResultType.TWEET_RESULT,
+                          feedController: feedController,
+                          userId: widget.username,
+                          userName: name,
+                          removeRefreshIndicator: true,
+                        ),
+                        BetterFeed(
+                          removeController: true,
+                          providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                          providerResultType: ProviderResultType.TWEET_RESULT,
+                          feedController: feedController,
+                          userId: widget.username,
+                          userName: name,
+                          removeRefreshIndicator: true,
+                        ),
+                        BetterFeed(
+                          removeController: true,
+                          providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                          providerResultType: ProviderResultType.TWEET_RESULT,
+                          feedController: feedController,
+                          userId: widget.username,
+                          userName: name,
+                          removeRefreshIndicator: true,
+                        ),
                       ],
                     ) :
-                    Container(
-                      height: 300,
-                      color: Colors.blueGrey[900],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Divider(thickness: 1,height: 1,),
-                          const SizedBox(height: 50,),
-                          Text(
-                            "@${widget.username} is blocked",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
+                    (isCurrUserBlocked != null && isCurrUserBlocked!) ?
+                        Column(
+                          children: [
+                            const Divider(thickness: 1,height: 1,),
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text("You are blocked from following @${widget.username} "
+                                  "and viewing @${widget.username} posts."),
                             ),
-                          )
-                        ],
-                      ),
-                    )
-              ),
-              ValueListenableBuilder(
-                valueListenable: scroll,
-                builder: (context,value,_) {
-                  return Visibility(
-                    visible: value <= collapsePosition,
-                    child: ProfileAvatar(
-                      avatarImageUrl: avatarImageUrl,
-                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
-                      avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
-                      onTap: () async {
-                        var res = await Navigator.push(context,
-                            MaterialPageRoute(builder: (context) =>
-                                ProfileImageView(
-                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isProfileAvatar: true,
-                                    imageUrl: avatarImageUrl,
+                            const Divider(thickness: 1,height: 1,),
+                          ],
+                        ) :
+                        Container(
+                          height: 300,
+                          color: Colors.blueGrey[900],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Divider(thickness: 1,height: 1,),
+                              const SizedBox(height: 50,),
+                              Text(
+                                "@${widget.username} is blocked",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25,
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: scroll,
+                    builder: (context,value,_) {
+                      return Visibility(
+                        visible: value <= collapsePosition,
+                        child: ProfileAvatar(
+                          avatarImageUrl: avatarImageUrl,
+                          avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
+                          avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
+                          onTap: () async {
+                            var res = await Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>
+                                    ProfileImageView(
+                                        isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                        isProfileAvatar: true,
+                                        imageUrl: avatarImageUrl,
+                                    )
                                 )
-                            )
-                        );
-                        if(res != null){
-                          setState(() {
-                            avatarImageUrl = res;
-                          });
-                        }
-                      },
-                    ),
-                  );
-                }
+                            );
+                            if(res != null){
+                              setState(() {
+                                avatarImageUrl = res;
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    }
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-      floatingActionButton: FeedHomeTab().getFloatingActionButton(context),  //TODO: change later
+          floatingActionButton: FeedHomeTab().getFloatingActionButton(context),  //TODO: change later
+        );
+      }
     );
   }
 }

@@ -167,14 +167,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
     //TODO: add the return result if needed
     if (!context.mounted) return;
 
-    // FeedController profileFeedController =
-    // FeedProvider.getInstance(context).
-    // getFeedControllerById(
-    //     context: context,
-    //     id: UserProfile.profileFeed,
-    //     providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-    //     clearData: false
-    // );
 
     if (!error) Navigator.pop(context,{"success":true, "tweets" : returnList});
     setState(() {
