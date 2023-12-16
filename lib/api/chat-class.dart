@@ -43,11 +43,12 @@ class ChatMessageObject {
   String text;
   MediaObject? media;
   bool self;
+  bool seen;
   int state;
   DateTime? time;
 
   //ChatMessageObject({required this.id, required this.text, required this.media, required this.self , required this.time , required this.state , required this.replyTo});
-  ChatMessageObject({this.uuid = "", this.id = "" , this.text = "", this.media, this.self = false , this.time , this.state = ChatMessageObject.STATE_SENDING , this.replyTo});
+  ChatMessageObject({this.uuid = "" , this.seen = false , this.id = "" , this.text = "", this.media, this.self = false , this.time , this.state = ChatMessageObject.STATE_SENDING , this.replyTo});
 
 
   Map<String,dynamic> toMap(String sender , String receiver){
@@ -75,6 +76,19 @@ class ChatMessageObject {
     self = map["message"]["mine"]; //map["from"] == userID;
     media = null; //map["media"] != "none" ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
     time = map["message"]["sendTime"] != null ? DateTime.tryParse(map["message"]["sendTime"]) : DateTime.now();
+    seen = true;
+    state = STATE_SENT; //this message should be coming from the web (aka already sent)
+  }
+
+  void fromDirectMap(Map<dynamic,dynamic> map){
+    uuid = "";
+    id   = map["id"] ?? "";
+    replyTo = null;
+    text = map["description"];
+    self = map["mine"]; //map["from"] == userID;
+    media = null; //map["media"] != "none" ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
+    time = map["sendTime"] != null ? DateTime.tryParse(map["sendTime"]) : DateTime.now();
+    seen = map["seen"];
     state = STATE_SENT; //this message should be coming from the web (aka already sent)
   }
 

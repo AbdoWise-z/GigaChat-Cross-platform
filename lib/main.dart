@@ -27,16 +27,21 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
+import 'package:gigachat/services/NotificationsController.dart';
 import 'package:provider/provider.dart';
 
-import 'api/user-class.dart';
-
+GigaChat? application;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocalSettings locals = LocalSettings();
   await locals.init();
-  runApp(GigaChat(locals: locals,));
+  await NotificationsController().init();
+
+  //NotificationsController.getInstance().showNotification(123 , title: "test" , body: "pls work" , payload: "data");
+
+  application = GigaChat(locals: locals,);
+  runApp(application!);
 }
 
 class GigaChat extends StatefulWidget {

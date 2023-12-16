@@ -96,7 +96,7 @@ class Tweets {
           referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
           description: specialAccessObject(tweet, accessor["description"]!) ?? "",
           viewsNum: specialAccessObject(tweet, accessor["viewsNum"]) ?? 0,
-          likesNum: specialAccessObject(tweet, accessor["likesNum"]!),
+          likesNum: specialAccessObject(tweet, accessor["likesNum"]!) ?? 0,
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
           creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
