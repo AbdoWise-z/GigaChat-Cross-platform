@@ -11,6 +11,8 @@ class ChatObject {
   final String nickname;
   final String profileImage;
   final String mongoID;
+  bool blocked;
+  bool followed;
 
   bool pinned;
   DateTime? time;
@@ -18,6 +20,8 @@ class ChatObject {
   ChatObject({
     this.lastMessage = "this is a last message",
     this.lastMessageSeen = false,
+    this.blocked = false,
+    this.followed = false,
     this.lastMessageSender = "",
     this.username = "Postman",
     this.nickname = "Postman",

@@ -187,7 +187,7 @@ class ChatPageState extends State<ChatPage> {
       });
     }
 
-    if (_controller.offset >= _controller.position.maxScrollExtent - 20){
+    if (_controller.hasClients && _controller.offset >= _controller.position.maxScrollExtent - 20){
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.animateTo(_controller.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
       });
@@ -224,6 +224,10 @@ class ChatPageState extends State<ChatPage> {
 
       //load the messages
       _loadMessages();
+    }
+
+    if (_with.isBlocked!){
+      _editorHeight = 50;
     }
 
     return Stack(
@@ -478,7 +482,33 @@ class ChatPageState extends State<ChatPage> {
               ),
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Padding(
+                child: _with.isBlocked! ? Container(
+                  width: double.infinity,
+                  height: 50,
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Divider(
+                        height: 1,
+                        thickness: 0.8,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          "You can no longer send Direct messages to this person.",
+                          style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                    :
+                Padding(
                   key: editor,
                   padding: const EdgeInsets.all(8.0),
                   child: MessageInputArea(

@@ -17,6 +17,7 @@ class User {
   bool? isWantedUserMuted;
   bool? isFollowed;
   bool? isCurrUser;
+  bool? isBlocked;
   int followers;
   int following;
   int numOfPosts;
@@ -43,6 +44,7 @@ class User {
     this.isCurrUserBlocked,
     this.isWantedUserBlocked,
     this.isFollowed = false,
+    this.isBlocked = false,
     this.isWantedUserMuted,
     this.numOfLikes = 0,
     this.numOfPosts = 0,

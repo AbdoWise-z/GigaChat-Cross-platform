@@ -225,7 +225,7 @@ class _ChatListPageState extends State<ChatListPage> {
                 press: () {
                   //TODO: implement the real chat
                   Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID)
+                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
                   });
                 },
               )).toList()
@@ -258,7 +258,7 @@ class _ChatListPageState extends State<ChatListPage> {
                 press: () async {
                   //TODO: implement the real chat
                   Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID)
+                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
                   });
                 },
               )).toList(),

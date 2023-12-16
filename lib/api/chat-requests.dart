@@ -13,7 +13,7 @@ class Chat {
       headers: Api.getTokenHeader("Bearer $token"),
     );
 
-    //print("res.body: ${res.responseBody}");
+    print("res.body: ${res.responseBody}");
 
     if (res.code == ApiResponse.CODE_SUCCESS){
       List<ChatObject> list = [];
@@ -30,6 +30,8 @@ class Chat {
           username: member["username"],
           profileImage: member["profile_image"],
           mongoID: member["id"],
+          blocked: item["isBlocked"],
+          followed: item["isFollowed"],
         ));
       }
       res.data = list;
