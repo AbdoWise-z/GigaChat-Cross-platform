@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/chat-requests.dart';
 import 'package:gigachat/api/user-class.dart';
-import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/web-socks-provider.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -19,41 +19,37 @@ class _ChatListPageState extends State<ChatListPage> {
   final ScrollController _controller = ScrollController();
   final List<ChatObject> _chats = [];
   static const int CHATS_PER_PAGE = 25;
+  int page = 1;
   bool _loading = false;
   bool _loadingMore = false;
+  bool _canLoadMore = true;
   Future<void> _loadChats({bool more = true}) async {
-    if (more){
-      if (_loadingMore){
-        return;
-      }
-    }else {
-      if (_loading){
-        return;
-      }
+    if (_loadingMore || _loading){
+      return;
     }
 
     if (more){
-      _loadingMore = true;
+      if (_canLoadMore) {
+        _loadingMore = true;
+      }else{
+        return;
+      }
     }else {
       _loading = true;
+      _canLoadMore = true;
       _chats.clear();
     }
-
-    // _chats.add(ChatObject(
-    //   mongoID: "65746b4d4e28dea620693a10",
-    //   lastMessageSender: "elkapeer",
-    //   lastMessage: "use Osama as a test chat button :)",
-    //   nickname: "Osama Saleh",
-    //   profileImage: "https://storage.googleapis.com/gigachat-img.appspot.com/0c067b23-8b89-440c-987c-b3c2c5929be0-images%20%284%29.jpg?GoogleAccessId=firebase-adminsdk-5avio%40gigachat-img.iam.gserviceaccount.com&Expires=253399795200&Signature=QM1%2BKZUvNVyjC1zMOb8SbI6JyxN%2FgAtT8AQuydlgmKgJ8GX8rnVdV0w5gESg0dX3Epat%2BH3WysswebdqhKiwas4lJqtVMy4kD%2Bv0TFkpBlBa%2Bqg5XJlmKY4Dc%2Fz3cx%2Bl3Vs4YbjBS0jRnn12wuzYtKJHNRzJhB6NZiAskiyCpravO95V2y5asaPnRAR%2FjOXeDCwhou%2FiWeJVNkZC52pdp%2F6mnu2WrmUAjz34%2Fp6YnWV4LC86Z%2FqzBB56GLI%2Fus3xfrdELr%2FM%2Fg%2FzYWhRL7xz6uxH3So8pX%2B4VkWHobenTrXfoeWnNMDi%2BjuZ9mW%2FeS3a4g7eArojOYMfDbgOisSuqA%3D%3D",
-    // ));
 
     setState(() {});
 
     Auth auth = Auth.getInstance(context);
 
-    var k = await Chat.apiGetChats(auth.getCurrentUser()!.auth!, _chats.length ~/ CHATS_PER_PAGE, CHATS_PER_PAGE);
+    var k = await Chat.apiGetChats(auth.getCurrentUser()!.auth!, page, CHATS_PER_PAGE);
 
     if (k.data != null){
+      if (k.data!.isEmpty){
+        _canLoadMore = false;
+      }
       _chats.addAll(k.data!);
     }
 
@@ -118,8 +114,28 @@ class _ChatListPageState extends State<ChatListPage> {
     super.initState();
     _loadChats(more: false);
     _controller.addListener(() {
-      if (_controller.offset == _controller.position.maxScrollExtent){
+      if (_controller.offset >= _controller.position.maxScrollExtent - 200){
         _loadChats(more: true);
+      }
+    });
+
+    WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("receive_message").stream.listen((event) {
+      var data = event;
+      String id = data["chat_ID"];
+      print("CHAT_LIST_PAGE : $data");
+      for (ChatObject k in _chats){
+        if (k.mongoID == id){
+          ChatMessageObject obj = ChatMessageObject();
+          obj.fromMap(data);
+          k.lastMessage = obj.text ?? "Sent Media";
+          k.time = obj.time;
+          k.lastMessageSeen = false; //TODO: fix this later
+          k.lastMessageSender = obj.self ? Auth.getInstance(context).getCurrentUser()!.mongoID : k.mongoID;
+          setState(() {
+
+          });
+          break;
+        }
       }
     });
   }

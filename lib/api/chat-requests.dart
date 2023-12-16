@@ -22,7 +22,7 @@ class Chat {
         var member = item["chat_members"][0];
         var lastMessage = item["lastMessage"];
         list.add(ChatObject(
-          lastMessage: lastMessage["description"],
+          lastMessage: lastMessage["description"] ?? "Sent Media",
           lastMessageSeen: lastMessage["seen"],
           time: DateTime.tryParse(lastMessage["sendTime"]),
           lastMessageSender: lastMessage["sender"],

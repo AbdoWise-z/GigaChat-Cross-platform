@@ -136,7 +136,7 @@ class ChatMessageContent extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              replyObject!.text,
+              replyObject!.text ?? "Sent Media",
               softWrap: true,
               maxLines: null,
               //overflow: TextOverflow.fade,
@@ -206,7 +206,7 @@ class ChatMessageContent extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              replyObject!.text,
+                              replyObject!.text ?? "Sent media",
                               softWrap: true,
                               maxLines: null,
                               //overflow: TextOverflow.fade,
@@ -225,48 +225,66 @@ class ChatMessageContent extends StatelessWidget {
             ) : const SizedBox.shrink(),
 
             //Text Content
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              width: double.infinity,
+            Align(
               alignment: messageObject.self ? Alignment.centerRight : Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: messageObject.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  _getMediaObjectFor(messageObject , context),
-
-                  SizedBox.square(dimension: messageObject.media == null ? 0 : 5,),
-                  Material(
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
-                      bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
-                      bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
-                    ),
-                    color: messageObject.self ? Colors.blue : Colors.blueGrey,
-                    child: InkWell(
-
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(20),
-                        topRight: const Radius.circular(20),
-                        bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
-                        bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                width: double.infinity,
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+                alignment: messageObject.self ? Alignment.centerRight : Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: messageObject.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    Material(
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      child: InkWell(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        onLongPress: onLongPress,
+                        onTap: onPress,
+                        child: _getMediaObjectFor(messageObject , context),
                       ),
-                      onLongPress: onLongPress,
-                      onTap: onPress,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          messageObject.text,
-                          softWrap: true,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
+                    ),
+                    Visibility(
+                      visible: messageObject.text != null,
+                      child: Column(
+                        children: [
+                          SizedBox.square(dimension: messageObject.media == null ? 0 : 5,),
+                          Material(
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(20),
+                              topRight: const Radius.circular(20),
+                              bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
+                              bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
+                            ),
+                            color: messageObject.self ? Colors.blue : Colors.blueGrey,
+                            child: InkWell(
+
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(20),
+                                topRight: const Radius.circular(20),
+                                bottomLeft: messageObject.self ? const Radius.circular(20) :  const Radius.circular(6),
+                                bottomRight: messageObject.self ? const Radius.circular(6) :  const Radius.circular(20),
+                              ),
+                              onLongPress: onLongPress,
+                              onTap: onPress,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  messageObject.text ?? "dummy text",
+                                  softWrap: true,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

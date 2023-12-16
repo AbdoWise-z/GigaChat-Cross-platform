@@ -40,7 +40,7 @@ class ChatMessageObject {
   String uuid;
   String id;
   String? replyTo;
-  String text;
+  String? text;
   MediaObject? media;
   bool self;
   bool seen;
@@ -58,23 +58,23 @@ class ChatMessageObject {
       "reciever_ID": receiver,
       "data": {
         "id" : uuid,
-        // "media" : media != null ?  {
-        //   "type" : media!.type == MediaType.VIDEO ? "video" : "image",
-        //   "link" : media!.link ,
-        // } : "none",
+        "media" : media != null ?  {
+          "type" : media!.type == MediaType.VIDEO ? "video" : "image",
+          "link" : media!.link ,
+        } : null,
         "text": text,
       },
       //"time": time == null ? DateTime.now().toIso8601String() : time!.toIso8601String(),
     };
   }
 
-  void fromMap(Map<dynamic,dynamic> map, String userID){
+  void fromMap(Map<dynamic,dynamic> map){
     uuid = map["id"] ?? "";
     id   = map["message"]["id"] ?? "";
     replyTo = null;
     text = map["message"]["description"];
     self = map["message"]["mine"]; //map["from"] == userID;
-    media = null; //map["media"] != "none" ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
+    media = map["message"]["media"] != null && map["message"]["media"]["link"] != null ? MediaObject(link: map["message"]["media"]["link"], type: map["message"]["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
     time = map["message"]["sendTime"] != null ? DateTime.tryParse(map["message"]["sendTime"]) : DateTime.now();
     seen = true;
     state = STATE_SENT; //this message should be coming from the web (aka already sent)
@@ -86,7 +86,7 @@ class ChatMessageObject {
     replyTo = null;
     text = map["description"];
     self = map["mine"]; //map["from"] == userID;
-    media = null; //map["media"] != "none" ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
+    media = map["media"] != null && map["media"]["link"] != null ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
     time = map["sendTime"] != null ? DateTime.tryParse(map["sendTime"]) : DateTime.now();
     seen = map["seen"];
     state = STATE_SENT; //this message should be coming from the web (aka already sent)

@@ -128,20 +128,12 @@ class ChatPageState extends State<ChatPage> {
 
     _chatSocket.stream.listen((event) {
       var data = event;
-      if (data["chat_id"] == _with.mongoID || true) { //fixme : the backend doesn't return the right chat room ????
-        print("received a message ! $data");
+      if (data["chat_ID"] == _with.mongoID) {
+        print("received a message : $data");
         ChatMessageObject obj = ChatMessageObject();
-        User current = Auth().getCurrentUser()!;
-        obj.fromMap(data, current.id);
+        obj.fromMap(data);
         _handleNewMessage(obj);
-      } else {
-        print("received a message for another chat id : $data");
       }
-      // if (data["type"] == "message"){
-      //
-      // } else {
-      //   _handleMessageDeleted(data["uuid"]);
-      // }
     });
   }
 
@@ -182,18 +174,21 @@ class ChatPageState extends State<ChatPage> {
           _chat.add(m);
         }else{
           _chat[index].state = ChatMessageObject.STATE_SENT;
+          _chat[index].time = m.time; //TODO: fix server time ?
         }
       }
     }else{
       _chat.add(m);
     }
 
-    chatList.currentState!.setState(() {
-      // update the chat list builder state to make it re-build
-    });
+    if (chatList.currentState != null) {
+      chatList.currentState!.setState(() {
+        // update the chat list builder state to make it re-build
+      });
+    }
 
-    if (_controller.offset == _controller.position.maxScrollExtent){
-      Future.delayed(const Duration(milliseconds: 100) , () {
+    if (_controller.offset >= _controller.position.maxScrollExtent - 20){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.animateTo(_controller.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
       });
     }
@@ -336,7 +331,7 @@ class ChatPageState extends State<ChatPage> {
                                 ),
 
                                 //TODO: REPLACE WITH FOLLOW BUTTON
-                                trailing: !_with.isFollowed! ?
+                                trailing: !(_with.isFollowed != null && _with.isFollowed!) ?
                                 ElevatedButton(onPressed: () {}, child: Text("Follow")) :
                                 OutlinedButton(onPressed: () {}, child: Text("Following")),
                               )
@@ -492,7 +487,9 @@ class ChatPageState extends State<ChatPage> {
                     },
                     onSizeChange: () {
                       setState(() {
-                        _editorHeight = editor.currentContext!.size!.height;
+                        if (editor.currentContext != null) {
+                          _editorHeight = editor.currentContext!.size!.height;
+                        }
                       });
                     },
                     onOpen: () {
