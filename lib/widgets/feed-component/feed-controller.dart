@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/search-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 
@@ -75,6 +77,14 @@ class FeedController {
     return _feedData!;
   }
 
+  Map<String,User> mapUserListIntoMap(List<User> users){
+    Map<String,User> mappedUsers = {};
+    for (User user in users){
+      mappedUsers.putIfAbsent(user.id, () => user);
+    }
+    return mappedUsers;
+  }
+
   Future<void> fetchFeedData({
     bool? toBegin,
     String? username,
@@ -90,6 +100,8 @@ class FeedController {
 
     Map<String,dynamic> response = {};
     switch(providerFunction){
+
+
       case ProviderFunction.HOME_PAGE_TWEETS:
         response = await Tweets.getFollowingTweet(
             token!,
@@ -97,6 +109,8 @@ class FeedController {
             nextPage.toString()
         );
         break;
+
+
       case ProviderFunction.PROFILE_PAGE_TWEETS:
         if (username == null) return;
         response = await Tweets.getProfilePageTweets(
@@ -106,6 +120,8 @@ class FeedController {
             nextPage.toString()
         );
         break;
+
+
       case ProviderFunction.GET_TWEET_COMMENTS:
         response = await Tweets.getTweetReplies(
             token!,
@@ -114,6 +130,8 @@ class FeedController {
             nextPage.toString()
         );
         break;
+
+
       case ProviderFunction.SEARCH_USERS:
         response = await SearchRequests.searchUsersByKeywordMapped(
             keyword!,
@@ -122,6 +140,8 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         break;
+
+
       case ProviderFunction.SEARCH_TWEETS:
         response = await SearchRequests.searchTweetsByKeywordMapped(
             keyword!,
@@ -129,6 +149,55 @@ class FeedController {
             nextPage.toString(),
             DEFAULT_PAGE_COUNT.toString()
         );
+        break;
+
+
+      case ProviderFunction.GET_USER_FOLLOWERS:
+        List<User> users = (
+            await Account.getUserFollowers(
+                token!,
+                username!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
+
+      case ProviderFunction.GET_USER_FOLLOWINGS:
+        List<User> users = (
+            await Account.getUserFollowings(
+                token!,
+                username!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
+
+
+      case ProviderFunction.GET_TWEET_LIKERS:
+        List<User> users = await Tweets.getTweetLikers(
+            token!,
+            tweetID!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
+        response = mapUserListIntoMap(users);
+        break;
+
+
+      case ProviderFunction.GET_TWEET_REPOSTERS:
+        List<User> users = await Tweets.getTweetRetweeters(
+            token!,
+            tweetID!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
+        response = mapUserListIntoMap(users);
+        break;
+
       default:
     }
 

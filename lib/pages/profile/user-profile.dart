@@ -6,6 +6,7 @@ import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/posts/list-view-page.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
@@ -740,7 +741,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     children: [
                                       InkWell(
                                         onTap: (){
-                                          //TODO: list of Following
+                                          Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                            arguments: {
+                                              "pageTitle": "following",
+                                              "tweetID" : null,
+                                              "userID" : username,
+                                              "providerFunction": ProviderFunction.GET_USER_FOLLOWINGS
+                                            }
+                                          );
                                         },
                                         splashFactory: NoSplash.splashFactory,
                                         child: Row(
@@ -759,7 +767,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       const SizedBox(width: 10,),
                                       InkWell(
                                         onTap: (){
-                                          //TODO: list of Followers
+                                          Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                              arguments: {
+                                                "pageTitle": "followers",
+                                                "tweetID" : null,
+                                                "userID" : username,
+                                                "providerFunction": ProviderFunction.GET_USER_FOLLOWERS
+                                              }
+                                          );
                                         },
                                         splashFactory: NoSplash.splashFactory,
                                         child: Row(
@@ -817,7 +832,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           userName: name,
                           removeRefreshIndicator: true,
                         ),
-                        BetterFeed(  //TODO:
+                        BetterFeed(
                           removeController: true,
                           providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                           providerResultType: ProviderResultType.TWEET_RESULT,
@@ -826,7 +841,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           userName: name,
                           removeRefreshIndicator: true,
                         ),
-                        BetterFeed(  //TODO:
+                        BetterFeed(
                           removeController: true,
                           providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                           providerResultType: ProviderResultType.TWEET_RESULT,
@@ -835,7 +850,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           userName: name,
                           removeRefreshIndicator: true,
                         ),
-                        BetterFeed( //TODO:
+                        BetterFeed(
                           removeController: true,
                           providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                           providerResultType: ProviderResultType.TWEET_RESULT,

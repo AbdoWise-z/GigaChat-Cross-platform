@@ -74,7 +74,7 @@ class UserResult extends StatelessWidget {
                   Text("@${user.id}",style: TextStyle(color: Colors.grey),)
                 ],
               ),
-              Expanded(child: SizedBox()),
+              const Expanded(child: SizedBox()),
               SizedBox(
                 width: 80,
                 height: 30,

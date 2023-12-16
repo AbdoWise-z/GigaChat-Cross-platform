@@ -478,7 +478,11 @@ class Account {
       }
     );
     print(k.code);
-    if(k.code == ApiResponse.CODE_SUCCESS){
+    if(k.code == ApiResponse.CODE_SUCCESS && k.responseBody != null){
+      if (k.responseBody!.isEmpty){
+        k.data = [];
+        return k;
+      }
       var res = json.decode(k.responseBody!);
       List temp = res["users"];
       List<User> users = temp.map((e) => User(
@@ -504,8 +508,8 @@ class Account {
         endPoint,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);

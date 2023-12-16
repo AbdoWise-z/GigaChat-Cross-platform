@@ -323,9 +323,10 @@ class _TweetState extends State<Tweet> {
                                   onPressed: (){
                                     Navigator.pushNamed(context, UserListViewPage.pageRoute,
                                       arguments: {
-                                        "pageTitle": "Reposted By",
+                                        "pageTitle": "Retweeted By",
                                         "tweetID" : widget.tweetData.id,
-                                        "providerType" : UserListViewFunction.GET_TWEET_REPOSTERS
+                                        "userID" : null,
+                                        "providerFunction" : ProviderFunction.GET_TWEET_REPOSTERS
                                     });
                                   },
                                   style: TextButton.styleFrom(
@@ -353,7 +354,8 @@ class _TweetState extends State<Tweet> {
                                         arguments: {
                                           "pageTitle": "Liked By",
                                           "tweetID" : widget.tweetData.id,
-                                          "providerType" : UserListViewFunction.GET_TWEET_LIKERS
+                                          "userID" : null,
+                                          "providerFunction" : ProviderFunction.GET_TWEET_LIKERS
                                         });
                                   },
                                   style: TextButton.styleFrom(

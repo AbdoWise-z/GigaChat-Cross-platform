@@ -43,7 +43,6 @@ class _FollowButtonState extends State<FollowButton> {
             borderRadius:
             BorderRadius.circular(15.0), // Set the border radius
           ),
-          padding: const EdgeInsets.symmetric(vertical: -10.0),
         ),
         child: const Text(
           "Unfollow",
@@ -70,7 +69,6 @@ class _FollowButtonState extends State<FollowButton> {
             borderRadius:
             BorderRadius.circular(15.0), // Set the border radius
           ),
-          padding: const EdgeInsets.symmetric(vertical: -10.0),
         ),
         child: const Text(
           "Follow",

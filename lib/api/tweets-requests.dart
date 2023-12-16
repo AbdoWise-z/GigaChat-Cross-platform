@@ -272,13 +272,13 @@ class Tweets {
   }
 
 
-  static Future<List<User>> getTweetLikers(String token, String tweetId,String page) async
+  static Future<List<User>> getTweetLikers(String token, String tweetId,String page, String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(
         ApiPath.tweetLikers.appendDirectory(tweetId),
         headers: headers,
-        params: {"page": page}
+        params: {"page": page, "count": count}
     );
     if (response.code == ApiResponse.CODE_SUCCESS){
       dynamic jsonResponse = json.decode(response.responseBody!);
@@ -295,13 +295,13 @@ class Tweets {
     }
     return [];
   }
-  static Future<List<User>> getTweetRetweeters(String token, String tweetId,String page) async
+  static Future<List<User>> getTweetRetweeters(String token, String tweetId,String page,String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(
         ApiPath.tweetRetweeters.format([tweetId]),
         headers: headers,
-        params: {"page": page}
+        params: {"page": page,"count": count}
     );
     if (response.code == ApiResponse.CODE_SUCCESS){
       dynamic jsonResponse = json.decode(response.responseBody!);
