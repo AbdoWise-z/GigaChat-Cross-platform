@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
@@ -21,6 +22,7 @@ class BetterFeed extends StatefulWidget {
   bool? cancelNavigationToUserProfile;
 
   String? userId,userName, tweetID, keyword;
+  TweetData? mainTweetForComments;
 
   BetterFeed({
     super.key,
@@ -33,7 +35,8 @@ class BetterFeed extends StatefulWidget {
     this.userName,
     this.tweetID,
     this.keyword,
-    this.cancelNavigationToUserProfile
+    this.cancelNavigationToUserProfile,
+    this.mainTweetForComments
   }){
     cancelNavigationToUserProfile ??= false;
   }
@@ -61,15 +64,22 @@ class _BetterFeedState extends State<BetterFeed> {
         setState(() {});
       }
     });
-    super.initState();
   }
 
   Future<void> refreshFeed() async {
    await _feedController.fetchFeedData(
         username: widget.userId,
         tweetID: widget.tweetID,
-        keyword: widget.keyword
+        keyword: widget.keyword,
+        mainTweet: widget.mainTweetForComments
     );
+   try {
+     if (context.mounted) {
+       setState(() {});
+     }
+   } catch(e){
+     print("Handled");
+   }
   }
 
 
@@ -113,35 +123,43 @@ class _BetterFeedState extends State<BetterFeed> {
                   if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
                     tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
                   }
+                  User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
                   bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
-                  bool sameUser = tweetData.tweetOwner.id == Auth.getInstance(context).getCurrentUser()!.id;
+                  bool sameUser = tweetData.tweetOwner.id == currentUser.id;
 
                   return Tweet(
                     tweetOwner: tweetData.tweetOwner,
                     tweetData: tweetData,
                     isRetweet: tweetData.isRetweeted,
-                    isSinglePostView: false,
+                    isSinglePostView: widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS && tweetData.id == widget.mainTweetForComments!.id,
                     callBackToDelete: (String tweetID){
                       _feedController.deleteTweet(tweetID);
                       setState(() {});
                     },
+                    deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
                     onCommentButtonClicked: () => addComment(context, tweetData),
                     parentFeed: _feedController,
                     cancelSameUserNavigation: cancellationPosition && sameUser
                     ,
                   );
         }).toList();
+
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Consumer<FeedProvider>(
         builder: (_,__,___){
+
           if (_feedController.isLoading()){
             refreshFeed();
-            return const Center(child: CircularProgressIndicator());
+            return Container(
+                height: MediaQuery.of(context).size.height,
+                child: const Center(child: CircularProgressIndicator())
+            );
           }
 
           List<Widget>? widgetList = wrapDataInWidget();
@@ -152,7 +170,7 @@ class _BetterFeedState extends State<BetterFeed> {
           {
             finalWidget = SingleChildScrollView(
                 child: SizedBox(
-                    height: 0.5 * MediaQuery.of(context).size.height,
+                    height: 0.8 * MediaQuery.of(context).size.height,
                     child: const NothingYet()
                 )
             );

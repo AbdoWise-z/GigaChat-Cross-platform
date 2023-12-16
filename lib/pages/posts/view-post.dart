@@ -80,18 +80,8 @@ class _ViewPostPageState extends State<ViewPostPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Tweet(
-                tweetOwner: tweetOwner,
-                tweetData: tweetData,
-                isRetweet: false,
-                isSinglePostView: true,
-                callBackToDelete: (String tweetID){Navigator.pop(context);},
-                onCommentButtonClicked: (){addComment(context);},
-                parentFeed: null,
-                cancelSameUserNavigation: cancelNavigationToUser,
-            ),
-
             BetterFeed(
+              mainTweetForComments: tweetData,
                 providerFunction: ProviderFunction.GET_TWEET_COMMENTS,
                 providerResultType: ProviderResultType.TWEET_RESULT,
                 feedController: feedController,

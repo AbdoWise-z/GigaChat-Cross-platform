@@ -109,6 +109,7 @@ class ApiPath{
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
   static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
+  static ApiPath getTweet             = const ApiPath._("/api/tweets/%s");
 }
 
 class Api {

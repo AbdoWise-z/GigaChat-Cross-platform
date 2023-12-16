@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/search-requests.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 
@@ -32,13 +35,15 @@ class FeedController {
     return loading;
   }
 
-  void appendToLast(Map<String, dynamic> newData) {
+  void appendToLast(Map<String, dynamic> newData,{bool noRefresh = false}) {
     newData.forEach((key, value) {
       if(! _feedKeys!.contains(key)){
         _feedKeys!.add(key);
         _feedData!.add(value);
       }
     });
+    if (noRefresh)
+      return;
     updateFeeds();
   }
 
@@ -49,13 +54,15 @@ class FeedController {
     loading = true;
   }
 
-  void appendToBegin(Map<String, dynamic> newData) {
+  void appendToBegin(Map<String, dynamic> newData, {bool noRefresh = false}) {
     newData.forEach((key, value) {
       if(! _feedKeys!.contains(key)){
         _feedKeys!.insert(0,key);
         _feedData!.insert(0,value);
       }
     });
+    if (noRefresh)
+      return;
     updateFeeds();
   }
 
@@ -75,11 +82,32 @@ class FeedController {
     return _feedData!;
   }
 
+  Map<String,User> mapUserListIntoMap(List<User> users){
+    Map<String,User> mappedUsers = {};
+    for (User user in users){
+      mappedUsers.putIfAbsent(user.id, () => user);
+    }
+    return mappedUsers;
+  }
+
+  Future<List<TweetData>> fetchRepliesTree(mainTweetForComments) async {
+    TweetData? tweetData = mainTweetForComments!;
+    List<TweetData> response = [tweetData!];
+    while(tweetData != null && tweetData.referredTweetId != null)
+    {
+      tweetData = await Tweets.getTweetById(token!, tweetData.referredTweetId!);
+      if (tweetData == null) break;
+      response = [...response,tweetData];
+    }
+    return response;
+  }
+
   Future<void> fetchFeedData({
     bool? toBegin,
     String? username,
     String? tweetID,
-    String? keyword
+    String? keyword,
+    TweetData? mainTweet
   }) async
   {
     if (token == null) {
@@ -90,13 +118,18 @@ class FeedController {
 
     Map<String,dynamic> response = {};
     switch(providerFunction){
+
+
       case ProviderFunction.HOME_PAGE_TWEETS:
         response = await Tweets.getFollowingTweet(
             token!,
             DEFAULT_PAGE_COUNT.toString(),
             nextPage.toString()
         );
+
         break;
+
+
       case ProviderFunction.PROFILE_PAGE_TWEETS:
         if (username == null) return;
         response = await Tweets.getProfilePageTweets(
@@ -106,6 +139,8 @@ class FeedController {
             nextPage.toString()
         );
         break;
+
+
       case ProviderFunction.GET_TWEET_COMMENTS:
         response = await Tweets.getTweetReplies(
             token!,
@@ -114,6 +149,8 @@ class FeedController {
             nextPage.toString()
         );
         break;
+
+
       case ProviderFunction.SEARCH_USERS:
         response = await SearchRequests.searchUsersByKeywordMapped(
             keyword!,
@@ -122,6 +159,8 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         break;
+
+
       case ProviderFunction.SEARCH_TWEETS:
         response = await SearchRequests.searchTweetsByKeywordMapped(
             keyword!,
@@ -129,6 +168,55 @@ class FeedController {
             nextPage.toString(),
             DEFAULT_PAGE_COUNT.toString()
         );
+        break;
+
+
+      case ProviderFunction.GET_USER_FOLLOWERS:
+        List<User> users = (
+            await Account.getUserFollowers(
+                token!,
+                username!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
+
+      case ProviderFunction.GET_USER_FOLLOWINGS:
+        List<User> users = (
+            await Account.getUserFollowings(
+                token!,
+                username!,
+                nextPage,
+                DEFAULT_PAGE_COUNT
+            )
+        ).data!;
+        response = mapUserListIntoMap(users);
+        break;
+
+
+      case ProviderFunction.GET_TWEET_LIKERS:
+        List<User> users = await Tweets.getTweetLikers(
+            token!,
+            tweetID!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
+        response = mapUserListIntoMap(users);
+        break;
+
+
+      case ProviderFunction.GET_TWEET_REPOSTERS:
+        List<User> users = await Tweets.getTweetRetweeters(
+            token!,
+            tweetID!,
+            nextPage.toString(),
+            DEFAULT_PAGE_COUNT.toString()
+        );
+        response = mapUserListIntoMap(users);
+        break;
+
       default:
     }
 
@@ -138,13 +226,21 @@ class FeedController {
     }
 
     if (toBegin != null && toBegin == true){
-      appendToBegin(response);
+      appendToBegin(response,noRefresh: true);
     }
     else {
-      appendToLast(response);
+      appendToLast(response, noRefresh: true);
     }
 
+    if (providerFunction == ProviderFunction.GET_TWEET_COMMENTS){
+      List<TweetData> parents = await fetchRepliesTree(mainTweet!);
+      for (TweetData tweetData in parents){
+        print(tweetData.description);
+        appendToBegin({tweetData.id : tweetData},noRefresh: true);
+      }
+    }
     loading = false;
+    updateFeeds();
   }
 
 }
