@@ -104,11 +104,7 @@ class _TweetActionButtonState extends State<TweetActionButton> {
                           ],
                         ]);
                       }
-                    : () async {
-                  int x = await widget.onPressed();
-                  widget.count = x;
-                  setState(() {});
-                },
+                    : widget.onPressed,
                 icon: Icon(widget.icon, size: 20),
                 label: Visibility(
                     visible: !hideCount,

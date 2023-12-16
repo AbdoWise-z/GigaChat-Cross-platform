@@ -1,13 +1,18 @@
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/FloatingActionMenu.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:provider/provider.dart';
 
 class FeedHomeTab with HomePageTab {
 
@@ -39,19 +44,29 @@ class FeedHomeTab with HomePageTab {
   @override
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     if (Auth.getInstance(context).isLoggedIn){
+      FeedProvider feedProvider = FeedProvider.getInstance(context);
+      FeedController homeFeedController =
+          feedProvider.getFeedControllerById(
+              context: context,
+              id: Home.feedID,
+              providerFunction: ProviderFunction.NONE,
+              clearData: false
+          );
       return [
         BetterFeed(
-            isScrollable: true,
-            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
-            providerResultType: ProviderResultType.TWEET_RESULT,
-            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
+                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                providerResultType: ProviderResultType.TWEET_RESULT,
+                feedController: feedController ?? homeFeedController,
+                removeController: false,
+                removeRefreshIndicator: false,
         ),
-        BetterFeed(
-            isScrollable: true,
-            providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
-            providerResultType: ProviderResultType.TWEET_RESULT,
-            feedController: feedController ?? FeedController(providerFunction: ProviderFunction.NONE)
-        ),
+       BetterFeed(
+                  providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                  providerResultType: ProviderResultType.TWEET_RESULT,
+                  feedController: feedController ?? homeFeedController,
+                  removeController: false,
+                  removeRefreshIndicator: false,
+       ),
 
       ];
     }
@@ -87,9 +102,27 @@ class FeedHomeTab with HomePageTab {
           ),
         ),
       ),
-      onTab: () {
-        Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
-      } ,
+      onTab: () async {
+        dynamic returnArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {});
+        if (returnArguments != null && returnArguments["success"] != null && returnArguments["success"] == true){
+          List<TweetData> tweetData =  returnArguments["tweets"];
+
+          Map<String,TweetData> mappedTweets = {};
+          for(TweetData tweet in tweetData){
+            mappedTweets.putIfAbsent(tweet.id, () => tweet);
+          }
+
+          if(!context.mounted) return;
+
+          FeedProvider.getInstance(context).getFeedControllerById(
+              context: context,
+              id: UserProfile.profileFeedPosts + Auth.getInstance(context).getCurrentUser()!.id,
+              providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+              clearData: false
+          ).appendToBegin(mappedTweets);
+        }
+
+        } ,
       items: [
         FloatingActionMenuItem(
           icon: CircleAvatar(

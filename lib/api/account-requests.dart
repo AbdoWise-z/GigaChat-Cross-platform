@@ -35,8 +35,8 @@ class Account {
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
-      //u.followers   = res["data"]["user"]["followers_num"];
-      //u.following   = res["data"]["user"]["following_num"];
+      u.followers   = res["data"]["user"]["followers_num"];
+      u.following   = res["data"]["user"]["followings_num"];
 
       k.data = u;
     }
@@ -204,31 +204,19 @@ class Account {
       print(res);
       u.id          = res["user"]["username"];
       u.name        = res["user"]["nickname"];
-      //u.email     = res["user"]["email"];
       u.bio         = res["user"]["bio"] ?? "";
       u.iconLink    = res["user"]["profile_image"];
       u.bannerLink  = res["user"]["banner_image"] ?? "";
-      //u.location  = res["user"]["location"];
-      //u.website   = res["user"]["website"];
+      //u.location  = res["user"]["location"];  //const cuz its not a feature
+      //u.website   = res["user"]["website"];   //const cuz its not a feature
       u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
-      u.followers   = res["user"]["followers_num"];
-      u.following   = res["user"]["followings_num"];
+      u.numOfPosts  = res["user"]["num_of_posts"];
+      u.numOfLikes  = res["user"]["num_of_likes"];
 
     }else{
-      u.id          = "";
-      u.name        = "";
-      //u.email     = "";
-      u.bio         = "";
-      u.iconLink    = "";
-      u.bannerLink  = "";
-      //u.location  = "";
-      //u.website   = "";
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
-      u.followers   = 0;
-      u.following   = 0;
-
     }
     k.data = u;
     return k;
@@ -246,12 +234,11 @@ class Account {
       print(res);
       u.id                    = res["user"]["username"];
       u.name                  = res["user"]["nickname"];
-      //u.email               = res["user"]["email"];
       u.bio                   = res["user"]["bio"] ?? "";
       u.iconLink              = res["user"]["profile_image"];
       u.bannerLink            = res["user"]["banner_image"] ?? "";
-      //u.location            = res["user"]["location"];
-      //u.website             = res["user"]["website"];
+      //u.location            = res["user"]["location"];  //const cuz its not a feature
+      //u.website             = res["user"]["website"];   //const cuz its not a feature
       u.birthDate             = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate            = DateTime.parse(res["user"]["joined_date"]);
       u.followers             = res["user"]["followers_num"];
@@ -261,26 +248,13 @@ class Account {
       u.isWantedUserBlocked   = res["user"]["is_wanted_user_blocked"];
       u.isCurrUser            = res["user"]["is_curr_user"];
       u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
+      u.numOfPosts            = res["user"]["num_of_posts"];
+      u.numOfLikes            = res["user"]["num_of_likes"];
 
 
     }else{
-      u.id          = "";
-      u.name        = "";
-      //u.email     = "";
-      u.bio         = "";
-      u.iconLink    = "";
-      u.bannerLink  = "";
-      //u.location  = "";
-      //u.website   = "";
-      u.birthDate   = DateTime.parse("1992-10-8");
-      u.joinedDate  = DateTime.parse("1992-10-8");
-      u.followers   = 0;
-      u.following   = 0;
-      u.isFollowed  = false;
-      u.isWantedUserMuted  = false;
-      u.isWantedUserBlocked  = false;
-      u.isCurrUser  = false;
-      u.isCurrUserBlocked  = false;
+      u.birthDate   = DateTime.now();
+      u.joinedDate  = DateTime.now();
 
     }
     k.data = u;
@@ -386,90 +360,195 @@ class Account {
     return k;
   }
 
-  static Future<bool> followUser(String token, String username) async
+  static Future<ApiResponse<bool>> followUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.followUser).format([username]);
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-      print(response.code);
-      switch(response.code){
-        case ApiResponse.CODE_SUCCESS_NO_BODY:
-          return true;
-        default:
-          return false;
-      }
+      var k = await Api.apiPost<bool>(endPoint,headers: headers);
+      print(k.code);
+      k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      return k;
   }
-  static Future<bool> unfollowUser(String token, String username) async
+  static Future<ApiResponse<bool>> unfollowUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
       Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-      ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-
       print(token);
-
-      switch(response.code){
-        case ApiResponse.CODE_SUCCESS_NO_BODY:
-          return true;
-        default:
-          return false;
-    }
+      var k = await Api.apiPost<bool>(endPoint,headers: headers);
+      k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      return k;
   }
 
-  static Future<bool> muteUser(String token, String username) async
+  static Future<ApiResponse<bool>> muteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.muteUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> unmuteUser(String token, String username) async
+  static Future<ApiResponse<bool>> unmuteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unmuteUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> blockUser(String token, String username) async
+  static Future<ApiResponse<bool>> blockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.blockUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
 
-  static Future<bool> unblockUser(String token, String username) async
+  static Future<ApiResponse<bool>> unblockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unblockUser).format([username]);
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
-    ApiResponse response = await Api.apiPatch(endPoint,headers: headers);
-    print(response.code);
-    switch(response.code){
-      case ApiResponse.CODE_SUCCESS_NO_BODY:
-        return true;
-      default:
-        return false;
-    }
+    var k = await Api.apiPatch<bool>(endPoint,headers: headers);
+    print(k.code);
+    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    return k;
   }
+
+
+  static Future<ApiResponse<bool>> apiDeleteBannerImage(String token) async {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiDelete<bool>(
+      ApiPath.banner,
+      headers: headers,
+    );
+    print("delete banner: ${k.code}");
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    return k;
+  }
+
+  static Future<ApiResponse<List<User>>> getUserFollowers(String token, String username, int page , int count) async
+  {
+    ApiPath endPoint = (ApiPath.userFollowers).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<List<User>>(
+      endPoint,
+      headers: headers,
+      params: {
+        "page" : page,
+        "count" : count,
+      }
+    );
+    print(k.code);
+    if(k.code == ApiResponse.CODE_SUCCESS && k.responseBody != null){
+      if (k.responseBody!.isEmpty){
+        k.data = [];
+        return k;
+      }
+      var res = json.decode(k.responseBody!);
+      List temp = res["users"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
+    }
+
+    return k;
+  }
+
+  static Future<ApiResponse<List<User>>> getUserFollowings(String token, String username, int page , int count) async
+  {
+    ApiPath endPoint = (ApiPath.userFollowings).format([username]);
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<List<User>>(
+        endPoint,
+        headers: headers,
+        params: {
+          "page" : page.toString(),
+          "count" : count.toString(),
+        }
+    );
+    print(k.code);
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      List temp = res["users"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        followers: e["followers_num"],
+        following: e["followings_num"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
+    }
+    return k;
+  }
+
+  static Future<ApiResponse<List<User>>> getUserBlockedList(String token, int page , int count) async
+  {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<List<User>>(
+        ApiPath.userBlockList,
+        headers: headers,
+        params: {
+          "page" : page.toString(),
+          "count" : count.toString(),
+        }
+    );
+    print(k.code);
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      List temp = res["data"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
+    }
+    return k;
+  }
+
+  static Future<ApiResponse<List<User>>> getUserMutedList(String token, int page , int count) async
+  {
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<List<User>>(
+        ApiPath.userMutedList,
+        headers: headers,
+        params: {
+          "page" : page,
+          "count" : count,
+        }
+    );
+    print(k.code);
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      List temp = res["data"];
+      List<User> users = temp.map((e) => User(
+        id: e["username"],
+        name: e["nickname"],
+        isFollowed: e["isFollowed"],
+        iconLink: e["profile_image"],
+      )).toList();
+
+      k.data = users;
+    }
+    return k;
+  }
+
 
 
 }

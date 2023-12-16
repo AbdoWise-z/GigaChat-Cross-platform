@@ -13,9 +13,12 @@ import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/create-post/widgets/hint-dialog.dart';
 import 'package:gigachat/pages/create-post/widgets/post-editor.dart';
 import 'package:gigachat/pages/create-post/widgets/post-static-viewer.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'dart:math';
 
@@ -67,9 +70,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() {
       _loading = true;
     });
+    List<TweetData> returnList = [];
 
     for (var k in _posts){
-      if (k.currentState!.controller.text.isEmpty){
+      if (k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty){
         Toast.showToast(context, "post cannot be empty");
         setState(() {
           _loading = false;
@@ -117,10 +121,31 @@ class _CreatePostPageState extends State<CreatePostPage> {
         referredTweetId: ref,
         type: ref == null ? TweetType.TWEET : TweetType.REPLY,
       );
+
       if (!await sendTweet(
         auth.getCurrentUser()!,
         data ,
-        success: (v) => ref = v.data!,
+        success: (v) {
+          ref = v.data!;
+          returnList.add(
+              TweetData(
+                  id: ref!,
+                  referredTweetId: data.referredTweetId,
+                  description: data.description,
+                  viewsNum: 0,
+                  likesNum: 0,
+                  repliesNum: 0,
+                  repostsNum: 0,
+                  creationTime: DateTime.now(),
+                  type: data.referredTweetId == null ? "tweet" : "reply",
+                  tweetOwner: Auth.getInstance(context).getCurrentUser()!,
+                  isLiked: false,
+                  isRetweeted: false,
+                  media: data.media.isEmpty ? null :
+                  data.media.map((e) => MediaData(mediaType: e.type, mediaUrl: e.link)).toList()
+              )
+          );
+        } ,
         error: (v) => print(v.responseBody),
       )) {
         if (ref != null && _replyTweet == null){
@@ -141,7 +166,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     //TODO: add the return result if needed
     if (!context.mounted) return;
-    if (!error) Navigator.pop(context,{"success":true});
+
+
+    if (!error) Navigator.pop(context,{"success":true, "tweets" : returnList});
     setState(() {
       _loading = false;
     });
@@ -205,7 +232,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     bool canPost = true;
     for (var k in _posts){
-      if (k.currentState != null && (k.currentState!.controller.text.isEmpty || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
+      if (k.currentState != null
+          && ((k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty) || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
         canPost = false;
         break;
       }

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class SearchResultPage extends StatefulWidget {
   static const String pageRoute = "/search/result";
+  static const String userSearchFeed = "userSearchFeed";
+  static const String tweetSearchFeed = "tweetSearchFeed";
   const SearchResultPage({super.key});
 
   @override
@@ -20,8 +23,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   void initState() {
-    latestFeedController = FeedController(providerFunction: ProviderFunction.HOME_PAGE_TWEETS);
-    userFeedController = FeedController(providerFunction: ProviderFunction.SEARCH_USERS);
+    latestFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_TWEETS);
+    userFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_USERS);
+
     super.initState();
   }
 
@@ -32,7 +36,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
     Map<String,dynamic> arguments = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
     String keyword = arguments["keyword"];
     bool isDarkMode = ThemeProvider.getInstance(context).isDark();
-    print(keyword);
     return DefaultTabController(
       initialIndex: 0,
       length: 2,
@@ -70,24 +73,27 @@ class _SearchResultPageState extends State<SearchResultPage> {
             isScrollable: true,
             tabs: <Widget>[
               Tab(text: "Top"),
-              Tab(text: "Users"),
+              Tab(text: "People"),
             ],
           ),
         ),
         body: TabBarView(
           children: <Widget>[
             BetterFeed(
-                isScrollable: true,
-                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                providerFunction: ProviderFunction.SEARCH_TWEETS,
                 providerResultType: ProviderResultType.TWEET_RESULT,
-                feedController: latestFeedController
+                feedController: latestFeedController,
+                keyword: keyword,
+                removeController: false,
+                removeRefreshIndicator: false,
             ),
             BetterFeed(
-                isScrollable: true,
                 providerFunction: ProviderFunction.SEARCH_USERS,
                 providerResultType: ProviderResultType.USER_RESULT,
                 feedController: userFeedController,
                 keyword: keyword,
+                removeController: false,
+                removeRefreshIndicator: false,
             ),
           ],
         ),

@@ -205,11 +205,91 @@ class Auth extends ChangeNotifier{
   Future<void> setUserBannerImage(File img , { void Function(ApiResponse<String>)? success , void Function(ApiResponse<String>)? error}) async {
     var res = await Account.apiSetBannerImage(_currentUser!.auth! , img);
     if (res.data != null){
-      _currentUser!.iconLink = res.data!;
+      _currentUser!.bannerLink = res.data!;
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
     }
   }
+
+  Future<void> follow(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.followUser(_currentUser!.auth! ,username);
+    print(res.code);
+    if (res.data!){
+      _currentUser!.following++;
+      notifyListeners();
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> unfollow(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.unfollowUser(_currentUser!.auth! ,username);
+    print(res.code);
+    if (res.data!){
+      _currentUser!.following--;
+      notifyListeners();
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> block(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.blockUser(_currentUser!.auth! ,username);
+    if (res.data!){
+      _currentUser!.following--;
+      notifyListeners();
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> unblock(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.unblockUser(_currentUser!.auth! ,username);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> mute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.muteUser(_currentUser!.auth! ,username);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> unmute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.unmuteUser(_currentUser!.auth! ,username);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
+  Future<void> deleteUserBanner({ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiDeleteBannerImage(_currentUser!.auth!);
+    if (res.data!){
+      _currentUser!.bannerLink = "";
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+    return;
+  }
+
 
 }

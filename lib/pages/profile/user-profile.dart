@@ -1,10 +1,12 @@
 
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
+import 'package:gigachat/pages/posts/list-view-page.dart';
 import 'package:gigachat/pages/profile/edit-profile.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/widgets/app-bar-icon.dart';
@@ -13,8 +15,11 @@ import 'package:gigachat/pages/profile/widgets/banner.dart';
 import 'package:gigachat/pages/profile/widgets/interact.dart';
 import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../api/user-class.dart';
 import '../../base.dart';
 import '../../util/Toast.dart';
@@ -24,6 +29,11 @@ import '../../widgets/feed-component/feed-controller.dart';
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
+  static const profileFeedPosts = 'profileFeedPosts';
+  static const profileFeedReplies = 'profileFeedReplies';
+  static const profileFeedLikes = 'profileFeedLikes';
+  static const profileFeedMadia = 'profileFeedMadia';
+
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
   static const pageRoute = '/user-profile';
@@ -46,6 +56,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late DateTime joinedDate;
   late int following;
   late int followers;
+  late int numOfPosts;
+  late int numOfLikes;
   //only wanted user details
   late bool? isCurrUserBlocked;
   late bool? isWantedUserBlocked;
@@ -55,6 +67,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
 
   //page details
+  late Auth auth;
   bool loading = true;
 
   late ScrollController scrollController;
@@ -87,8 +100,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     bannerImageUrl = u.bannerLink;
     birthDate = u.birthDate!;
     joinedDate = u.joinedDate!;
-    following = u.following;
-    followers = u.followers;
+    following =  u.following;
+    followers =  u.followers;
     bio = u.bio;
     website = u.website;
     isCurrUserBlocked = u.isCurrUserBlocked;
@@ -96,7 +109,30 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isWantedUserMuted = u.isWantedUserMuted;
     isWantedUserFollowed = u.isFollowed;
     isCurrUser = u.isCurrUser;
+    numOfPosts = u.numOfPosts;
+    numOfLikes = u.numOfLikes;
 
+
+    scrollController = ScrollController();
+    scrollController.addListener(() async {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
+      {
+        await feedController.fetchFeedData(username: widget.username);
+        setState(() {});
+      }
+    });
+
+    if(!context.mounted) return;
+
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+    feedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedPosts + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false
+    );
+
+    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     setState(() {
       loading = false;
@@ -109,29 +145,29 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         prevTabIndex = index;
       });
       if(index == 1 && !isLoaded[1]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[1] = true;
      }
       if(index == 2 && !isLoaded[2]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[2] = true;
       }
       if(index == 3 && !isLoaded[3]){
-        if(scrollController.position.pixels > 315 && bio == ""){
-          scrollController.animateTo(315, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        if(scrollController.position.pixels > 335 && bio == ""){
+          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
-        else if(scrollController.position.pixels > 390 && bio != ""){
-          scrollController.animateTo(390, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
+        else if(scrollController.position.pixels > 410 && bio != ""){
+          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
         }
         isLoaded[3] = true;
       }
@@ -163,57 +199,71 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   }
 
   void followUser() async {
-    bool success = await Account.followUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-    if(success){
-      setState(() {
-        isWantedUserFollowed = true;
-      });
-    }else{
-      if(context.mounted){
-        Toast.showToast(context, "Action failed. Please try again.");
+    await auth.follow(
+      widget.username,
+      success: (res){
+        setState(() {
+          isWantedUserFollowed = true;
+          followers++;
+        });
+      },
+      error: (res){
+        if(context.mounted){
+          Toast.showToast(context, "Action failed. Please try again.");
+        }
       }
-    }
+    );
   }
 
   void unfollowUser() async {
-    bool success = await Account.unfollowUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-    if(success){
-      setState(() {
-        isWantedUserFollowed = false;
-      });
-    }else{
-      if(context.mounted){
-        Toast.showToast(context, "Action failed. Please try again.");
-      }
-    }
+    await auth.unfollow(
+        widget.username,
+        success: (res){
+          setState(() {
+            isWantedUserFollowed = false;
+            followers--;
+          });
+        },
+        error: (res){
+          if(context.mounted){
+            Toast.showToast(context, "Action failed. Please try again.");
+          }
+        }
+    );
   }
 
   void muteUser() async {
-    bool success = await Account.muteUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-    if(success){
-      setState(() {
-        isWantedUserMuted = true;
-        Toast.showToast(context, "You muted @$username.");
-      });
-    }else{
-      if(context.mounted){
-        Toast.showToast(context, "Action failed. Please try again.");
+    await auth.mute(
+      widget.username,
+      success: (res){
+        setState(() {
+          isWantedUserMuted = true;
+          Toast.showToast(context, "You muted @${widget.username}.");
+        });
+      },
+      error: (res){
+        if(context.mounted){
+          Toast.showToast(context, "Action failed. Please try again.");
+        }
       }
-    }
+    );
   }
 
   void unmuteUser() async {
-    bool success = await Account.unmuteUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-    if(success){
-      setState(() {
-        isWantedUserMuted = false;
-        Toast.showToast(context, "You unmuted @$username.");
-      });
-    }else{
-      if(context.mounted){
-        Toast.showToast(context, "Action failed. Please try again.");
-      }
-    }
+    await auth.unmute(
+        widget.username,
+        success: (res){
+          setState(() {
+            isWantedUserMuted = false;
+            Toast.showToast(context, "You unmuted @${widget.username}.");
+          });
+        },
+        error: (res){
+          if(context.mounted){
+            Toast.showToast(context, "Action failed. Please try again.");
+          }
+        }
+    );
   }
 
   void blockUser() async {
@@ -226,10 +276,10 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Block @$username?",style: const TextStyle(fontWeight: FontWeight.bold),),
+                    Text("Block @${widget.username}?",style: const TextStyle(fontWeight: FontWeight.bold),),
                     const SizedBox(height: 15,),
-                    Text("@$username will no longer be able to follow or message you,"
-                        "and you will not see notifications from @$username"),
+                    Text("@${widget.username} will no longer be able to follow or message you,"
+                        "and you will not see notifications from @${widget.username}"),
                     Row(
                       children: [
                         const Expanded(child: SizedBox.shrink()),
@@ -246,20 +296,31 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         ),
                         TextButton(
                           onPressed: () async {
-                            bool success = await Account.blockUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-                            if(success){
-                              setState(() {
-                                isWantedUserBlocked = true;
+                            await auth.block(
+                                widget.username,
+                              success: (res){
+                                setState(() {
+                                  if(context.mounted) {
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+                                  }
+                                  isWantedUserBlocked = true;
+                                  isWantedUserFollowed = false;
+                                  followers--;
+                                  if(context.mounted){
+                                    Navigator.pop(context);
+                                    Toast.showToast(context, "You blocked @${widget.username}.");
+                                  }
+                                });
+                              },
+                              error: (res){
                                 if(context.mounted){
-                                  Navigator.pop(context);
-                                  Toast.showToast(context, "You blocked @$username.");
+                                  Toast.showToast(context, "Action failed. Please try again.");
                                 }
-                              });
-                            }else{
-                              if(context.mounted){
-                                Toast.showToast(context, "Action failed. Please try again.");
                               }
-                            }
+                            );
                           },
                           child: Text("Block",
                             style: TextStyle(
@@ -287,7 +348,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Unblock @$username?",style: const TextStyle(fontWeight: FontWeight.bold),),
+                    Text("Unblock @${widget.username}?",style: const TextStyle(fontWeight: FontWeight.bold),),
                     const SizedBox(height: 15,),
                     const Text("They will be able to follow you and view your posts"),
                     Row(
@@ -306,20 +367,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         ),
                         TextButton(
                           onPressed: () async {
-                            bool success = await Account.unblockUser(Auth.getInstance(context).getCurrentUser()!.auth!, widget.username);
-                            if(success){
-                              setState(() {
-                                isWantedUserBlocked = false;
+                            await auth.unblock(
+                                widget.username,
+                              success: (res){
+                                setState(() {
+                                  isWantedUserBlocked = false;
+                                  if(context.mounted){
+                                    Navigator.pop(context);
+                                    Toast.showToast(context, "You unblocked @${widget.username}.");
+                                  }
+                                });
+                              },
+                              error: (res){
                                 if(context.mounted){
-                                  Navigator.pop(context);
-                                  Toast.showToast(context, "You unblocked @$username.");
+                                  Toast.showToast(context, "Action failed. Please try again.");
                                 }
-                              });
-                            }else{
-                              if(context.mounted){
-                                Toast.showToast(context, "Action failed. Please try again.");
                               }
-                            }
+                            );
                           },
                           child: Text("Unblock",
                             style: TextStyle(
@@ -340,7 +404,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
-    scrollController = ScrollController();
+    auth = Auth.getInstance(context);
+
     tabController = TabController(length: 4, vsync: this);
     tabController.addListener(() {
       if(!tabController.indexIsChanging){
@@ -348,16 +413,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         onTapBarClick(index, 100);
       }
     });
-    feedController = FeedController(
-      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-      token: Auth.getInstance(context).getCurrentUser()!.auth!,
-    );
+
     getData();
     super.initState();
   }
 
   //TODO: get likes, media, replies
-  //TODO: auto add when creating post
 
   @override
   Widget build(BuildContext context) {
@@ -371,8 +432,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           return true;
         },
         child: RefreshIndicator(
+          notificationPredicate: (notification){
+            return notification.depth == 2;
+          },
           onRefresh: () async {
-            setState(() {});
+            setState(() {
+              scroll.value = 0;
+              getData();
+            });
           },
           child: Stack(
             children: [
@@ -386,22 +453,25 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         return SliverAppBar(
                           pinned: true,
                           expandedHeight: 130,
-                          title: value > showNamePosition ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(name,
-                                style: const TextStyle(
-                                    fontSize: 23,
-                                    color: Colors.white
+                          title: Visibility(
+                            visible: value > showNamePosition,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(name,
+                                  style: const TextStyle(
+                                      fontSize: 23,
+                                      color: Colors.white
+                                  ),
                                 ),
-                              ),
-                              Text(prevTabIndex == 3? "2 Likes" : "2 Posts",
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ), //TODO: num of posts & likes
-                            ],
-                          ) : null,
+                              ],
+                            ),
+                          ),
                           backgroundColor: Colors.transparent,
                           leading: ProfileAppBarIcon(
                             toolTip: 'Navigate Up',
@@ -421,7 +491,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               child: ProfileInteract(
                                 avatarIsVisible: false,
                                 avatarImageUrl: avatarImageUrl,
-                                isCurrUser: widget.isCurrUser,
+                                isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
                                 isHeader: true,
                                 onTapEditProfile: onEditProfileClick,
                                 onTapFollow: followUser,
@@ -436,9 +506,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!) || (isCurrUserBlocked != null && !isCurrUserBlocked!),
                               child: ProfileAppBarIcon(
                                 icon: Icons.search,
-                                onPressed: (){
-                                  //TODO: navigate to search page with user filter
-                                },
+                                onPressed: (){},
                                 toolTip: 'Search',
                               ),
                             ),
@@ -485,48 +553,85 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               },
                             ),
                           ],
-                          flexibleSpace: value > collapsePosition ? ColorFiltered(
-                            colorFilter: const ColorFilter.mode(Colors.black38, BlendMode.darken),
-                            child: bannerImageUrl == "" ?
-                            Container(color: Colors.blue,) :
-                            Image.network(bannerImageUrl,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.bottomCenter,
-                            ),
-                          ) :
-                          ProfileBanner(
-                              bannerImageUrl: bannerImageUrl,
-                              onTap:  () async {
-                                if(bannerImageUrl != ""){
-                                  var res = await Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) =>
-                                          ProfileImageView(
-                                            isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                            isProfileAvatar: false,
-                                            imageUrl: bannerImageUrl,
-                                            avatarImageUrl: avatarImageUrl,
-                                            name: name,
-                                            birthDate: birthDate,
-                                            bio: bio,
-                                            website: website,
-                                          )
-                                      )
+                          flexibleSpace: value > collapsePosition ?
+                          Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              bannerImageUrl == "" ?
+                              Container(color: Colors.blue,) :
+                              Image.network(bannerImageUrl,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.bottomCenter,
+                              ),
+                              Positioned(
+                                top: 160,
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 2,
+                                    sigmaY: 2,
+                                  ),
+                                  child: Container(),
+                                ),
+                              ),
+                              TweenAnimationBuilder(
+                                tween: Tween<double>(begin: 0, end: 0.5),
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeIn,
+                                builder: (_,value, __) {
+                                  return Container(
+                                    color: Colors.black.withOpacity(value),
                                   );
-                                  if(res != null){
-                                    setState(() {
-                                      name = res["name"];
-                                      bio = res["bio"];
-                                      website = res["website"];
-                                      birthDate = res["birthDate"];
-                                      bannerImageUrl = res["bannerImageUrl"];
-                                      avatarImageUrl = res["avatarImageUrl"];
-                                    });
-                                  }
-                                }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
-                                  onEditProfileClick();
-                                }
-                              },
-                            ),
+                                },
+                              )
+                            ],
+                          ) :
+                          Stack(
+                            children: [
+                              ProfileBanner(
+                                  bannerImageUrl: bannerImageUrl,
+                                  onTap:  () async {
+                                    if(bannerImageUrl != ""){
+                                      var res = await Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) =>
+                                              ProfileImageView(
+                                                isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                                isProfileAvatar: false,
+                                                imageUrl: bannerImageUrl,
+                                                avatarImageUrl: avatarImageUrl,
+                                                name: name,
+                                                birthDate: birthDate,
+                                                bio: bio,
+                                                website: website,
+                                              )
+                                          )
+                                      );
+                                      if(res != null){
+                                        setState(() {
+                                          name = res["name"];
+                                          bio = res["bio"];
+                                          website = res["website"];
+                                          birthDate = res["birthDate"];
+                                          bannerImageUrl = res["bannerImageUrl"];
+                                          avatarImageUrl = res["avatarImageUrl"];
+                                        });
+                                      }
+                                    }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
+                                      onEditProfileClick();
+                                    }
+                                  },
+                                ),
+                              Positioned(
+                                top: 160,
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: value * (2/collapsePosition),
+                                    sigmaY: value * (2/collapsePosition),
+                                  ),
+                                  child: Container(),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       }
                     ),
@@ -546,7 +651,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     avatarIsVisible: value > collapsePosition,
                                     isHeader: false,
                                     avatarImageUrl: avatarImageUrl,
-                                    isCurrUser: widget.isCurrUser,
+                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
                                     isWantedUserFollowed : isWantedUserFollowed,
                                     isWantedUserBlocked : isWantedUserBlocked,
                                     onTapEditProfile: onEditProfileClick,
@@ -573,14 +678,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   fontWeight: FontWeight.bold
                               ),
                             ),
-                            Text("@$username"),
+                            MainText(text: "@${widget.username}", color:Colors.grey ,),
                             bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
                             const Text("") :
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0,10,0,0),
                               child: SizedBox(
                                   height: 80,
-                                  child: Text(bio)
+                                  child: MainText(text: bio)
                               ),
                             ),
                             const SizedBox(height: 20,),
@@ -588,20 +693,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.location_on_outlined, size: 15,),
+                                    const Icon(Icons.location_on_outlined, size: 15,color: Colors.grey,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: Text(location),
+                                      child: MainText(text: location,color: Colors.grey,),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(width: 10,),
                                 Row(
                                   children: [
-                                    const Icon(Icons.cake, size: 15,),
+                                    const Icon(Icons.cake, size: 15,color: Colors.grey,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: Text("Born ${DateFormat.yMMMMd('en_US').format(birthDate )}"),
+                                      child: MainText(
+                                        text: "Born ${DateFormat.yMMMMd('en_US').format(birthDate )}",
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -612,20 +720,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.date_range, size: 15,),
+                                    const Icon(Icons.date_range, size: 15,color: Colors.grey,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: Text("Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}"),
+                                      child: MainText(
+                                        text: "Joined ${DateFormat.yMMMMd('en_US').format(joinedDate)}",
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(width: 10,),
                                 Row(
                                   children: [
-                                    const Icon(CupertinoIcons.link, size: 15,),
+                                    const Icon(CupertinoIcons.link, size: 15,color: Colors.grey,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: Text(website), //TODO: change later (detect urls)
+                                      child: MainText(text: website, color: Colors.grey,), //TODO: change later (detect urls)
                                     ),
                                   ],
                                 )
@@ -640,36 +751,52 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 children: [
                                   InkWell(
                                     onTap: (){
-                                      //TODO: list of Following
+                                      Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                        arguments: {
+                                          "pageTitle": "Following",
+                                          "tweetID" : null,
+                                          "userID" : username,
+                                          "providerFunction": ProviderFunction.GET_USER_FOLLOWINGS
+                                        }
+                                      );
                                     },
                                     splashFactory: NoSplash.splashFactory,
                                     child: Row(
                                       children: [
                                         Text(
-                                          "$following",
+                                          widget.isCurrUser?
+                                          "${auth.getCurrentUser()!.following}" : "$following",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(" Following"),
+                                        const MainText(text: " Following",color: Colors.grey,),
                                       ],
                                     ),
                                   ),
                                   const SizedBox(width: 10,),
                                   InkWell(
                                     onTap: (){
-                                      //TODO: list of Followers
+                                      Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                          arguments: {
+                                            "pageTitle": "Followers",
+                                            "tweetID" : null,
+                                            "userID" : username,
+                                            "providerFunction": ProviderFunction.GET_USER_FOLLOWERS
+                                          }
+                                      );
                                     },
                                     splashFactory: NoSplash.splashFactory,
                                     child: Row(
                                       children: [
                                         Text(
-                                          "$followers",
+                                          widget.isCurrUser?
+                                          "${auth.getCurrentUser()!.followers}" : "$followers",
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(" Followers"),
+                                        const MainText(text: " Followers", color: Colors.grey,),
                                       ],
                                     ),
                                   ),
@@ -707,23 +834,41 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   controller: tabController,
                   children: [
                     BetterFeed(
-                      isScrollable: true,
+                      removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,
-                      userId: username,
+                      userId: widget.username,
                       userName: name,
+                      removeRefreshIndicator: true,
                     ),
                     BetterFeed(
-                      isScrollable: true,
+                      removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: feedController,
-                      userId: username,
+                      userId: widget.username,
                       userName: name,
+                      removeRefreshIndicator: true,
                     ),
-                    Container(color: Colors.red,child: Center(child: Text("3"),),),
-                    Container(color: Colors.red,child: Center(child: Text("4"),),),
+                    BetterFeed(
+                      removeController: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: widget.username,
+                      userName: name,
+                      removeRefreshIndicator: true,
+                    ),
+                    BetterFeed(
+                      removeController: true,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerResultType: ProviderResultType.TWEET_RESULT,
+                      feedController: feedController,
+                      userId: widget.username,
+                      userName: name,
+                      removeRefreshIndicator: true,
+                    ),
                   ],
                 ) :
                 (isCurrUserBlocked != null && isCurrUserBlocked!) ?
@@ -732,8 +877,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         const Divider(thickness: 1,height: 1,),
                         Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Text("You are blocked from following @$username "
-                              "and viewing @$username posts."),
+                          child: Text("You are blocked from following @${widget.username} "
+                              "and viewing @${widget.username} posts."),
                         ),
                         const Divider(thickness: 1,height: 1,),
                       ],
@@ -747,7 +892,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           const Divider(thickness: 1,height: 1,),
                           const SizedBox(height: 50,),
                           Text(
-                            "@$username is blocked",
+                            "@${widget.username} is blocked",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
@@ -790,7 +935,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           ),
         ),
       ),
-      floatingActionButton: FeedHomeTab().getFloatingActionButton(context),  //TODO: change later
+      floatingActionButton: FeedHomeTab().getFloatingActionButton(context),
     );
   }
 }

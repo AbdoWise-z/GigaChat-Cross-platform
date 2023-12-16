@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 
 class SearchKeyword extends StatelessWidget {
   final String tag;
@@ -39,7 +41,9 @@ class SearchKeyword extends StatelessWidget {
 
 class UserResult extends StatelessWidget {
   final User user;
-  const UserResult({super.key,required this.user});
+  final bool? isBlocked;
+  final bool? isMuted;
+  const UserResult({super.key,required this.user, this.isBlocked, this.isMuted});
 
   @override
   Widget build(BuildContext context) {
@@ -57,38 +61,61 @@ class UserResult extends StatelessWidget {
           foregroundColor: isDarkMode ? Colors.white: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(user.iconLink),
-          ),
-          const SizedBox(width: 10,),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                user.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black,
-                    fontSize: 16
+              CircleAvatar(backgroundImage: NetworkImage(user.iconLink)),
+              const SizedBox(width: 10,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(user.name),
+                  Text("@${user.id}",style: const TextStyle(color: Colors.grey),)
+                ],
+              ),
+              const Expanded(child: SizedBox()),
+              Visibility(
+                visible: isMuted != null && isMuted!,
+                child: IconButton(
+                    onPressed: (){
+
+                    }, icon: const Icon(Icons.volume_off_sharp,color: Colors.red,)
                 ),
               ),
-              Text(user.id,
-                style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    color: isDarkMode ? Colors.grey : Colors.grey[850]
+              SizedBox(
+                width: 80,
+                height: 30,
+                child: Visibility(
+                  visible: Auth.getInstance(context).getCurrentUser()!.id != user.id,
+                  child: (isBlocked ?? false)? ElevatedButton(
+                    onPressed: (){
+
+                    },
+                    child: SizedBox()
+                  ):
+                  FollowButton(
+                      isFollowed: user.isFollowed!,
+                      callBack: (isFollowed){user.isFollowed = isFollowed;},
+                      username: user.id
+                  ),
                 ),
-              ),
+              )
             ],
           ),
-          const Expanded(child: SizedBox()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CircleAvatar(backgroundColor: Colors.transparent),
+              const SizedBox(width: 10,),
+              Text(user.bio,style: const TextStyle(color: Colors.white),)
+            ],
+          )
         ],
-      ),
+      )
     );
   }
 }

@@ -96,6 +96,11 @@ class ApiPath{
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath userFollowers           = const ApiPath._("/api/user/profile/%s/followers");
+  static ApiPath userFollowings          = const ApiPath._("/api/user/profile/%s/followings");
+  static ApiPath userBlockList           = const ApiPath._("/api/user/blockList");
+  static ApiPath userMutedList           = const ApiPath._("/api/user/mutedList");
+
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
@@ -105,6 +110,7 @@ class ApiPath{
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
   static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
   static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
+  static ApiPath getTweet             = const ApiPath._("/api/tweets/%s");
 }
 
 class Api {

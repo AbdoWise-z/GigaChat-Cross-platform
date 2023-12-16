@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/settings/pages/privacy-and-safety/privacy-settings.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/settings/settings-titles.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
@@ -30,7 +31,7 @@ class _MainSettingsState extends State<MainSettings> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 15),
                 child: GestureDetector(
-                  onTap: (){},
+                  onTap: (){},  //TODO: search settings
                   child: Container(
                     constraints: const BoxConstraints.expand(height: 40),
                     padding: const EdgeInsets.all(10),
@@ -83,22 +84,30 @@ class _MainSettingsState extends State<MainSettings> {
               },
             ),
             SettingsTile(
-              icon: Icons.lock_outline,
-              mainText: settingsTitles[titles.SECURITY.index].title,
-              description: settingsTitles[titles.SECURITY.index].description,
-              onTap: (){},
-            ),
-            SettingsTile(
               icon: Icons.privacy_tip_outlined,
               mainText: settingsTitles[titles.PRIVACY.index].title,
               description: settingsTitles[titles.PRIVACY.index].description,
-              onTap: (){},
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PrivacySettings()
+                  )
+                );
+              },
             ),
             SettingsTile(
               icon: Icons.notifications_none,
               mainText: settingsTitles[titles.NOTIFICATIONS.index].title,
               description: settingsTitles[titles.NOTIFICATIONS.index].description,
               onTap: (){},  //TODO: navigate to notifications settings
+            ),
+            SettingsTile(
+              icon: Icons.lock_outline,
+              mainText: settingsTitles[titles.SECURITY.index].title,
+              description: settingsTitles[titles.SECURITY.index].description,
+              onTap: (){},
             ),
             SettingsTile(
               icon: Icons.language,
