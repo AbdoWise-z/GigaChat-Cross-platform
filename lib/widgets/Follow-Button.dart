@@ -1,8 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/base.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class FollowButton extends StatefulWidget {
   bool isFollowed;
@@ -33,6 +37,14 @@ class _FollowButtonState extends State<FollowButton> {
             success: (res){
               widget.isFollowed = false;
               widget.callBack(false);
+              FeedController homeFeed = FeedProvider.getInstance(context).getFeedControllerById(
+                  context: context,
+                  id: Home.feedID,
+                  providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                  clearData: false
+              );
+              homeFeed.resetFeed();
+              homeFeed.updateFeeds();
               setState(() {});
             },
           );
@@ -58,6 +70,14 @@ class _FollowButtonState extends State<FollowButton> {
             success: (res){
               widget.isFollowed = true;
               widget.callBack(true);
+              FeedController homeFeed = FeedProvider.getInstance(context).getFeedControllerById(
+                  context: context,
+                  id: Home.feedID,
+                  providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                  clearData: false
+              );
+              homeFeed.resetFeed();
+              homeFeed.updateFeeds();
               setState(() {});
             },
           );

@@ -5,8 +5,12 @@ import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/api/tweet-data.dart';
@@ -444,6 +448,14 @@ class _TweetState extends State<Tweet> {
             tweetOwner.isFollowed! ?
             Auth.getInstance(context).unfollow(tweetOwner.id,success: (followed){
               widget.tweetData.tweetOwner.isFollowed = false;
+              FeedController homeFeed = FeedProvider.getInstance(context).getFeedControllerById(
+                  context: context,
+                  id: Home.feedID,
+                  providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                  clearData: false
+              );
+              homeFeed.resetFeed();
+              homeFeed.updateFeeds();
               updateState();
             }) :
             Auth.getInstance(context).follow(tweetOwner.id,success: (followed){
