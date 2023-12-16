@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
-import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/api/tweet-data.dart';
-import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
 import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
@@ -62,6 +58,9 @@ class Tweet extends StatefulWidget {
   final void Function(String) callBackToDelete;
   final void Function() onCommentButtonClicked;
   final FeedController? parentFeed;
+  final bool? showReplies;
+  final bool? onlyOneReply;
+  final bool? deleteOnUndoRetweet;
 
   const Tweet({
       super.key,
@@ -72,7 +71,10 @@ class Tweet extends StatefulWidget {
       required this.callBackToDelete,
       required this.onCommentButtonClicked,
       required this.parentFeed,
-      required this.cancelSameUserNavigation
+      required this.cancelSameUserNavigation,
+      this.showReplies,
+      this.onlyOneReply,
+      this.deleteOnUndoRetweet
   });
 
   @override
@@ -89,6 +91,7 @@ class _TweetState extends State<Tweet> {
       setState(() {});
     }
     else {
+      print("here");
       widget.parentFeed!.updateFeeds();
     }
   }
@@ -108,6 +111,7 @@ class _TweetState extends State<Tweet> {
     );
   }
 
+
   // ui part
   @override
   Widget build(BuildContext context) {
@@ -118,13 +122,16 @@ class _TweetState extends State<Tweet> {
             tweetData: widget.tweetData,
             singlePostView: widget.isSinglePostView,
             onCommentButtonClicked: () async {
-               return await commentTweet(context, widget.tweetData);
+               int ret = await commentTweet(context, widget.tweetData,widget.parentFeed);
             },
             onRetweetButtonClicked: () async {
               bool isRetweeting = !widget.tweetData.isRetweeted;
               bool success =  await toggleRetweetTweet(currentUser.auth,widget.tweetData);
               if (!isRetweeting){
-                widget.parentFeed?.deleteTweet(widget.tweetData.id);
+                if (widget.parentFeed != null && (widget.deleteOnUndoRetweet ?? false)) {
+                  widget.parentFeed?.deleteTweet(widget.tweetData.id);
+                }
+                updateState();
               }
               else{
                 updateState();
@@ -161,10 +168,11 @@ class _TweetState extends State<Tweet> {
                       setState(() {});
                     }
                   },
-          child: Padding(
+          child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
 
                 // =================== user avatar ===================
@@ -172,8 +180,8 @@ class _TweetState extends State<Tweet> {
                   visible: !widget.isSinglePostView,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
                       Visibility(
                           visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
@@ -195,9 +203,11 @@ class _TweetState extends State<Tweet> {
                   ),
                 ),
 
-
                 // =================== some padding ===================
-                const SizedBox(width: 10),
+                Visibility(
+                  visible: !widget.isSinglePostView,
+                    child: const SizedBox(width: 10)
+                ),
 
                 //  =================== Tweet Body ===================
                 Flexible(
@@ -205,8 +215,8 @@ class _TweetState extends State<Tweet> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-
                       Visibility(
                         visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
                           child: widget.tweetData.reTweeter == null ? Container() :
@@ -428,12 +438,18 @@ class _TweetState extends State<Tweet> {
       }], // ===============================================================
       [],
       [
-        tweetOwner.isFollowed! ? "Unfollow @${tweetOwner.id}" : "Follow @${tweetOwner.id}",
+        tweetOwner.isFollowed ?? false ? "Unfollow @${tweetOwner.id}" : "Follow @${tweetOwner.id}",
         Icons.person_add_alt_1_outlined, () {
           if(currentUser != null){
             tweetOwner.isFollowed! ?
-            Auth.getInstance(context).unfollow(tweetOwner.id) :
-            Auth.getInstance(context).follow(tweetOwner.id);
+            Auth.getInstance(context).unfollow(tweetOwner.id,success: (followed){
+              widget.tweetData.tweetOwner.isFollowed = false;
+              updateState();
+            }) :
+            Auth.getInstance(context).follow(tweetOwner.id,success: (followed){
+              widget.tweetData.tweetOwner.isFollowed = true;
+              updateState();
+            });
           }
       }], // ===============================================================
       ["Mute @${tweetOwner.id}", Icons.volume_off, () {
@@ -466,6 +482,7 @@ class _TweetState extends State<Tweet> {
     final currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
     final upperRowNameField = isSinglePostView ?
     Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         GestureDetector(
           onTap: () => navigateToUserProfile(
@@ -523,9 +540,9 @@ class _TweetState extends State<Tweet> {
     );
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-
         upperRowNameField,
 
         const Expanded(child: SizedBox()),

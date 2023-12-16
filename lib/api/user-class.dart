@@ -43,7 +43,7 @@ class User {
     this.isCurrUser,
     this.isCurrUserBlocked,
     this.isWantedUserBlocked,
-    this.isFollowed,
+    this.isFollowed = false,
     this.isWantedUserMuted,
     this.numOfLikes = 0,
     this.numOfPosts = 0,

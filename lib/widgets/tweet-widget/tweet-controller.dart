@@ -3,6 +3,7 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 Future<bool> toggleLikeTweet(BuildContext context,String? token,TweetData tweetData) async {
   if (token == null) {
@@ -49,12 +50,20 @@ Future<bool> toggleRetweetTweet(String? token,TweetData tweetData) async {
 }
 
 
-Future<int> commentTweet(BuildContext context, TweetData tweetData) async {
+Future<int> commentTweet(BuildContext context, TweetData tweetData, FeedController? targetFeed) async {
   dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
     "reply" : tweetData,
   });
   if(retArguments["success"] != null && retArguments["success"] == true){
     tweetData.repliesNum += 1;
+    List<TweetData> tweets = retArguments["tweets"];
+    if(targetFeed != null) {
+      Map<String, TweetData> mappedTweets = {};
+      for (TweetData tweetData in tweets) {
+        mappedTweets.putIfAbsent(tweetData.id, () => tweetData);
+      }
+      targetFeed.appendToLast(mappedTweets);
+    }
   }
   return tweetData.repliesNum;
 }

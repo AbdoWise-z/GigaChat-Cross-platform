@@ -97,7 +97,7 @@ class Tweets {
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
       return TweetData(
           id: specialAccessObject(tweet, accessor["id"]!),
-          referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
+          referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!),
           description: specialAccessObject(tweet, accessor["description"]!) ?? "",
           viewsNum: specialAccessObject(tweet, accessor["viewsNum"]) ?? 0,
           likesNum: specialAccessObject(tweet, accessor["likesNum"]!) ?? 0,
@@ -234,6 +234,47 @@ class Tweets {
       "isRetweeted": ["isRetweeted"],
       "media": ["media"]
     }, ApiPath.comments.format([tweetID]));
+  }
+
+  static Future<TweetData?> getTweetById(String token, String tweetID) async {
+    ApiPath endPointPath = ApiPath.getTweet.format([tweetID]);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        endPointPath,
+        headers: headers
+    );
+    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
+      dynamic tweet = jsonDecode(response.responseBody!)["data"];
+      return TweetData(
+          id: tweet["id"],
+          referredTweetId: tweet["referredTweetId"],
+          description: tweet["description"],
+          viewsNum: tweet["viewsNum"] ?? 0,
+          likesNum: tweet["likesNum"] ?? 0,
+          repliesNum: tweet["repliesNum"] ?? 0,
+          repostsNum: tweet["repostsNum"] ?? 0,
+          creationTime: DateTime.parse(tweet["creation_time"]),
+          type: tweet["type"],
+          tweetOwner: User(
+            id: tweet["tweet_owner"]["username"],
+            name: tweet["tweet_owner"]["nickname"],
+            iconLink: tweet["tweet_owner"]["profile_image"],
+            isFollowed: false,
+            followers: tweet["tweet_owner"]["followers_num"],
+            following: tweet["tweet_owner"]["following_num"],
+          ),
+          isLiked: tweet["isLiked"],
+          isRetweeted: tweet["isRetweeted"],
+          media: tweet["media"].map((media){
+            return MediaData(
+                mediaType: media["data"],
+                mediaUrl: media["type"],
+            ) ;
+          }).toList().cast<MediaData>()
+      );
+    }
+
+    return null;
   }
 
   static Future<Map<String,TweetData>> fetchTweetsWithApiInterface
