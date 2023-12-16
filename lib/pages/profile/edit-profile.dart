@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -52,15 +53,15 @@ class _EditProfileState extends State<EditProfile> {
     showMenu(
       context: context,
       position: const RelativeRect.fromLTRB(55, 325, 55, 325),
-      items: isProfileAvatar? <PopupMenuEntry>[
+      items: isProfileAvatar || newBannerImageUrl == "" ? <PopupMenuEntry>[
         PopupMenuItem(
           child: const Text("Take photo"),
           onTap: () async {
             selectedImage = await getImageFromCamera(!isProfileAvatar);
             if(selectedImage.path.isNotEmpty){
               setState(() {
-                avatarChanged = true;
-                selectedAvatar = selectedImage;
+                isProfileAvatar ? avatarChanged = true : bannerChanged = true;
+                isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
               });
             }
           },
@@ -70,8 +71,8 @@ class _EditProfileState extends State<EditProfile> {
               selectedImage = await getImageFromGallery(!isProfileAvatar);
               if(selectedImage.path.isNotEmpty){
                 setState(() {
-                  avatarChanged = true;
-                  selectedAvatar = selectedImage;
+                  isProfileAvatar ? avatarChanged = true : bannerChanged = true;
+                  isProfileAvatar ? selectedAvatar = selectedImage : selectedBanner = selectedImage;
                 });
               }
             },

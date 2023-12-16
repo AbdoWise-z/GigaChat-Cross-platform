@@ -204,35 +204,19 @@ class Account {
       print(res);
       u.id          = res["user"]["username"];
       u.name        = res["user"]["nickname"];
-      //u.email     = res["user"]["email"];
       u.bio         = res["user"]["bio"] ?? "";
       u.iconLink    = res["user"]["profile_image"];
       u.bannerLink  = res["user"]["banner_image"] ?? "";
-      //u.location  = res["user"]["location"];
-      //u.website   = res["user"]["website"];
+      //u.location  = res["user"]["location"];  //const cuz its not a feature
+      //u.website   = res["user"]["website"];   //const cuz its not a feature
       u.birthDate   = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
-      //u.followers = res["user"]["followers_num"];
-      //u.following = res["user"]["followings_num"];
       u.numOfPosts  = res["user"]["num_of_posts"];
       u.numOfLikes  = res["user"]["num_of_likes"];
 
     }else{
-      u.id          = "";
-      u.name        = "";
-      //u.email     = "";
-      u.bio         = "";
-      u.iconLink    = "";
-      u.bannerLink  = "";
-      //u.location  = "";
-      //u.website   = "";
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
-      u.followers   = 0;
-      u.following   = 0;
-      u.numOfPosts  = 0;
-      u.numOfLikes  = 0;
-
     }
     k.data = u;
     return k;
@@ -250,12 +234,11 @@ class Account {
       print(res);
       u.id                    = res["user"]["username"];
       u.name                  = res["user"]["nickname"];
-      //u.email               = res["user"]["email"];
       u.bio                   = res["user"]["bio"] ?? "";
       u.iconLink              = res["user"]["profile_image"];
       u.bannerLink            = res["user"]["banner_image"] ?? "";
-      //u.location            = res["user"]["location"];
-      //u.website             = res["user"]["website"];
+      //u.location            = res["user"]["location"];  //const cuz its not a feature
+      //u.website             = res["user"]["website"];   //const cuz its not a feature
       u.birthDate             = DateTime.parse(res["user"]["birth_date"]);
       u.joinedDate            = DateTime.parse(res["user"]["joined_date"]);
       u.followers             = res["user"]["followers_num"];
@@ -270,25 +253,8 @@ class Account {
 
 
     }else{
-      u.id          = "";
-      u.name        = "";
-      //u.email     = "";
-      u.bio         = "";
-      u.iconLink    = "";
-      u.bannerLink  = "";
-      //u.location  = "";
-      //u.website   = "";
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
-      u.followers   = 0;
-      u.following   = 0;
-      u.numOfPosts  = 0;
-      u.numOfLikes  = 0;
-      u.isFollowed  = false;
-      u.isWantedUserMuted  = false;
-      u.isWantedUserBlocked  = false;
-      u.isCurrUser  = false;
-      u.isCurrUserBlocked  = false;
 
     }
     k.data = u;
