@@ -1,6 +1,7 @@
 
 class User {
   String id;
+  String mongoID;
   String name;
   String? auth;
   String email;
@@ -24,6 +25,7 @@ class User {
 
   User({
     this.id = "@Abdo-ww",
+    this.mongoID = "",
     this.name = "Abdo",
     this.auth = "moa",
     this.email = "...",

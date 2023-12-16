@@ -7,11 +7,11 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart';
 
-class StreamSocket {
-  final _s = StreamController<String>();
-  void Function(String) get addResponse => _s.sink.add;
+class StreamSocket<T> {
+  final _s = StreamController<T>();
+  void Function(T) get addResponse => _s.sink.add;
 
-  Stream<String> get stream => _s.stream;
+  Stream<T> get stream => _s.stream;
 
   void dispose(){
     _s.close();
@@ -37,13 +37,14 @@ class WebSocketsProvider extends ChangeNotifier{
     //   Uri.parse(API_WEBSOCKS_LINK),
     // ).timeout(API_TIMEOUT);
     // print("RES: ${response.body}");
+
     print("WS: starting connection (${API_WEBSOCKS_LINK})");
+    //"http://10.0.2.2:3000"
     _socket = IO.io(API_WEBSOCKS_LINK ,
         OptionBuilder()
             .setTransports(['websocket']) // for Flutter or Dart VM
             .disableAutoConnect()  // disable auto-connection
-            .setExtraHeaders({'foo': 'bar'}) // optional
-            .build()
+            .setExtraHeaders({'token': token}).build()
     );
     Completer<bool> connected = Completer();
 
@@ -79,8 +80,8 @@ class WebSocketsProvider extends ChangeNotifier{
     return true;
   }
 
-  StreamSocket getStream(String event){
-    StreamSocket s = StreamSocket();
+  StreamSocket getStream<T>(String event){
+    StreamSocket s = StreamSocket<T>();
     _socket.on(event, (data) => s.addResponse(data));
     return s;
   }

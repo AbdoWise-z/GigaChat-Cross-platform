@@ -57,20 +57,30 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     });
-    _chatSocket = WebSocketsProvider.getInstance(context).getStream("chat");
+    _chatSocket = WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("receive_message");
     uuid = const Uuid();
     _ready = false;
 
+    WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("failed_to_send_message").stream.listen((ev) {
+      print("Error : $ev");
+    });
+
     _chatSocket.stream.listen((event) {
-      var data = jsonDecode(event);
-      if (data["type"] == "message"){
+      var data = event;
+      if (data["chat_id"] == _with.mongoID || true) { //fixme : the backend doesn't return the right chat room ????
+        print("received a message ! $data");
         ChatMessageObject obj = ChatMessageObject();
-        User current = Auth.getInstance(context).getCurrentUser()!;
-        obj.fromMap(data["data"], current.id);
+        User current = Auth().getCurrentUser()!;
+        obj.fromMap(data, current.id);
         _handleNewMessage(obj);
       } else {
-        _handleMessageDeleted(data["uuid"]);
+        print("received a message for another chat id : $data");
       }
+      // if (data["type"] == "message"){
+      //
+      // } else {
+      //   _handleMessageDeleted(data["uuid"]);
+      // }
     });
   }
 
@@ -87,16 +97,13 @@ class ChatPageState extends State<ChatPage> {
       }
       m.media = MediaObject(link: link.data![0], type: m.media!.type);
     }
-    var data = m.toMap(current.id, _with.id);
-    ws.send("chat" , jsonEncode({
-      "type": "message",
-      "data": data,
-    }));
+    var data = m.toMap(current.mongoID, _with.mongoID);
+    ws.send("send_message" , data);
     return true;
   }
 
   void _handleSendMessage(ChatMessageObject m) async {
-    m.id = uuid.v4();
+    m.uuid = uuid.v4();
     m.state = ChatMessageObject.STATE_SENDING;
     _handleNewMessage(m); //mark as sending and send
     if (! await sendMessage(m)){ //failed
@@ -109,7 +116,7 @@ class ChatPageState extends State<ChatPage> {
       if (m.state == ChatMessageObject.STATE_SENDING){
         _chat.add(m);
       } else if (m.state == ChatMessageObject.STATE_SENT){
-        int index = _chat.lastIndexWhere((element) => element.id == m.id);
+        int index = _chat.lastIndexWhere((element) => element.uuid == m.uuid);
         if (index == -1){ //didn't find this message (account is open on another phone ?)
           _chat.add(m);
         }else{
@@ -140,7 +147,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _handleMessageFailed(ChatMessageObject m){
-    int index = _chat.lastIndexWhere((element) => element.id == m.id);
+    int index = _chat.lastIndexWhere((element) => element.uuid == m.uuid);
     if (index == -1){ //didn't find this message (account is open on another phone ?)
       //_chat.add(m); should never happen
     }else{
@@ -396,6 +403,7 @@ class ChatPageState extends State<ChatPage> {
                 },
                 onSizeChange: () {
                   setState(() {
+
                     _editorHeight = editor.currentContext!.size!.height;
                   });
                 },

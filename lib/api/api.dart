@@ -104,6 +104,7 @@ class ApiPath{
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
   static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
+  static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
 }
 
 class Api {
@@ -203,7 +204,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPostNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPostFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
   static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
@@ -297,7 +298,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPatchFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPatchFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
 

@@ -252,7 +252,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                             onPressed: () async {
                               widget.onMessage(
                                 ChatMessageObject(
-                                  id: "none",
+                                  uuid: "none",
                                   text: _textEditingController.text,
                                   media: _media == null ? null : MediaObject(link: _media!.path.path, type: _media!.type == AssetType.image ? MediaType.IMAGE : MediaType.VIDEO),
                                   self: true,

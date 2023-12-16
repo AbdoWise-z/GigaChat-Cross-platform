@@ -13,6 +13,13 @@ class Auth extends ChangeNotifier{
     return Provider.of<Auth>(context , listen: false);
   }
 
+  Auth._internal();
+  static Auth? _instance;
+  factory Auth(){
+    _instance ??= Auth._internal();
+    return _instance!;
+  }
+
   //TODO: change back to null
   User? _currentUser;
 
@@ -21,11 +28,9 @@ class Auth extends ChangeNotifier{
     if (res.data != null){
       _currentUser = res.data;
       WebSocketsProvider prov = WebSocketsProvider();
-      //fixme: yeah backend stuff
-      //fixme: Websockets needs to be fixed
-      if (await prov.init("malek") || true){
+      print("Auth : ${_currentUser!.auth!}");
+      if ( await prov.init(_currentUser!.auth! )){
         if (success != null) success(res);
-        
       }else{
         _currentUser = null;
         if (error != null) error(res);
