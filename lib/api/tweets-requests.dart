@@ -267,8 +267,8 @@ class Tweets {
           isRetweeted: tweet["isRetweeted"],
           media: tweet["media"].map((media){
             return MediaData(
-                mediaType: media["data"],
-                mediaUrl: media["type"],
+                mediaType: media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
+                mediaUrl: media["data"],
             ) ;
           }).toList().cast<MediaData>()
       );

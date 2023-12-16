@@ -66,12 +66,12 @@ class UserResult extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(backgroundImage: NetworkImage(user.iconLink)),
-              SizedBox(width: 10,),
+              const SizedBox(width: 10,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(user.name),
-                  Text("@${user.id}",style: TextStyle(color: Colors.grey),)
+                  Text("@${user.id}",style: const TextStyle(color: Colors.grey),)
                 ],
               ),
               const Expanded(child: SizedBox()),
@@ -89,13 +89,13 @@ class UserResult extends StatelessWidget {
               )
             ],
           ),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(backgroundColor: Colors.transparent),
-              SizedBox(width: 10,),
-              Text("ajdoklasjdklasdlkasmdlk",style: TextStyle(color: Colors.white),)
+              const CircleAvatar(backgroundColor: Colors.transparent),
+              const SizedBox(width: 10,),
+              Text(user.bio,style: const TextStyle(color: Colors.white),)
             ],
           )
         ],
