@@ -47,6 +47,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   //user details
   late String name;
   late String username;
+  late String mongoID;
   late String avatarImageUrl;
   late String bannerImageUrl;
   late String bio;
@@ -111,6 +112,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isCurrUser = u.isCurrUser;
     numOfPosts = u.numOfPosts;
     numOfLikes = u.numOfLikes;
+    mongoID    = u.mongoID!;
 
 
     scrollController = ScrollController();
@@ -656,13 +658,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     isWantedUserBlocked : isWantedUserBlocked,
                                     onTapEditProfile: onEditProfileClick,
                                     onTapDM: (){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChatPage()
-                                        )
-                                      );
+                                      Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                        "user" : User(id: username , name: name , iconLink: avatarImageUrl, mongoID: mongoID, isFollowed: isWantedUserFollowed, isBlocked: false)
+                                      });
                                     }, //TODO: DM user
                                     onTapFollow: followUser,
                                     onTapUnfollow: unfollowUser,

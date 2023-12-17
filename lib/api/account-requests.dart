@@ -213,7 +213,7 @@ class Account {
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
       u.numOfPosts  = res["user"]["num_of_posts"];
       u.numOfLikes  = res["user"]["num_of_likes"];
-
+      u.mongoID     = res["user"]["_id"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
@@ -250,8 +250,7 @@ class Account {
       u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
       u.numOfPosts            = res["user"]["num_of_posts"];
       u.numOfLikes            = res["user"]["num_of_likes"];
-
-
+      u.mongoID               = res["user"]["_id"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();

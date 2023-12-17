@@ -130,7 +130,7 @@ class _ChatListPageState extends State<ChatListPage> {
           k.lastMessage = obj.text ?? "Sent Media";
           k.time = obj.time;
           k.lastMessageSeen = false; //TODO: fix this later
-          k.lastMessageSender = obj.self ? Auth.getInstance(context).getCurrentUser()!.mongoID : k.mongoID;
+          k.lastMessageSender = obj.self ? Auth.getInstance(context).getCurrentUser()!.mongoID! : k.mongoID;
           setState(() {
 
           });
@@ -220,12 +220,15 @@ class _ChatListPageState extends State<ChatListPage> {
               pinned.map((e) => ChatListItem(
                 object: e,
                 longPress: () {
-                  _createDialog(e);
+                  //_createDialog(e);
                 },
-                press: () {
-                  //TODO: implement the real chat
-                  Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                press: () async {
+                  var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                     "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
+                  }) as Map;
+                  setState(() {
+                    User u = result["user"];
+                    e.blocked = u.isBlocked!;
                   });
                 },
               )).toList()
@@ -253,12 +256,15 @@ class _ChatListPageState extends State<ChatListPage> {
               notPinned.map((e) => ChatListItem(
                 object: e,
                 longPress: () {
-                  _createDialog(e);
+                  //_createDialog(e);
                 },
                 press: () async {
-                  //TODO: implement the real chat
-                  Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                  var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                     "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
+                  }) as Map;
+                  setState(() {
+                    User u = result["user"];
+                    e.blocked = u.isBlocked!;
                   });
                 },
               )).toList(),
@@ -276,7 +282,6 @@ class _ChatListPageState extends State<ChatListPage> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
