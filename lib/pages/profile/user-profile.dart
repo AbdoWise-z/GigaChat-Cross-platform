@@ -141,6 +141,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     });
   }
 
+  void updateUserFeeds(){
+    if(context.mounted) {
+      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+    }
+  }
+
   void onTapBarClick(int index, int durationMS) {
     if(prevTabIndex != index){
       setState(() {
@@ -200,6 +209,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
+  void onProfileAvatarClick() async {
+    var res = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) =>
+            ProfileImageView(
+              isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+              isProfileAvatar: true,
+              imageUrl: avatarImageUrl,
+            )
+        )
+    );
+    if(res != null){
+      setState(() {
+        avatarImageUrl = res;
+      });
+    }
+  }
+
   void followUser() async {
     await auth.follow(
       widget.username,
@@ -207,6 +233,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         setState(() {
           isWantedUserFollowed = true;
           followers++;
+          updateUserFeeds();
         });
       },
       error: (res){
@@ -224,6 +251,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           setState(() {
             isWantedUserFollowed = false;
             followers--;
+            updateUserFeeds();
           });
         },
         error: (res){
@@ -240,6 +268,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       success: (res){
         setState(() {
           isWantedUserMuted = true;
+          updateUserFeeds();
           Toast.showToast(context, "You muted @${widget.username}.");
         });
       },
@@ -257,6 +286,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         success: (res){
           setState(() {
             isWantedUserMuted = false;
+            updateUserFeeds();
             Toast.showToast(context, "You unmuted @${widget.username}.");
           });
         },
@@ -302,12 +332,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 widget.username,
                               success: (res){
                                 setState(() {
-                                  if(context.mounted) {
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
-                                  }
+                                  updateUserFeeds();
                                   isWantedUserBlocked = true;
                                   isWantedUserFollowed = false;
                                   followers--;
@@ -374,6 +399,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               success: (res){
                                 setState(() {
                                   isWantedUserBlocked = false;
+                                  updateUserFeeds();
                                   if(context.mounted){
                                     Navigator.pop(context);
                                     Toast.showToast(context, "You unblocked @${widget.username}.");
@@ -466,9 +492,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       color: Colors.white
                                   ),
                                 ),
-                                Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                Visibility(
+                                  visible: widget.isCurrUser
+                                      || (isCurrUser != null && isCurrUser!)
+                                      || isCurrUserBlocked != null && !isCurrUserBlocked!,
+                                  child: Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -486,7 +517,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           actions: (value > showNamePosition
                               && (!widget.isCurrUser && !isCurrUser!)
                               && (isWantedUserFollowed != null && !isWantedUserFollowed!)
-                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
+                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)
+                              && (isCurrUserBlocked != null && !isCurrUserBlocked!))?
                           <Widget>[
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -499,7 +531,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 onTapFollow: followUser,
                                 onTapUnfollow: unfollowUser,
                                 isWantedUserFollowed: isWantedUserFollowed,
-                                isWantedUserBlocked: isCurrUserBlocked,
+                                isWantedUserBlocked: isWantedUserBlocked,
                               ),
                             ),
                           ] :
@@ -646,26 +678,49 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                             ValueListenableBuilder(
                               valueListenable: scroll,
                               builder: (context,value,_) {
-                                return Visibility(
-                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!),
-                                  child: ProfileInteract(
-                                    avatarIsVisible: value > collapsePosition,
-                                    isHeader: false,
-                                    avatarImageUrl: avatarImageUrl,
-                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isWantedUserFollowed : isWantedUserFollowed,
-                                    isWantedUserBlocked : isWantedUserBlocked,
-                                    onTapEditProfile: onEditProfileClick,
-                                    onTapDM: (){
-                                      Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                                        "user" : User(id: username , name: name , iconLink: avatarImageUrl, mongoID: mongoID, isFollowed: isWantedUserFollowed, isBlocked: false)
-                                      });
-                                    }, //TODO: DM user
-                                    onTapFollow: followUser,
-                                    onTapUnfollow: unfollowUser,
-                                    onTapUnblock: unblockUser,
-                                  ),
+                                return widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!) ? ProfileInteract(
+                                  avatarIsVisible: value > collapsePosition,
+                                  isHeader: false,
+                                  avatarImageUrl: avatarImageUrl,
+                                  isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                  isWantedUserFollowed : isWantedUserFollowed,
+                                  isWantedUserBlocked : isWantedUserBlocked,
+                                  onTapEditProfile: onEditProfileClick,
+                                  onTapDM: (){
+                                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                      "user" : User(
+                                          id: username ,
+                                          name: name ,
+                                          iconLink: avatarImageUrl,
+                                          mongoID: mongoID,
+                                          isFollowed: isWantedUserFollowed,
+                                          isBlocked: false
+                                      )
+                                    });
+                                  },
+                                  onTapFollow: followUser,
+                                  onTapUnfollow: unfollowUser,
+                                  onTapUnblock: unblockUser,
+                                ) :
+                                Row(
+                                  children: [
+                                    ValueListenableBuilder(
+                                        valueListenable: scroll,
+                                        builder: (context , value, _) {
+                                          return Visibility(
+                                            visible: isCurrUserBlocked != null && isCurrUserBlocked! && value > collapsePosition,
+                                            child: ProfileAvatar(
+                                              avatarImageUrl: avatarImageUrl,
+                                              avatarPadding: const EdgeInsets.fromLTRB(13,0,0,5),
+                                              avatarRadius: 20,
+                                              onTap: onProfileAvatarClick,
+                                            ),
+                                          );
+                                        }
+                                    ),
+                                    const SizedBox(height: 50,)
+                                  ],
                                 );
                               }
                             ),
@@ -827,7 +882,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   ];
                 },
                 body: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                    || (isWantedUserBlocked != null && !isWantedUserBlocked!)?
+                    || (isWantedUserBlocked != null && !isWantedUserBlocked!
+                        && isCurrUserBlocked != null && !isCurrUserBlocked!)?
                 TabBarView(
                   controller: tabController,
                   children: [
@@ -909,22 +965,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       avatarImageUrl: avatarImageUrl,
                       avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
                       avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
-                      onTap: () async {
-                        var res = await Navigator.push(context,
-                            MaterialPageRoute(builder: (context) =>
-                                ProfileImageView(
-                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isProfileAvatar: true,
-                                    imageUrl: avatarImageUrl,
-                                )
-                            )
-                        );
-                        if(res != null){
-                          setState(() {
-                            avatarImageUrl = res;
-                          });
-                        }
-                      },
+                      onTap: onProfileAvatarClick,
                     ),
                   );
                 }

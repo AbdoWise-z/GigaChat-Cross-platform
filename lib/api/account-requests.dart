@@ -438,8 +438,8 @@ class Account {
       endPoint,
       headers: headers,
       params: {
-        "page" : page,
-        "count" : count,
+        "page" : page.toString(),
+        "count" : count.toString(),
       }
     );
     print(k.code);
@@ -457,6 +457,7 @@ class Account {
         followers: e["followers_num"],
         following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
       )).toList();
 
       k.data = users;
@@ -488,6 +489,7 @@ class Account {
         followers: e["followers_num"],
         following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
       )).toList();
 
       k.data = users;
@@ -514,6 +516,8 @@ class Account {
         id: e["username"],
         name: e["nickname"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
+        isWantedUserMuted: e["isMuted"],
       )).toList();
 
       k.data = users;
@@ -541,6 +545,8 @@ class Account {
         name: e["nickname"],
         isFollowed: e["isFollowed"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
+        isWantedUserBlocked: e["isBlocked"],
       )).toList();
 
       k.data = users;

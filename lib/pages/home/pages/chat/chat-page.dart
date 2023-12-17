@@ -341,14 +341,17 @@ class ChatPageState extends State<ChatPage> {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                  trailing: FollowButton(
-                                    isFollowed: _with.isFollowed!,
-                                    callBack: (b) {
-                                      setState(() {
-                                        _with.isFollowed = b;
-                                      });
-                                    },
-                                    username: _with.id,
+                                  trailing: Visibility(
+                                    visible: !_with.isBlocked!,
+                                    child: FollowButton(
+                                      isFollowed: _with.isFollowed!,
+                                      callBack: (b) {
+                                        setState(() {
+                                          _with.isFollowed = b;
+                                        });
+                                      },
+                                      username: _with.id,
+                                    ),
                                   ),
                                 )
                               ],

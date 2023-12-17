@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-info-page.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-settings-page.dart';
 import 'package:gigachat/pages/settings/pages/privacy-and-safety/mute-and-block/mute-and-block.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 
@@ -45,7 +48,10 @@ class PrivacySettings extends StatelessWidget {
             SettingsTile(
               icon: Icons.mail_outline,
               onTap: (){
-                //TODO: go to abdo message settings
+                Navigator.push(
+                    context,
+                  MaterialPageRoute(builder: (context) => ChatSettingsPage())
+                );
               },
               mainText: "Direct messages",
               description: "Manage who can message you directly",
