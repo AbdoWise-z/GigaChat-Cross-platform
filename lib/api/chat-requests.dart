@@ -13,7 +13,7 @@ class Chat {
       headers: Api.getTokenHeader("Bearer $token"),
     );
 
-    print("res.body: ${res.responseBody}");
+    //print("res.body: ${res.responseBody}");
 
     if (res.code == ApiResponse.CODE_SUCCESS){
       List<ChatObject> list = [];
@@ -55,7 +55,7 @@ class Chat {
       headers: Api.getTokenHeader("Bearer $token"),
     );
 
-    print("res.body: ${res.responseBody}");
+    //print("res.body: ${res.responseBody}");
 
     if (res.code == ApiResponse.CODE_SUCCESS){
       List<ChatMessageObject> list = [];

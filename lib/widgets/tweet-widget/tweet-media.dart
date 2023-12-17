@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
+import 'package:gigachat/widgets/single-frame-video-player.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'full-screen-tweet.dart';
@@ -61,11 +62,8 @@ class TweetMedia extends StatelessWidget {
             tag: mediaList[index].tag!,
             child:
             imageData.mediaType == MediaType.VIDEO ?
-            VideoPlayerWidget(
+            SingleFrameVideoPlayer(
               videoUrl: mediaList[index].mediaUrl,
-              autoPlay: false,
-              holdVideo: true,
-              showControllers: false,
               tag: mediaList[index].tag!,
             )
                 :

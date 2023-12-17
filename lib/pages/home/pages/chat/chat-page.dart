@@ -127,6 +127,14 @@ class ChatPageState extends State<ChatPage> {
 
     WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("failed_to_send_message").stream.listen((ev) {
       print("Error : $ev");
+      String error = ev["error"];
+      if (error.contains("blocked")){ //either you blocked this user or the user blocked you
+        String uuid = ev["id"];
+        _chat.removeWhere((element) => element.uuid == uuid); //remove that message
+        setState(() {
+          _with.isBlocked = true;
+        });
+      }
     });
 
     _chatSocket.stream.listen((event) {
@@ -611,13 +619,15 @@ class _ChatColumnState extends State<ChatColumn> {
                 },
                 onSwipe: (m) {},
                 onImagePress: (m) {
-                  Navigator.push(context, MaterialPageRoute(builder: (c){
-                    return ProfileImageView(
-                        isProfileAvatar: false,
-                        imageUrl: m.media!.link,
-                        isCurrUser: false
-                    );
-                  }));
+                  if (m.media!.type == MediaType.IMAGE) {
+                    Navigator.push(context, MaterialPageRoute(builder: (c) {
+                      return ProfileImageView(
+                          isProfileAvatar: false,
+                          imageUrl: m.media!.link,
+                          isCurrUser: false
+                      );
+                    }));
+                  }
                 },
                 onImageLongPress: (m) {
 

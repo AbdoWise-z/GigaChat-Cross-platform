@@ -45,7 +45,6 @@ class _FullScreenImageState extends State<FullScreenImage> {
           // TODO: handle the video later
       VideoPlayerWidget(
         videoUrl: image.mediaUrl,
-        holdVideo: false,
         autoPlay: true,
         showControllers: true,
         tag: image.tag!,

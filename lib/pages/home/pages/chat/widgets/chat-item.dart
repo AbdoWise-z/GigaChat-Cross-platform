@@ -109,7 +109,6 @@ class ChatMessageContent extends StatelessWidget {
           tag: object.media!.link,
           showControllers: true,
           autoPlay: true,
-          holdVideo: false,
         ),
       );
     }else{
