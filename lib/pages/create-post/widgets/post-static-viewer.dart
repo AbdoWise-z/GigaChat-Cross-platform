@@ -88,7 +88,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
 
           //Content
           Padding(
-            padding: EdgeInsets.only(top: 4 , left: 0),
+            padding: const EdgeInsets.only(top: 4 , left: 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +143,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                   width: width - 40 - 8 * 2,
                   child: Row(
                     children: [
-                      Text(
+                      const Text(
                         "Replying to ",
                         softWrap: true,
                         style: TextStyle(
@@ -154,9 +154,9 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                       ),
 
                       Text(
-                        "${user.id}",
+                        user.id,
                         softWrap: true,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
                             color: Colors.blue

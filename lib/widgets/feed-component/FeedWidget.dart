@@ -53,6 +53,7 @@ class _BetterFeedState extends State<BetterFeed> {
 
   @override
   void initState() {
+    super.initState();
     _feedController = widget.feedController;
     _feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     timer = Timer(const Duration(seconds: 1), () { });
@@ -144,8 +145,7 @@ class _BetterFeedState extends State<BetterFeed> {
                     deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
                     onCommentButtonClicked: () => addComment(context, tweetData),
                     parentFeed: _feedController,
-                    cancelSameUserNavigation: cancellationPosition && sameUser
-                    ,
+                    cancelSameUserNavigation: cancellationPosition && sameUser,
                   );
         }).toList();
 

@@ -192,247 +192,262 @@ class _TweetState extends State<Tweet> {
                   },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
+            child: Table(
+              columnWidths: {
+                0 : FixedColumnWidth(!widget.isSinglePostView ? 40 : 0),
+                1 : FixedColumnWidth(!widget.isSinglePostView ? 5 : 0),
+                2 : const FlexColumnWidth(),
+              },
               children: [
+                TableRow(
+                  children: [
+                    // =================== user avatar ===================
+                    TableCell(
+                      verticalAlignment: TableCellVerticalAlignment.fill,
+                      child: Visibility(
+                        visible: !widget.isSinglePostView,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Visibility(
+                                visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
+                                child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              onTap: () => navigateToUserProfile(
+                                  currentUserId: currentUser.id,
+                                  tweetOwnerId: widget.tweetOwner.id
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 20,
+                                // TODO: handle the errors later
+                                backgroundImage: NetworkImage(widget.tweetOwner.iconLink),
+                              ),
+                            ),
 
-                // =================== user avatar ===================
-                Visibility(
-                  visible: !widget.isSinglePostView,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Visibility(
-                          visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
-                          child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () => navigateToUserProfile(
-                          currentUserId: currentUser.id,
-                          tweetOwnerId: widget.tweetOwner.id
+                            //fixme : MoA disable this divider when on the normal feed page
+                            const Expanded(
+                              child: VerticalDivider(
+                                width: 40,
+                                thickness: 2,
+                                color: Colors.blueGrey,
+                              ),
+                            ),
+                          ],
                         ),
-                        child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 20,
-                            // TODO: handle the errors later
-                            backgroundImage: NetworkImage(widget.tweetOwner.iconLink),
-                        ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // =================== some padding ===================
-                Visibility(
-                  visible: !widget.isSinglePostView,
-                    child: const SizedBox(width: 10)
-                ),
-
-                //  =================== Tweet Body ===================
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Visibility(
-                        visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
-                          child: widget.tweetData.reTweeter == null ? Container() :
-                          Text("${currentUser.name == widget.tweetData.reTweeter!.name ? "You" : widget.tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
-                      // =================== post owner data ===================
-                      tweetUserInfo(
-                          context,
-                          widget.tweetData.id,
-                          widget.tweetOwner,
-                          widget.tweetData.creationTime,
-                          widget.isSinglePostView,
-                          isDarkMode
-                      ),
-
-                      // =================== extra space for single post view ===================
-                      Visibility(
-                          visible: widget.isSinglePostView,
-                          child: const SizedBox(height: 5)
-                      ),
-
-                      // =================== post content ===================
-                    RichText(
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: MAX_LINES_TO_SHOW,
-                        text: TextSpan(
-                            children: textToRichText(widget.tweetData.description,isDarkMode),
-                            style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black
-                            )
-                        )
                     ),
 
+                    // =================== some padding ===================
+                    Visibility(
+                        visible: !widget.isSinglePostView,
+                        child: const SizedBox(width: 5)
+                    ),
 
-                      // =================== media display here ===================
-                      // TODO: add video player and retweet
-                      Visibility(
-                        visible: (widget.tweetData.media != null),
-                        child: widget.tweetData.media == null ? const SizedBox() :
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxHeight: 300
+                    //  =================== Tweet Body ===================
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Visibility(
+                              visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
+                              child: widget.tweetData.reTweeter == null ? Container() :
+                              Text("${currentUser.name == widget.tweetData.reTweeter!.name ? "You" : widget.tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
+                          // =================== post owner data ===================
+                          tweetUserInfo(
+                              context,
+                              widget.tweetData.id,
+                              widget.tweetOwner,
+                              widget.tweetData.creationTime,
+                              widget.isSinglePostView,
+                              isDarkMode
                           ),
-                          child: TextButton(
-                              onPressed: () {},
-                              onLongPress: () {
-                              showModalBottomSheet(
-                                showDragHandle: true,
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(20))),
-                                context: context,
-                                builder: (context) => buildSheet(context, [
-                                  ["Post Photo", Icons.add_circle_outline, () {
-                                      // TODO: send the image to the add new post page and navigate
-                                  }],
-                                  ["Save Photo", Icons.download, () {
-                                      // TODO: save the image to the device
-                                  }]
-                                ]),
-                              );
-                            },
-                              style: TextButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  padding: EdgeInsets.zero,
+
+                          // =================== extra space for single post view ===================
+                          Visibility(
+                              visible: widget.isSinglePostView,
+                              child: const SizedBox(height: 5)
+                          ),
+
+                          // =================== post content ===================
+                          RichText(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: MAX_LINES_TO_SHOW,
+                              text: TextSpan(
+                                  children: textToRichText(widget.tweetData.description,isDarkMode),
+                                  style: TextStyle(
+                                      color: isDarkMode ? Colors.white : Colors.black
+                                  )
+                              )
+                          ),
+
+                          // =================== media display here ===================
+                          // TODO: add video player and retweet
+                          Visibility(
+                            visible: (widget.tweetData.media != null),
+                            child: widget.tweetData.media == null ? const SizedBox() :
+                            Container(
+                              constraints: const BoxConstraints(
+                                  maxHeight: 300
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: TweetMedia(
-                                    tweetData: widget.tweetData,
-                                    parentFeed: widget.parentFeed,
-                                )
-                              )
-                          ),
-                        ),
-
-                      ),
-                      // =================== first row of single post view ===================
-                      Visibility(
-                          visible: widget.isSinglePostView,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: RichText(
-                                  text: TextSpan(
-                                      text: DateFormat("hh:mm a . d MMMM yy . ").format(widget.tweetData.creationTime),
-                                      style: const TextStyle(color: Colors.grey),
-                                      children: [
-                                        TextSpan(
-                                            text: NumberFormat.compact().format(widget.tweetData.viewsNum),
-                                            style: TextStyle(
-                                                color: isDarkMode ? Colors.white : Colors.black,
-                                                fontWeight: FontWeight.bold
-                                            )
-                                        ),
-                                        const TextSpan(text: " Views")
-                                      ]
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                      ),
-
-                      // =================== divider one ===================
-                      Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
-
-                      // =================== second row of single post view ===================
-                      Visibility(
-                          visible: widget.isSinglePostView,
-                          child: Row(
-                            children: [
-                              TextButton(
-                                  onPressed: (){
-                                    Navigator.pushNamed(context, UserListViewPage.pageRoute,
-                                      arguments: {
-                                        "pageTitle": "Retweeted By",
-                                        "tweetID" : widget.tweetData.id,
-                                        "userID" : null,
-                                        "providerFunction" : ProviderFunction.GET_TWEET_REPOSTERS
-                                    });
+                              child: TextButton(
+                                  onPressed: () {},
+                                  onLongPress: () {
+                                    showModalBottomSheet(
+                                      showDragHandle: true,
+                                      shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(20))),
+                                      context: context,
+                                      builder: (context) => buildSheet(context, [
+                                        ["Post Photo", Icons.add_circle_outline, () {
+                                          // TODO: send the image to the add new post page and navigate
+                                        }],
+                                        ["Save Photo", Icons.download, () {
+                                          // TODO: save the image to the device
+                                        }]
+                                      ]),
+                                    );
                                   },
                                   style: TextButton.styleFrom(
-                                    padding:const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
                                     backgroundColor: Colors.transparent,
-                                    foregroundColor: Colors.grey
+                                    padding: EdgeInsets.zero,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "${widget.tweetData.repostsNum} ",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: isDarkMode ? Colors.white : Colors.black
-                                        )
-                                      ),
-                                      const Text(" Reposts"),
-                                    ],
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: TweetMedia(
+                                        tweetData: widget.tweetData,
+                                        parentFeed: widget.parentFeed,
+                                      )
                                   )
                               ),
+                            ),
 
-                              TextButton(
-                                  onPressed: (){
-                                    Navigator.pushNamed(context, UserListViewPage.pageRoute,
-                                        arguments: {
-                                          "pageTitle": "Liked By",
-                                          "tweetID" : widget.tweetData.id,
-                                          "userID" : null,
-                                          "providerFunction" : ProviderFunction.GET_TWEET_LIKERS
-                                        });
-                                  },
-                                  style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: Colors.grey
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                          "${widget.tweetData.likesNum} ",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: isDarkMode ? Colors.white : Colors.black
-                                          )
+                          ),
+                          // =================== first row of single post view ===================
+                          Visibility(
+                              visible: widget.isSinglePostView,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                          text: DateFormat("hh:mm a . d MMMM yy . ").format(widget.tweetData.creationTime),
+                                          style: const TextStyle(color: Colors.grey),
+                                          children: [
+                                            TextSpan(
+                                                text: NumberFormat.compact().format(widget.tweetData.viewsNum),
+                                                style: TextStyle(
+                                                    color: isDarkMode ? Colors.white : Colors.black,
+                                                    fontWeight: FontWeight.bold
+                                                )
+                                            ),
+                                            const TextSpan(text: " Views")
+                                          ]
                                       ),
-                                      const Text(" Likes"),
-                                    ],
+                                    ),
                                   )
-                              ),
+                                ],
+                              )
+                          ),
 
-                            ],
-                          )),
+                          // =================== divider one ===================
+                          Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
 
-                      // =================== divider two ===================
-                      Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
+                          // =================== second row of single post view ===================
+                          Visibility(
+                              visible: widget.isSinglePostView,
+                              child: Row(
+                                children: [
+                                  TextButton(
+                                      onPressed: (){
+                                        Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                            arguments: {
+                                              "pageTitle": "Retweeted By",
+                                              "tweetID" : widget.tweetData.id,
+                                              "userID" : null,
+                                              "providerFunction" : ProviderFunction.GET_TWEET_REPOSTERS
+                                            });
+                                      },
+                                      style: TextButton.styleFrom(
+                                          padding:const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
+                                          backgroundColor: Colors.transparent,
+                                          foregroundColor: Colors.grey
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                              "${widget.tweetData.repostsNum} ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isDarkMode ? Colors.white : Colors.black
+                                              )
+                                          ),
+                                          const Text(" Reposts"),
+                                        ],
+                                      )
+                                  ),
+
+                                  TextButton(
+                                      onPressed: (){
+                                        Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                            arguments: {
+                                              "pageTitle": "Liked By",
+                                              "tweetID" : widget.tweetData.id,
+                                              "userID" : null,
+                                              "providerFunction" : ProviderFunction.GET_TWEET_LIKERS
+                                            });
+                                      },
+                                      style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
+                                          backgroundColor: Colors.transparent,
+                                          foregroundColor: Colors.grey
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                              "${widget.tweetData.likesNum} ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isDarkMode ? Colors.white : Colors.black
+                                              )
+                                          ),
+                                          const Text(" Likes"),
+                                        ],
+                                      )
+                                  ),
+
+                                ],
+                              )),
+
+                          // =================== divider two ===================
+                          Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
 
 
-                      // =================== action buttons row ===================
-                      Container(
-                        padding: EdgeInsets.zero,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: actionButtons
-                                .map((actionBtn) => actionBtn)
-                                .toList()),
+                          // =================== action buttons row ===================
+                          Container(
+                            padding: EdgeInsets.zero,
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: actionButtons
+                                    .map((actionBtn) => actionBtn)
+                                    .toList()),
+                          ),
+
+                          // =================== divider three ===================
+                          Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 10)),
+
+                        ],
                       ),
-
-                      // =================== divider three ===================
-                      Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 10)),
-
-                    ],
-                  ),
-                )
-              ],
+                    )
+                  ],
+                ),
+              ]
             ),
           ),
         );
