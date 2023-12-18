@@ -10,7 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 GoogleSignIn googleSignIn = GoogleSignIn(
   scopes: ['email'],
 );
-Future signInWithGoogle() async{
+Future<GoogleSignInAccount?> signInWithGoogle() async{
 
   GoogleSignInAccount? acc;
   try{
@@ -21,7 +21,7 @@ Future signInWithGoogle() async{
   return acc;
 }
 Future signOutWithGoogle() async{
-  googleSignIn.disconnect();
+  await googleSignIn.disconnect();
 }
 
 class LandingRegisterPage extends StatelessWidget {
@@ -62,6 +62,8 @@ class LandingRegisterPage extends StatelessWidget {
               ElevatedButton(
                   onPressed: () async {
                     var acc = await signInWithGoogle();
+                    var temp = await acc?.authentication;
+                    print(temp?.accessToken);
                     print(acc);
                     await signOutWithGoogle();
                   },
