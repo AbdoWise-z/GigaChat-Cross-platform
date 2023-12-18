@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
-import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
 ButtonStyle leftButtonStyle()
@@ -22,12 +22,7 @@ class ForgetPasswordButton extends StatelessWidget {
     return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ForgetPassword(
-                        username: username,
-                      )));
+
         },
         child: Text("Forget password?",
           style: TextStyle(
@@ -45,7 +40,7 @@ class CancelButton extends StatelessWidget {
     return OutlinedButton(
         style: leftButtonStyle(),
         onPressed: () {
-          Navigator.pushNamed(context, LoginPage.pageRoute);
+          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
         },
         child: Text("Cancel",
           style: TextStyle(

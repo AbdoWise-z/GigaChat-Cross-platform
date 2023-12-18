@@ -31,18 +31,12 @@ class LandingRegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 40,
-        elevation: 0,
-        centerTitle: true,
-        leading: const Icon(Icons.close),
-        title: SizedBox(
-          height: 40,
-          width: 40,
-          child: Image.asset(
-            ThemeProvider.getInstance(context).isDark() ? 'assets/giga-chat-logo-dark.png' : 'assets/giga-chat-logo-light.png',
-          ),
-        ),
+      appBar: AuthAppBar(context, leadingIcon:
+      IconButton(
+          onPressed: (){
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.close))
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(35,35,35,100),
@@ -60,13 +54,13 @@ class LandingRegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 150,),
               ElevatedButton(
-                  onPressed: () async {
-                    var acc = await signInWithGoogle();
-                    var temp = await acc?.authentication;
-                    print(temp?.accessToken);
-                    print(acc);
-                    await signOutWithGoogle();
-                  },
+                onPressed: () async {
+                  var acc = await signInWithGoogle();
+                  var temp = await acc?.authentication;
+                  print(temp?.accessToken);
+                  print(acc);
+                  await signOutWithGoogle();
+                },
                 style: ElevatedButton.styleFrom(
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -76,12 +70,12 @@ class LandingRegisterPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 35,
-                        height: 35,
+                        width: 25,
+                        height: 25,
                         child: Image.asset('assets/google-logo-icon.png')
                       ),
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.symmetric(vertical: 10,horizontal: 8),
                         child: Text(
                           "Continue with Google",
                           style: TextStyle(
@@ -168,7 +162,7 @@ class LandingRegisterPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: (){
-                      Navigator.pushNamed(context, LoginPage.pageRoute);
+                      Navigator.pushNamed(context, LandingLoginPage.pageRoute);
                     },
                     child: Text("Log in",
                       style: GoogleFonts.dmSans(

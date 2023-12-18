@@ -1,73 +1,107 @@
 
 
-import 'package:string_validator/string_validator.dart';
+import 'package:email_validator/email_validator.dart';
 
-const MIN_USERNAME_LENGTH = 6;
-const MAX_USERNAME_LENGTH = 20;
+const MIN_USERNAME_LENGTH = 5;
+const MAX_USERNAME_LENGTH = 15;
+
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 64;
 
 class InputValidations
 {
+     static String emptyErrorMessage = "this field cannot be empty";
 
-     static String? verifyUsername(String? username)
+     static String usernameLongInputError = "Your username must be 15 characters or less and contain only letters, numbers, and underscores and no spaces";
+     static String usernameShortInputError = "Username should be more than 4 characters.";
+
+     static String passwordLongInputError = "password is too long";
+     static String passwordShortInputError = "password is too short";
+     static String passwordWeakError = "weak password!";
+     static String emailInvalidInput = "Please enter a valid email";
+     static String invalidInput = "invalid input";
+
+     static String? isUniqueUsername(String? username)
      {
+          // TODO: call the api to check if it's a unique username
+          // should return a meaningful string of already used username
+          // if it's new return null
+          return null;
+     }
+
+     /// Takes a username string as an input and checks whether it is a proper username
+     /// or not according to the valid username rules
+     static String? isValidUsername(String? username)
+     {
+          final RegExp validCharacters = RegExp("[a-zA-Z0-9_]");
+
           if (username == null || username.isEmpty) {
-            return "empty username!";
+            return null;
           }
 
           if (username.length < MIN_USERNAME_LENGTH) {
-            return "username must be at least $MIN_USERNAME_LENGTH characters.";
+            return usernameShortInputError;
           }
 
           if (username.length > MAX_USERNAME_LENGTH) {
-            return "username must be at most $MAX_USERNAME_LENGTH characters.";
+            return usernameLongInputError;
           }
 
-          return null;
+          if (validCharacters.allMatches(username).length != username.length){
+               return invalidInput;
+          }
+
+          return isUniqueUsername(username);
      }
 
-     static String? verifyPassword(String? password)
+     /// Takes a password string as an input and checks whether it is a proper password
+     /// or not according to the given rules
+     /// 1- isn't empty or null
+     /// 2- has at lease [lowercase latin - uppercase latin - number - special char]
+     /// 3- it's length is bounded by some min and max
+     static String? isValidPassword(String? password)
      {
+
           if (password == null || password.isEmpty) {
-            return "password cannot be empty.";
+            return null;
+          }
+          if (password.length < MIN_PASSWORD_LENGTH){
+               return passwordShortInputError;
+          }
+          if (password.length > MAX_PASSWORD_LENGTH){
+               return passwordLongInputError;
           }
 
-          RegExp regex = RegExp("[a-zA-Z0-9@#_\$]");
-          RegExp specialChars = RegExp("[@!\$#_-]");
-          bool acceptedLength = password.length >= 10 && password.length <= 64;
-          bool satisfyRegex = regex.hasMatch(password);
-          bool hasLowerCase = false;
-          bool hasUpperCase = false;
-          bool hasNumber = false;
-          bool hasSpecial = false;
+          RegExp letters = RegExp("[a-zA-Z]");
 
-          for (int i = 0; i < password.length; i++)
-          {
-               hasLowerCase |= isLowercase(password[i]);
-               hasUpperCase |= isUppercase(password[i]);
-               hasNumber |= isInt(password[i]);
-               hasSpecial |= specialChars.hasMatch(password[i]);
-          }
+          bool hasLetters = letters.hasMatch(password);
 
-          if(acceptedLength && satisfyRegex && hasSpecial && hasLowerCase && hasUpperCase && hasNumber)
-          {
-               return null;
-          }
-          else
-          {
-               return "invalid password";
-          }
+          return hasLetters ? null : passwordWeakError;
+
      }
 
+     /// Checks if the given string is in email format
      static String? isValidEmail(String? email)
      {
-          // TODO: implement email recognition
-          if (email == null || email.isEmpty) return "email is empty.";
+          if (email == null || email.isEmpty) {
+            return null;
+          }
+          
+          if(!EmailValidator.validate(email)){
+              return emailInvalidInput;
+          }
           return null;
      }
 
-     static String? isValidCode(String? code)
-     {
-          //TODO: validate code format
+     static String nameLongErrorMessage = "Must be 50 characters or fewer";
+
+     static String? isValidName(String? name){
+          if(name == null || name.isEmpty){
+               return null;
+          }
+          if(name.length > 50){
+               return nameLongErrorMessage;
+          }
           return null;
      }
 }
