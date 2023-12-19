@@ -13,6 +13,7 @@ import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/pages/register/assign-birth-date.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:gigachat/pages/register/create-password.dart';
@@ -101,7 +102,8 @@ class _GigaChatState extends State<GigaChat> {
                   MainSettings.pageRoute : (context) => const MainSettings(),
                   VerifyPasswordPage.pageRoute : (context) => const VerifyPasswordPage(),
                   ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
-                  FullScreenImage.pageRoute : (context) => const FullScreenImage()
+                  FullScreenImage.pageRoute : (context) => const FullScreenImage(),
+                  AssignBirthDate.pageRoute : (context) => const AssignBirthDate(),
                 },
               );
             }

@@ -8,6 +8,7 @@ import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 
 class LandingLoginPage extends StatefulWidget {
@@ -20,6 +21,61 @@ class LandingLoginPage extends StatefulWidget {
 
 class _LandingLoginPageState extends State<LandingLoginPage> {
   bool _loading = false;
+  GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: ['email'],
+    serverClientId: "772681856502-5egc2ped3r6hh8abub22so7d82tqdtaa.apps.googleusercontent.com"
+  );
+
+  void signInWithGoogle() async {
+    var authProvider = Auth.getInstance(context);
+    var acc = await googleSignIn.signIn();
+    print(acc);
+    if(acc != null){
+      setState(() {
+        _loading = true;
+      });
+      var temp = await acc.authentication;
+      String? accessToken = temp.accessToken;
+      print("accessToken: $accessToken");
+      await authProvider.isValidEmail(
+        acc.email,
+        success: (res){  // email doesn't exist --> register with google --> need birthDate first
+          Navigator.pushReplacementNamed(
+              context,
+              '/assign-birth-date',
+              arguments: {
+                "name" : acc.displayName,
+                "email" : acc.email,
+                "avatarUrl" : acc.photoUrl,
+                "id" : acc.id,
+                "accessToken": accessToken,
+              }
+          );
+        },
+        error: (res) async {  // email already exist --> sign in
+          await authProvider.google(
+            acc.displayName!,
+            acc.email,
+            acc.photoUrl,
+            acc.id,
+            accessToken!,
+            null,
+            success: (res) {
+              Navigator.popUntil(context, (r) => false);
+              Navigator.pushNamed(context, Home.pageRoute);
+            },
+            error: (res) async {
+              Toast.showToast(context,"Please log in again.",width: 20);
+              await googleSignIn.signOut();
+              setState(() {
+                _loading = false;
+              });
+            },
+          );
+        }
+      );
+    }
+  }
 
   void _tryAutoLogin() async {
     setState(() {
@@ -28,6 +84,32 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
 
     var settings = LocalSettings.getInstance(context);
     var authProvider = Auth.getInstance(context);
+
+    bool googleIsSigned = await googleSignIn.isSignedIn();
+    if(googleIsSigned){
+      var acc = await googleSignIn.signIn();
+      var temp = await acc!.authentication;
+      String? accessToken = temp.accessToken;
+      await authProvider.google(
+        acc.displayName!,
+        acc.email,
+        acc.photoUrl,
+        acc.id,
+        accessToken!,
+        null,
+        success: (res) {
+          Navigator.popUntil(context, (r) => false);
+          Navigator.pushNamed(context, Home.pageRoute);
+        },
+        error: (res) async {
+          Toast.showToast(context,"Please log in again.",width: 20);
+          await googleSignIn.signOut();
+          setState(() {
+            _loading = false;
+          });
+        },
+      );
+    }
 
     if (!settings.getValue<bool>(name: "login", def: false)!){
       setState(() {
@@ -87,9 +169,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
               const SizedBox(height: 50,),
 
               ElevatedButton(
-                onPressed: (){
-                  // TODO: Authenticate Using Google
-                },
+                onPressed: signInWithGoogle,
                 style: ElevatedButton.styleFrom(
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20)),

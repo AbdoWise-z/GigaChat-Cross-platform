@@ -7,6 +7,7 @@ import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
@@ -386,12 +387,15 @@ class _NavDrawerState extends State<NavDrawer> {
 
                       Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: IconButton(onPressed: () {
+                        child: IconButton(onPressed: () async {
                           var settings = LocalSettings.getInstance(context);
                           settings.setValue<bool>(name: "login", val: false);
                           settings.apply();
-                          Navigator.popUntil(context, (route) => false);
-                          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                          await GoogleSignIn().signOut();
+                          if(context.mounted) {
+                            Navigator.popUntil(context, (route) => false);
+                            Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                          }
                         },
                           icon: const Icon(Icons.logout),
                         ),

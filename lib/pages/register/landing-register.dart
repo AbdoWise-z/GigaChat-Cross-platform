@@ -1,36 +1,88 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/login/login-page.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/register/create-account.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../providers/theme-provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../providers/auth.dart';
+import '../../util/Toast.dart';
+import '../../widgets/auth/auth-app-bar.dart';
+import '../home/home.dart';
+import '../login/landing-login.dart';
 
-GoogleSignIn googleSignIn = GoogleSignIn(
-  scopes: ['email'],
-);
-Future<GoogleSignInAccount?> signInWithGoogle() async{
 
-  GoogleSignInAccount? acc;
-  try{
-    acc = await googleSignIn.signIn();
-  }catch(e){
-    print(e);
-  }
-  return acc;
-}
-Future signOutWithGoogle() async{
-  await googleSignIn.disconnect();
-}
-
-class LandingRegisterPage extends StatelessWidget {
+class LandingRegisterPage extends StatefulWidget {
   const LandingRegisterPage({Key? key}) : super(key: key);
   static const pageRoute = '/landing-register';
 
   @override
+  State<LandingRegisterPage> createState() => _LandingRegisterPageState();
+}
+
+class _LandingRegisterPageState extends State<LandingRegisterPage> {
+
+  bool _loading = false;
+  GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: ['email'],
+  );
+
+  void signInWithGoogle() async {
+    var authProvider = Auth.getInstance(context);
+    var acc = await googleSignIn.signIn();
+    print(acc);
+    if(acc != null){
+      setState(() {
+        _loading = true;
+      });
+      var temp = await acc.authentication;
+      String? accessToken = temp.accessToken;
+      print("accessToken: $accessToken");
+      await authProvider.isValidEmail(
+          acc.email,
+          success: (res){  // email doesn't exist --> register with google --> need birthDate first
+            print("email doesnt exist");
+            Navigator.pushReplacementNamed(
+              context,
+              '/assign-birth-date',
+              arguments: {
+                "name" : acc.displayName,
+                "email" : acc.email,
+                "avatarUrl" : acc.photoUrl,
+                "id" : acc.id,
+                "accessToken": accessToken,
+              }
+            );
+          },
+          error: (res) async {  // email already exist --> sign in
+            await authProvider.google(
+              acc.displayName!,
+              acc.email,
+              acc.photoUrl,
+              acc.id,
+              accessToken!,
+              null,
+              success: (res) {
+                Navigator.popUntil(context, (r) => false);
+                Navigator.pushNamed(context, Home.pageRoute);
+              },
+              error: (res) async {
+                Toast.showToast(context,"Please log in again.",width: 20);
+                await googleSignIn.signOut();
+                setState(() {
+                  _loading = false;
+                });
+              },
+            );
+          }
+      );
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _loading? BlockingLoadingPage() :
+    Scaffold(
       appBar: AuthAppBar(context, leadingIcon:
       IconButton(
           onPressed: (){
@@ -54,13 +106,7 @@ class LandingRegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 150,),
               ElevatedButton(
-                onPressed: () async {
-                  var acc = await signInWithGoogle();
-                  var temp = await acc?.authentication;
-                  print(temp?.accessToken);
-                  print(acc);
-                  await signOutWithGoogle();
-                },
+                onPressed: signInWithGoogle,
                 style: ElevatedButton.styleFrom(
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),

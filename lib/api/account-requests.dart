@@ -554,6 +554,44 @@ class Account {
     return k;
   }
 
+  static Future<ApiResponse<User>> apiGoogle(String name, String email, String? avatarUrl, String id, String accessToken, String? dob) async {
+    var k = await Api.apiPost<User>(
+      ApiPath.google,
+      body: json.encode({
+        "access_token": accessToken,
+        "email": email,
+        "name" : name,
+        "id": id,
+        "profileImage" : avatarUrl,
+        "birthDate" : dob
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+
+    if (k.code == ApiResponse.CODE_SUCCESS_CREATED) {
+      User u = User();
+      var res = jsonDecode(k.responseBody!);
+      print(res);
+      u.active      = true; //TODO: change this later
+      u.auth        = res["token"];
+      u.id          = res["data"]["user"]["username"];
+      u.name        = res["data"]["user"]["nickname"];
+      u.email       = res["data"]["user"]["email"];
+      //u.bio         = res["data"]["user"]["bio"];
+      u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
+      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      //u.location    = res["data"]["user"]["location"];
+      //u.website     = res["data"]["user"]["website"];
+      u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
+      u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
+      u.followers   = res["data"]["user"]["followers_num"];
+      u.following   = res["data"]["user"]["followings_num"];
+
+      k.data = u;
+    }
+    return k;
+  }
+
 
 
 }

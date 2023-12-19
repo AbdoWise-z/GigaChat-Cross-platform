@@ -291,5 +291,25 @@ class Auth extends ChangeNotifier{
     return;
   }
 
+  Future<void> google(String name, String email, String? avatarUrl,String id,String accessToken , String? dob,
+      { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
+    var res = await Account.apiGoogle(name , email, avatarUrl, id, accessToken, dob);
+    print(res.code);
+    if (res.data != null){
+      _currentUser = res.data;
+      WebSocketsProvider prov = WebSocketsProvider();
+      print("Auth : ${_currentUser!.auth!}");
+      if ( await prov.init(_currentUser!.auth! )){
+        if (success != null) success(res);
+      }else{
+        _currentUser = null;
+        if (error != null) error(res);
+      }
+    }else{
+      if (error != null) error(res);
+    }
+
+  }
+
 
 }

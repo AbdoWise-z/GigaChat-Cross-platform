@@ -77,6 +77,7 @@ class ApiPath{
   static ApiPath updateUsername          = const ApiPath._("/api/user/updateUsername");
   static ApiPath updateEmail             = const ApiPath._("/api/user/updateEmail");
   static ApiPath login                   = const ApiPath._("/api/user/login");
+  static ApiPath google                   = const ApiPath._("/api/user/googleAuth");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
   static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
