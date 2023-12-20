@@ -17,28 +17,31 @@ class TweetMedia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<MediaData> mediaList = tweetData.media!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: StaggeredGrid.count(
-              crossAxisCount: mediaList.length > 1 ? 2 : 1,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              children: List.generate(mediaList.length, (index) => index)
-              .map((index) {
-                int mainCount = 1;
-                int crossCount = 1;
-                if (index == 0 && mediaList.length <= 3){
-                  mainCount = mediaList.length > 1 ? 2 : 1;
-                }
-                if (index == 1 && mediaList.length == 2){
-                  mainCount = 2;
-                }
-                return StaggeredGridTile.count(
-                  mainAxisCellCount: mainCount,
-                  crossAxisCellCount: crossCount,
-                  child: imageEntity(context, index),
-                );
-              }).toList()
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(25.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: StaggeredGrid.count(
+                crossAxisCount: mediaList.length > 1 ? 2 : 1,
+                crossAxisSpacing: 0,
+                mainAxisSpacing: 0,
+                children: List.generate(mediaList.length, (index) => index)
+                .map((index) {
+                  int mainCount = 1;
+                  int crossCount = 1;
+                  if (index == 0 && mediaList.length <= 3){
+                    mainCount = mediaList.length > 1 ? 2 : 1;
+                  }
+                  if (index == 1 && mediaList.length == 2){
+                    mainCount = 2;
+                  }
+                  return StaggeredGridTile.count(
+                    mainAxisCellCount: mainCount,
+                    crossAxisCellCount: crossCount,
+                    child: imageEntity(context, index),
+                  );
+                }).toList()
+        ),
       ),
     );
   }
@@ -67,7 +70,7 @@ class TweetMedia extends StatelessWidget {
               tag: mediaList[index].tag!,
             )
                 :
-            Image.network(mediaList[index].mediaUrl,fit: BoxFit.cover,)
+            Image.network(mediaList[index].mediaUrl,fit: BoxFit.cover)
         ),
       ),
     );

@@ -19,6 +19,11 @@ class FeedProvider extends ChangeNotifier{
     return Provider.of<FeedProvider>(context , listen: false);
   }
 
+  void resetAllFeeds(){
+    print("hereeeeeee");
+    _controllers.clear();
+  }
+
   void removeFeedById(String feedID){
     _controllers.remove(feedID);
   }

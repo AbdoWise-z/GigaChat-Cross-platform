@@ -115,6 +115,8 @@ class Tweets {
             iconLink : specialAccessObject(tweet, accessor["tweetOwnerIcon"]!) ?? USER_DEFAULT_PROFILE,
             followers : specialAccessObject(tweet, accessor["tweetOwnerFollowers"]),
             following : specialAccessObject(tweet, accessor["tweetOwnerFollowing"]!),
+            isWantedUserMuted : specialAccessObject(tweet, accessor["tweetOwnerIsMuted"]) ?? false,
+            isWantedUserBlocked : specialAccessObject(tweet, accessor["tweetOwnerIsBlocked"]) ?? false,
             active : true,
           ),
 
@@ -161,6 +163,8 @@ class Tweets {
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
           "tweetOwnerFollowing": ["tweetDetails", "tweet_owner", "following_num"],
+          "tweetOwnerIsBlocked" : null,
+          "tweetOwnerIsMuted" : null,
 
           "tweetRetweeter" : ["followingUser"],
           "tweetRetweeterID": ["followingUser", "username"],
@@ -200,6 +204,8 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
@@ -229,6 +235,8 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
@@ -262,6 +270,8 @@ class Tweets {
             isFollowed: false,
             followers: tweet["tweet_owner"]["followers_num"],
             following: tweet["tweet_owner"]["following_num"],
+            isWantedUserBlocked: false,
+            isWantedUserMuted: false
           ),
           isLiked: tweet["isLiked"],
           isRetweeted: tweet["isRetweeted"],

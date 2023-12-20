@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
 class Auth extends ChangeNotifier{
+  static late FeedProvider feedProvider;
   static Auth getInstance(BuildContext context){
+    feedProvider = FeedProvider.getInstance(context);
     return Provider.of<Auth>(context , listen: false);
   }
 
@@ -241,6 +244,7 @@ class Auth extends ChangeNotifier{
   Future<void> block(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.blockUser(_currentUser!.auth! ,username);
     if (res.data!){
+      refreshFeeds(deleteFeeds: true);
       _currentUser!.following--;
       notifyListeners();
       if (success != null) success(res);
@@ -252,6 +256,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> unblock(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unblockUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -262,6 +267,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> mute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.muteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -272,12 +278,19 @@ class Auth extends ChangeNotifier{
 
   Future<void> unmute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unmuteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
     }
     return;
+  }
+
+  void refreshFeeds({bool deleteFeeds = false}){
+    if (deleteFeeds)
+      feedProvider.resetAllFeeds();
+    feedProvider.updateFeeds();
   }
 
   Future<void> deleteUserBanner({ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
