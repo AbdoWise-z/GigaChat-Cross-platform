@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/search-requests.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
@@ -43,8 +42,9 @@ class FeedController {
         _feedData!.add(value);
       }
     });
-    if (noRefresh)
+    if (noRefresh) {
       return;
+    }
     updateFeeds();
   }
 
@@ -86,6 +86,9 @@ class FeedController {
         .map((tweetData) => tweetData.id).toList();
     _feedData!.removeWhere((tweetData) => targetTweets.contains(tweetData));
     _feedKeys!.removeWhere((tweetId) => targetIds.contains(tweetId));
+    if (_feedData!.isEmpty){
+      resetFeed();
+    }
   }
 
   List getCurrentData () {
