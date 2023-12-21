@@ -72,7 +72,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   bool loading = true;
 
   late ScrollController scrollController;
-  late FeedController feedController;
+  late FeedController postsFeedController;
+  late FeedController likesFeedController;
+  late FeedController repliesFeedController;
+  late FeedController mediaFeedController;
+
   late TabController tabController;
 
   int prevTabIndex = 0;
@@ -119,7 +123,18 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     scrollController.addListener(() async {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
       {
-        await feedController.fetchFeedData(username: widget.username);
+        if(prevTabIndex == 0) {
+          await postsFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 1) {
+          await repliesFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 2) {
+          await mediaFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 3) {
+          await likesFeedController.fetchFeedData(username: widget.username);
+        }
         setState(() {});
       }
     });
@@ -127,14 +142,41 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     if(!context.mounted) return;
 
     FeedProvider feedProvider = FeedProvider.getInstance(context);
-    feedController = feedProvider.getFeedControllerById(
+    postsFeedController = feedProvider.getFeedControllerById(
         context: context,
         id: UserProfile.profileFeedPosts + widget.username,
         providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false,
+    );
+    postsFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    postsFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    repliesFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedReplies + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
         clearData: false
     );
+    repliesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    repliesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
-    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+    mediaFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedMadia + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
+        clearData: false
+    );
+    mediaFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    mediaFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    likesFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedLikes + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
+        clearData: false
+    );
+    likesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    likesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     setState(() {
       loading = false;
@@ -143,10 +185,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   void updateUserFeeds(){
     if(context.mounted) {
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+      if(username != auth.getCurrentUser()!.id){
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: username == auth.getCurrentUser()!.id);
+      }
     }
   }
 
@@ -330,12 +374,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           onPressed: () async {
                             await auth.block(
                                 widget.username,
+                              isWantedUserFollowed!,
                               success: (res){
                                 setState(() {
                                   updateUserFeeds();
                                   isWantedUserBlocked = true;
+                                  followers = isWantedUserFollowed!? followers - 1 : followers;
                                   isWantedUserFollowed = false;
-                                  followers--;
                                   if(context.mounted){
                                     Navigator.pop(context);
                                     Toast.showToast(context, "You blocked @${widget.username}.");
@@ -891,34 +936,34 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: postsFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: repliesFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: mediaFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: likesFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
