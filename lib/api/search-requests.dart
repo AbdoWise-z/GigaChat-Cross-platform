@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:gigachat/api/api.dart';
+import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -131,5 +132,4 @@ class SearchRequests{
       return [];
     }
   }
-
 }
