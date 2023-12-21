@@ -518,6 +518,7 @@ class Account {
         iconLink: e["profile_image"],
         bio: e["bio"] ?? "",
         isWantedUserMuted: e["isMuted"],
+        isWantedUserBlocked: true,
       )).toList();
 
       k.data = users;
@@ -532,8 +533,8 @@ class Account {
         ApiPath.userMutedList,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);
@@ -547,6 +548,7 @@ class Account {
         iconLink: e["profile_image"],
         bio: e["bio"] ?? "",
         isWantedUserBlocked: e["isBlocked"],
+        isWantedUserMuted: true,
       )).toList();
 
       k.data = users;

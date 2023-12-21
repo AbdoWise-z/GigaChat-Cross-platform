@@ -18,9 +18,10 @@ class FeedController {
   bool loading = true;
   ProviderFunction providerFunction;
   int lastFetchedPage = 0;
+  bool? isInProfile;
 
 
-  FeedController(BuildContext context, {this.token, required this.providerFunction}) {
+  FeedController(BuildContext context, {this.token, required this.providerFunction,this.isInProfile}) {
     _feedData = [];
     _feedKeys = [];
     loading = true;
@@ -236,6 +237,25 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         response = mapUserListIntoMap(users);
+        break;
+
+      case ProviderFunction.PROFILE_PAGE_LIKES:
+        if (username == null) return;
+        response = await Tweets.getProfilePageLikes(
+            token!,
+            username,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
+        );
+        break;
+
+      case ProviderFunction.HOME_PAGE_MENTIONS:
+        response = await Tweets.getMentionTweets(
+            token!,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
+        );
+
         break;
 
       default:

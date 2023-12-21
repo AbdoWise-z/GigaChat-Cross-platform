@@ -36,7 +36,7 @@ void main()
     ];
     int i = 0;
     for(String testString in testingVector){
-      List<TextSpan> result = textToRichText(testString, false);
+      List<TextSpan> result = textToRichText(null,testString, false);
       expect(result.toString(), output[i++].toString());
     }
   });

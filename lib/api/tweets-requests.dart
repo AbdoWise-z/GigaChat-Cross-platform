@@ -103,7 +103,7 @@ class Tweets {
           likesNum: specialAccessObject(tweet, accessor["likesNum"]!) ?? 0,
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
-          creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
+          creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)?? "2012-02-27"),
           type: specialAccessObject(tweet, accessor["type"]!),
 
           tweetOwner: User(
@@ -211,6 +211,68 @@ class Tweets {
       "isRetweeted": ["isRetweeted"],
       "media": ["media"]
     }, ApiPath.userProfileTweets.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getProfilePageLikes (String token,String userID, String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["posts", "likedTweets"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRetweeted"],
+      "media": ["media"]
+    }, ApiPath.userProfileLikes.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getMentionTweets (String token,String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["tweetList"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["tweet_owner","isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRtweeted"],
+      "media": ["media"],
+    }, ApiPath.mentions);
   }
 
   static Future<Map<String, TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async

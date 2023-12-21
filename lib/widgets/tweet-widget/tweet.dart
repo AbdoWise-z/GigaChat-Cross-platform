@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/api/tweets-requests.dart';
@@ -20,11 +21,12 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // tested successfully
-List<TextSpan> textToRichText(String inputText,bool isDarkMode){
+List<TextSpan> textToRichText(BuildContext? context,String inputText,bool isDarkMode){
   final RegExp regex = RegExp(r'\B#\w*');
   List<TextSpan> spans = [];
   inputText.splitMapJoin(
@@ -32,6 +34,14 @@ List<TextSpan> textToRichText(String inputText,bool isDarkMode){
     onMatch: (Match match) {
       spans.add(
           TextSpan(
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                if(context != null) {
+                  Navigator.pushNamed(context, SearchResultPage.pageRoute,arguments: {
+                    "keyword" : match.group(0)
+                  });
+                }
+              },
             text: match.group(0),
             style: const TextStyle(
                 color: Colors.blue
@@ -127,11 +137,11 @@ class _TweetState extends State<Tweet> {
         singlePostView: widget.isSinglePostView,
         onCommentButtonClicked: () async {
           int ret = await commentTweet(context, widget.tweetData,widget.parentFeed);
-          if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+          if(context.mounted && widget.parentFeed != null) {
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
         },
         onRetweetButtonClicked: () async {
@@ -147,10 +157,10 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         },
@@ -160,10 +170,10 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         }
@@ -276,7 +286,7 @@ class _TweetState extends State<Tweet> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: MAX_LINES_TO_SHOW,
                                 text: TextSpan(
-                                    children: textToRichText(widget.tweetData.description,isDarkMode),
+                                    children: textToRichText(context,widget.tweetData.description,isDarkMode),
                                     style: TextStyle(
                                         color: isDarkMode ? Colors.white : Colors.black
                                     )
@@ -292,12 +302,9 @@ class _TweetState extends State<Tweet> {
                                 constraints: const BoxConstraints(
                                     maxHeight: 300,
                                 ),
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    child: TweetMedia(
-                                      tweetData: widget.tweetData,
-                                      parentFeed: widget.parentFeed,
-                                    )
+                                child: TweetMedia(
+                                  tweetData: widget.tweetData,
+                                  parentFeed: widget.parentFeed,
                                 ),
                               ),
 
@@ -487,7 +494,7 @@ class _TweetState extends State<Tweet> {
 
       }], // ===============================================================
       ["Block @${tweetOwner.id}", Icons.block, () async{
-        await Auth.getInstance(context).block(tweetOwner.id);
+        await Auth.getInstance(context).block(tweetOwner.id,tweetOwner.isFollowed!);
         updateState();
       }], // ===============================================================
     ];
