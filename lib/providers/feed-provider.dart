@@ -51,7 +51,10 @@ class FeedProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void updateProfileFeed(BuildContext context, String id){
+  void updateProfileFeed(BuildContext context, String id, {bool? isCurrProfile}){
+    if(isCurrProfile != null && isCurrProfile){
+      return;
+    }
     FeedController temp =  getFeedControllerById(
       context: context,
       id: id + Auth.getInstance(context).getCurrentUser()!.id,

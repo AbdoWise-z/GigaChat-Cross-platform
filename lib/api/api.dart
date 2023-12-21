@@ -103,6 +103,10 @@ class ApiPath{
 
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
+  static ApiPath userProfileReplies      = const ApiPath._("/api/user/profile/%s/tweetsWithReplies");
+  static ApiPath userProfileLikes        = const ApiPath._("/api/profile/%s/likes");
+  static ApiPath mentions                = const ApiPath._("/api/homepage/mention");
+
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
   static ApiPath searchUsers             = const ApiPath._("/api/user/search");
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");

@@ -129,6 +129,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                     onPressed: () async {
                       await auth.block(
                           widget._with.id,
+                          widget._with.isFollowed!,
                           success: (res){
                             setState(() {
                               widget._with.isBlocked = true;

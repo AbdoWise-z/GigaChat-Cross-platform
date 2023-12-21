@@ -241,11 +241,13 @@ class Auth extends ChangeNotifier{
     return;
   }
 
-  Future<void> block(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+  Future<void> block(String username, bool isFollowed, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.blockUser(_currentUser!.auth! ,username);
     if (res.data!){
       refreshFeeds(deleteFeeds: true);
-      _currentUser!.following--;
+      if(isFollowed) {
+        _currentUser!.following--;
+      }
       notifyListeners();
       if (success != null) success(res);
     }else{

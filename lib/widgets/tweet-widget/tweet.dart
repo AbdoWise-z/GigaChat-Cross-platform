@@ -20,10 +20,12 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // tested successfully
+
 List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode){
   final RegExp regex = RegExp(r'\B[@#]\w*');
   List<TextSpan> spans = [];
@@ -134,11 +136,11 @@ class _TweetState extends State<Tweet> {
         singlePostView: widget.isSinglePostView,
         onCommentButtonClicked: () async {
           int ret = await commentTweet(context, widget.tweetData,widget.parentFeed);
-          if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+          if(context.mounted && widget.parentFeed != null) {
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
         },
         onRetweetButtonClicked: () async {
@@ -154,10 +156,10 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         },
@@ -167,10 +169,10 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
+            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         }
@@ -494,7 +496,7 @@ class _TweetState extends State<Tweet> {
 
       }], // ===============================================================
       ["Block @${tweetOwner.id}", Icons.block, () async{
-        await Auth.getInstance(context).block(tweetOwner.id);
+        await Auth.getInstance(context).block(tweetOwner.id,tweetOwner.isFollowed!);
         widget.parentFeed!.deleteUserTweets(tweetOwner.id);
         updateState();
       }], // ===============================================================
