@@ -115,6 +115,7 @@ class ApiPath{
   static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
   static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
   static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
+  static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
 }
 
 class Api {
