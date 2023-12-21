@@ -78,6 +78,15 @@ class FeedController {
     feedProvider!.updateFeeds();
   }
 
+  void deleteUserTweets(String username){
+    List<TweetData> targetTweets = _feedData!.cast<TweetData>()
+        .where((tweetData) => tweetData.tweetOwner.id == username).toList();
+    List<String> targetIds = _feedData!.cast<TweetData>()
+        .map((tweetData) => tweetData.id).toList();
+    _feedData!.removeWhere((tweetData) => targetTweets.contains(tweetData));
+    _feedKeys!.removeWhere((tweetId) => targetIds.contains(tweetId));
+  }
+
   List getCurrentData () {
     return _feedData!;
   }
@@ -152,24 +161,43 @@ class FeedController {
 
 
       case ProviderFunction.SEARCH_USERS:
-        response = await SearchRequests.searchUsersByKeywordMapped(
-            keyword!,
-            token!,
-            nextPage.toString(),
-            DEFAULT_PAGE_COUNT.toString()
-        );
+
+        if (keyword!.split(" ").length == 1 && keyword[0] == '#'){
+            response = {};
+        }
+        else{
+          response = await SearchRequests.searchUsersByKeywordMapped(
+              keyword!,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+
+
         break;
 
 
       case ProviderFunction.SEARCH_TWEETS:
-        response = await SearchRequests.searchTweetsByKeywordMapped(
-            keyword!,
-            token!,
-            nextPage.toString(),
-            DEFAULT_PAGE_COUNT.toString()
-        );
-        break;
 
+        if (keyword!.split(" ").length == 1 && keyword[0] == '#'){
+          String trend = keyword.substring(1);
+          response = await SearchRequests.searchTweetsByTrendsMapped(
+              trend,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+        else {
+          response = await SearchRequests.searchTweetsByKeywordMapped(
+              keyword,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+        break;
 
       case ProviderFunction.GET_USER_FOLLOWERS:
         List<User> users = (

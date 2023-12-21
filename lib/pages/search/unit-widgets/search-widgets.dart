@@ -27,7 +27,7 @@ class SearchKeyword extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text("#$tag", style: const TextStyle(fontSize: 17)),
+              Text("$tag", style: const TextStyle(fontSize: 17)),
               const Expanded(child: SizedBox()),
               GestureDetector(
                 onTap: onIconClick,

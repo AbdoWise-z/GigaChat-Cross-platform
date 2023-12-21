@@ -43,7 +43,7 @@ class _FollowButtonState extends State<FollowButton> {
                   providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                   clearData: false
               );
-              homeFeed.resetFeed();
+              homeFeed.deleteUserTweets(widget.username);
               homeFeed.updateFeeds();
               setState(() {});
             },

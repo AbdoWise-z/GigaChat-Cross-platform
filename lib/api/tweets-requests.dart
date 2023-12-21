@@ -104,7 +104,7 @@ class Tweets {
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
           creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
-          type: specialAccessObject(tweet, accessor["type"]!),
+          type: specialAccessObject(tweet, accessor["type"]!) ?? "tweet",
 
           tweetOwner: User(
             id: specialAccessObject(tweet, accessor["tweetOwnerID"]!),
@@ -133,7 +133,7 @@ class Tweets {
           ),
 
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
-          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
+          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!) ?? false,
           media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
       );
     }).toList();
@@ -158,7 +158,7 @@ class Tweets {
 
           "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
           "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
-          "tweetOwnerIsFollowed": ["tweetDetails","isFollowed"],
+          "tweetOwnerIsFollowed": ["isFollowed"],
           "tweetOwnerBio": null,
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
@@ -310,6 +310,7 @@ class Tweets {
         accessor
       );
       Map<String,TweetData> mappedIdTweets = {};
+      print("test");
       for(TweetData tweet in responseTweets){
         mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
       }

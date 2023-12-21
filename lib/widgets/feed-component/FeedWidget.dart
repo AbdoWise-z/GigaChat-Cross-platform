@@ -49,19 +49,24 @@ class _BetterFeedState extends State<BetterFeed> {
   late FeedController _feedController;
   late Timer timer;
   late ScrollController _scrollController;
+  late bool fetchingMoreData;
 
 
   @override
   void initState() {
     super.initState();
     _feedController = widget.feedController;
+    fetchingMoreData = false;
     _feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     timer = Timer(const Duration(seconds: 1), () { });
     _scrollController = ScrollController();
     _scrollController.addListener(() async {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent)
       {
+        fetchingMoreData = true;
+        setState(() {});
         await refreshFeed();
+        fetchingMoreData = false;
         setState(() {});
       }
     });
@@ -124,6 +129,7 @@ class _BetterFeedState extends State<BetterFeed> {
       // The Normal View For Tweets
       case ProviderResultType.TWEET_RESULT:
         List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
+        bool addVerticalDivider = true;
         return tweetResult.map((TweetData tweetData){
                   if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
                     tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
@@ -132,16 +138,19 @@ class _BetterFeedState extends State<BetterFeed> {
 
                   bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
                   bool sameUser = tweetData.tweetOwner.id == currentUser.id;
+                  bool isSinglePostView = widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS && tweetData.id == widget.mainTweetForComments!.id;
+                  addVerticalDivider &= (!isSinglePostView && widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS);
 
                   return Tweet(
                     tweetOwner: tweetData.tweetOwner,
                     tweetData: tweetData,
                     isRetweet: tweetData.isRetweeted,
-                    isSinglePostView: widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS && tweetData.id == widget.mainTweetForComments!.id,
+                    isSinglePostView: isSinglePostView,
                     callBackToDelete: (String tweetID){
                       _feedController.deleteTweet(tweetID);
                       setState(() {});
                     },
+                    showVerticalDivider: addVerticalDivider,
                     deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
                     onCommentButtonClicked: () => addComment(context, tweetData),
                     parentFeed: _feedController,
@@ -182,7 +191,13 @@ class _BetterFeedState extends State<BetterFeed> {
           else{
             finalWidget = SingleChildScrollView(
               controller: widget.removeController == true ? null : _scrollController,
-              child: Column(children: widgetList),
+              child: Column(
+                  children: [
+                    ...widgetList,
+                    Visibility(visible: fetchingMoreData, child: CircularProgressIndicator()),
+                    SizedBox(height: 10,)
+                  ]
+              ),
             );
           }
 

@@ -39,7 +39,7 @@ class _UserListViewPageState extends State<UserListViewPage> {
 
     feedController = FeedProvider.getInstance(context).getFeedControllerById(
         context: context,
-        id: UserListViewPage.feedID + (userID ?? "") + (tweetID ?? ""),
+        id: UserListViewPage.feedID + providerFunction.toString() + (userID ?? "") + (tweetID ?? ""),
         providerFunction: providerFunction,
         clearData: true
     );

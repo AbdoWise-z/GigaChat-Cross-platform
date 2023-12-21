@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/api/tweets-requests.dart';
@@ -5,10 +6,9 @@ import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
-import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/home.dart';
-import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -24,14 +24,23 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // tested successfully
-List<TextSpan> textToRichText(String inputText,bool isDarkMode){
-  final RegExp regex = RegExp(r'\B#\w*');
+List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode){
+  final RegExp regex = RegExp(r'\B[@#]\w*');
   List<TextSpan> spans = [];
   inputText.splitMapJoin(
     regex,
     onMatch: (Match match) {
       spans.add(
           TextSpan(
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+              if (context != null) {
+                Navigator.pushNamed(
+                    context, SearchResultPage.pageRoute, arguments: {
+                  "keyword": match.group(0)
+                });
+              }
+              },
             text: match.group(0),
             style: const TextStyle(
                 color: Colors.blue
@@ -62,9 +71,8 @@ class Tweet extends StatefulWidget {
   final void Function(String) callBackToDelete;
   final void Function() onCommentButtonClicked;
   final FeedController? parentFeed;
-  final bool? showReplies;
-  final bool? onlyOneReply;
   final bool? deleteOnUndoRetweet;
+  final bool? showVerticalDivider;
 
   const Tweet({
     super.key,
@@ -76,9 +84,8 @@ class Tweet extends StatefulWidget {
     required this.onCommentButtonClicked,
     required this.parentFeed,
     required this.cancelSameUserNavigation,
-    this.showReplies,
-    this.onlyOneReply,
-    this.deleteOnUndoRetweet
+    this.deleteOnUndoRetweet,
+    this.showVerticalDivider = false
   });
 
   @override
@@ -228,11 +235,14 @@ class _TweetState extends State<Tweet> {
                                 ),
 
                                 //fixme : MoA disable this divider when on the normal feed page
-                                const Expanded(
-                                  child: VerticalDivider(
-                                    width: 40,
-                                    thickness: 2,
-                                    color: Colors.blueGrey,
+                                Visibility(
+                                  visible: widget.showVerticalDivider!,
+                                  child: const Expanded(
+                                    child: VerticalDivider(
+                                      width: 40,
+                                      thickness: 2,
+                                      color: Colors.blueGrey,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -276,7 +286,7 @@ class _TweetState extends State<Tweet> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: MAX_LINES_TO_SHOW,
                                 text: TextSpan(
-                                    children: textToRichText(widget.tweetData.description,isDarkMode),
+                                    children: textToRichText(context, widget.tweetData.description,isDarkMode),
                                     style: TextStyle(
                                         color: isDarkMode ? Colors.white : Colors.black
                                     )
@@ -292,12 +302,9 @@ class _TweetState extends State<Tweet> {
                                 constraints: const BoxConstraints(
                                     maxHeight: 300,
                                 ),
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    child: TweetMedia(
-                                      tweetData: widget.tweetData,
-                                      parentFeed: widget.parentFeed,
-                                    )
+                                child: TweetMedia(
+                                  tweetData: widget.tweetData,
+                                  parentFeed: widget.parentFeed,
                                 ),
                               ),
 
@@ -460,9 +467,9 @@ class _TweetState extends State<Tweet> {
                 providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                 clearData: false
             );
-            homeFeed.resetFeed();
+            homeFeed.deleteUserTweets(tweetOwner.id);
             homeFeed.updateFeeds();
-            updateState();
+            // updateState();
           }) :
           Auth.getInstance(context).follow(tweetOwner.id,success: (followed){
             widget.tweetData.tweetOwner.isFollowed = true;
@@ -488,6 +495,7 @@ class _TweetState extends State<Tweet> {
       }], // ===============================================================
       ["Block @${tweetOwner.id}", Icons.block, () async{
         await Auth.getInstance(context).block(tweetOwner.id);
+        widget.parentFeed!.deleteUserTweets(tweetOwner.id);
         updateState();
       }], // ===============================================================
     ];
