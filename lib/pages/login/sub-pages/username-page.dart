@@ -84,7 +84,7 @@ class _UsernamePageState extends State<UsernameLoginPage> {
             onLeftButtonPressed: (){
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ForgetPassword(username: "")));
+                  MaterialPageRoute(builder: (context) => ForgetPassword(username: "", isLogged: false,)));
             },
             showLeftButton: true,
           )

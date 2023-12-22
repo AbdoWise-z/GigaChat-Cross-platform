@@ -17,8 +17,9 @@ const String CONFIRM_EMAIL_PAGE_DESCRIPTION =
 
 class ConfirmEmailPage extends StatefulWidget {
   final String username;
+  bool isLogged;
 
-  const ConfirmEmailPage({super.key, required this.username});
+  ConfirmEmailPage({super.key, required this.username,required this.isLogged});
 
   @override
   State<ConfirmEmailPage> createState() => _ConfirmEmailPageState();
@@ -46,7 +47,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
         MaterialPageRoute(
           builder: (context) =>
               VerificationMethodPage(
-                isLogged: false,
+                isLogged: widget.isLogged,
                 methods: m
               ),
         ),
@@ -74,7 +75,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            Navigator.popUntil(context, ModalRoute.withName('/')); //TODO: change this
           },
           icon: const Icon(Icons.close),
         ),

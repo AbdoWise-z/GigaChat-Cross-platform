@@ -19,8 +19,9 @@ class ForgetPassword extends StatefulWidget {
   static const String pageRoute = "/forget-password";
 
   String? username;
+  bool isLogged;
 
-  ForgetPassword({super.key, this.username});
+  ForgetPassword({super.key, this.username, required this.isLogged});
 
   @override
   State<ForgetPassword> createState() => _ForgetPasswordState();
@@ -64,7 +65,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     }else{
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email)));
+          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email,isLogged: widget.isLogged,)));
     }
   }
 
@@ -79,9 +80,9 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            Navigator.popUntil(context, ModalRoute.withName('/'));  //TODO: change this
           },
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
         ),
       ),
       body: Padding(

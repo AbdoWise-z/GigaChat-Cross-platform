@@ -20,6 +20,7 @@ import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/change-email.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/verify-password.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
@@ -85,7 +86,6 @@ class _GigaChatState extends State<GigaChat> {
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
                   UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
 
-                  ForgetPassword.pageRoute : (context) => ForgetPassword(),
                   CreateAccount.pageRoute : (context) => const CreateAccount(),
                   LoadingPage.pageRoute : (context) => const LoadingPage(),
                   CreatePassword.pageRoute : (context) => const CreatePassword(),
@@ -94,14 +94,15 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
-                  UserListViewPage.pageRoute : (context) => UserListViewPage(),
+                  UserListViewPage.pageRoute : (context) => const UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                   SearchPage.pageRoute : (context) => const SearchPage(),
                   SearchResultPage.pageRoute : (context) => const SearchResultPage(),
                   MainSettings.pageRoute : (context) => const MainSettings(),
                   VerifyPasswordPage.pageRoute : (context) => const VerifyPasswordPage(),
                   ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
-                  FullScreenImage.pageRoute : (context) => const FullScreenImage()
+                  FullScreenImage.pageRoute : (context) => const FullScreenImage(),
+                  AccountSettings.pageRoute : (context) => const AccountSettings(),
                 },
               );
             }

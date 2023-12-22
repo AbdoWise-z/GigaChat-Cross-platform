@@ -70,6 +70,9 @@ class ApiPath{
   static ApiPath confirmEmail            = const ApiPath._("/api/user/confirmEmail");
   static ApiPath verifyEmail             = const ApiPath._("/api/user/verifyEmail");
   static ApiPath resendConfirmEmail      = const ApiPath._("/api/user/resendConfirmEmail");
+  static ApiPath forgotPassword          = const ApiPath._("/api/user/forgotpassword");
+  static ApiPath resetPassword           = const ApiPath._("/api/user/resetpassword");
+  static ApiPath checkForgotPasswordCode = const ApiPath._("api/user/checkPasswordResetToken");
   static ApiPath assignPassword          = const ApiPath._("/api/user/AssignPassword");
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath updatePassword          = const ApiPath._("/api/user/updatePassword");

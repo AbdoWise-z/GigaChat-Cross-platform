@@ -63,6 +63,33 @@ class Account {
       headers: Api.JSON_TYPE_HEADER,
     );
     k.data = k.code == ApiResponse.CODE_SUCCESS;
+    print(k.code);
+    return k;
+  }
+
+  static  Future<ApiResponse<bool>> apiForgotPassword(ContactMethod method) async {
+    var k = await Api.apiPost<bool>(
+      ApiPath.forgotPassword,
+      body: json.encode({
+        "query" : method.data,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    print(k.code);
+    return k;
+  }
+
+  static  Future<ApiResponse<bool>> apiCheckForgotPasswordCode(String code) async {
+    var k = await Api.apiPost<bool>(
+      ApiPath.checkForgotPasswordCode,
+      body: json.encode({
+        "passwordResetToken" : code,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    print(k.code);
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
     return k;
   }
 
@@ -103,6 +130,21 @@ class Account {
     }
     return k;
   }
+
+  static Future<ApiResponse<bool>> apiResetPassword(String password, String code) async {
+    var k = await Api.apiPatch<bool>(
+      ApiPath.resetPassword,
+      body: json.encode({
+        "password": password,
+        "passwordResetToken" : code,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    print(k.code);
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    return k;
+  }
+
 
 
   static Future<ApiResponse<bool>> apiIsEmailValid(String email) async {

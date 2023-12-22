@@ -156,7 +156,7 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
             onLeftButtonPressed: (){
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,)));
+                  MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,isLogged: false,)));
               },
             showLeftButton: true,
           )

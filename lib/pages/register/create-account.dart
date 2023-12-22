@@ -184,6 +184,7 @@ class _CreateAccountState extends State<CreateAccount> {
                               ),
                             ),
                           ),
+                          const SizedBox(height: 100,)
                       ],
                       ),
                     ),

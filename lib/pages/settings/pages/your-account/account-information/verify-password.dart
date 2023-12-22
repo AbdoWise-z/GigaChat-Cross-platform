@@ -96,7 +96,12 @@ class _LoginPasswordPageState extends State<VerifyPasswordPage> {
                 const MainText(text: "Re-enter your Gigachat password to continue.",color: Colors.blueGrey,),
                 const SizedBox(height: 20),
                 PasswordFormField(
-                    onChanged: (str){},
+                    onChanged: (String input) async {
+                      await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
+                      setState(() {
+                        inputPassword.text = input;
+                      });
+                    },
                     validator: (value){
                       if(InputValidations.isValidPassword(value) is String){
                         isButtonDisabled = true;

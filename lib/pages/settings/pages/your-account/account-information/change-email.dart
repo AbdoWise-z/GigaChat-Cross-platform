@@ -46,6 +46,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                   VerificationCodePage(
                       isRegister: true,
                       isVerify: true,
+                      isLogged: true,
                       method: ContactMethod(
                           method: ContactMethodType.EMAIL,
                           data: email,

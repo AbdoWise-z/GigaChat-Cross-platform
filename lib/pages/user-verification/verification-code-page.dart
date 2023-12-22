@@ -4,6 +4,7 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
 import 'package:gigachat/pages/register/create-password.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/util/contact-method.dart';
@@ -17,15 +18,16 @@ import '../home/home.dart';
 
 const String CODE_VERIFICATION_DESCRIPTION =
     "Check your email to get your confirmation"
-    " code. if you need to request a new code, go back and reselect confirmation";
+    " code.";
 
 class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
   bool isRegister;
   bool isVerify;
+  bool isLogged;
   ContactMethod method;
-  VerificationCodePage({super.key, required this.isRegister , required this.method,required this.isVerify});
+  VerificationCodePage({super.key, required this.isRegister , required this.method,required this.isVerify, required this.isLogged});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
@@ -70,7 +72,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
 
     Auth auth = Auth.getInstance(context);
 
-    auth.requestVerificationMethod(
+    widget.isRegister || widget.isVerify?  auth.requestVerificationMethod(
       m ,
       success: (res) {
         setState(() {
@@ -80,6 +82,21 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         });
       },
       error: (res) {
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = true;
+        });
+      },
+    ) : auth.forgotPassword(
+      m,
+      success: (res){
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = false;
+          enableResendEmail();
+        });
+      },
+      error: (res){
         setState(() {
           _resendLoading = false;
           resendEmailIsEnabled = true;
@@ -98,7 +115,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
 
     Auth auth = Auth.getInstance(context);
 
-    await auth.verifyMethod(
+    widget.isRegister || widget.isVerify? await auth.verifyMethod(
       m,
       code,
       auth.getCurrentUser() != null? auth.getCurrentUser()!.auth : null,
@@ -111,9 +128,6 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         else if (widget.isRegister){
           Navigator.pushReplacementNamed(context, CreatePassword.pageRoute);
         }
-        else{
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewPasswordPage()));
-        }
       },
       error: (res) {
         print(res.code);
@@ -122,6 +136,24 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           Toast.showToast(context, "Wrong code");
         }
       },
+    ) :
+    auth.checkForgotPasswordCode(
+      code,
+      success: (res){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) =>
+                NewPasswordPage(code: code, email: widget.method.data!,isLogged: widget.isLogged,)
+            )
+        );
+      },
+      error: (res){
+        print(res.code);
+        print(res.responseBody);
+        if (res.code == ApiResponse.CODE_NOT_AUTHORIZED){
+          Toast.showToast(context, "Wrong code");
+        }
+      }
     );
 
     setState(() {
@@ -140,6 +172,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         context,
         leadingIcon: widget.isRegister ? null: IconButton(
           onPressed: () {
+            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
             Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),

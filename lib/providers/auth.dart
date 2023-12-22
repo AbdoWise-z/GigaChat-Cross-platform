@@ -80,6 +80,24 @@ class Auth extends ChangeNotifier{
     }
   }
 
+  Future<void> checkForgotPasswordCode(String code , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiCheckForgotPasswordCode(code);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
+  Future<void> forgotPassword(ContactMethod method , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiForgotPassword(method);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
   Future<void> verifyMethod(ContactMethod method , String code ,String? token,bool isVerify, { void Function(ApiResponse<dynamic>)? success , void Function(ApiResponse<dynamic>)? error}) async {
     var res = await Account.apiVerifyMethod(method , code, isVerify,token);
     if (res.data != null){
@@ -93,6 +111,16 @@ class Auth extends ChangeNotifier{
       if (error != null) error(res);
     }
   }
+
+  Future<void> resetPassword(String password ,String code ,{ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiResetPassword(password , code);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
 
   Future<void> isValidEmail(String email , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiIsEmailValid(email);
@@ -160,7 +188,9 @@ class Auth extends ChangeNotifier{
 
   Future<void> verifyUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiVerifyPassword(_currentUser!.auth! , password);
+    print(password);
     if (res.data!){
+
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
