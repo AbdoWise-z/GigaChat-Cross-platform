@@ -5,7 +5,7 @@ import 'package:gigachat/api/notification-class.dart';
 import 'api.dart';
 
 class Notifications {
-  static Future<ApiResponse<List<NotificationObject>>> apiNotifications(String token , int page , int count) async {
+  static Future<ApiResponse<List<NotificationObject>>> apiGetNotifications(String token , int page , int count) async {
     ApiResponse<List<NotificationObject>> res = await Api.apiGet(ApiPath.notifications , params: {
       "page" : "$page",
       "count" : "$count",
@@ -31,4 +31,28 @@ class Notifications {
 
     return res;
   }
+
+  static Future<ApiResponse<int>> apiGetUnseenCount(String token) async {
+    ApiResponse<int> res = await Api.apiGet(ApiPath.notificationsCount , params: {
+    },
+      headers: Api.getTokenHeader("Bearer $token"),
+    );
+
+    if (res.code == ApiResponse.CODE_SUCCESS){
+      var data = jsonDecode(res.responseBody!)["data"];
+      res.data = data["notificationsCount"];
+    }
+
+    return res;
+  }
+
+  static Future<ApiResponse<void>> apiMarkAll(String token) async {
+    ApiResponse<void> res = await Api.apiPost(ApiPath.notificationsMarkALl , params: {
+    },
+      headers: Api.getTokenHeader("Bearer $token"),
+    );
+    return res;
+  }
+
+
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/api/notification-class.dart';
@@ -43,14 +42,39 @@ class Notifications with HomePageTab {
 
   @override
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
-    return const <Widget>[
-      All(),
+    return <Widget>[
+      All(notifications: this,),
     ];
   }
 
   @override
   bool isAppBarPinned(BuildContext context) {
     return true;
+  }
+
+  bool seen = false;
+  int count = -1;
+  void _loadCount(BuildContext context) async {
+    count = await NotificationsProvider().getUnseenCount(Auth().getCurrentUser()!.auth!);
+    print("Not count $count");
+    if (context.mounted) {
+      setHomeState(context, () {
+        print("setting home state");
+      });
+    }
+  }
+
+  @override
+  int getNotificationsCount(BuildContext context) {
+    if (seen) {
+      return 0;
+    }
+    return count;
+  }
+
+  @override
+  void init(BuildContext context) {
+    _loadCount(context);
   }
 
 }
@@ -115,7 +139,8 @@ class NotificationItem extends StatelessWidget { // item for each notification
 }
 
 class All extends StatefulWidget {
-  const All({super.key});
+  final Notifications notifications;
+  const All({super.key, required this.notifications});
 
   @override
   State<All> createState() => _AllState();

@@ -18,6 +18,7 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/services/notifications-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+GlobalKey<HomeState> homeKey = GlobalKey();
 
 class Home extends StatefulWidget {
   static const String pageRoute = "/home";
@@ -40,7 +41,7 @@ class Home extends StatefulWidget {
 
 
 class HomeState extends State<Home> with TickerProviderStateMixin {
-
+  static HomeState? ActiveHomeState;
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
@@ -93,8 +94,10 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    // MOA Was Here
+    super.initState();
+
     for (int i = 0;i < _pages.length;i++){
+      _pages[i].init(context);
       AppBarTabs? tabs = _pages[i].getTabs(context);
       if (tabs != null && tabs.tabs.isNotEmpty){
         _controller[i] = TabController(
@@ -104,6 +107,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         );
       }
     }
+
+    // MOA Was Here
     followingFeedController = FeedProvider.getInstance(context).
     getFeedControllerById(
         context: context,
@@ -111,8 +116,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
         clearData: false
     );
+    // MoA left here
 
-    super.initState();
     setPage(0);
     _scrollController.addListener(() {
       if (_scrollController.position.atEdge && _scrollController.offset > 0){

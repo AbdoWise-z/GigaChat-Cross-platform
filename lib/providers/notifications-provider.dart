@@ -18,6 +18,14 @@ class NotificationsProvider extends ChangeNotifier{
   int count = 25;
   int offset = 0;
 
+  Future<int> getUnseenCount(String token) async {
+    var k = await Notifications.apiGetUnseenCount(token);
+    if (k.data == null){
+      return 0;
+    }
+    return k.data!;
+  }
+
   Future<List<NotificationObject>> reloadAll(String token) async {
     _notifications.clear();
     page = 1;
@@ -25,21 +33,26 @@ class NotificationsProvider extends ChangeNotifier{
   }
 
   Future<List<NotificationObject>> getAllNotifications(String token) async {
-    if (_notifications.isEmpty){
+    if (_notifications.isEmpty){ //first load
       await getNotifications(token);
+      await markAllSeen(token);
     }
     return _notifications;
   }
 
 
   Future<List<NotificationObject>> getNotifications(String token) async {
-    var k = await Notifications.apiNotifications(token, page, count);
+    var k = await Notifications.apiGetNotifications(token, page, count);
     if (k.data == null){
       return [];
     }
     _notifications.addAll(k.data!);
     page++;
     return k.data!;
+  }
+
+  Future<void> markAllSeen(String token) async {
+    await Notifications.apiMarkAll(token);
   }
 
 

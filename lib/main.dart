@@ -81,7 +81,7 @@ class _GigaChatState extends State<GigaChat> {
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  Home.pageRoute : (context) => const Home(),
+                  Home.pageRoute : (context) => Home(key: homeKey,),
                   ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
