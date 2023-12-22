@@ -15,6 +15,7 @@ import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/services/notifications-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 
@@ -59,8 +60,13 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     null,
   ];
 
-  void _triggerNotification(){
-
+  void _triggerNotification() async{
+    TriggerNotification? t = await NotificationsController.getLaunchNotification();
+    if (t != null){
+      if (context.mounted) {
+        NotificationsController.doDispatchNotification(t, context);
+      }
+    }
   }
 
 
@@ -122,6 +128,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         }
       }
     });
+
+    _triggerNotification();
   }
 
   //I use this key to refresh the NestedScrollView

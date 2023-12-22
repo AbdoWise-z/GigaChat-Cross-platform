@@ -31,7 +31,7 @@ import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
-import 'package:gigachat/services/NotificationsController.dart';
+import 'package:gigachat/services/notifications-controller.dart';
 import 'package:provider/provider.dart';
 import 'widgets/tweet-widget/full-screen-tweet.dart';
 
@@ -43,9 +43,6 @@ Future<void> main() async {
   LocalSettings locals = LocalSettings();
   await locals.init();
   await NotificationsController().init();
-
-  //NotificationsController.getInstance().showNotification(123 , title: "test" , body: "pls work" , payload: "data");
-
   application = GigaChat(locals: locals,);
   runApp(application!);
 }
