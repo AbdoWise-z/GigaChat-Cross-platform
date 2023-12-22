@@ -53,6 +53,7 @@ class _ChatListPageState extends State<ChatListPage> {
       _chats.addAll(k.data!);
     }
 
+    if (!context.mounted) return;
     setState(() {
       if (more){
         _loadingMore = false;
@@ -111,6 +112,8 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   void initState() {
+    print("chat init state");
+
     super.initState();
     _loadChats(more: false);
     _controller.addListener(() {

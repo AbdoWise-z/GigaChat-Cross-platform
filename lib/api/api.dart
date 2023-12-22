@@ -116,6 +116,9 @@ class ApiPath{
   static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
   static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
   static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
+  static ApiPath notifications           = const ApiPath._("/api/user/notifications");
+  static ApiPath notificationsCount      = const ApiPath._("/api/user/notifications/unseenCount");
+  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");
 }
 
 class Api {
