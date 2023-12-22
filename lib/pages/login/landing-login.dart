@@ -23,7 +23,6 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
   bool _loading = false;
   GoogleSignIn googleSignIn = GoogleSignIn(
     scopes: ['email'],
-    serverClientId: "772681856502-5egc2ped3r6hh8abub22so7d82tqdtaa.apps.googleusercontent.com"
   );
 
   void signInWithGoogle() async {
@@ -87,28 +86,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
 
     bool googleIsSigned = await googleSignIn.isSignedIn();
     if(googleIsSigned){
-      var acc = await googleSignIn.signIn();
-      var temp = await acc!.authentication;
-      String? accessToken = temp.accessToken;
-      await authProvider.google(
-        acc.displayName!,
-        acc.email,
-        acc.photoUrl,
-        acc.id,
-        accessToken!,
-        null,
-        success: (res) {
-          Navigator.popUntil(context, (r) => false);
-          Navigator.pushNamed(context, Home.pageRoute);
-        },
-        error: (res) async {
-          Toast.showToast(context,"Please log in again.",width: 20);
-          await googleSignIn.signOut();
-          setState(() {
-            _loading = false;
-          });
-        },
-      );
+      signInWithGoogle();
     }
 
     if (!settings.getValue<bool>(name: "login", def: false)!){

@@ -26,16 +26,12 @@ class _AssignBirthDateState extends State<AssignBirthDate> {
   FocusNode dateFocusNode = FocusNode();
   DateTime nonFormattedDate = DateTime.now();
 
-  @override
-  void dispose() {
-    GoogleSignIn().signOut();
-    super.dispose();
-  }
+
   @override
   Widget build(BuildContext context) {
     isButtonDisabled = inputDOB.text.isEmpty;
     Map args = ModalRoute.of(context)!.settings.arguments as Map;
-    return loading? BlockingLoadingPage() :
+    return loading? const BlockingLoadingPage() :
     Scaffold(
       appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
       body: Padding(
@@ -76,10 +72,21 @@ class _AssignBirthDateState extends State<AssignBirthDate> {
           children: [
             AuthFooter(
                 disableRightButton: isButtonDisabled,
-                showLeftButton: false,
-                leftButtonLabel: "",
+                showLeftButton: true,
+                leftButtonLabel: "Cancel",
                 rightButtonLabel: "Next",
-                onLeftButtonPressed: (){},
+                onLeftButtonPressed: () async {
+                  setState(() {
+                    loading = true;
+                  });
+                  await GoogleSignIn().signOut();
+                  if(context.mounted) {
+                    Navigator.pushReplacementNamed(context, "/landing-register");
+                  }
+                  setState(() {
+                    loading = false;
+                  });
+                },
                 onRightButtonPressed: () async {
                   setState(() {
                     loading = true;

@@ -3,6 +3,7 @@ import 'package:gigachat/pages/settings/pages/your-account/account-information/c
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../../providers/local-settings-provider.dart';
 import '../../../../../providers/theme-provider.dart';
@@ -103,12 +104,15 @@ class _AccountInformationState extends State<AccountInformation> {
                                       ),
                                     ),
                                     TextButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         var settings = LocalSettings.getInstance(context);
                                         settings.setValue<bool>(name: "login", val: false);
                                         settings.apply();
-                                        Navigator.popUntil(context, (route) => false);
-                                        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                                        await GoogleSignIn().signOut();
+                                        if(context.mounted) {
+                                          Navigator.popUntil(context, (route) => false);
+                                          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                                        }
                                       },
                                       child: Text("Log out",
                                         style: TextStyle(
