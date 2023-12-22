@@ -3,6 +3,7 @@ import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 
 class SearchKeyword extends StatelessWidget {
@@ -27,7 +28,7 @@ class SearchKeyword extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text("#$tag", style: const TextStyle(fontSize: 17)),
+              Text("$tag", style: const TextStyle(fontSize: 17)),
               const Expanded(child: SizedBox()),
               GestureDetector(
                 onTap: onIconClick,
@@ -39,21 +40,24 @@ class SearchKeyword extends StatelessWidget {
   }
 }
 
-class UserResult extends StatelessWidget {
+class UserResult extends StatefulWidget {
   final User user;
-  final bool? isBlocked;
-  final bool? isMuted;
-  const UserResult({super.key,required this.user, this.isBlocked, this.isMuted});
+  const UserResult({super.key,required this.user});
 
+  @override
+  State<UserResult> createState() => _UserResultState();
+}
+
+class _UserResultState extends State<UserResult> {
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = ThemeProvider.getInstance(context).isDark();
     return TextButton(
       onPressed: (){
-        print("Profile page prints ${user.name}");
+        print("Profile page prints ${widget.user.name}");
         Navigator.push(context,
           MaterialPageRoute(
-              builder: (context) => UserProfile(username: user.id, isCurrUser: false)
+              builder: (context) => UserProfile(username: widget.user.id, isCurrUser: false)
           ),
         );
       },
@@ -67,39 +71,68 @@ class UserResult extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(backgroundImage: NetworkImage(user.iconLink)),
+              CircleAvatar(backgroundImage: NetworkImage(widget.user.iconLink)),
               const SizedBox(width: 10,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(user.name),
-                  Text("@${user.id}",style: const TextStyle(color: Colors.grey),)
+                  Text(widget.user.name),
+                  Text("@${widget.user.id}",style: const TextStyle(color: Colors.grey),)
                 ],
               ),
               const Expanded(child: SizedBox()),
               Visibility(
-                visible: isMuted != null && isMuted!,
+                visible: (widget.user.isWantedUserMuted != null && widget.user.isWantedUserMuted!),
                 child: IconButton(
-                    onPressed: (){
-
+                    onPressed: () async {
+                      await Auth.getInstance(context).unmute(
+                        widget.user.id,
+                        success: (res){
+                          setState(() {
+                            widget.user.isWantedUserMuted = false;
+                          });
+                        },
+                        error: (res){
+                          Toast.showToast(context, "Action failed, please try again");
+                        }
+                      );
                     }, icon: const Icon(Icons.volume_off_sharp,color: Colors.red,)
                 ),
               ),
               SizedBox(
-                width: 80,
+                width: 90,
                 height: 30,
                 child: Visibility(
-                  visible: Auth.getInstance(context).getCurrentUser()!.id != user.id,
-                  child: (isBlocked ?? false)? ElevatedButton(
-                    onPressed: (){
-
+                  visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id,
+                  child: (widget.user.isWantedUserBlocked != null && widget.user.isWantedUserBlocked!)?
+                  ElevatedButton(
+                    onPressed: () async{
+                      await Auth.getInstance(context).unblock(
+                          widget.user.id,
+                        success: (res){
+                           setState(() {
+                             widget.user.isWantedUserBlocked = false;
+                           });
+                        },
+                        error: (res){
+                          Toast.showToast(context, "Action failed, please try again");
+                        }
+                      );
                     },
-                    child: SizedBox()
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(15.0), // Set the border radius
+                      ),
+                    ),
+                    child: const Text("Blocked"),
                   ):
                   FollowButton(
-                      isFollowed: user.isFollowed!,
-                      callBack: (isFollowed){user.isFollowed = isFollowed;},
-                      username: user.id
+                      isFollowed: widget.user.isFollowed!,
+                      callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
+                      username: widget.user.id
                   ),
                 ),
               )
@@ -111,7 +144,7 @@ class UserResult extends StatelessWidget {
             children: [
               const CircleAvatar(backgroundColor: Colors.transparent),
               const SizedBox(width: 10,),
-              Text(user.bio,style: const TextStyle(color: Colors.white),)
+              Text(widget.user.bio,style: const TextStyle(color: Colors.white),)
             ],
           )
         ],

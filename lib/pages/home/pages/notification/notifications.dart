@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/notification/subPages/notificationSetting.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
+import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:intl/intl.dart';
 
 class Notifications with HomePageTab {
   @override
@@ -26,7 +32,7 @@ class Notifications with HomePageTab {
 
   @override
   AppBarTabs? getTabs(BuildContext context) {
-    return AppBarTabs(tabs: ["All" , "Verified" , "Mentions"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
+    return AppBarTabs(tabs: ["All"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.start);
   }
 
   @override
@@ -36,17 +42,9 @@ class Notifications with HomePageTab {
 
   @override
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
-    return const <Widget>[
-      All(),
-      Verified(),
-      Mentions(),
+    return <Widget>[
+      All(notifications: this,),
     ];
-  }
-
-  @override
-  Widget? getPage(BuildContext context) {
-    //if I didn't use tabs .. this will be called instead of getTabsWidgets()
-    return Placeholder();
   }
 
   @override
@@ -54,29 +52,84 @@ class Notifications with HomePageTab {
     return true;
   }
 
+  bool seen = false;
+  int count = -1;
+  void _loadCount(BuildContext context) async {
+    count = await NotificationsProvider().getUnseenCount(Auth().getCurrentUser()!.auth!);
+    print("Not count $count");
+    if (context.mounted) {
+      setHomeState(context, () {
+        print("setting home state");
+      });
+    }
+  }
+
+  @override
+  int getNotificationsCount(BuildContext context) {
+    if (seen) {
+      return 0;
+    }
+    return count;
+  }
+
+  @override
+  void init(BuildContext context) {
+    _loadCount(context);
+  }
+
 }
 
 class NotificationItem extends StatelessWidget { // item for each notification
-  final String avatar;
-  final String username;
-  final String message;
-  final String timeAgo;
+  final NotificationObject note;
 
-  NotificationItem({
-    required this.avatar,
-    required this.username,
-    required this.message,
-    required this.timeAgo,
+  const NotificationItem({
+    super.key,
+    required this.note,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: AssetImage(avatar),
+      leading: SizedBox(
+        width: 45,
+        height: 45,
+        child: Stack(
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(note.img),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: Icon(
+                    note.type == "follow" ? FontAwesomeIcons.star :
+                    note.type == "retweet" ? FontAwesomeIcons.retweet :
+                    note.type == "like" ? FontAwesomeIcons.heart :
+                    note.type == "reply" ? FontAwesomeIcons.comment :
+                    note.type == "follow" ? FontAwesomeIcons.star :
+                    note.type == "follow" ? FontAwesomeIcons.star :
+                    note.type == "follow" ? FontAwesomeIcons.star :
+                    note.type == "follow" ? FontAwesomeIcons.star : FontAwesomeIcons.question,
+
+                  color:
+                  note.type == "follow" ? Colors.yellow :
+                  note.type == "retweet" ?  Colors.blue :
+                  note.type == "like" ?  Colors.red :
+                  note.type == "reply" ? Colors.green :
+                  note.type == "follow" ?  Colors.purple :
+                  note.type == "follow" ?  Colors.purple :
+                  note.type == "follow" ?  Colors.purple :
+                  note.type == "follow" ?  Colors.purple :  Colors.purple,
+                ),
+              ),
+            )
+          ],
+        ),
       ),
-      title: Text('$username $message'),
-      subtitle: Text('$timeAgo'),
+      title: Text(note.description),
+      subtitle: Text(DateFormat("yyyy mm dd").format(note.creation_time)),
       onTap: () {
         // Handle the notification item tap action
         print('Notification Tapped');
@@ -84,96 +137,89 @@ class NotificationItem extends StatelessWidget { // item for each notification
     );
   }
 }
-class All extends StatelessWidget {
-  const All({super.key});
+
+class All extends StatefulWidget {
+  final Notifications notifications;
+  const All({super.key, required this.notifications});
+
+  @override
+  State<All> createState() => _AllState();
+}
+
+class _AllState extends State<All> {
+  List<NotificationObject> _notes = [];
+  void _loadNotes() async {
+    _notes = await NotificationsProvider().getAllNotifications(Auth().getCurrentUser()!.auth!);
+    setState(() {});
+  }
+
+  bool _loading = false;
+  bool _canLoadMore = true;
+  void _loadMore() async {
+    if (_loading || !_canLoadMore) {
+      return;
+    }
+    _loading = true;
+    setState(() {
+
+    });
+
+    List<NotificationObject>? list = await NotificationsProvider().getNotifications(Auth().getCurrentUser()!.auth!);
+    _notes.addAll(list);
+
+    if (list.isEmpty){
+      _canLoadMore = false;
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ScrollController controller = Home.getScrollGlobalKey(context)!.currentState!.innerController;
+      controller.addListener(() {
+        if (controller.position.maxScrollExtent - controller.offset < 100){
+          _loadMore();
+        }
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          child: ListView(
-            children: [
-              NotificationItem(
-                avatar: 'assets/giga-chat-logo-dark.png',
-                username: 'user1',
-                message: 'Liked your tweet',
-                timeAgo: '2m ago',
+    return RefreshIndicator(
+      onRefresh: () async {
+        _canLoadMore = true;
+        _notes = await NotificationsProvider().reloadAll(Auth().getCurrentUser()!.auth!);
+      },
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            ..._notes.map((e) => NotificationItem(note: e)),
+            Visibility(
+              visible: _loading,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  child: const SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
               ),
-              NotificationItem(
-                avatar: 'assets/giga-chat-logo-dark.png',
-                username: 'user2',
-                message: 'Retweeted your tweet',
-                timeAgo: '5m ago',
-              ),
-              // Add more NotificationItem widgets for other notifications
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );;
-  }
-}
-class Verified extends StatelessWidget {
-  const Verified({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          'assets/done.png',
-          height: 150, // Adjust the height as needed
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        SizedBox(height: 40),
-        Text(
-          'Nothing to see here — yet',
-          style: TextStyle(
-            fontSize: 38,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 10),
-        Text(
-          'Likes, mentions, reposts, and a whole lot more — when it comes from a verified account, you’ll find it here. ',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 }
-class Mentions extends StatelessWidget {
-  const Mentions({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(height: 40),
-        Text(
-          'Nothing to see here — yet',
-          style: TextStyle(
-            fontSize: 38,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 10),
-        Text(
-          'When someone mentions you, you’ll find it here.',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-}
+

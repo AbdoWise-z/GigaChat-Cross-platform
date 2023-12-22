@@ -14,8 +14,10 @@ class ChatItem extends StatelessWidget {
   final void Function(ChatMessageObject obj) onLongPress;
   final void Function(ChatMessageObject obj) onPress;
   final void Function(ChatMessageObject obj) onSwipe;
+  final void Function(ChatMessageObject obj) onImagePress;
+  final void Function(ChatMessageObject obj) onImageLongPress;
 
-  const ChatItem({super.key, required this.message , this.replyTo, required this.onLongPress, required this.onSwipe, required this.onPress});
+  const ChatItem({super.key, required this.message , this.replyTo, required this.onLongPress, required this.onSwipe, required this.onPress, required this.onImagePress, required this.onImageLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,8 @@ class ChatItem extends StatelessWidget {
           child: ChatMessageContent(
             onLongPress: () => onLongPress(message),
             onPress: () => onPress(message),
+            onImageLongPress: () => onImageLongPress(message),
+            onImagePress: () => onImagePress(message),
             messageObject: message,
             replyObject: null,
           ), //null for now :")
@@ -84,7 +88,9 @@ class ChatMessageContent extends StatelessWidget {
   final ChatMessageObject? replyObject;
   final void Function() onLongPress;
   final void Function() onPress;
-  const ChatMessageContent({super.key, required this.messageObject , required this.replyObject, required this.onLongPress, required this.onPress});
+  final void Function() onImagePress;
+  final void Function() onImageLongPress;
+  const ChatMessageContent({super.key, required this.messageObject , required this.replyObject, required this.onLongPress, required this.onPress, required this.onImagePress, required this.onImageLongPress});
 
   Widget _getMediaObjectFor(ChatMessageObject object , BuildContext context){
     if (object.media == null) {
@@ -103,7 +109,6 @@ class ChatMessageContent extends StatelessWidget {
           tag: object.media!.link,
           showControllers: true,
           autoPlay: true,
-          holdVideo: false,
         ),
       );
     }else{
@@ -245,8 +250,8 @@ class ChatMessageContent extends StatelessWidget {
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                       child: InkWell(
                         borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        onLongPress: onLongPress,
-                        onTap: onPress,
+                        onLongPress: onImageLongPress,
+                        onTap: onImagePress,
                         child: _getMediaObjectFor(messageObject , context),
                       ),
                     ),

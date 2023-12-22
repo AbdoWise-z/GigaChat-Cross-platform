@@ -1,7 +1,7 @@
 
 class User {
   String id;
-  String mongoID;
+  String? mongoID;
   String name;
   String? auth;
   String email;
@@ -17,6 +17,7 @@ class User {
   bool? isWantedUserMuted;
   bool? isFollowed;
   bool? isCurrUser;
+  bool? isBlocked;
   int followers;
   int following;
   int numOfPosts;
@@ -25,7 +26,7 @@ class User {
 
   User({
     this.id = "Abdo-ww",
-    this.mongoID = "",
+    this.mongoID = "DEFAULT_MONGO_ID",
     this.name = "Abdo",
     this.auth = "moa",
     this.email = "...",
@@ -40,10 +41,11 @@ class User {
     this.following = 0,
     this.active = false,
     this.isCurrUser,
-    this.isCurrUserBlocked,
-    this.isWantedUserBlocked,
+    this.isCurrUserBlocked = false,
+    this.isWantedUserBlocked = false,
     this.isFollowed = false,
-    this.isWantedUserMuted,
+    this.isBlocked = false,
+    this.isWantedUserMuted = false,
     this.numOfLikes = 0,
     this.numOfPosts = 0,
   });

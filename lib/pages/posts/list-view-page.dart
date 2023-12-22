@@ -7,7 +7,7 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 class UserListViewPage extends StatefulWidget {
   static const pageRoute = "/list-view";
-  static const feedID = "USER_LIST_FEED";
+  static const feedID = "USER_LIST_FEED/";
 
   const UserListViewPage({super.key});
 
@@ -21,9 +21,11 @@ class _UserListViewPageState extends State<UserListViewPage> {
   String? tweetID;
   String? userID;
   late FeedController feedController;
+  late bool firstBuild;
 
   @override
   void initState() {
+    firstBuild = true;
     super.initState();
   }
 
@@ -39,10 +41,11 @@ class _UserListViewPageState extends State<UserListViewPage> {
 
     feedController = FeedProvider.getInstance(context).getFeedControllerById(
         context: context,
-        id: UserListViewPage.feedID + (userID ?? "") + (tweetID ?? ""),
+        id: UserListViewPage.feedID + providerFunction.toString() + (userID ?? "") + (tweetID ?? ""),
         providerFunction: providerFunction,
-        clearData: true
+        clearData: firstBuild,
     );
+    firstBuild = false;
 
     feedController.setUserToken(userToken);
 

@@ -35,7 +35,7 @@ class ChatHomeTab with HomePageTab {
 
   @override
   bool isAppBarPinned(BuildContext context) {
-    return false;
+    return true;
   }
 
   @override

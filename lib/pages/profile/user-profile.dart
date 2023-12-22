@@ -47,6 +47,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   //user details
   late String name;
   late String username;
+  late String mongoID;
   late String avatarImageUrl;
   late String bannerImageUrl;
   late String bio;
@@ -71,7 +72,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   bool loading = true;
 
   late ScrollController scrollController;
-  late FeedController feedController;
+  late FeedController postsFeedController;
+  late FeedController likesFeedController;
+  late FeedController repliesFeedController;
+  late FeedController mediaFeedController;
+
   late TabController tabController;
 
   int prevTabIndex = 0;
@@ -111,13 +116,25 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isCurrUser = u.isCurrUser;
     numOfPosts = u.numOfPosts;
     numOfLikes = u.numOfLikes;
+    mongoID    = u.mongoID!;
 
 
     scrollController = ScrollController();
     scrollController.addListener(() async {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
       {
-        await feedController.fetchFeedData(username: widget.username);
+        if(prevTabIndex == 0) {
+          await postsFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 1) {
+          await repliesFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 2) {
+          await mediaFeedController.fetchFeedData(username: widget.username);
+        }
+        if(prevTabIndex == 3) {
+          await likesFeedController.fetchFeedData(username: widget.username);
+        }
         setState(() {});
       }
     });
@@ -125,18 +142,56 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     if(!context.mounted) return;
 
     FeedProvider feedProvider = FeedProvider.getInstance(context);
-    feedController = feedProvider.getFeedControllerById(
+    postsFeedController = feedProvider.getFeedControllerById(
         context: context,
         id: UserProfile.profileFeedPosts + widget.username,
         providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false,
+    );
+    postsFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    postsFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    repliesFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedReplies + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
         clearData: false
     );
+    repliesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    repliesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
-    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+    mediaFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedMadia + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
+        clearData: false
+    );
+    mediaFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    mediaFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    likesFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedLikes + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
+        clearData: false
+    );
+    likesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    likesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     setState(() {
       loading = false;
     });
+  }
+
+  void updateUserFeeds(){
+    if(context.mounted) {
+      if(username != auth.getCurrentUser()!.id){
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: username == auth.getCurrentUser()!.id);
+        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: username == auth.getCurrentUser()!.id);
+      }
+    }
   }
 
   void onTapBarClick(int index, int durationMS) {
@@ -198,6 +253,23 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     }
   }
 
+  void onProfileAvatarClick() async {
+    var res = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) =>
+            ProfileImageView(
+              isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+              isProfileAvatar: true,
+              imageUrl: avatarImageUrl,
+            )
+        )
+    );
+    if(res != null){
+      setState(() {
+        avatarImageUrl = res;
+      });
+    }
+  }
+
   void followUser() async {
     await auth.follow(
       widget.username,
@@ -205,6 +277,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         setState(() {
           isWantedUserFollowed = true;
           followers++;
+          updateUserFeeds();
         });
       },
       error: (res){
@@ -222,6 +295,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           setState(() {
             isWantedUserFollowed = false;
             followers--;
+            updateUserFeeds();
           });
         },
         error: (res){
@@ -238,6 +312,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       success: (res){
         setState(() {
           isWantedUserMuted = true;
+          updateUserFeeds();
           Toast.showToast(context, "You muted @${widget.username}.");
         });
       },
@@ -255,6 +330,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         success: (res){
           setState(() {
             isWantedUserMuted = false;
+            updateUserFeeds();
             Toast.showToast(context, "You unmuted @${widget.username}.");
           });
         },
@@ -298,17 +374,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           onPressed: () async {
                             await auth.block(
                                 widget.username,
+                              isWantedUserFollowed!,
                               success: (res){
                                 setState(() {
-                                  if(context.mounted) {
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-                                    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
-                                  }
+                                  updateUserFeeds();
                                   isWantedUserBlocked = true;
+                                  followers = isWantedUserFollowed!? followers - 1 : followers;
                                   isWantedUserFollowed = false;
-                                  followers--;
                                   if(context.mounted){
                                     Navigator.pop(context);
                                     Toast.showToast(context, "You blocked @${widget.username}.");
@@ -372,6 +444,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                               success: (res){
                                 setState(() {
                                   isWantedUserBlocked = false;
+                                  updateUserFeeds();
                                   if(context.mounted){
                                     Navigator.pop(context);
                                     Toast.showToast(context, "You unblocked @${widget.username}.");
@@ -464,9 +537,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       color: Colors.white
                                   ),
                                 ),
-                                Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                Visibility(
+                                  visible: widget.isCurrUser
+                                      || (isCurrUser != null && isCurrUser!)
+                                      || isCurrUserBlocked != null && !isCurrUserBlocked!,
+                                  child: Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -484,7 +562,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                           actions: (value > showNamePosition
                               && (!widget.isCurrUser && !isCurrUser!)
                               && (isWantedUserFollowed != null && !isWantedUserFollowed!)
-                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)) ?
+                              && (isWantedUserBlocked != null && !isWantedUserBlocked!)
+                              && (isCurrUserBlocked != null && !isCurrUserBlocked!))?
                           <Widget>[
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -497,7 +576,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                 onTapFollow: followUser,
                                 onTapUnfollow: unfollowUser,
                                 isWantedUserFollowed: isWantedUserFollowed,
-                                isWantedUserBlocked: isCurrUserBlocked,
+                                isWantedUserBlocked: isWantedUserBlocked,
                               ),
                             ),
                           ] :
@@ -644,30 +723,49 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                             ValueListenableBuilder(
                               valueListenable: scroll,
                               builder: (context,value,_) {
-                                return Visibility(
-                                  visible: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!),
-                                  child: ProfileInteract(
-                                    avatarIsVisible: value > collapsePosition,
-                                    isHeader: false,
-                                    avatarImageUrl: avatarImageUrl,
-                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isWantedUserFollowed : isWantedUserFollowed,
-                                    isWantedUserBlocked : isWantedUserBlocked,
-                                    onTapEditProfile: onEditProfileClick,
-                                    onTapDM: (){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChatPage()
-                                        )
-                                      );
-                                    }, //TODO: DM user
-                                    onTapFollow: followUser,
-                                    onTapUnfollow: unfollowUser,
-                                    onTapUnblock: unblockUser,
-                                  ),
+                                return widget.isCurrUser || (isCurrUser != null && isCurrUser!)
+                                    || (isCurrUserBlocked != null && !isCurrUserBlocked!) ? ProfileInteract(
+                                  avatarIsVisible: value > collapsePosition,
+                                  isHeader: false,
+                                  avatarImageUrl: avatarImageUrl,
+                                  isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
+                                  isWantedUserFollowed : isWantedUserFollowed,
+                                  isWantedUserBlocked : isWantedUserBlocked,
+                                  onTapEditProfile: onEditProfileClick,
+                                  onTapDM: (){
+                                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                      "user" : User(
+                                          id: username ,
+                                          name: name ,
+                                          iconLink: avatarImageUrl,
+                                          mongoID: mongoID,
+                                          isFollowed: isWantedUserFollowed,
+                                          isBlocked: false
+                                      )
+                                    });
+                                  },
+                                  onTapFollow: followUser,
+                                  onTapUnfollow: unfollowUser,
+                                  onTapUnblock: unblockUser,
+                                ) :
+                                Row(
+                                  children: [
+                                    ValueListenableBuilder(
+                                        valueListenable: scroll,
+                                        builder: (context , value, _) {
+                                          return Visibility(
+                                            visible: isCurrUserBlocked != null && isCurrUserBlocked! && value > collapsePosition,
+                                            child: ProfileAvatar(
+                                              avatarImageUrl: avatarImageUrl,
+                                              avatarPadding: const EdgeInsets.fromLTRB(13,0,0,5),
+                                              avatarRadius: 20,
+                                              onTap: onProfileAvatarClick,
+                                            ),
+                                          );
+                                        }
+                                    ),
+                                    const SizedBox(height: 50,)
+                                  ],
                                 );
                               }
                             ),
@@ -829,7 +927,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                   ];
                 },
                 body: widget.isCurrUser || (isCurrUser != null && isCurrUser!)
-                    || (isWantedUserBlocked != null && !isWantedUserBlocked!)?
+                    || (isWantedUserBlocked != null && !isWantedUserBlocked!
+                        && isCurrUserBlocked != null && !isCurrUserBlocked!)?
                 TabBarView(
                   controller: tabController,
                   children: [
@@ -837,34 +936,34 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: postsFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: repliesFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: mediaFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: likesFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
@@ -911,22 +1010,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       avatarImageUrl: avatarImageUrl,
                       avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
                       avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
-                      onTap: () async {
-                        var res = await Navigator.push(context,
-                            MaterialPageRoute(builder: (context) =>
-                                ProfileImageView(
-                                    isCurrUser: widget.isCurrUser || (isCurrUser != null && isCurrUser!),
-                                    isProfileAvatar: true,
-                                    imageUrl: avatarImageUrl,
-                                )
-                            )
-                        );
-                        if(res != null){
-                          setState(() {
-                            avatarImageUrl = res;
-                          });
-                        }
-                      },
+                      onTap: onProfileAvatarClick,
                     ),
                   );
                 }

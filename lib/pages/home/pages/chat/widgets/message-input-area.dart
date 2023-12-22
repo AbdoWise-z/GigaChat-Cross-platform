@@ -39,9 +39,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
     );
 
     _controller.addListener(() {
-      widget.onSizeChange();
-
       setState(() {
+        widget.onSizeChange();
       });
     });
 

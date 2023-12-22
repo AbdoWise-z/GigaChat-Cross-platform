@@ -7,13 +7,12 @@ class VideoPlayerWidget extends StatefulWidget {
   final String tag;
   final String videoUrl;
   final bool autoPlay;
-  final bool holdVideo;
   final bool showControllers;
+
   const VideoPlayerWidget({
     super.key,
     required this.videoUrl,
     required this.autoPlay,
-    required this.holdVideo,
     required this.showControllers,
     required this.tag
   });
@@ -24,6 +23,7 @@ class VideoPlayerWidget extends StatefulWidget {
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
+  late FlickManager _manager;
   late bool loading;
 
   @override
@@ -35,7 +35,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       ..initialize().then((_) {
         _controller.seekTo(Duration.zero);
 
-        widget.autoPlay && !widget.holdVideo ? _controller.play() : _controller.pause();
+        widget.autoPlay ? _controller.play() : _controller.pause();
+
         loading = false;
         try
         {
@@ -44,37 +45,30 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           print("Handled Exception $e");
         }
       });
+    _manager = FlickManager(videoPlayerController: _controller);
 
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _manager.dispose();
+    //_controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-
-    if (loading){
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (widget.holdVideo){
-      return Stack(
-        children: [
-         VideoPlayer(_controller),
-
-          loading ? const SizedBox() :
-          const Center(child: Icon(Icons.play_circle,color: Colors.blue,size: 50,))
-        ],
-      );
-    }
-
-    if (widget.showControllers){
-      return FlickVideoPlayer(flickManager: FlickManager(videoPlayerController: _controller));
-    }
-
     return VisibilityDetector(
         onVisibilityChanged: (info){
           info.visibleFraction * 100 > 80 ? _controller.play() : _controller.pause();
         },
         key: Key(widget.tag),
-        child: VideoPlayer(_controller)
+        child: FlickVideoPlayer(
+          flickManager: _manager,
+          flickVideoWithControls: widget.showControllers ? const FlickVideoWithControls(
+            controls: FlickPortraitControls(),
+          ) : const SizedBox.shrink(),
+        ),
     );
   }
 }

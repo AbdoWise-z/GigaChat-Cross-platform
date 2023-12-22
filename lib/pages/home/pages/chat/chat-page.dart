@@ -14,9 +14,12 @@ import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/message-input-area.dart';
 import 'package:gigachat/pages/loading-page.dart';
+import 'package:gigachat/pages/profile/profile-image-view.dart';
+import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,7 +38,7 @@ class ChatPageState extends State<ChatPage> {
   bool _visiable = false;
   late final StreamSocket _chatSocket;
   bool _ready = false;
-  late final User _with;
+  late User _with;
   final List<ChatMessageObject> _chat = [];
   late final Uuid uuid;
 
@@ -64,7 +67,7 @@ class ChatPageState extends State<ChatPage> {
     }
     setState(() {});
 
-    var res = await Chat.apiGetChatMessages(Auth.getInstance(context).getCurrentUser()!.auth!, _with.mongoID, page, 25); //load the last 25 messages
+    var res = await Chat.apiGetChatMessages(Auth.getInstance(context).getCurrentUser()!.auth!, _with.mongoID!, page, 25); //load the last 25 messages
     if (res.data == null){ /* failed to load */
       if (context.mounted) {
         Toast.showToast(context, "Failed to load messages");
@@ -124,6 +127,14 @@ class ChatPageState extends State<ChatPage> {
 
     WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("failed_to_send_message").stream.listen((ev) {
       print("Error : $ev");
+      String error = ev["error"];
+      if (error.contains("blocked")){ //either you blocked this user or the user blocked you
+        String uuid = ev["id"];
+        _chat.removeWhere((element) => element.uuid == uuid); //remove that message
+        setState(() {
+          _with.isBlocked = true;
+        });
+      }
     });
 
     _chatSocket.stream.listen((event) {
@@ -150,7 +161,7 @@ class ChatPageState extends State<ChatPage> {
       }
       m.media = MediaObject(link: link.data![0], type: m.media!.type);
     }
-    var data = m.toMap(current.mongoID, _with.mongoID);
+    var data = m.toMap(current.mongoID!, _with.mongoID!);
     ws.send("send_message" , data);
     return true;
   }
@@ -187,7 +198,7 @@ class ChatPageState extends State<ChatPage> {
       });
     }
 
-    if (_controller.offset >= _controller.position.maxScrollExtent - 20){
+    if (_controller.hasClients && _controller.offset >= _controller.position.maxScrollExtent - 20){
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.animateTo(_controller.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
       });
@@ -226,288 +237,334 @@ class ChatPageState extends State<ChatPage> {
       _loadMessages();
     }
 
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: [
+    if (_with.isBlocked!){
+      _editorHeight = 50;
+    }
 
-                IconButton(
-                  onPressed: () {
-                    //TODO: navigate to the profile page
-                  },
-                  icon: Container(
-                    width: 40,
-                    height: 40,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          _with.iconLink,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context , {"user" : _with});
+        return false;
+      },
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              title: Row(
+                children: [
+
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (c) => UserProfile(username: _with.id, isCurrUser: false)));
+                    },
+                    icon: Container(
+                      width: 40,
+                      height: 40,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(
+                            _with.iconLink,
+                          ),
+                          fit: BoxFit.cover,
                         ),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: const BorderRadius.all(Radius.circular(50)),
-                      border: Border.all(
-                        width: 0,
+                        borderRadius: const BorderRadius.all(Radius.circular(50)),
+                        border: Border.all(
+                          width: 0,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 10,),
+                  const SizedBox(width: 10,),
 
-                TextButton(
-                  onPressed: () {
-                    //TODO: open a bottom sheet to follow the user
-                    showModalBottomSheet(context: context, builder: (_) {
-                      return SizedBox(
-                        height: 200,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                width: 40,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 10,),
-
-                              Text(
-                                _with.name,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).textTheme.bodyLarge!.color,
-                                ),
-                              ),
-
-                              SizedBox(height: 10,),
-
-                              ListTile(
-                                leading: Container(
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(context: context, builder: (_) {
+                        return SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Container(
                                   width: 40,
-                                  height: 40,
-                                  clipBehavior: Clip.antiAlias,
+                                  height: 5,
                                   decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        _with.iconLink,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: const BorderRadius.all(Radius.circular(50)),
-                                    border: Border.all(
-                                      width: 0,
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  _with.name,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).textTheme.bodyLarge!.color,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  "@${_with.id}",
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: const TextStyle(
-                                    fontSize: 14,
+                                    borderRadius: BorderRadius.circular(5),
                                     color: Colors.grey,
                                   ),
                                 ),
 
-                                //TODO: REPLACE WITH FOLLOW BUTTON
-                                trailing: !(_with.isFollowed != null && _with.isFollowed!) ?
-                                ElevatedButton(onPressed: () {}, child: Text("Follow")) :
-                                OutlinedButton(onPressed: () {}, child: Text("Following")),
-                              )
-                            ],
+                                const SizedBox(height: 10,),
+
+                                Text(
+                                  _with.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).textTheme.bodyLarge!.color,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10,),
+
+                                ListTile(
+                                  leading: Container(
+                                    width: 40,
+                                    height: 40,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          _with.iconLink,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                                      border: Border.all(
+                                        width: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    _with.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).textTheme.bodyLarge!.color,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    "@${_with.id}",
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  trailing: Visibility(
+                                    visible: !_with.isBlocked!,
+                                    child: FollowButton(
+                                      isFollowed: _with.isFollowed!,
+                                      callBack: (b) {
+                                        setState(() {
+                                          _with.isFollowed = b;
+                                        });
+                                      },
+                                      username: _with.id,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                    },
+                    child: Text(
+                      _with.name,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              actions: [
+                IconButton(onPressed: () async {
+                  var result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ChatInfoPage(_with)));
+                  _with = result["user"];
+                  setState(() {
+
+                  });
+                }, icon: const Icon(Icons.info_outline)),
+              ],
+            ),
+            body: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: StretchingOverscrollIndicator(
+                          axisDirection: AxisDirection.down,
+                          child: SingleChildScrollView(
+                            controller: _controller,
+                            child: Column(
+                              //chat
+                              children: [
+
+                                //Header
+                                Visibility(
+                                  visible: _loadingMore,
+                                  child: const Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: SizedBox(width: 25,height: 25,child: CircularProgressIndicator(),),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: !_canLoadMore,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 70,
+                                        height: 70,
+                                        clipBehavior: Clip.antiAlias,
+                                        decoration: const BoxDecoration(
+                                            shape: BoxShape.circle
+                                        ),
+                                        child: Image.network(_with.iconLink,fit: BoxFit.cover,),
+                                      ),
+
+                                      Text(
+                                        _with.name,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+
+                                      Text(
+                                        _with.id,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 10,),
+                                      Text(
+                                        "${_with.followers} Followers",
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20,),
+
+                                      const Divider(
+                                        thickness: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                //Messages area
+                                ChatColumn(
+                                  key: chatList,
+                                  chat: _chat,
+                                ),
+
+                                //Input padding
+                                SizedBox(
+                                  height: _editorHeight,
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    });
-                  },
-                  child: Text(
-                    _with.name,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyLarge!.color,
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedOpacity(
+                  opacity: _visiable ? 1 : 0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: Transform.translate(
+                      offset: Offset(-20, -_editorHeight),
+                      child: Material(
+                        clipBehavior: Clip.antiAlias,
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        shape: const CircleBorder(),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_downward_outlined),
+                          onPressed: () {
+                            _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _with.isBlocked! ? Container(
+                    width: double.infinity,
+                    height: 50,
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Divider(
+                          height: 1,
+                          thickness: 0.8,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            "You can no longer send Direct messages to this person.",
+                            style: TextStyle(
+                              color: Colors.blueGrey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      :
+                  Padding(
+                    key: editor,
+                    padding: const EdgeInsets.all(8.0),
+                    child: MessageInputArea(
+                      onMessage: (m) {
+                        _handleSendMessage(m);
+                      },
+                      onSizeChange: () {
+                        setState(() {
+                          if (editor.currentContext != null) {
+                            _editorHeight = editor.currentContext!.size!.height;
+                          }
+                        });
+                      },
+                      onOpen: () {
+                        Future.delayed(const Duration(milliseconds: 400) , () {
+                          _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: max(50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round(),0) + 1), curve: Curves.fastOutSlowIn);
+                        });
+                      },
                     ),
                   ),
                 )
               ],
             ),
-            actions: [
-              IconButton(onPressed: () {
-                //TODO Implement info
-                Navigator.push(context, MaterialPageRoute(builder: (_) => ChatInfoPage(_with)));
-              }, icon: const Icon(Icons.info_outline)),
-            ],
           ),
-          body: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: StretchingOverscrollIndicator(
-                        axisDirection: AxisDirection.down,
-                        child: SingleChildScrollView(
-                          controller: _controller,
-                          child: Column(
-                            //chat
-                            children: [
-
-                              //Header
-                              Visibility(
-                                visible: _loadingMore,
-                                child: const Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: SizedBox(width: 25,height: 25,child: CircularProgressIndicator(),),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Visibility(
-                                visible: !_canLoadMore,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 70,
-                                      height: 70,
-                                      clipBehavior: Clip.antiAlias,
-                                      decoration: const BoxDecoration(
-                                          shape: BoxShape.circle
-                                      ),
-                                      child: Image.network(_with.iconLink,fit: BoxFit.cover,),
-                                    ),
-
-                                    Text(
-                                      _with.name,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade700,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-
-                                    Text(
-                                      _with.id,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade700,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 10,),
-                                    Text(
-                                      "${_with.followers} Followers",
-                                      style: TextStyle(
-                                        color: Colors.grey.shade700,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20,),
-
-                                    const Divider(
-                                      thickness: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              //Messages area
-                              ChatColumn(
-                                key: chatList,
-                                chat: _chat,
-                              ),
-
-                              //Input padding
-                              SizedBox(
-                                height: _editorHeight,
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              AnimatedOpacity(
-                opacity: _visiable ? 1 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Transform.translate(
-                    offset: Offset(-20, -_editorHeight),
-                    child: Material(
-                      clipBehavior: Clip.antiAlias,
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      shape: const CircleBorder(),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_downward_outlined),
-                        onPressed: () {
-                          _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: 50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round()), curve: Curves.fastOutSlowIn);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  key: editor,
-                  padding: const EdgeInsets.all(8.0),
-                  child: MessageInputArea(
-                    onMessage: (m) {
-                      _handleSendMessage(m);
-                    },
-                    onSizeChange: () {
-                      setState(() {
-                        if (editor.currentContext != null) {
-                          _editorHeight = editor.currentContext!.size!.height;
-                        }
-                      });
-                    },
-                    onOpen: () {
-                      Future.delayed(const Duration(milliseconds: 400) , () {
-                        _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: max(50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round(),0) + 1), curve: Curves.fastOutSlowIn);
-                      });
-                    },
-                  ),
-                ),
-              )
-            ],
+          Visibility(
+            visible: _loading,
+            child: const LoadingPage(),
           ),
-        ),
-        Visibility(
-          visible: _loading,
-          child: const LoadingPage(),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -545,19 +602,37 @@ class _ChatColumnState extends State<ChatColumn> {
                 ),
                 ),
               ) : const SizedBox.shrink(),
-              ChatItem(message: e, onLongPress: (m) {
+              ChatItem(message: e,
+                onLongPress: (m) {
 
-              }, onPress: (m) async {
-                if (m.state == ChatMessageObject.STATE_FAILED){ //on failed , resend this thing
-                  ChatPageState pageState = context.findAncestorStateOfType<ChatPageState>()!;
-                  m.state = ChatMessageObject.STATE_SENDING;
-                  pageState.chatList.currentState!.setState(() {});
-                  if (! await pageState.sendMessage(m)){ //failed
-                    m.state = ChatMessageObject.STATE_FAILED;
+                },
+                onPress: (m) async {
+                  if (m.state == ChatMessageObject.STATE_FAILED){ //on failed , resend this thing
+                    ChatPageState pageState = context.findAncestorStateOfType<ChatPageState>()!;
+                    m.state = ChatMessageObject.STATE_SENDING;
                     pageState.chatList.currentState!.setState(() {});
+                    if (! await pageState.sendMessage(m)){ //failed
+                      m.state = ChatMessageObject.STATE_FAILED;
+                      pageState.chatList.currentState!.setState(() {});
+                    }
                   }
-                }
-              }, onSwipe: (m) {}),
+                },
+                onSwipe: (m) {},
+                onImagePress: (m) {
+                  if (m.media!.type == MediaType.IMAGE) {
+                    Navigator.push(context, MaterialPageRoute(builder: (c) {
+                      return ProfileImageView(
+                          isProfileAvatar: false,
+                          imageUrl: m.media!.link,
+                          isCurrUser: false
+                      );
+                    }));
+                  }
+                },
+                onImageLongPress: (m) {
+
+                },
+              ),
             ],
           );
         }).toList(),
