@@ -82,12 +82,12 @@ class _ViewPostPageState extends State<ViewPostPage> {
           children: [
             BetterFeed(
               mainTweetForComments: tweetData,
-                providerFunction: ProviderFunction.GET_TWEET_COMMENTS,
-                providerResultType: ProviderResultType.TWEET_RESULT,
-                feedController: feedController,
-                tweetID: tweetData.id,
-                removeController: false,
-                removeRefreshIndicator: false,
+              providerFunction: ProviderFunction.GET_TWEET_COMMENTS,
+              providerResultType: ProviderResultType.TWEET_RESULT,
+              feedController: feedController,
+              tweetID: tweetData.id,
+              removeController: false,
+              removeRefreshIndicator: false,
               cancelNavigationToUserProfile: cancelNavigationToUser ? cancelNavigationToUser : null,
             )
           ],

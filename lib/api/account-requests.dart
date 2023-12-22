@@ -213,7 +213,7 @@ class Account {
       u.joinedDate  = DateTime.parse(res["user"]["joined_date"]);
       u.numOfPosts  = res["user"]["num_of_posts"];
       u.numOfLikes  = res["user"]["num_of_likes"];
-
+      u.mongoID     = res["user"]["_id"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
@@ -250,8 +250,7 @@ class Account {
       u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
       u.numOfPosts            = res["user"]["num_of_posts"];
       u.numOfLikes            = res["user"]["num_of_likes"];
-
-
+      u.mongoID               = res["user"]["_id"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
@@ -439,8 +438,8 @@ class Account {
       endPoint,
       headers: headers,
       params: {
-        "page" : page,
-        "count" : count,
+        "page" : page.toString(),
+        "count" : count.toString(),
       }
     );
     print(k.code);
@@ -458,6 +457,7 @@ class Account {
         followers: e["followers_num"],
         following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
       )).toList();
 
       k.data = users;
@@ -489,6 +489,7 @@ class Account {
         followers: e["followers_num"],
         following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
       )).toList();
 
       k.data = users;
@@ -503,8 +504,8 @@ class Account {
         ApiPath.userBlockList,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);
@@ -514,9 +515,10 @@ class Account {
       List<User> users = temp.map((e) => User(
         id: e["username"],
         name: e["nickname"],
-        followers: e["followers_num"],
-        following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
+        isWantedUserMuted: e["isMuted"],
+        isWantedUserBlocked: true,
       )).toList();
 
       k.data = users;
@@ -531,8 +533,8 @@ class Account {
         ApiPath.userMutedList,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);
@@ -543,9 +545,10 @@ class Account {
         id: e["username"],
         name: e["nickname"],
         isFollowed: e["isFollowed"],
-        followers: e["followers_num"],
-        following: e["followings_num"],
         iconLink: e["profile_image"],
+        bio: e["bio"] ?? "",
+        isWantedUserBlocked: e["isBlocked"],
+        isWantedUserMuted: true,
       )).toList();
 
       k.data = users;

@@ -4,7 +4,9 @@ import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 
+import '../../../../../providers/local-settings-provider.dart';
 import '../../../../../providers/theme-provider.dart';
+import '../../../../login/landing-login.dart';
 
 class AccountInformation extends StatefulWidget {
   const AccountInformation({Key? key}) : super(key: key);
@@ -101,9 +103,12 @@ class _AccountInformationState extends State<AccountInformation> {
                                       ),
                                     ),
                                     TextButton(
-                                      onPressed: () async {
-                                        //await Auth.getInstance(context).logout();
-                                        //TODO: logout
+                                      onPressed: () {
+                                        var settings = LocalSettings.getInstance(context);
+                                        settings.setValue<bool>(name: "login", val: false);
+                                        settings.apply();
+                                        Navigator.popUntil(context, (route) => false);
+                                        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
                                       },
                                       child: Text("Log out",
                                         style: TextStyle(

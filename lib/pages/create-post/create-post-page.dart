@@ -282,7 +282,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         Navigator.push(context, PageRouteBuilder(
                           opaque: false,
                           pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-                            return HintDialog();
+                            return const HintDialog();
                           },
                         ));
                       },

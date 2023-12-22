@@ -1,6 +1,8 @@
 //TODO: add constants here
 //const String API_LINK = "127.0.0.1:5000";
 const String API_LINK = "backend.gigachat.cloudns.org";
+const String API_WEBSOCKS_LINK = "http://51.116.199.56:5750/";
+
 const Duration API_TIMEOUT = Duration(seconds: 5);
 const int DEFAULT_PAGE_COUNT = 10;
 const String USER_DEFAULT_PROFILE = "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.jpg";
@@ -19,7 +21,11 @@ const int MAX_LINES_TO_SHOW = 8;
 
 enum ProviderFunction{
   HOME_PAGE_TWEETS,
+  HOME_PAGE_MENTIONS,
   PROFILE_PAGE_TWEETS,
+  PROFILE_PAGE_LIKES,
+  PROFILE_PAGE_MEDIA,
+  PROFILE_PAGE_REPLIES,
   GET_TWEET_COMMENTS,
   SEARCH_USERS,
   SEARCH_TWEETS,
@@ -27,6 +33,8 @@ enum ProviderFunction{
   GET_USER_FOLLOWINGS,
   GET_TWEET_LIKERS,
   GET_TWEET_REPOSTERS,
+  GET_USER_BLOCKLIST,
+  GET_USER_MUTEDLIST,
   NONE
 }
 

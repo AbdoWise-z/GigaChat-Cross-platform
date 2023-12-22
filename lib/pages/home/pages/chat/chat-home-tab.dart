@@ -7,7 +7,6 @@ import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 
 class ChatHomeTab with HomePageTab {
 
-
   final ChatListPage page = const ChatListPage();
 
   @override

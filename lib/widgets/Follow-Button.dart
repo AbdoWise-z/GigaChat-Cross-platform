@@ -43,7 +43,7 @@ class _FollowButtonState extends State<FollowButton> {
                   providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                   clearData: false
               );
-              homeFeed.resetFeed();
+              homeFeed.deleteUserTweets(widget.username);
               homeFeed.updateFeeds();
               setState(() {});
             },
@@ -83,6 +83,7 @@ class _FollowButtonState extends State<FollowButton> {
           );
         },
         style: TextButton.styleFrom(
+          padding: EdgeInsets.only(top: -10),
           backgroundColor: isDarkMode ? Colors.white : Colors.black,
           foregroundColor: isDarkMode ? Colors.black : Colors.white,
           shape: RoundedRectangleBorder(
@@ -92,7 +93,7 @@ class _FollowButtonState extends State<FollowButton> {
         ),
         child: const Text(
           "Follow",
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
         ));
   }
 }

@@ -100,16 +100,22 @@ class ApiPath{
   static ApiPath userFollowings          = const ApiPath._("/api/user/profile/%s/followings");
   static ApiPath userBlockList           = const ApiPath._("/api/user/blockList");
   static ApiPath userMutedList           = const ApiPath._("/api/user/mutedList");
-
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
-  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
+  static ApiPath userProfileReplies      = const ApiPath._("/api/user/profile/%s/tweetsWithReplies");
+  static ApiPath userProfileLikes        = const ApiPath._("/api/profile/%s/likes");
+  static ApiPath mentions                = const ApiPath._("/api/homepage/mention");
 
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
   static ApiPath searchUsers             = const ApiPath._("/api/user/search");
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
-  static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
+  static ApiPath searchTags              = const ApiPath._("/api/trends/search");
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
-  static ApiPath getTweet             = const ApiPath._("/api/tweets/%s");
+  static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
+  static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
+  static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
+  static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
+  static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
 }
 
 class Api {
@@ -209,7 +215,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPostNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPostFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
   static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
@@ -303,7 +309,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPatchFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPatchFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
 

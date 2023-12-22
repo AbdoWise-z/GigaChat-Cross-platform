@@ -39,9 +39,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
     );
 
     _controller.addListener(() {
-      widget.onSizeChange();
-
       setState(() {
+        widget.onSizeChange();
       });
     });
 
@@ -76,7 +75,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
   @override
   void dispose() {
     super.dispose();
-
+    _controller.dispose();
   }
 
   final GlobalKey _textFieldKey = GlobalKey();
@@ -240,7 +239,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 300),
-                      opacity: _textEditingController.text.isNotEmpty ? 1 : 0,
+                      opacity: _textEditingController.text.isNotEmpty || _media != null ? 1 : 0,
                       child: SizedBox(
                         width: 35,
                         height: 35,
@@ -252,8 +251,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                             onPressed: () async {
                               widget.onMessage(
                                 ChatMessageObject(
-                                  id: "none",
-                                  text: _textEditingController.text,
+                                  uuid: "none",
+                                  text: _textEditingController.text.isEmpty ? null : _textEditingController.text,
                                   media: _media == null ? null : MediaObject(link: _media!.path.path, type: _media!.type == AssetType.image ? MediaType.IMAGE : MediaType.VIDEO),
                                   self: true,
                                   time: DateTime.now(),

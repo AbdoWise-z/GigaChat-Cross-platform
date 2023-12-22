@@ -3,13 +3,24 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
+import 'package:gigachat/providers/web-socks-provider.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
 class Auth extends ChangeNotifier{
+  static late FeedProvider feedProvider;
   static Auth getInstance(BuildContext context){
+    feedProvider = FeedProvider.getInstance(context);
     return Provider.of<Auth>(context , listen: false);
+  }
+
+  Auth._internal();
+  static Auth? _instance;
+  factory Auth(){
+    _instance ??= Auth._internal();
+    return _instance!;
   }
 
   //TODO: change back to null
@@ -19,10 +30,18 @@ class Auth extends ChangeNotifier{
     var res = await Account.apiLogin(username , password);
     if (res.data != null){
       _currentUser = res.data;
-      if (success != null) success(res);
+      WebSocketsProvider prov = WebSocketsProvider();
+      print("Auth : ${_currentUser!.auth!}");
+      if ( await prov.init(_currentUser!.auth! )){
+        if (success != null) success(res);
+      }else{
+        _currentUser = null;
+        if (error != null) error(res);
+      }
     }else{
       if (error != null) error(res);
     }
+
   }
 
   User? getCurrentUser(){
@@ -222,10 +241,13 @@ class Auth extends ChangeNotifier{
     return;
   }
 
-  Future<void> block(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+  Future<void> block(String username, bool isFollowed, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.blockUser(_currentUser!.auth! ,username);
     if (res.data!){
-      _currentUser!.following--;
+      refreshFeeds(deleteFeeds: true);
+      if(isFollowed) {
+        _currentUser!.following--;
+      }
       notifyListeners();
       if (success != null) success(res);
     }else{
@@ -236,6 +258,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> unblock(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unblockUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -246,6 +269,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> mute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.muteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -256,12 +280,19 @@ class Auth extends ChangeNotifier{
 
   Future<void> unmute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unmuteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
     }
     return;
+  }
+
+  void refreshFeeds({bool deleteFeeds = false}){
+    if (deleteFeeds)
+      feedProvider.resetAllFeeds();
+    feedProvider.updateFeeds();
   }
 
   Future<void> deleteUserBanner({ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {

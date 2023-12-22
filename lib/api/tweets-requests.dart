@@ -104,7 +104,7 @@ class Tweets {
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
           creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
-          type: specialAccessObject(tweet, accessor["type"]!),
+          type: specialAccessObject(tweet, accessor["type"]!) ?? "tweet",
 
           tweetOwner: User(
             id: specialAccessObject(tweet, accessor["tweetOwnerID"]!),
@@ -115,6 +115,8 @@ class Tweets {
             iconLink : specialAccessObject(tweet, accessor["tweetOwnerIcon"]!) ?? USER_DEFAULT_PROFILE,
             followers : specialAccessObject(tweet, accessor["tweetOwnerFollowers"]),
             following : specialAccessObject(tweet, accessor["tweetOwnerFollowing"]!),
+            isWantedUserMuted : specialAccessObject(tweet, accessor["tweetOwnerIsMuted"]) ?? false,
+            isWantedUserBlocked : specialAccessObject(tweet, accessor["tweetOwnerIsBlocked"]) ?? false,
             active : true,
           ),
 
@@ -131,7 +133,7 @@ class Tweets {
           ),
 
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
-          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
+          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!) ?? false,
           media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
       );
     }).toList();
@@ -156,11 +158,13 @@ class Tweets {
 
           "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
           "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
-          "tweetOwnerIsFollowed": ["tweetDetails","isFollowed"],
+          "tweetOwnerIsFollowed": ["isFollowed"],
           "tweetOwnerBio": null,
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
           "tweetOwnerFollowing": ["tweetDetails", "tweet_owner", "following_num"],
+          "tweetOwnerIsBlocked" : null,
+          "tweetOwnerIsMuted" : null,
 
           "tweetRetweeter" : ["followingUser"],
           "tweetRetweeterID": ["followingUser", "username"],
@@ -200,11 +204,75 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
       "media": ["media"]
     }, ApiPath.userProfileTweets.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getProfilePageLikes (String token,String userID, String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["posts", "likedTweets"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRetweeted"],
+      "media": ["media"]
+    }, ApiPath.userProfileLikes.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getMentionTweets (String token,String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["tweetList"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["tweet_owner","isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRtweeted"],
+      "media": ["media"],
+    }, ApiPath.mentions);
   }
 
   static Future<Map<String, TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
@@ -229,6 +297,8 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
@@ -262,6 +332,8 @@ class Tweets {
             isFollowed: false,
             followers: tweet["tweet_owner"]["followers_num"],
             following: tweet["tweet_owner"]["following_num"],
+            isWantedUserBlocked: false,
+            isWantedUserMuted: false
           ),
           isLiked: tweet["isLiked"],
           isRetweeted: tweet["isRetweeted"],
@@ -300,6 +372,7 @@ class Tweets {
         accessor
       );
       Map<String,TweetData> mappedIdTweets = {};
+      print("test");
       for(TweetData tweet in responseTweets){
         mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
       }

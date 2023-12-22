@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:gigachat/base.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:provider/provider.dart';
+
+import '../pages/profile/user-profile.dart';
 
 
 enum FeedControllerAccess{
@@ -14,6 +17,11 @@ class FeedProvider extends ChangeNotifier{
 
   static FeedProvider getInstance(BuildContext context){
     return Provider.of<FeedProvider>(context , listen: false);
+  }
+
+  void resetAllFeeds(){
+    print("hereeeeeee");
+    _controllers.clear();
   }
 
   void removeFeedById(String feedID){
@@ -33,7 +41,7 @@ class FeedProvider extends ChangeNotifier{
     required bool clearData
   })
   {
-    _controllers.putIfAbsent(id, () => FeedController(context, providerFunction: providerFunction!));
+    _controllers.putIfAbsent(id, () => FeedController(context, providerFunction: providerFunction));
     FeedController target = _controllers[id]!;
     if (clearData) target.resetFeed();
     return _controllers[id]!;
@@ -43,5 +51,18 @@ class FeedProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void updateProfileFeed(BuildContext context, String id, {bool? isCurrProfile}){
+    if(isCurrProfile != null && isCurrProfile){
+      return;
+    }
+    FeedController temp =  getFeedControllerById(
+      context: context,
+      id: id + Auth.getInstance(context).getCurrentUser()!.id,
+      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+      clearData: false,
+    );
+    temp.resetFeed();
+    temp.updateFeeds();
+  }
 
 }

@@ -130,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
                 keyword = tag;
                 reWriteTimer();
               }, onPressed: () { search(tag); },
-            )).toList(),
+            )),
             searchedTags!.isNotEmpty ? const Padding(
               padding: EdgeInsets.all(8.0),
               child: Divider(thickness: 2),

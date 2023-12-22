@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dio/dio.dart';
 import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,14 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
+import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:gigachat/widgets/video-player.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photo_view/photo_view.dart';
 
 class FullScreenImage extends StatefulWidget {
@@ -23,6 +26,8 @@ class FullScreenImage extends StatefulWidget {
   @override
   State<FullScreenImage> createState() => _FullScreenImageState();
 }
+
+
 class _FullScreenImageState extends State<FullScreenImage> {
 
   int? currentPage;
@@ -36,6 +41,19 @@ class _FullScreenImageState extends State<FullScreenImage> {
     upperValueNotifier = ValueNotifier(0.0);
   }
 
+  Future<void> _saveImage(String imageUrl) async {
+    final response = await Dio().get(
+        imageUrl,
+        options: Options(responseType: ResponseType.bytes));
+    final result = await ImageGallerySaver.saveImage(
+        Uint8List.fromList(response.data),
+        quality: 60
+    );
+    if (result["isSuccess"] == true && context.mounted){
+      Toast.showToast(context, "image saved");
+    }
+  }
+
   List<Widget> buildList(List<MediaData> images){
     List<Widget> res = images.asMap().entries.map((entry) {
       int i = entry.key;
@@ -45,15 +63,31 @@ class _FullScreenImageState extends State<FullScreenImage> {
           // TODO: handle the video later
       VideoPlayerWidget(
         videoUrl: image.mediaUrl,
-        holdVideo: false,
         autoPlay: true,
         showControllers: true,
         tag: image.tag!,
       )
           :
-      PhotoView(
-          minScale: PhotoViewComputedScale.contained,
-          imageProvider: NetworkImage(image.mediaUrl)
+      GestureDetector(
+        onLongPress: () {
+          showModalBottomSheet(
+              showDragHandle: true,
+              context: context,
+              builder: (context) => buildSheet(context, [
+                ["Post Photo", Icons.add_circle_outline, () {
+                  // TODO: send the image to the add new post page and navigate
+
+                }],
+                ["Save Photo", Icons.download, () {
+                  // TODO: save the image to the device
+                  _saveImage(image.mediaUrl);
+                }]
+              ]));
+        },
+        child: PhotoView(
+            minScale: PhotoViewComputedScale.contained,
+            imageProvider: NetworkImage(image.mediaUrl)
+        ),
       );
 
       return Center(
