@@ -22,13 +22,12 @@ class Account {
     if (k.code == ApiResponse.CODE_SUCCESS) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
-
       u.active      = true; //TODO: change this later
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
       u.email       = res["data"]["user"]["email"];
-      u.bio         = res["data"]["user"]["bio"];
+      u.bio         = res["data"]["user"]["bio"] ?? "";
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
       u.bannerLink  = res["data"]["user"]["bannerImage"];
       //u.location    = res["data"]["user"]["location"];

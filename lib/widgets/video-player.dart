@@ -66,6 +66,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         child: FlickVideoPlayer(
           flickManager: _manager,
           flickVideoWithControls: widget.showControllers ? const FlickVideoWithControls(
+            videoFit: BoxFit.fitWidth,
             controls: FlickPortraitControls(),
           ) : const SizedBox.shrink(),
         ),

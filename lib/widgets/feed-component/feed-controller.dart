@@ -40,6 +40,9 @@ class FeedController {
       if(! _feedKeys!.contains(key)){
         _feedKeys!.add(key);
         _feedData!.add(value);
+        print("start here");
+        print(value.id);
+        print(value.referredTweetId);
       }
     });
     if (noRefresh) {
@@ -108,6 +111,7 @@ class FeedController {
     List<TweetData> response = [tweetData!];
     while(tweetData != null && tweetData.referredTweetId != null)
     {
+      print(tweetData.referredTweetId);
       tweetData = await Tweets.getTweetById(token!, tweetData.referredTweetId!);
       if (tweetData == null) break;
       response = [...response,tweetData];

@@ -114,6 +114,33 @@ class _BetterFeedState extends State<BetterFeed> {
     }
   }
 
+  Tweet makeTweetFromData({
+    required TweetData tweetData,
+    required User currentUser,
+    required bool isSinglePostView,
+    required bool addVerticalDivider,
+    required bool cancellationPosition,
+    required bool sameUser,
+    required User? repliedTweetUser
+  }){
+        return Tweet(
+        tweetOwner: tweetData.tweetOwner,
+        tweetData: tweetData,
+        isRetweet: tweetData.isRetweeted,
+        isSinglePostView: isSinglePostView,
+        callBackToDelete: (String tweetID){
+          _feedController.deleteTweet(tweetID);
+          setState(() {});
+        },
+        showVerticalDivider: addVerticalDivider,
+        deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
+        onCommentButtonClicked: () => addComment(context, tweetData),
+        parentFeed: _feedController,
+        cancelSameUserNavigation: cancellationPosition && sameUser,
+          replyedTweetOwner: repliedTweetUser,
+      );
+  }
+
   List<Widget>? wrapDataInWidget() {
     switch(widget.providerResultType){
       // The Result Of Searching For User
@@ -126,34 +153,51 @@ class _BetterFeedState extends State<BetterFeed> {
       case ProviderResultType.TWEET_RESULT:
         List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
         bool addVerticalDivider = true;
-        return tweetResult.map((TweetData tweetData){
-                  if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
-                    tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
-                  }
-                  User currentUser = Auth.getInstance(context).getCurrentUser()!;
+        User? repliedTweetOwner;
+        List<Tweet> resultWidgets = [];
+        bool reachedPost = false;
+        for (TweetData tweetData in tweetResult){
+            if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
+              tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
+            }
+            User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
-                  bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
-                  bool sameUser = tweetData.tweetOwner.id == currentUser.id;
-                  bool isSinglePostView = widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS && tweetData.id == widget.mainTweetForComments!.id;
-                  addVerticalDivider &= (!isSinglePostView && widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS);
+            bool cancellationPosition = (widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS || widget.cancelNavigationToUserProfile != null);
+            bool sameUser = tweetData.tweetOwner.id == currentUser.id;
+            bool isSinglePostView = widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS && tweetData.id == widget.mainTweetForComments!.id;
 
-                  return Tweet(
-                    tweetOwner: tweetData.tweetOwner,
-                    tweetData: tweetData,
-                    isRetweet: tweetData.isRetweeted,
-                    isSinglePostView: isSinglePostView,
-                    callBackToDelete: (String tweetID){
-                      _feedController.deleteTweet(tweetID);
-                      setState(() {});
-                    },
-                    showVerticalDivider: addVerticalDivider,
-                    deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
-                    onCommentButtonClicked: () => addComment(context, tweetData),
-                    parentFeed: _feedController,
-                    cancelSameUserNavigation: cancellationPosition && sameUser,
-                  );
-        }).toList();
+            addVerticalDivider &= (!isSinglePostView && widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS);
 
+            resultWidgets.add(
+            makeTweetFromData(
+                tweetData: tweetData,
+                isSinglePostView: isSinglePostView,
+                addVerticalDivider: addVerticalDivider || tweetData.replyTweet != null,
+                cancellationPosition: cancellationPosition,
+                sameUser: sameUser,
+                currentUser: currentUser,
+                repliedTweetUser: widget.providerFunction != ProviderFunction.GET_TWEET_COMMENTS ? null :
+                reachedPost ?
+                widget.mainTweetForComments!.tweetOwner :
+                repliedTweetOwner
+            ));
+            repliedTweetOwner = tweetData.tweetOwner;
+            reachedPost |= isSinglePostView;
+
+            if (tweetData.replyTweet != null){
+              resultWidgets.add(
+              makeTweetFromData(
+                  tweetData: tweetData.replyTweet!,
+                  isSinglePostView: false,
+                  addVerticalDivider: false,
+                  cancellationPosition: cancellationPosition,
+                  sameUser: sameUser,
+                  currentUser: currentUser,
+                  repliedTweetUser: tweetData.tweetOwner
+              ));
+            }
+        };
+        return resultWidgets;
     }
   }
 

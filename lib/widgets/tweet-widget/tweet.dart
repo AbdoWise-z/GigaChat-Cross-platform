@@ -75,6 +75,7 @@ class Tweet extends StatefulWidget {
   final FeedController? parentFeed;
   final bool? deleteOnUndoRetweet;
   final bool? showVerticalDivider;
+  final User? replyedTweetOwner;
 
   const Tweet({
     super.key,
@@ -87,7 +88,8 @@ class Tweet extends StatefulWidget {
     required this.parentFeed,
     required this.cancelSameUserNavigation,
     this.deleteOnUndoRetweet,
-    this.showVerticalDivider = false
+    this.showVerticalDivider = false,
+    this.replyedTweetOwner
   });
 
   @override
@@ -248,7 +250,7 @@ class _TweetState extends State<Tweet> {
                                   ),
                                 ),
 
-                                //fixme : MoA disable this divider when on the normal feed page
+
                                 Visibility(
                                   visible: widget.showVerticalDivider!,
                                   child: const Expanded(
@@ -294,6 +296,30 @@ class _TweetState extends State<Tweet> {
                                 visible: widget.isSinglePostView,
                                 child: const SizedBox(height: 5)
                             ),
+
+                            // Replying To If it's there
+                            Visibility(
+                                visible: widget.replyedTweetOwner != null,
+                                child: widget.replyedTweetOwner == null ? SizedBox() : Row(
+                                  children: [
+                                    const Text("Replying to ",style: TextStyle(color: Colors.grey),),
+                                    GestureDetector(
+                                      onTap: (){
+                                        navigateToUserProfile(
+                                            currentUserId: currentUser.id,
+                                            tweetOwnerId: widget.replyedTweetOwner!.id
+                                        );
+                                      },
+                                        child: Text(
+                                            "@${widget.replyedTweetOwner!.id}",
+                                          style: TextStyle(color: Colors.blue),
+                                        )
+                                    )
+                                  ],
+                                )
+                            ),
+
+                            Visibility(visible: widget.replyedTweetOwner != null,child: SizedBox(height: 5,)),
 
                             // =================== post content ===================
                             RichText(
@@ -556,7 +582,8 @@ class _TweetState extends State<Tweet> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tweetOwner.name,
+            Text(
+                tweetOwner.name,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: isDarkMode ? Colors.white : Colors.black

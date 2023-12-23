@@ -81,17 +81,53 @@ class Tweets {
     return currentObject;
   }
 
+  static TweetData? decodeTweetReply(dynamic replyObject){
+    if (replyObject.isEmpty){
+      return null;
+    }
+      return TweetData(
+          id: replyObject["id"],
+          referredTweetId: replyObject["referredTweetId"],
+          description: replyObject["description"],
+          viewsNum: replyObject["viewsNum"],
+          likesNum: replyObject["likesNum"],
+          repliesNum: replyObject["repliesNum"],
+          repostsNum: replyObject["repostsNum"],
+          creationTime: DateTime.parse(replyObject["creation_time"]),
+          type: replyObject["type"],
+          tweetOwner: User(
+            name: replyObject["tweet_owner"]["nickname"],
+            id: replyObject["tweet_owner"]["username"],
+            bio: replyObject["tweet_owner"]["nickname"],
+            iconLink: replyObject["tweet_owner"]["profile_image"],
+            following:replyObject["tweet_owner"]["following_num"],
+            followers: replyObject["tweet_owner"]["followers_num"],
+            isFollowed: replyObject["tweet_owner"]["isFollowed"],
+          ),
+          isLiked: replyObject["isLiked"],
+          isRetweeted: replyObject["isRetweeted"],
+          media: specialAccessObject(replyObject, ["media"]),
+          isFollowingMe: replyObject["tweet_owner"]["isFollowingMe"],
+      );
+  }
+
   static List<TweetData> decodeTweetList(
       String token,
       ApiResponse response,
-      Map<String,List<String>?> accessor
-      )
+      Map<String,List<String>?> accessor,
+      {
+        bool fetchReplyTweet = false
+      })
   {
     if (response.responseBody == null || response.responseBody!.isEmpty){
       return [];
     }
     //print(response.responseBody);
-    final List tweets = specialAccessObject(json.decode(response.responseBody!), accessor["data"]);
+    final List tweets =
+    accessor["data"] != null ?
+    specialAccessObject(json.decode(response.responseBody!), accessor["data"])
+    :
+    jsonDecode(response.responseBody!);
     return tweets.map((tweet){
       List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
@@ -135,7 +171,9 @@ class Tweets {
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
           isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!) ?? false,
           isFollowingMe: specialAccessObject(tweet, accessor["isFollowingMe"]) ?? false,
-          media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
+          media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null,
+
+          replyTweet:  fetchReplyTweet ? decodeTweetReply(tweet["reply"]) : null
       );
     }).toList();
   }
@@ -304,7 +342,7 @@ class Tweets {
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
       "media": ["media"]
-    }, ApiPath.comments.format([tweetID]));
+    }, ApiPath.comments.format([tweetID]),fetchAdditionalReply: true);
   }
 
   static Future<TweetData?> getTweetById(String token, String tweetID) async {
@@ -314,6 +352,8 @@ class Tweets {
         endPointPath,
         headers: headers
     );
+    print(response.responseBody);
+
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
       dynamic tweet = jsonDecode(response.responseBody!)["data"];
       return TweetData(
@@ -338,7 +378,8 @@ class Tweets {
           ),
           isLiked: tweet["isLiked"],
           isRetweeted: tweet["isRetweeted"],
-          isFollowingMe: tweet["isFollowingMe"],
+          // TODO: check this later
+          isFollowingMe: tweet["isFollowingMe"] ?? false,
           media: tweet["media"].map((media){
             return MediaData(
                 mediaType: media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
@@ -357,7 +398,10 @@ class Tweets {
         String count,
         String page,
         Map<String,List<String>?> accessor,
-        ApiPath endPointPath
+        ApiPath endPointPath,
+      {
+        bool fetchAdditionalReply = false
+      }
       ) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -371,10 +415,10 @@ class Tweets {
       List<TweetData> responseTweets = decodeTweetList(
         token,
         response,
-        accessor
+        accessor,
+        fetchReplyTweet : fetchAdditionalReply,
       );
       Map<String,TweetData> mappedIdTweets = {};
-      print("test");
       for(TweetData tweet in responseTweets){
         mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
       }
