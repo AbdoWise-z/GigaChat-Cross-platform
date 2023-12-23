@@ -120,8 +120,7 @@ class _BetterFeedState extends State<BetterFeed> {
     required bool isSinglePostView,
     required bool addVerticalDivider,
     required bool cancellationPosition,
-    required bool sameUser,
-    required User? repliedTweetUser
+    required bool sameUser
   }){
         return Tweet(
         tweetOwner: tweetData.tweetOwner,
@@ -136,8 +135,7 @@ class _BetterFeedState extends State<BetterFeed> {
         deleteOnUndoRetweet: widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS && (widget.userId! == currentUser.id),
         onCommentButtonClicked: () => addComment(context, tweetData),
         parentFeed: _feedController,
-        cancelSameUserNavigation: cancellationPosition && sameUser,
-          replyedTweetOwner: repliedTweetUser,
+        cancelSameUserNavigation: cancellationPosition && sameUser
       );
   }
 
@@ -153,9 +151,7 @@ class _BetterFeedState extends State<BetterFeed> {
       case ProviderResultType.TWEET_RESULT:
         List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
         bool addVerticalDivider = true;
-        User? repliedTweetOwner;
         List<Tweet> resultWidgets = [];
-        bool reachedPost = false;
         for (TweetData tweetData in tweetResult){
             if(widget.providerFunction == ProviderFunction.PROFILE_PAGE_TWEETS){
               tweetData.reTweeter = User(name: widget.userName!, id: widget.userId!);
@@ -175,14 +171,8 @@ class _BetterFeedState extends State<BetterFeed> {
                 addVerticalDivider: addVerticalDivider || tweetData.replyTweet != null,
                 cancellationPosition: cancellationPosition,
                 sameUser: sameUser,
-                currentUser: currentUser,
-                repliedTweetUser: widget.providerFunction != ProviderFunction.GET_TWEET_COMMENTS ? null :
-                reachedPost ?
-                widget.mainTweetForComments!.tweetOwner :
-                repliedTweetOwner
+                currentUser: currentUser
             ));
-            repliedTweetOwner = tweetData.tweetOwner;
-            reachedPost |= isSinglePostView;
 
             if (tweetData.replyTweet != null){
               resultWidgets.add(
@@ -192,8 +182,7 @@ class _BetterFeedState extends State<BetterFeed> {
                   addVerticalDivider: false,
                   cancellationPosition: cancellationPosition,
                   sameUser: sameUser,
-                  currentUser: currentUser,
-                  repliedTweetUser: tweetData.tweetOwner
+                  currentUser: currentUser
               ));
             }
         };

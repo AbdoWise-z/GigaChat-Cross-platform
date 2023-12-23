@@ -75,7 +75,6 @@ class Tweet extends StatefulWidget {
   final FeedController? parentFeed;
   final bool? deleteOnUndoRetweet;
   final bool? showVerticalDivider;
-  final User? replyedTweetOwner;
 
   const Tweet({
     super.key,
@@ -89,7 +88,6 @@ class Tweet extends StatefulWidget {
     required this.cancelSameUserNavigation,
     this.deleteOnUndoRetweet,
     this.showVerticalDivider = false,
-    this.replyedTweetOwner
   });
 
   @override
@@ -299,19 +297,19 @@ class _TweetState extends State<Tweet> {
 
                             // Replying To If it's there
                             Visibility(
-                                visible: widget.replyedTweetOwner != null,
-                                child: widget.replyedTweetOwner == null ? SizedBox() : Row(
+                                visible: widget.tweetData.replyingUserId != null,
+                                child: widget.tweetData.replyingUserId == null ? SizedBox() : Row(
                                   children: [
                                     const Text("Replying to ",style: TextStyle(color: Colors.grey),),
                                     GestureDetector(
                                       onTap: (){
                                         navigateToUserProfile(
                                             currentUserId: currentUser.id,
-                                            tweetOwnerId: widget.replyedTweetOwner!.id
+                                            tweetOwnerId: widget.tweetData.replyingUserId!
                                         );
                                       },
                                         child: Text(
-                                            "@${widget.replyedTweetOwner!.id}",
+                                            "@${widget.tweetData.replyingUserId!}",
                                           style: TextStyle(color: Colors.blue),
                                         )
                                     )
@@ -319,7 +317,7 @@ class _TweetState extends State<Tweet> {
                                 )
                             ),
 
-                            Visibility(visible: widget.replyedTweetOwner != null,child: SizedBox(height: 5,)),
+                            Visibility(visible: widget.tweetData.replyingUserId != null,child: SizedBox(height: 5,)),
 
                             // =================== post content ===================
                             RichText(

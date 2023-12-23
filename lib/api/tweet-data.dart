@@ -59,6 +59,7 @@ class TweetData
   User? reTweeter;
 
   TweetData? replyTweet;
+  String? replyingUserId;
 
   TweetData({
     required this.id,
@@ -77,7 +78,8 @@ class TweetData
     required this.isRetweeted,
     required this.media,
     required this.isFollowingMe,
-    this.replyTweet
+    this.replyTweet,
+    this.replyingUserId
   }){
     if (media != null && media!.isEmpty) media = null;
   }

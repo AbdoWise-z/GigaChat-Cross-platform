@@ -111,13 +111,31 @@ class Tweets {
       );
   }
 
-  static List<TweetData> decodeTweetList(
+  static Future<String?> getRepliedTweetUserId(String token, String tweetID) async {
+    ApiPath endPointPath = ApiPath.tweetOwnerId.format([tweetID]);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        endPointPath,
+        headers: headers
+    );
+    print("here responsing");
+    print(response.responseBody);
+    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
+      dynamic res = jsonDecode(response.responseBody!);
+      return res["data"]["tweet_owner"];
+    }
+    else {
+      return null;
+    }
+  }
+
+  static Future<List<TweetData>> decodeTweetList(
       String token,
       ApiResponse response,
       Map<String,List<String>?> accessor,
       {
         bool fetchReplyTweet = false
-      })
+      }) async
   {
     if (response.responseBody == null || response.responseBody!.isEmpty){
       return [];
@@ -128,10 +146,10 @@ class Tweets {
     specialAccessObject(json.decode(response.responseBody!), accessor["data"])
     :
     jsonDecode(response.responseBody!);
-    return tweets.map((tweet){
+    List<TweetData> tweetList = tweets.map((tweet) {
       List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
-      return TweetData(
+      TweetData tweetData =  TweetData(
           id: specialAccessObject(tweet, accessor["id"]!),
           referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!),
           description: specialAccessObject(tweet, accessor["description"]!) ?? "",
@@ -173,9 +191,19 @@ class Tweets {
           isFollowingMe: specialAccessObject(tweet, accessor["isFollowingMe"]) ?? false,
           media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null,
 
-          replyTweet:  fetchReplyTweet ? decodeTweetReply(tweet["reply"]) : null
+          replyTweet:  fetchReplyTweet ? decodeTweetReply(tweet["reply"]) : null,
       );
+      return tweetData;
     }).toList();
+    for (TweetData tweetData in tweetList){
+      if (tweetData.referredTweetId != null){
+        tweetData.replyingUserId = await getRepliedTweetUserId(token, tweetData.referredTweetId!);
+        if (tweetData.replyTweet != null){
+          tweetData.replyTweet!.replyingUserId = tweetData.tweetOwner.id;
+        }
+      }
+    }
+    return tweetList;
   }
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
@@ -356,7 +384,7 @@ class Tweets {
 
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
       dynamic tweet = jsonDecode(response.responseBody!)["data"];
-      return TweetData(
+      TweetData tweetData = TweetData(
           id: tweet["id"],
           referredTweetId: tweet["referredTweetId"],
           description: tweet["description"],
@@ -387,6 +415,10 @@ class Tweets {
             ) ;
           }).toList().cast<MediaData>()
       );
+      if (tweetData.referredTweetId != null){
+        tweetData.replyingUserId = await getRepliedTweetUserId(token, tweetData.referredTweetId!);
+      }
+      return tweetData;
     }
 
     return null;
@@ -412,7 +444,7 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
-      List<TweetData> responseTweets = decodeTweetList(
+      List<TweetData> responseTweets = await decodeTweetList(
         token,
         response,
         accessor,
