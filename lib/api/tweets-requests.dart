@@ -134,6 +134,7 @@ class Tweets {
 
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
           isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!) ?? false,
+          isFollowingMe: specialAccessObject(tweet, accessor["isFollowingMe"]) ?? false,
           media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
       );
     }).toList();
@@ -216,7 +217,7 @@ class Tweets {
   static Future<Map<String,TweetData>> getProfilePageLikes (String token,String userID, String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
-      "data" : ["posts", "likedTweets"],
+      "data" : ["posts"],
       "base" : null,
       "id": ["id"],
       "referredTweetId": ["referredTweetId"],
@@ -337,6 +338,7 @@ class Tweets {
           ),
           isLiked: tweet["isLiked"],
           isRetweeted: tweet["isRetweeted"],
+          isFollowingMe: tweet["isFollowingMe"],
           media: tweet["media"].map((media){
             return MediaData(
                 mediaType: media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
@@ -540,6 +542,7 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
         type: "Masterpiece", tweetOwner: User(name: "Moa",id: "DedInside"),
 
         isLiked: false,
+        isFollowingMe: false,
         isRetweeted: false
     );
   }
@@ -564,6 +567,7 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
       type: "Masterpiece", tweetOwner: User(name: "Moa",id: "DedInside"),
 
       isLiked: false,
-      isRetweeted: false
+      isRetweeted: false,
+      isFollowingMe: false,
   );
 }

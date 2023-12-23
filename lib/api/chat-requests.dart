@@ -32,6 +32,7 @@ class Chat {
           mongoID: member["id"],
           blocked: item["isBlocked"],
           followed: item["isFollowed"],
+          isFollowingMe: item["isFollowingMe"],
         ));
       }
       res.data = list;
@@ -96,6 +97,7 @@ class Chat {
           mongoID: member["id"],
           blocked: item["isBlocked"],
           followed: item["isFollowed"],
+          isFollowingMe: item["isFollowingMe"]
         ));
       }
       res.data = list;

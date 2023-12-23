@@ -28,16 +28,18 @@ class Account {
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
       u.email       = res["data"]["user"]["email"];
-      //u.bio         = res["data"]["user"]["bio"];
+      u.bio         = res["data"]["user"]["bio"];
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      u.bannerLink  = res["data"]["user"]["bannerImage"];
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
       u.followers   = res["data"]["user"]["followers_num"];
       u.following   = res["data"]["user"]["followings_num"];
-
+      u.numOfPosts  = res["data"]["user"]["numOfPosts"];
+      u.numOfLikes  = res["data"]["user"]["numOfLikes"];
+      u.mongoID     = res["data"]["user"]["_id"];
       k.data = u;
     }
     return k;
@@ -293,6 +295,7 @@ class Account {
       u.numOfPosts            = res["user"]["num_of_posts"];
       u.numOfLikes            = res["user"]["num_of_likes"];
       u.mongoID               = res["user"]["_id"];
+      u.isFollowingMe         = res["user"]["isFollowingMe"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();

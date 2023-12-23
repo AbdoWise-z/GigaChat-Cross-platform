@@ -224,7 +224,7 @@ class _ChatListPageState extends State<ChatListPage> {
                 },
                 press: () async {
                   var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
+                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked,isFollowingMe: e.isFollowingMe)
                   }) as Map;
                   setState(() {
                     User u = result["user"];
@@ -260,7 +260,7 @@ class _ChatListPageState extends State<ChatListPage> {
                 },
                 press: () async {
                   var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked)
+                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked, isFollowingMe: e.isFollowingMe)
                   }) as Map;
                   setState(() {
                     User u = result["user"];

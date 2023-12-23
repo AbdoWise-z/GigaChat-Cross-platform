@@ -85,9 +85,8 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            widget.isLogged? Navigator.popUntil(
-                context,
-                ModalRoute.withName(AccountSettings.pageRoute)) : Navigator.popUntil(context, ModalRoute.withName('/')
+            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
+            Navigator.popUntil(context, ModalRoute.withName('/')
             );
           },
           icon: widget.isLogged? const Icon(Icons.arrow_back): const Icon(Icons.close),

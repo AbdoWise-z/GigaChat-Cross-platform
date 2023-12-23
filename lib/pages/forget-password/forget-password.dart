@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/confirm-email.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -80,7 +81,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));  //TODO: change this
+            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
+              Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),
         ),

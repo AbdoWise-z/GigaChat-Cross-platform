@@ -42,7 +42,8 @@ class SearchKeyword extends StatelessWidget {
 
 class UserResult extends StatefulWidget {
   final User user;
-  const UserResult({super.key,required this.user});
+  final bool disableFollowButton;
+  const UserResult({super.key,required this.user, required this.disableFollowButton});
 
   @override
   State<UserResult> createState() => _UserResultState();
@@ -129,10 +130,13 @@ class _UserResultState extends State<UserResult> {
                     ),
                     child: const Text("Blocked"),
                   ):
-                  FollowButton(
-                      isFollowed: widget.user.isFollowed!,
-                      callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
-                      username: widget.user.id
+                  Visibility(
+                    visible: !widget.disableFollowButton,
+                    child: FollowButton(
+                        isFollowed: widget.user.isFollowed!,
+                        callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
+                        username: widget.user.id
+                    ),
                   ),
                 ),
               )

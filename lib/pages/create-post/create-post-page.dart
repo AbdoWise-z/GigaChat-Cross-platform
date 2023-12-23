@@ -127,6 +127,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         data ,
         success: (v) {
           ref = v.data!;
+          Auth.getInstance(context).getCurrentUser()!.numOfPosts++;
           returnList.add(
               TweetData(
                   id: ref!,
@@ -141,6 +142,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   tweetOwner: Auth.getInstance(context).getCurrentUser()!,
                   isLiked: false,
                   isRetweeted: false,
+                  isFollowingMe: false,
                   media: data.media.isEmpty ? null :
                   data.media.map((e) => MediaData(mediaType: e.type, mediaUrl: e.link)).toList()
               )

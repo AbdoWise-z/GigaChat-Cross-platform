@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
@@ -75,7 +76,8 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/')); //TODO: change this
+            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
+              Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),
         ),

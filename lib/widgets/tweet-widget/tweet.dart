@@ -150,12 +150,18 @@ class _TweetState extends State<Tweet> {
             if (widget.parentFeed != null && (widget.deleteOnUndoRetweet ?? false)) {
               widget.parentFeed?.deleteTweet(widget.tweetData.id);
             }
+            if(success && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfPosts--;
+            }
             updateState();
           }
           else{
+            if(success && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfPosts++;
+            }
             updateState();
           }
-          if(context.mounted) {
+          if(context.mounted && success) {
             FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
             FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
             FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
@@ -164,8 +170,14 @@ class _TweetState extends State<Tweet> {
           return success;
         },
         onLikeButtonClicked: () async{
+          bool isLiked = widget.tweetData.isLiked;
           bool success =  await toggleLikeTweet(context,currentUser.auth,widget.tweetData);
           if (success){
+            if(isLiked && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfLikes--;
+            }else if (context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfLikes++;
+            }
             updateState();
           }
           if(context.mounted) {
@@ -496,7 +508,7 @@ class _TweetState extends State<Tweet> {
 
       }], // ===============================================================
       ["Block @${tweetOwner.id}", Icons.block, () async{
-        await Auth.getInstance(context).block(tweetOwner.id,tweetOwner.isFollowed!);
+        await Auth.getInstance(context).block(tweetOwner.id,tweetOwner.isFollowed!, widget.tweetData.isFollowingMe);
         widget.parentFeed!.deleteUserTweets(tweetOwner.id);
         updateState();
       }], // ===============================================================
@@ -514,6 +526,7 @@ class _TweetState extends State<Tweet> {
               }
               else {
                 widget.parentFeed?.deleteTweet(tweetId);
+                Auth.getInstance(context).getCurrentUser()!.numOfPosts--;
               }
               updateState();
             }

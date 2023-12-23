@@ -13,6 +13,7 @@ class ChatObject {
   final String mongoID;
   bool blocked;
   bool followed;
+  bool isFollowingMe;
 
   bool pinned;
   DateTime? time;
@@ -29,6 +30,7 @@ class ChatObject {
     this.profileImage = USER_DEFAULT_PROFILE,
     this.pinned = false,
     this.time,
+    this.isFollowingMe = false,
   }) {
     time = time ?? DateTime.now();
   }

@@ -65,6 +65,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late bool? isWantedUserMuted;
   late bool? isWantedUserFollowed;
   late bool? isCurrUser;
+  late bool? isFollowingMe;
 
 
   //page details
@@ -117,6 +118,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     numOfPosts = u.numOfPosts;
     numOfLikes = u.numOfLikes;
     mongoID    = u.mongoID!;
+    isFollowingMe = u.isFollowingMe;
 
 
     scrollController = ScrollController();
@@ -177,6 +179,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     );
     likesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
     likesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
+    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
+    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
+    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+
 
     setState(() {
       loading = false;
@@ -373,8 +381,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         TextButton(
                           onPressed: () async {
                             await auth.block(
-                                widget.username,
+                              widget.username,
                               isWantedUserFollowed!,
+                              isFollowingMe!,
                               success: (res){
                                 setState(() {
                                   updateUserFeeds();
@@ -541,7 +550,9 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   visible: widget.isCurrUser
                                       || (isCurrUser != null && isCurrUser!)
                                       || isCurrUserBlocked != null && !isCurrUserBlocked!,
-                                  child: Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                  child: Text(prevTabIndex == 3?
+                                  "${widget.isCurrUser? auth.getCurrentUser()!.numOfLikes : numOfLikes} Likes" :
+                                  "${widget.isCurrUser? auth.getCurrentUser()!.numOfPosts : numOfPosts} Posts",
                                     style: const TextStyle(
                                       color: Colors.white,
                                     ),
@@ -732,16 +743,21 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   isWantedUserFollowed : isWantedUserFollowed,
                                   isWantedUserBlocked : isWantedUserBlocked,
                                   onTapEditProfile: onEditProfileClick,
-                                  onTapDM: (){
-                                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                  onTapDM: () async {
+                                    var res = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                                       "user" : User(
                                           id: username ,
                                           name: name ,
                                           iconLink: avatarImageUrl,
                                           mongoID: mongoID,
                                           isFollowed: isWantedUserFollowed,
-                                          isBlocked: false
+                                          isBlocked: false,
+                                        isFollowingMe: isFollowingMe,
                                       )
+                                    }) as Map;
+                                    setState(() {
+                                      User u = res["user"];
+                                      isWantedUserBlocked = u.isBlocked;
                                     });
                                   },
                                   onTapFollow: followUser,

@@ -135,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
               padding: EdgeInsets.all(8.0),
               child: Divider(thickness: 2),
             ) : const SizedBox.shrink(),
-            ...searchedUsers!.map((User user) => UserResult(user: user)).toList()
+            ...searchedUsers!.map((User user) => UserResult(user: user, disableFollowButton: true)).toList()
           ]
         ),
       ),
