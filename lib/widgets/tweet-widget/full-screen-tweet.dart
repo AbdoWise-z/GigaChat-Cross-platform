@@ -181,10 +181,13 @@ class _FullScreenImageState extends State<FullScreenImage> {
                           SizedBox(
                             width: 80,
                             height: 30,
-                            child: FollowButton(
-                              isFollowed: tweetData.tweetOwner.isFollowed!,
-                              callBack: (_){},
-                              username: tweetData.tweetOwner.id,
+                            child: Visibility(
+                              visible: tweetData.tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
+                              child: FollowButton(
+                                isFollowed: tweetData.tweetOwner.isFollowed!,
+                                callBack: (_){},
+                                username: tweetData.tweetOwner.id,
+                              ),
                             )
                           )
                         ],
