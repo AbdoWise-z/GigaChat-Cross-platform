@@ -42,7 +42,6 @@ class FeedController {
         _feedData!.add(value);
         print("start here");
         print(value.id);
-        print(value.referredTweetId);
       }
     });
     if (noRefresh) {

@@ -212,7 +212,7 @@ class _TweetState extends State<Tweet> {
               }
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),  //TODO:
               child: Table(
                   columnWidths: {
                     0 : FixedColumnWidth(!widget.isSinglePostView ? 40 : 0),
@@ -234,7 +234,7 @@ class _TweetState extends State<Tweet> {
                                 Visibility(
                                     visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
                                     child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 5),
                                 GestureDetector(
                                   onTap: () => navigateToUserProfile(
                                       currentUserId: currentUser.id,
@@ -248,7 +248,7 @@ class _TweetState extends State<Tweet> {
                                   ),
                                 ),
 
-
+                                SizedBox(height: 5,),
                                 Visibility(
                                   visible: widget.showVerticalDivider!,
                                   child: const Expanded(
@@ -336,10 +336,10 @@ class _TweetState extends State<Tweet> {
                             Visibility(
                               visible: (widget.tweetData.media != null),
                               child: widget.tweetData.media == null ? const SizedBox() :
-                              Container(
-                                constraints: const BoxConstraints(
-                                    maxHeight: 300,
-                                ),
+                              Container(   //TODO:
+                                // constraints: const BoxConstraints(
+                                //     maxHeight: 500,
+                                // ),
                                 child: TweetMedia(
                                   tweetData: widget.tweetData,
                                   parentFeed: widget.parentFeed,
@@ -623,7 +623,10 @@ class _TweetState extends State<Tweet> {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        upperRowNameField,
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: upperRowNameField,
+        ),
 
         const Expanded(child: SizedBox()),
 

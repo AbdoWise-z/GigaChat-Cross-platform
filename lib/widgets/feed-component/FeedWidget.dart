@@ -174,7 +174,7 @@ class _BetterFeedState extends State<BetterFeed> {
                 currentUser: currentUser
             ));
 
-            if (tweetData.replyTweet != null){
+            if (tweetData.replyTweet != null && !isSinglePostView){
               resultWidgets.add(
               makeTweetFromData(
                   tweetData: tweetData.replyTweet!,
