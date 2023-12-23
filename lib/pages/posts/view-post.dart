@@ -12,7 +12,7 @@ import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 
 class ViewPostPage extends StatefulWidget {
   static const String pageRoute = "/post/view";
-  static const String feedID = "PostRepliesFeed";
+  static const String feedID = "PostRepliesFeed/";
 
 
   ViewPostPage({super.key});

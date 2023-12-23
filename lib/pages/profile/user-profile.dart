@@ -29,10 +29,10 @@ import '../../widgets/feed-component/feed-controller.dart';
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
-  static const profileFeedPosts = 'profileFeedPosts';
-  static const profileFeedReplies = 'profileFeedReplies';
-  static const profileFeedLikes = 'profileFeedLikes';
-  static const profileFeedMadia = 'profileFeedMadia';
+  static const profileFeedPosts = 'profileFeedPosts/';
+  static const profileFeedReplies = 'profileFeedReplies/';
+  static const profileFeedLikes = 'profileFeedLikes/';
+  static const profileFeedMadia = 'profileFeedMadia/';
 
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 

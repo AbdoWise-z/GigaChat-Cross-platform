@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
+import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
@@ -49,15 +51,26 @@ Future<bool> toggleRetweetTweet(String? token,TweetData tweetData) async {
   return success;
 }
 
+bool canBeAppended(String tweetID, String parentFeedId, String currentUserId){
+  List<String> splittedPath = parentFeedId.split("/");
+  if (splittedPath.length > 1 && (splittedPath[1] == tweetID || splittedPath[1] == currentUserId)){
+    return true;
+  }
+  else{
+    return false;
+  }
+
+}
 
 Future<int> commentTweet(BuildContext context, TweetData tweetData, FeedController? targetFeed) async {
+  User currentUser = Auth.getInstance(context).getCurrentUser()!;
   dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
     "reply" : tweetData,
   });
   if(retArguments["success"] != null && retArguments["success"] == true){
     tweetData.repliesNum += 1;
     List<TweetData> tweets = retArguments["tweets"];
-    if(targetFeed != null) {
+    if(targetFeed != null && canBeAppended(tweetData.id, targetFeed.id, currentUser.id)) {
       Map<String, TweetData> mappedTweets = {};
       for (TweetData tweetData in tweets) {
         mappedTweets.putIfAbsent(tweetData.id, () => tweetData);

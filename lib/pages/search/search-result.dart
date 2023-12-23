@@ -22,8 +22,16 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   void initState() {
-    latestFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_TWEETS);
-    userFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_USERS);
+    latestFeedController = FeedController(
+        context,
+        id: SearchResultPage.tweetSearchFeed,
+        providerFunction: ProviderFunction.SEARCH_TWEETS
+    );
+    userFeedController = FeedController(
+        context,
+        id: SearchResultPage.userSearchFeed,
+        providerFunction: ProviderFunction.SEARCH_USERS
+    );
 
     super.initState();
   }

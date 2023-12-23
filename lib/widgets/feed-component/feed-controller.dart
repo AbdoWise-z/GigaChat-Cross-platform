@@ -9,6 +9,7 @@ import 'package:gigachat/providers/feed-provider.dart';
 
 class FeedController {
 
+  String id;
   FeedProvider? feedProvider;
   String? token;
   List<dynamic>? _feedData;
@@ -20,7 +21,7 @@ class FeedController {
   bool? isInProfile;
 
 
-  FeedController(BuildContext context, {this.token, required this.providerFunction,this.isInProfile}) {
+  FeedController(BuildContext context, {required this.id, this.token, required this.providerFunction,this.isInProfile}) {
     _feedData = [];
     _feedKeys = [];
     loading = true;
@@ -111,7 +112,6 @@ class FeedController {
     List<TweetData> response = [tweetData!];
     while(tweetData != null && tweetData.referredTweetId != null)
     {
-      print(tweetData.referredTweetId);
       tweetData = await Tweets.getTweetById(token!, tweetData.referredTweetId!);
       if (tweetData == null) break;
       response = [...response,tweetData];

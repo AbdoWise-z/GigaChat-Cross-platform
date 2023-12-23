@@ -128,25 +128,28 @@ class _CreatePostPageState extends State<CreatePostPage> {
         success: (v) {
           ref = v.data!;
           Auth.getInstance(context).getCurrentUser()!.numOfPosts++;
-          returnList.add(
-              TweetData(
-                  id: ref!,
-                  referredTweetId: data.referredTweetId,
-                  description: data.description,
-                  viewsNum: 0,
-                  likesNum: 0,
-                  repliesNum: 0,
-                  repostsNum: 0,
-                  creationTime: DateTime.now(),
-                  type: data.referredTweetId == null ? "tweet" : "reply",
-                  tweetOwner: Auth.getInstance(context).getCurrentUser()!,
-                  isLiked: false,
-                  isRetweeted: false,
-                  isFollowingMe: false,
-                  media: data.media.isEmpty ? null :
-                  data.media.map((e) => MediaData(mediaType: e.type, mediaUrl: e.link)).toList()
-              )
+          TweetData tweetData = TweetData(
+              id: ref!,
+              referredTweetId: data.referredTweetId,
+              description: data.description,
+              viewsNum: 0,
+              likesNum: 0,
+              repliesNum: 0,
+              repostsNum: 0,
+              creationTime: DateTime.now(),
+              type: data.referredTweetId == null ? "tweet" : "reply",
+              tweetOwner: Auth.getInstance(context).getCurrentUser()!,
+              isLiked: false,
+              isRetweeted: false,
+              isFollowingMe: false,
+              media: data.media.isEmpty ? null :
+              data.media.map((e) => MediaData(mediaType: e.type, mediaUrl: e.link)).toList(),
+              replyingUserId: _replyTweet == null ? null : _replyTweet!.tweetOwner.id
           );
+          returnList.add(tweetData);
+          if (_replyTweet != null) {
+            _replyTweet!.replyTweet = tweetData;
+          }
         } ,
         error: (v) => print(v.responseBody),
       )) {

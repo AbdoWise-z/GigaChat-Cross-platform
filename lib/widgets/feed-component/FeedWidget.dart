@@ -168,13 +168,15 @@ class _BetterFeedState extends State<BetterFeed> {
             makeTweetFromData(
                 tweetData: tweetData,
                 isSinglePostView: isSinglePostView,
-                addVerticalDivider: addVerticalDivider || tweetData.replyTweet != null,
+                addVerticalDivider: addVerticalDivider || (tweetData.replyTweet != null && widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS),
                 cancellationPosition: cancellationPosition,
                 sameUser: sameUser,
                 currentUser: currentUser
             ));
 
-            if (tweetData.replyTweet != null){
+            if (tweetData.replyTweet != null &&
+                widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS &&
+                !isSinglePostView){
               resultWidgets.add(
               makeTweetFromData(
                   tweetData: tweetData.replyTweet!,

@@ -41,7 +41,11 @@ class FeedProvider extends ChangeNotifier{
     required bool clearData
   })
   {
-    _controllers.putIfAbsent(id, () => FeedController(context, providerFunction: providerFunction));
+    _controllers.putIfAbsent(id, () => FeedController(
+        context,
+        id: id,
+        providerFunction: providerFunction
+    ));
     FeedController target = _controllers[id]!;
     if (clearData) target.resetFeed();
     return _controllers[id]!;
