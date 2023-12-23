@@ -177,6 +177,7 @@ class _BetterFeedState extends State<BetterFeed> {
             if (tweetData.replyTweet != null &&
                 widget.providerFunction == ProviderFunction.GET_TWEET_COMMENTS &&
                 !isSinglePostView){
+
               resultWidgets.add(
               makeTweetFromData(
                   tweetData: tweetData.replyTweet!,

@@ -381,7 +381,7 @@ class _EditProfileState extends State<EditProfile> {
             height: 100,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
-              initialDateTime: DateTime.now(),
+              initialDateTime: nonFormattedDate,
               maximumDate: DateTime.now(),
               onDateTimeChanged: (input){
                 setState(() {
