@@ -58,7 +58,7 @@ class Notifications with HomePageTab {
     count = await NotificationsProvider().getUnseenCount(Auth().getCurrentUser()!.auth!);
     print("Not count $count");
     if (context.mounted) {
-      setHomeState(context, () {
+      setHomeState(() {
         print("setting home state");
       });
     }

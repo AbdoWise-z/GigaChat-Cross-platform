@@ -34,7 +34,7 @@ mixin HomePageTab {
     return 1;
   }
 
-  void setHomeState(BuildContext context , void Function() callback){
+  void setHomeState(void Function() callback){
     Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
       var home = homeKey.currentState;
       home!.update(callback);

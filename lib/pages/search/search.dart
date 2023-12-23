@@ -9,8 +9,6 @@ import 'package:gigachat/providers/auth.dart';
 
 const REQUEST_COOLDOWN = Duration(milliseconds: 500);
 
-
-
 class SearchPage extends StatefulWidget
 {
   static const String pageRoute = "/search";

@@ -26,6 +26,7 @@ import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/chat-provider.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/notifications-provider.dart';
@@ -69,6 +70,7 @@ class _GigaChatState extends State<GigaChat> {
         ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
         ChangeNotifierProvider<NotificationsProvider>(create: (context) => NotificationsProvider()),
+        ChangeNotifierProvider<ChatProvider>(create: (context) => ChatProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (_ , theme , __) {
