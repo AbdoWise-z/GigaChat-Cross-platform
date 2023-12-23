@@ -16,6 +16,7 @@ class FeedController {
   List<String>? _feedKeys;
 
   bool loading = true;
+  bool fetchingMoreData = false;
   ProviderFunction providerFunction;
   int lastFetchedPage = 0;
   bool? isInProfile;
@@ -109,6 +110,7 @@ class FeedController {
   Future<List<TweetData>> fetchRepliesTree(mainTweetForComments) async {
     TweetData? tweetData = mainTweetForComments!;
     List<TweetData> response = [tweetData!];
+    print("this is refferedTweetID: ${tweetData.referredTweetId}");
     while(tweetData != null && tweetData.referredTweetId != null)
     {
       tweetData = await Tweets.getTweetById(token!, tweetData.referredTweetId!);

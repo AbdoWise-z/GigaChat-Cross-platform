@@ -245,6 +245,7 @@ class Tweets {
 
           "isLiked": ["isLiked"],
           "isRetweeted": ["isRtweeted"],
+          "isFollowingMe" : ["isFollowingMe"],
           "media": ["tweetDetails","media"],
         }, ApiPath.followingTweets);
   }
@@ -276,6 +277,7 @@ class Tweets {
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
+      "isFollowingMe" : ["isFollowingMe"],
       "media": ["media"]
     }, ApiPath.userProfileTweets.format([userID]));
   }
@@ -307,6 +309,7 @@ class Tweets {
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
+      "isFollowingMe" : ["isFollowingMe"],
       "media": ["media"]
     }, ApiPath.userProfileLikes.format([userID]));
   }
@@ -338,6 +341,7 @@ class Tweets {
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRtweeted"],
+      "isFollowingMe" : ["isFollowingMe"],
       "media": ["media"],
     }, ApiPath.mentions);
   }

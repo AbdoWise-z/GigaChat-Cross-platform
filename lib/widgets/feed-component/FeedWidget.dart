@@ -49,24 +49,23 @@ class _BetterFeedState extends State<BetterFeed> {
   late FeedController _feedController;
   late Timer timer;
   late ScrollController _scrollController;
-  late bool fetchingMoreData;
 
 
   @override
   void initState() {
     super.initState();
     _feedController = widget.feedController;
-    fetchingMoreData = false;
+    _feedController.fetchingMoreData = false;
     _feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
     timer = Timer(const Duration(seconds: 1), () { });
     _scrollController = ScrollController();
     _scrollController.addListener(() async {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent)
       {
-        fetchingMoreData = true;
+        _feedController.fetchingMoreData = true;
         setState(() {});
         await refreshFeed();
-        fetchingMoreData = false;
+        _feedController.fetchingMoreData = false;
         setState(() {});
       }
     });
@@ -188,7 +187,7 @@ class _BetterFeedState extends State<BetterFeed> {
                   currentUser: currentUser
               ));
             }
-        };
+        }
         return resultWidgets;
     }
   }
@@ -201,7 +200,7 @@ class _BetterFeedState extends State<BetterFeed> {
 
           if (_feedController.isLoading()){
             refreshFeed();
-            return Container(
+            return SizedBox(
                 height: MediaQuery.of(context).size.height,
                 child: const Center(child: CircularProgressIndicator())
             );
@@ -226,8 +225,8 @@ class _BetterFeedState extends State<BetterFeed> {
               child: Column(
                   children: [
                     ...widgetList,
-                    Visibility(visible: fetchingMoreData, child: CircularProgressIndicator()),
-                    SizedBox(height: 10,)
+                    Visibility(visible: _feedController.fetchingMoreData, child: const CircularProgressIndicator()),
+                    const SizedBox(height: 10,)
                   ]
               ),
             );

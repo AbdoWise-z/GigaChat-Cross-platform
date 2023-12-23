@@ -123,10 +123,18 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
     scrollController = ScrollController();
     scrollController.addListener(() async {
-      if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
-      {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent
+          && (widget.isCurrUser
+          || (isCurrUser != null && isCurrUser!)
+          || ((isWantedUserBlocked != null && !isWantedUserBlocked!) && (isCurrUserBlocked != null && !isCurrUserBlocked!)))) {
         if(prevTabIndex == 0) {
+           setState(() {
+             postsFeedController.fetchingMoreData = true;
+           });
           await postsFeedController.fetchFeedData(username: widget.username);
+          setState(() {
+            postsFeedController.fetchingMoreData = false;
+          });
         }
         if(prevTabIndex == 1) {
           await repliesFeedController.fetchFeedData(username: widget.username);
@@ -257,6 +265,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         birthDate = res["birthDate"];
         bannerImageUrl = res["bannerImageUrl"];
         avatarImageUrl = res["avatarImageUrl"];
+        getData();
       });
     }
   }
@@ -274,6 +283,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     if(res != null){
       setState(() {
         avatarImageUrl = res;
+        getData();
       });
     }
   }
@@ -545,6 +555,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       fontSize: 23,
                                       color: Colors.white
                                   ),
+                                  maxLines: 1,
                                 ),
                                 Visibility(
                                   visible: widget.isCurrUser
@@ -703,6 +714,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                           birthDate = res["birthDate"];
                                           bannerImageUrl = res["bannerImageUrl"];
                                           avatarImageUrl = res["avatarImageUrl"];
+                                          getData();
                                         });
                                       }
                                     }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
@@ -791,6 +803,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold
                               ),
+                              maxLines: 2,
                             ),
                             MainText(text: "@${widget.username}", color:Colors.grey ,),
                             bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?

@@ -171,7 +171,7 @@ class NothingYet extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          'not supported yet.little man, ',
+          "why don't you go touch some grass tell someone do something.",
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey,

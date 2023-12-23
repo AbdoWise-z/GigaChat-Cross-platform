@@ -148,7 +148,7 @@ class _UserResultState extends State<UserResult> {
             children: [
               const CircleAvatar(backgroundColor: Colors.transparent),
               const SizedBox(width: 10,),
-              Text(widget.user.bio,style: const TextStyle(color: Colors.white),)
+              Flexible(child: Text(widget.user.bio,style: const TextStyle(color: Colors.white),overflow: TextOverflow.ellipsis, maxLines: 1,))
             ],
           )
         ],
