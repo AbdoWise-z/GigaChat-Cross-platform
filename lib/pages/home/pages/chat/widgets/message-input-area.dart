@@ -74,8 +74,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   final GlobalKey _textFieldKey = GlobalKey();

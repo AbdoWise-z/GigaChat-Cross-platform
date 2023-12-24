@@ -6,6 +6,7 @@ import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
 import "package:gigachat/services/events-controller.dart";
+import "package:gigachat/services/notifications-controller.dart";
 import "package:gigachat/util/contact-method.dart";
 
 import "api.dart";
@@ -16,6 +17,7 @@ class Account {
       body: json.encode({
         "query": userName,
         "password": password,
+        "push_token": NotificationsController.FirebaseToken,
       }),
       headers: Api.JSON_TYPE_HEADER,
     );
@@ -297,6 +299,44 @@ class Account {
       u.numOfLikes            = res["user"]["num_of_likes"];
       u.mongoID               = res["user"]["_id"];
       u.isFollowingMe         = res["user"]["isFollowingMe"];
+    }else{
+      u.birthDate   = DateTime.now();
+      u.joinedDate  = DateTime.now();
+
+    }
+    k.data = u;
+    return k;
+  }
+
+  static Future<ApiResponse<User>> apiUserProfileWithID(String token,String id) async{
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<User>(
+      ApiPath.userProfileWithID.format([id]),
+      headers: headers,
+    );
+    User u = User();
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      print(res);
+      u.id                    = res["user"]["username"];
+      u.name                  = res["user"]["nickname"];
+      u.bio                   = res["user"]["bio"] ?? "";
+      u.iconLink              = res["user"]["profile_image"];
+      u.bannerLink            = res["user"]["banner_image"] ?? "";
+      //u.location            = res["user"]["location"];  //const cuz its not a feature
+      //u.website             = res["user"]["website"];   //const cuz its not a feature
+      u.birthDate             = DateTime.parse(res["user"]["birth_date"]);
+      u.joinedDate            = DateTime.parse(res["user"]["joined_date"]);
+      u.followers             = res["user"]["followers_num"];
+      u.following             = res["user"]["followings_num"];
+      u.isFollowed            = res["user"]["is_wanted_user_followed"];
+      u.isWantedUserMuted     = res["user"]["is_wanted_user_muted"];
+      u.isWantedUserBlocked   = res["user"]["is_wanted_user_blocked"];
+      u.isCurrUser            = res["user"]["is_curr_user"];
+      u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
+      u.numOfPosts            = res["user"]["num_of_posts"];
+      u.numOfLikes            = res["user"]["num_of_likes"];
+      u.mongoID               = res["user"]["_id"];
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();

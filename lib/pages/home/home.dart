@@ -8,7 +8,7 @@ import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/pages/notification/notifications.dart';
+import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';
 import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
@@ -51,7 +51,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   late final List<HomePageTab> _pages = [
     FeedHomeTab(),
     Explore(),
-    Notifications(),
+    NotificationsHomeTab(),
     ChatHomeTab(),
   ];
   late final List<TabController?> _controller = [
@@ -65,7 +65,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     TriggerNotification? t = await NotificationsController.getLaunchNotification();
     if (t != null){
       if (context.mounted) {
-        NotificationsController.doDispatchNotification(t, context);
+        NotificationsController.dispatchNotification(t, context);
       }
     }
   }

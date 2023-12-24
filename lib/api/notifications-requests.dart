@@ -13,6 +13,8 @@ class Notifications {
       headers: Api.getTokenHeader("Bearer $token"),
     );
 
+    print(res.responseBody);
+
     if (res.code == ApiResponse.CODE_SUCCESS){
       var data = jsonDecode(res.responseBody!)["data"];
       List<NotificationObject> list = [];
@@ -21,8 +23,10 @@ class Notifications {
           id: k["_id"],
           description: k["description"],
           type: k["type"],
-          creation_time: DateTime.tryParse(k["creation_time"])!,
+          creationTime: DateTime.tryParse(k["creation_time"])!,
           img: k["notifierProfileImage"],
+          seen: k["seen"],
+          targetID: k["destination"] ?? "no target",
         ));
       }
 

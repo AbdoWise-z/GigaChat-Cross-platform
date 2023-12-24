@@ -20,6 +20,10 @@ class LocalSettings extends ChangeNotifier {
     return _localSettings;
   }
 
+  static LocalSettings get instance{
+    return LocalSettings();
+}
+
   ///
   /// this function must be called before the application starts
   /// it loads the settings.json file from disk into the dynamic

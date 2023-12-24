@@ -53,6 +53,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late String bio;
   late String website;
   String location = "Cairo, Egypt";  //its not a feature so its constant forever, looks cool tho
+                                     //yeah I can confirm it looks cool
   late DateTime birthDate;
   late DateTime joinedDate;
   late int following;
