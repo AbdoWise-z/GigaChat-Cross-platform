@@ -4,6 +4,7 @@ import 'package:gigachat/pages/home/pages/explore/subPages/explore-setting-page.
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/widgets/trends/trends-tab.dart';
 
 class Explore with HomePageTab {
   @override
@@ -43,7 +44,7 @@ class Explore with HomePageTab {
 
   @override
   AppBarTabs? getTabs(BuildContext context) {
-    return AppBarTabs(tabs: ["For you" , "Trending" , "News","Sport","Entertainment"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
+    return AppBarTabs(tabs: ["Trending"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
   }
 
   @override
@@ -54,11 +55,7 @@ class Explore with HomePageTab {
   @override
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     return const <Widget>[
-      NothingYet(),
-      Trending(),
-      NothingYet(),
-      NothingYet(),
-      NothingYet(),
+      TrendsTab()
     ];
   }
 

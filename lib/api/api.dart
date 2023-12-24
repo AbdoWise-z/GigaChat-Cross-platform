@@ -119,8 +119,9 @@ class ApiPath{
   static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
   static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
   static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
-
   static ApiPath tweetOwnerId            = const ApiPath._("/api/tweets/tweetOwner/%s");
+  static ApiPath getAllTrends            = const ApiPath._("/api/trends/all");
+
 }
 
 class Api {

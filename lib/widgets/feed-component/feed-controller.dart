@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/search-requests.dart';
+import 'package:gigachat/api/trend-requests.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -42,8 +43,6 @@ class FeedController {
       if(! _feedKeys!.contains(key)){
         _feedKeys!.add(key);
         _feedData!.add(value);
-        print("start here");
-        print(value.id);
       }
     });
     if (noRefresh) {
@@ -110,7 +109,6 @@ class FeedController {
   Future<List<TweetData>> fetchRepliesTree(mainTweetForComments) async {
     TweetData? tweetData = mainTweetForComments!;
     List<TweetData> response = [tweetData!];
-    print("this is refferedTweetID: ${tweetData.referredTweetId}");
     while(tweetData != null && tweetData.referredTweetId != null)
     {
       tweetData = await Tweets.getTweetById(token!, tweetData.referredTweetId!);
@@ -176,7 +174,7 @@ class FeedController {
         }
         else{
           response = await SearchRequests.searchUsersByKeywordMapped(
-              keyword!,
+              keyword,
               token!,
               nextPage.toString(),
               DEFAULT_PAGE_COUNT.toString()
@@ -291,7 +289,9 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString(),
             nextPage.toString()
         );
-
+        break;
+      case ProviderFunction.GET_TRENDS:
+        response = await TrendRequests.getAllTrends(token!, nextPage.toString(), DEFAULT_PAGE_COUNT.toString());
         break;
 
       default:

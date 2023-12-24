@@ -143,12 +143,16 @@ class _UserResultState extends State<UserResult> {
             ],
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const CircleAvatar(backgroundColor: Colors.transparent),
               const SizedBox(width: 10,),
-              Flexible(child: Text(widget.user.bio,style: const TextStyle(color: Colors.white),overflow: TextOverflow.ellipsis, maxLines: 1,))
+              Text(
+                widget.user.bio,style: const TextStyle(color: Colors.white),
+                overflow: TextOverflow.ellipsis,
+              )
             ],
           )
         ],

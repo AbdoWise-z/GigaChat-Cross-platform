@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:gigachat/api/trend-data.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -10,6 +11,7 @@ import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/widgets/trends/trend-widget.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
@@ -189,6 +191,9 @@ class _BetterFeedState extends State<BetterFeed> {
             }
         }
         return resultWidgets;
+      case ProviderResultType.TREND_RESULT:
+        List<TrendData> trendResult = _feedController.getCurrentData().cast<TrendData>();
+        return trendResult.map((trendData) => TrendWidget(trendData: trendData)).toList();
     }
   }
 

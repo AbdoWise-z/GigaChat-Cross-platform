@@ -20,7 +20,6 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
-import 'package:gigachat/pages/search/search-result.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -129,6 +128,7 @@ class _TweetState extends State<Tweet> {
   @override
   Widget build(BuildContext context) {
     User currentUser = Auth.getInstance(context).getCurrentUser()!;
+    int rowCount = widget.tweetOwner.name.length + widget.tweetOwner.id.length;
 
     actionButtons = initActionButtons(
         context: context,
@@ -286,7 +286,8 @@ class _TweetState extends State<Tweet> {
                                 widget.tweetOwner,
                                 widget.tweetData.creationTime,
                                 widget.isSinglePostView,
-                                isDarkMode
+                                isDarkMode,
+                              rowCount
                             ),
 
                             // =================== extra space for single post view ===================
@@ -317,7 +318,7 @@ class _TweetState extends State<Tweet> {
                                 )
                             ),
 
-                            Visibility(visible: widget.tweetData.replyingUserId != null,child: SizedBox(height: 5,)),
+                            Visibility(visible: widget.tweetData.replyingUserId != null,child: const SizedBox(height: 5,)),
 
                             // =================== post content ===================
                             RichText(
@@ -479,7 +480,8 @@ class _TweetState extends State<Tweet> {
       User tweetOwner,
       DateTime tweetDate,
       bool isSinglePostView,
-      bool isDarkMode
+      bool isDarkMode,
+      int countRow
       )
   {
     User? currentUser = Auth.getInstance(context).getCurrentUser();
@@ -606,12 +608,13 @@ class _TweetState extends State<Tweet> {
                 color: isDarkMode ? Colors.white : Colors.black
             )
         ),
+
         RichText(
             text: TextSpan(
                 style: const TextStyle(
                     color: Colors.grey, fontWeight: FontWeight.w400),
                 children: [
-                  TextSpan(text: "@${tweetOwner.id}"),
+                  TextSpan(text: "@${ countRow > 25 ? tweetOwner.id.substring(0,25 - tweetOwner.name.length) + "..." : tweetOwner.id}"),
                   TextSpan(
                       text:
                       " . ${InputFormatting.calculateDateSincePost(tweetDate)}")
