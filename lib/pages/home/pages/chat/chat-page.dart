@@ -407,104 +407,105 @@ class ChatPageState extends State<ChatPage> {
 
                   const SizedBox(width: 10,),
 
-                  TextButton(
-                    onPressed: () {
-                      showModalBottomSheet(context: context, builder: (_) {
-                        return SizedBox(
-                          height: 200,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(
-                                  width: 40,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.grey,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10,),
-
-                                Text(
-                                  _with.name,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).textTheme.bodyLarge!.color,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10,),
-
-                                ListTile(
-                                  leading: Container(
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        showModalBottomSheet(context: context, builder: (_) {
+                          return SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
                                     width: 40,
-                                    height: 40,
-                                    clipBehavior: Clip.antiAlias,
+                                    height: 5,
                                     decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          _with.iconLink,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                      borderRadius: const BorderRadius.all(Radius.circular(50)),
-                                      border: Border.all(
-                                        width: 0,
-                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.grey,
                                     ),
                                   ),
-                                  title: Text(
+
+                                  const SizedBox(height: 10,),
+
+                                  Text(
                                     _with.name,
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w600,
                                       color: Theme.of(context).textTheme.bodyLarge!.color,
                                     ),
                                   ),
-                                  subtitle: Text(
-                                    "@${_with.id}",
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
+
+                                  const SizedBox(height: 10,),
+
+                                  ListTile(
+                                    leading: Container(
+                                      width: 40,
+                                      height: 40,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            _with.iconLink,
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(50)),
+                                        border: Border.all(
+                                          width: 0,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  trailing: Visibility(
-                                    visible: !_with.isBlocked!,
-                                    child: FollowButton(
-                                      isFollowed: _with.isFollowed!,
-                                      callBack: (b) {
-                                        setState(() {
-                                          _with.isFollowed = b;
-                                        });
-                                      },
-                                      username: _with.id,
+                                    title: Text(
+                                      _with.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                                      ),
                                     ),
-                                  ),
-                                )
-                              ],
+                                    subtitle: Text(
+                                      "@${_with.id}",
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    trailing: Visibility(
+                                      visible: !_with.isBlocked!,
+                                      child: FollowButton(
+                                        isFollowed: _with.isFollowed!,
+                                        callBack: (b) {
+                                          setState(() {
+                                            _with.isFollowed = b;
+                                          });
+                                        },
+                                        username: _with.id,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      });
-                    },
-                    child: Text(
-                      _with.name,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                          );
+                        });
+                      },
+                      child: Text(
+                        _with.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).textTheme.bodyLarge!.color,
+                        ),
                       ),
                     ),
                   )

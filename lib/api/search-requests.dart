@@ -61,6 +61,8 @@ class SearchRequests{
           id: user["username"],
           name: user["nickname"],
           isFollowed: user["isFollowedbyMe"],
+          isWantedUserBlocked: user["isBlocked"],
+          bio: user["bio"] ?? "",
           followers: user["followers_num"],
           following: user["following_num"],
           iconLink: user["profile_image"] ?? USER_DEFAULT_PROFILE

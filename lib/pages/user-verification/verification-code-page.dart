@@ -150,7 +150,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
       error: (res){
         print(res.code);
         print(res.responseBody);
-        if (res.code == ApiResponse.CODE_NOT_AUTHORIZED){
+        if (res.code == ApiResponse.CODE_BAD_REQUEST){
           Toast.showToast(context, "Wrong code");
         }
       }
@@ -172,7 +172,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         context,
         leadingIcon: widget.isRegister ? null: IconButton(
           onPressed: () {
-            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
+            widget.isLogged? Navigator.pop(context) :
             Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),

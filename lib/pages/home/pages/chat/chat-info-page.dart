@@ -97,6 +97,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
   void _blockUser() async {
     Auth auth = Auth.getInstance(context);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
 
     showDialog(
       context: context,
@@ -135,10 +136,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                             setState(() {
                               widget._with.isBlocked = true;
                               if(context.mounted) {
-                                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-                                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-                                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-                                FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+                                feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts);
+                                feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes);
                               }
                               if(context.mounted){
                                 Navigator.pop(context);

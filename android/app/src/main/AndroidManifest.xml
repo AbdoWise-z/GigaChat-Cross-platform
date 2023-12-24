@@ -10,7 +10,7 @@
 
     <application
         android:requestLegacyExternalStorage="true"
-        android:label="gigachat"
+        android:label="Gigachat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -43,5 +43,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="gigachat-channel" />
     </application>
 </manifest>

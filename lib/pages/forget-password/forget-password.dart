@@ -81,7 +81,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            widget.isLogged? Navigator.popUntil(context, ModalRoute.withName(AccountSettings.pageRoute)) :
+            widget.isLogged? Navigator.pop(context) :
               Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),

@@ -7,11 +7,16 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+import '../../base.dart';
+import '../../pages/profile/user-profile.dart';
+import '../../providers/feed-provider.dart';
+
 Future<bool> toggleLikeTweet(BuildContext context,String? token,TweetData tweetData) async {
   if (token == null) {
     Navigator.popUntil(context, (route) => route.isFirst);
     return false;
   }
+  User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
   bool isLikingTweet = !tweetData.isLiked;
   try {
@@ -22,6 +27,26 @@ Future<bool> toggleLikeTweet(BuildContext context,String? token,TweetData tweetD
     if (success) {
       tweetData.isLiked = isLikingTweet;
       tweetData.likesNum += tweetData.isLiked ? 1 : -1;
+
+      if(context.mounted){
+        if (isLikingTweet){
+          FeedProvider.getInstance(context).getFeedControllerById(
+              context: context,
+              id: UserProfile.profileFeedLikes + currentUser.id,
+              providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
+              clearData: false
+          ).appendToBegin({tweetData.id: tweetData});
+        }
+        else
+        {
+          FeedProvider.getInstance(context).getFeedControllerById(
+              context: context,
+              id: UserProfile.profileFeedLikes + currentUser.id,
+              providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
+              clearData: false
+          ).deleteTweet(tweetData.id);
+        }
+      }
     }
     return success;
   }

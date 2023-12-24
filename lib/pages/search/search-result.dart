@@ -101,6 +101,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                 keyword: keyword,
                 removeController: false,
                 removeRefreshIndicator: false,
+                filterBlockedUsers: true,
             ),
           ],
         ),

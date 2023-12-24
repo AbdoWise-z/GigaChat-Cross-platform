@@ -106,7 +106,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
             context,
             leadingIcon: IconButton(
               onPressed: () {
-                Navigator.popUntil(context, ModalRoute.withName('/'));
+                widget.isLogged? Navigator.pop(context) :
+                  Navigator.popUntil(context, ModalRoute.withName('/'));
               },
               icon: const Icon(Icons.close),
             ),

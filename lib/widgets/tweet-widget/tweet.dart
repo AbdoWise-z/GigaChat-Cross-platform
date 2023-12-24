@@ -36,12 +36,12 @@ List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDar
           TextSpan(
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-              if (context != null) {
-                Navigator.pushNamed(
-                    context, SearchResultPage.pageRoute, arguments: {
-                  "keyword": match.group(0)
-                });
-              }
+                if (context != null) {
+                  Navigator.pushNamed(
+                      context, SearchResultPage.pageRoute, arguments: {
+                    "keyword": match.group(0)
+                  });
+                }
               },
             text: match.group(0),
             style: const TextStyle(
@@ -130,8 +130,12 @@ class _TweetState extends State<Tweet> {
   // ui part
   @override
   Widget build(BuildContext context) {
+
     User currentUser = Auth.getInstance(context).getCurrentUser()!;
-    int rowCount = widget.tweetOwner.name.length + widget.tweetOwner.id.length;
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+
+    int rowCount = widget.tweetOwner.name.length + widget.tweetOwner.id.length +
+        InputFormatting.calculateDateSincePost(widget.tweetData.creationTime).length;
 
     actionButtons = initActionButtons(
         context: context,
@@ -140,10 +144,8 @@ class _TweetState extends State<Tweet> {
         onCommentButtonClicked: () async {
           await commentTweet(context, widget.tweetData,widget.parentFeed);
           if(context.mounted && widget.parentFeed != null) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
           }
         },
         onRetweetButtonClicked: () async {
@@ -165,10 +167,8 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted && success) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         },
@@ -184,10 +184,8 @@ class _TweetState extends State<Tweet> {
             updateState();
           }
           if(context.mounted) {
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: widget.parentFeed!.isInProfile);
-            FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
           }
           return success;
         }
@@ -283,9 +281,17 @@ class _TweetState extends State<Tweet> {
                               Visibility(
                                   visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
                                   child: widget.tweetData.reTweeter == null ? Container() :
-                                  Text("${currentUser.name == widget.tweetData.reTweeter!.name ?
-                                  "You" :
-                                  widget.tweetData.reTweeter!.name } reposted",style: const TextStyle(color: Colors.grey)
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(currentUser.name == widget.tweetData.reTweeter!.name ?
+                                        "You" :
+                                        widget.tweetData.reTweeter!.name ,style: const TextStyle(color: Colors.grey),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const Text(" reposted", style: TextStyle(color: Colors.grey)),
+                                    ],
                                   )
                               ),
                               // =================== post owner data ===================
@@ -296,7 +302,7 @@ class _TweetState extends State<Tweet> {
                                   widget.tweetData.creationTime,
                                   widget.isSinglePostView,
                                   isDarkMode,
-                                rowCount
+                                  rowCount
                               ),
 
                               // =================== extra space for single post view ===================
@@ -312,14 +318,14 @@ class _TweetState extends State<Tweet> {
                                     children: [
                                       const Text("Replying to ",style: TextStyle(color: Colors.grey),),
                                       GestureDetector(
-                                        onTap: (){
-                                          navigateToUserProfile(
-                                              currentUserId: currentUser.id,
-                                              tweetOwnerId: widget.tweetData.replyingUserId!
-                                          );
-                                        },
+                                          onTap: (){
+                                            navigateToUserProfile(
+                                                currentUserId: currentUser.id,
+                                                tweetOwnerId: widget.tweetData.replyingUserId!
+                                            );
+                                          },
                                           child: Text(
-                                              "@${widget.tweetData.replyingUserId!}",
+                                            "@${widget.tweetData.replyingUserId!}",
                                             style: const TextStyle(color: Colors.blue),
                                           )
                                       )
@@ -570,6 +576,31 @@ class _TweetState extends State<Tweet> {
       }
     }
     final currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
+    String formattedDate = InputFormatting.calculateDateSincePost(tweetDate);
+
+    final normalNameAndIdRow = RichText(
+      softWrap: true,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+          style: const TextStyle(
+              color: Colors.grey, fontWeight: FontWeight.w400),
+          children: [
+            TextSpan(
+                text: tweetOwner.name,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black
+                )
+            ),
+            TextSpan(text: "@${tweetOwner.id}"),
+            TextSpan(text: " . ${formattedDate == "just now" ? "now" : formattedDate}",
+                style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400)
+            ),
+          ]),
+    );
+
+
+
     final upperRowNameField = isSinglePostView ?
     Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -588,52 +619,37 @@ class _TweetState extends State<Tweet> {
         const SizedBox(
           width: 10,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-                tweetOwner.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black
-                )
-            ),
-            Text(
-                "@${tweetOwner.id}",
-                style: const TextStyle(
-                    color: Colors.grey, fontWeight: FontWeight.w400
-                )
-            )
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  tweetOwner.name,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? Colors.white : Colors.black
+                  ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                  "@${tweetOwner.id}",
+                  style: const TextStyle(
+                      color: Colors.grey, fontWeight: FontWeight.w400
+                  ),
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
+          ),
         ),
       ],
     ) :
     Row(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
+        countRow > 25 ?
         Expanded(
-          child: RichText(
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                  style: const TextStyle(
-                      color: Colors.grey, fontWeight: FontWeight.w400),
-                  children: [
-                    TextSpan(
-                        text: tweetOwner.name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isDarkMode ? Colors.white : Colors.black
-                        )
-                    ),
-                    TextSpan(text: "@${tweetOwner.id}")
-                  ]),
-          ),
-        ),
-
-        Text(" . ${InputFormatting.calculateDateSincePost(tweetDate)}",
-          style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400)
-        )
+            child: normalNameAndIdRow
+        ) : normalNameAndIdRow,
       ],
     );
 

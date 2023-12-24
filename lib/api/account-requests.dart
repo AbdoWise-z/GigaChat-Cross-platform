@@ -36,7 +36,7 @@ class Account {
       u.email       = res["data"]["user"]["email"];
       u.bio         = res["data"]["user"]["bio"] ?? "";
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      u.bannerLink  = res["data"]["user"]["bannerImage"];
+      u.bannerLink  = res["data"]["user"]["bannerImage"] ?? "";
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);

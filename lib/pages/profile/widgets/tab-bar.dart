@@ -5,7 +5,7 @@ class ProfileTabBar extends StatelessWidget {
 
   final TabController? tabController;
   static const List<String> tabs = [
-    "Posts" , "Replies", "Media", " Likes",
+    "Posts" , "Likes",
   ];
   final void Function(int)? onTap;
 

@@ -26,7 +26,7 @@ class PushNotificationPage extends StatelessWidget {
                 ),
                 SizedBox(height: 8.0),
                 Text(
-                  'To get notifications from Gigachat, you’ll need to allow them in your browser settings first.',
+                  'To get notifications from Gigachat, you’ll need to allow them in your app settings first.',
                   style: TextStyle(fontSize: 16.0),
                 ),
               ],

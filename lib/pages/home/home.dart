@@ -23,6 +23,7 @@ GlobalKey<HomeState> homeKey = GlobalKey();
 class Home extends StatefulWidget {
   static const String pageRoute = "/home";
   static const String feedID = "HomeFeed";
+  static const String mentionsFeedID = "MentionsFeed";
   const Home({super.key});
 
 

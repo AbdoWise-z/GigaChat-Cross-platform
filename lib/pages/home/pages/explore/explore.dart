@@ -168,7 +168,7 @@ class NothingYet extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          "why don't you go touch some grass tell someone do something.",
+          "why don't you go touch some grass till someone do something.",
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey,

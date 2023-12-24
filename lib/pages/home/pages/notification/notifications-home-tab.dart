@@ -4,6 +4,7 @@ import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-all-tab.dart';
+import 'package:gigachat/pages/home/pages/notification/notifications-mentions-tab.dart';
 import 'package:gigachat/pages/home/pages/notification/subPages/notificationSetting.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -34,7 +35,7 @@ class NotificationsHomeTab with HomePageTab {
 
   @override
   AppBarTabs? getTabs(BuildContext context) {
-    return AppBarTabs(tabs: ["All"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.start);
+    return AppBarTabs(tabs: ["All","Mentions"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.start);
   }
 
   @override
@@ -46,6 +47,7 @@ class NotificationsHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     return <Widget>[
       NotificationsAllTab(notifications: this,),
+      const NotificationsMentionsTab(),
     ];
   }
 

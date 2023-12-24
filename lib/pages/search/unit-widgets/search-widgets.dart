@@ -104,7 +104,7 @@ class _UserResultState extends State<UserResult> {
                 ),
               ),
               Visibility(
-                visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id,
+                visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id && !widget.disableFollowButton,
                 child: SizedBox(
                   width: 90,
                   height: 30,
@@ -133,13 +133,10 @@ class _UserResultState extends State<UserResult> {
                     ),
                     child: const Text("Blocked"),
                   ):
-                  Visibility(
-                    visible: !widget.disableFollowButton,
-                    child: FollowButton(
-                        isFollowed: widget.user.isFollowed!,
-                        callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
-                        username: widget.user.id
-                    ),
+                  FollowButton(
+                      isFollowed: widget.user.isFollowed!,
+                      callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
+                      username: widget.user.id
                   ),
                 ),
               )
@@ -150,8 +147,7 @@ class _UserResultState extends State<UserResult> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CircleAvatar(backgroundColor: Colors.transparent),
-              const SizedBox(width: 10,),
+              const SizedBox(width: 50,),
               Expanded(
                 child: Text(
                   widget.user.bio,style: const TextStyle(color: Colors.white),

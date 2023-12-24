@@ -30,9 +30,7 @@ class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
   static const profileFeedPosts = 'profileFeedPosts/';
-  static const profileFeedReplies = 'profileFeedReplies/';
   static const profileFeedLikes = 'profileFeedLikes/';
-  static const profileFeedMadia = 'profileFeedMadia/';
 
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
@@ -76,13 +74,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late ScrollController scrollController;
   late FeedController postsFeedController;
   late FeedController likesFeedController;
-  late FeedController repliesFeedController;
-  late FeedController mediaFeedController;
 
   late TabController tabController;
 
   int prevTabIndex = 0;
-  List<bool> isLoaded = [true,false,false,false];
+  List<bool> isLoaded = [true,false];
 
   double avatarRadius = 35;
   double showNamePosition = 162;
@@ -96,7 +92,10 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     setState(() {
       loading = true;
     });
+
     Auth auth = Auth.getInstance(context);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+
     var res = widget.isCurrUser? await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!) :
         await Account.apiUserProfile(auth.getCurrentUser()!.auth!, widget.username);
     User u = res.data!;
@@ -138,13 +137,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
           });
         }
         if(prevTabIndex == 1) {
-          await repliesFeedController.fetchFeedData(username: widget.username);
-        }
-        if(prevTabIndex == 2) {
-          await mediaFeedController.fetchFeedData(username: widget.username);
-        }
-        if(prevTabIndex == 3) {
+          setState(() {
+            likesFeedController.fetchingMoreData = true;
+          });
           await likesFeedController.fetchFeedData(username: widget.username);
+          setState(() {
+            likesFeedController.fetchingMoreData = false;
+          });
         }
         setState(() {});
       }
@@ -152,7 +151,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
     if(!context.mounted) return;
 
-    FeedProvider feedProvider = FeedProvider.getInstance(context);
     postsFeedController = feedProvider.getFeedControllerById(
         context: context,
         id: UserProfile.profileFeedPosts + widget.username,
@@ -161,24 +159,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     );
     postsFeedController.isInProfile = username == auth.getCurrentUser()!.id;
     postsFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
-
-    repliesFeedController = feedProvider.getFeedControllerById(
-        context: context,
-        id: UserProfile.profileFeedReplies + widget.username,
-        providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
-        clearData: false
-    );
-    repliesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
-    repliesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
-
-    mediaFeedController = feedProvider.getFeedControllerById(
-        context: context,
-        id: UserProfile.profileFeedMadia + widget.username,
-        providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
-        clearData: false
-    );
-    mediaFeedController.isInProfile = username == auth.getCurrentUser()!.id;
-    mediaFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
     likesFeedController = feedProvider.getFeedControllerById(
         context: context,
@@ -189,11 +169,10 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     likesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
     likesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
-    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-    FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
-
+    postsFeedController.resetFeed();
+    postsFeedController.updateFeeds();
+    likesFeedController.resetFeed();
+    likesFeedController.updateFeeds();
 
     setState(() {
       loading = false;
@@ -201,12 +180,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   }
 
   void updateUserFeeds(){
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
     if(context.mounted) {
       if(username != auth.getCurrentUser()!.id){
-        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: username == auth.getCurrentUser()!.id);
-        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: username == auth.getCurrentUser()!.id);
-        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia,isCurrProfile: username == auth.getCurrentUser()!.id);
-        FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies,isCurrProfile: username == auth.getCurrentUser()!.id);
+        feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: username == auth.getCurrentUser()!.id);
+        feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: username == auth.getCurrentUser()!.id);
       }
     }
   }
@@ -225,24 +203,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         }
         isLoaded[1] = true;
      }
-      if(index == 2 && !isLoaded[2]){
-        if(scrollController.position.pixels > 335 && bio == ""){
-          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        else if(scrollController.position.pixels > 410 && bio != ""){
-          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        isLoaded[2] = true;
-      }
-      if(index == 3 && !isLoaded[3]){
-        if(scrollController.position.pixels > 335 && bio == ""){
-          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        else if(scrollController.position.pixels > 410 && bio != ""){
-          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        isLoaded[3] = true;
-      }
     }
   }
 
@@ -267,6 +227,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         bannerImageUrl = res["bannerImageUrl"];
         avatarImageUrl = res["avatarImageUrl"];
         getData();
+        scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeIn
+        );
+        scroll.value = 0;
       });
     }
   }
@@ -285,6 +251,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       setState(() {
         avatarImageUrl = res;
         getData();
+        scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeIn
+        );
+        scroll.value = 0;
       });
     }
   }
@@ -498,8 +470,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   @override
   void initState()  {
     auth = Auth.getInstance(context);
-
-    tabController = TabController(length: 4, vsync: this);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+    tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if(!tabController.indexIsChanging){
         int index = tabController.index;
@@ -510,8 +482,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     getData();
     super.initState();
   }
-
-  //TODO: get likes, media, replies
 
   @override
   Widget build(BuildContext context) {
@@ -562,7 +532,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   visible: widget.isCurrUser
                                       || (isCurrUser != null && isCurrUser!)
                                       || isCurrUserBlocked != null && !isCurrUserBlocked!,
-                                  child: Text(prevTabIndex == 3?
+                                  child: Text(prevTabIndex == 1?
                                   "${widget.isCurrUser? auth.getCurrentUser()!.numOfLikes : numOfLikes} Likes" :
                                   "${widget.isCurrUser? auth.getCurrentUser()!.numOfPosts : numOfPosts} Posts",
                                     style: const TextStyle(
@@ -716,6 +686,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                           bannerImageUrl = res["bannerImageUrl"];
                                           avatarImageUrl = res["avatarImageUrl"];
                                           getData();
+                                          scrollController.animateTo(
+                                              0,
+                                              duration: const Duration(milliseconds: 500),
+                                              curve: Curves.easeIn
+                                          );
+                                          scroll.value = 0;
                                         });
                                       }
                                     }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
@@ -771,6 +747,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     setState(() {
                                       User u = res["user"];
                                       isWantedUserBlocked = u.isBlocked;
+                                      scrollController.animateTo(
+                                          0,
+                                          duration: const Duration(milliseconds: 500),
+                                          curve: Curves.easeIn
+                                      );
+                                      scroll.value = 0;
                                     });
                                   },
                                   onTapFollow: followUser,
@@ -967,24 +949,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
                       feedController: postsFeedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_REPLIES,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: repliesFeedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_MEDIA,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: mediaFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,

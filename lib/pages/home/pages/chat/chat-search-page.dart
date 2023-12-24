@@ -26,6 +26,9 @@ class _ChatSearchPageState extends State<ChatSearchPage> {
     _searching = true;
     setState(() {});
     var k = await Chat.apiSearchChat(Auth().getCurrentUser()!.auth!, keyword);
+    if(!context.mounted){
+      return;
+    }
     if (k.data == null){
       setState(() {
         _searching = false;

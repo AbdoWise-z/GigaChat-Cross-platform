@@ -31,7 +31,7 @@ mixin HomePageTab {
     return null;
   }
   int getNotificationsCount(BuildContext context){
-    return 1;
+    return 0;
   }
 
   void setHomeState(void Function() callback){

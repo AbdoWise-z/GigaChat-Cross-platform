@@ -23,6 +23,7 @@ class BetterFeed extends StatefulWidget {
   final ProviderResultType providerResultType;
   final FeedController feedController;
   final bool? cancelNavigationToUserProfile;
+  final bool filterBlockedUsers;
 
   final String? userId,userName, tweetID, keyword;
   final TweetData? mainTweetForComments;
@@ -39,7 +40,8 @@ class BetterFeed extends StatefulWidget {
     this.tweetID,
     this.keyword,
     this.cancelNavigationToUserProfile = false,
-    this.mainTweetForComments
+    this.mainTweetForComments,
+    this.filterBlockedUsers = false,
   });
 
   @override
@@ -135,6 +137,9 @@ class _BetterFeedState extends State<BetterFeed> {
 
   List<Widget>? wrapDataInUserWidgets(){
     List<User> userResult = _feedController.getCurrentData().cast<User>();
+    if (widget.filterBlockedUsers){
+      userResult.removeWhere((User user) => user.isWantedUserBlocked ?? false);
+    }
     return userResult.map((User user){
       return UserResult(user: user, disableFollowButton: false);
     }).toList();

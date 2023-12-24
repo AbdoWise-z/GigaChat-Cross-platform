@@ -127,7 +127,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         data ,
         success: (v) {
           ref = v.data!;
-          Auth.getInstance(context).getCurrentUser()!.numOfPosts++;
+          auth.getCurrentUser()!.numOfPosts++;
           TweetData tweetData = TweetData(
               id: ref!,
               referredTweetId: data.referredTweetId,
@@ -138,7 +138,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
               repostsNum: 0,
               creationTime: DateTime.now(),
               type: data.referredTweetId == null ? "tweet" : "reply",
-              tweetOwner: Auth.getInstance(context).getCurrentUser()!,
+              tweetOwner: auth.getCurrentUser()!,
               isLiked: false,
               isRetweeted: false,
               isFollowingMe: false,

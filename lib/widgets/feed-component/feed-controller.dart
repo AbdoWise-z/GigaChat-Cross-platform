@@ -73,6 +73,9 @@ class FeedController {
   void deleteTweet(String tweetID){
     if (_feedData == null) return;
     int idx = _feedKeys!.indexOf(tweetID);
+    if (idx == -1) {
+      return;
+    }
     _feedData!.removeAt(idx);
     _feedKeys!.removeAt(idx);
     updateFeeds();
