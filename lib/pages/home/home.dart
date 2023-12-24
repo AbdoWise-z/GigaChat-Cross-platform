@@ -12,6 +12,7 @@ import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.da
 import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
@@ -146,6 +147,14 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
+
+    Future.delayed(Duration.zero , () {
+      if (!Auth.getInstance(context).isLoggedIn){
+        Navigator.popUntil(context, (route) => false);
+        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+      }
+    });
+
     if (value.getCurrentUser() != null) {
       followingFeedController.setUserToken(value.getCurrentUser()!.auth);
     }

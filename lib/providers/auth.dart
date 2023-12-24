@@ -9,6 +9,8 @@ import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
+import 'local-settings-provider.dart';
+
 class Auth extends ChangeNotifier{
   static late FeedProvider feedProvider;
   static Auth getInstance(BuildContext context){
@@ -48,14 +50,26 @@ class Auth extends ChangeNotifier{
     return _currentUser;
   }
 
+  bool _loggingOut = false;
   logout() async {
     if (_currentUser == null) {
       return;
     }
+
+    if (_loggingOut){
+      return;
+    }
+    _loggingOut = true;
+
     bool ok = await Account.apiLogout(_currentUser!);
     if (ok){
       _currentUser = null;
+      var settings = LocalSettings.instance;
+      settings.setValue<bool>(name: "login", val: false);
+      await settings.apply();
     }
+
+    _loggingOut = false;
     notifyListeners();
   }
 

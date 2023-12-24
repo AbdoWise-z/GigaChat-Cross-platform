@@ -386,13 +386,8 @@ class _NavDrawerState extends State<NavDrawer> {
 
                       Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: IconButton(onPressed: () {
-                          Auth.getInstance(context).logout();
-                          var settings = LocalSettings.getInstance(context);
-                          settings.setValue<bool>(name: "login", val: false);
-                          settings.apply();
-                          Navigator.popUntil(context, (route) => false);
-                          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+                        child: IconButton(onPressed: () async {
+                          await Auth.getInstance(context).logout();
                         },
                           icon: const Icon(Icons.logout),
                         ),
