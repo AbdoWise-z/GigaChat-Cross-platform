@@ -32,7 +32,8 @@ class Auth extends ChangeNotifier{
       _currentUser = res.data;
       WebSocketsProvider prov = WebSocketsProvider();
       print("Auth : ${_currentUser!.auth!}");
-      if ( await prov.init(_currentUser!.auth! )){
+      // TODO: remove this true
+      if ( true || await prov.init(_currentUser!.auth! )){
         if (success != null) success(res);
       }else{
         _currentUser = null;

@@ -52,7 +52,9 @@ class FeedProvider extends ChangeNotifier{
   }
 
   void updateFeeds(){
-    notifyListeners();
+    Future.delayed(Duration.zero , (){
+      notifyListeners();
+    });
   }
 
   void updateProfileFeed(BuildContext context, String id, {bool? isCurrProfile}){

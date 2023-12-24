@@ -1,8 +1,6 @@
 
 import 'dart:convert';
-
 import 'package:gigachat/api/api.dart';
-import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -37,11 +35,11 @@ class SearchRequests{
   static Future<Map<String, User>> searchUsersByKeywordMapped
       (String keyword,String token,String page,String count) async {
     List<User> users = await searchUsersByKeyword(keyword, token, page, count);
-    Map<String,User> mapped_users = {};
+    Map<String,User> mappedUsers = {};
     for(User user in users){
-      mapped_users.putIfAbsent(user.id, () => user);
+      mappedUsers.putIfAbsent(user.id, () => user);
     }
-    return mapped_users;
+    return mappedUsers;
   }
 
   static Future<List<User>> searchUsersByKeyword(String keyword,String token,String page,String count) async {
@@ -65,7 +63,7 @@ class SearchRequests{
           isFollowed: user["isFollowedbyMe"],
           followers: user["followers_num"],
           following: user["following_num"],
-          iconLink: user["profile_image"]
+          iconLink: user["profile_image"] ?? USER_DEFAULT_PROFILE
         );
       }).toList();
     }
@@ -158,8 +156,6 @@ class SearchRequests{
           "count" : count
     }
     );
-
-    print(response.code);
 
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null) {
       List tweetList = jsonDecode(response.responseBody!)["results"];
