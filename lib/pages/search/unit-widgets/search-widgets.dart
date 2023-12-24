@@ -67,6 +67,7 @@ class _UserResultState extends State<UserResult> {
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -74,12 +75,14 @@ class _UserResultState extends State<UserResult> {
             children: [
               CircleAvatar(backgroundImage: NetworkImage(widget.user.iconLink)),
               const SizedBox(width: 10,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.user.name),
-                  Text("@${widget.user.id}",style: const TextStyle(color: Colors.grey),)
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.user.name, overflow: TextOverflow.ellipsis,),
+                    Text("@${widget.user.id}",style: const TextStyle(color: Colors.grey),overflow: TextOverflow.ellipsis,)
+                  ],
+                ),
               ),
               const Expanded(child: SizedBox()),
               Visibility(
@@ -100,11 +103,11 @@ class _UserResultState extends State<UserResult> {
                     }, icon: const Icon(Icons.volume_off_sharp,color: Colors.red,)
                 ),
               ),
-              SizedBox(
-                width: 90,
-                height: 30,
-                child: Visibility(
-                  visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id,
+              Visibility(
+                visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id,
+                child: SizedBox(
+                  width: 90,
+                  height: 30,
                   child: (widget.user.isWantedUserBlocked != null && widget.user.isWantedUserBlocked!)?
                   ElevatedButton(
                     onPressed: () async{
@@ -149,9 +152,11 @@ class _UserResultState extends State<UserResult> {
             children: [
               const CircleAvatar(backgroundColor: Colors.transparent),
               const SizedBox(width: 10,),
-              Text(
-                widget.user.bio,style: const TextStyle(color: Colors.white),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Text(
+                  widget.user.bio,style: const TextStyle(color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
+                ),
               )
             ],
           )

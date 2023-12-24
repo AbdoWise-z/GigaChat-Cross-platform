@@ -7,7 +7,7 @@ class NotificationSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifications Setting',
+        title: const Text('Notifications Setting',
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
@@ -16,9 +16,9 @@ class NotificationSettingsPage extends StatelessWidget {
       body: Column(
         children: [
           ListTile(
-            leading: Icon(Icons.filter),
-            title: Text('Filters'),
-            trailing: Icon(Icons.arrow_forward), // Add a right arrow icon
+            leading: const Icon(Icons.filter),
+            title: const Text('Filters'),
+            trailing: const Icon(Icons.arrow_forward), // Add a right arrow icon
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -28,13 +28,13 @@ class NotificationSettingsPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Preferences'),
-            trailing: Icon(Icons.arrow_forward), // Add a right arrow icon
+            leading: const Icon(Icons.settings),
+            title: const Text('Preferences'),
+            trailing: const Icon(Icons.arrow_forward), // Add a right arrow icon
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => PreferenceSettingsPage(),
+                  builder: (context) => const PreferenceSettingsPage(),
                 ),
               );
             },

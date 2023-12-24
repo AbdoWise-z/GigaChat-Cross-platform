@@ -54,12 +54,12 @@ class NotificationItem extends StatelessWidget { // item for each notification
                     width: 20,
                     height: 20,
                     child: Icon(
-                      note.type == "follow" ? FontAwesomeIcons.star :
-                      note.type == "like" ? FontAwesomeIcons.heart :
-                      note.type == "reply" ? FontAwesomeIcons.comment :
+                      note.type == "follow" ? FontAwesomeIcons.solidStar :
+                      note.type == "like" ? FontAwesomeIcons.solidHeart :
+                      note.type == "reply" ? FontAwesomeIcons.solidComment :
                       note.type == "quote" ? FontAwesomeIcons.quoteLeft :
                       note.type == "retweet" ? FontAwesomeIcons.retweet :
-                      note.type == "mention" ? FontAwesomeIcons.bell : FontAwesomeIcons.question,
+                      note.type == "mention" ? FontAwesomeIcons.solidBell : FontAwesomeIcons.question,
 
                       color:
                       note.type == "follow" ?  Colors.yellow :
@@ -68,6 +68,7 @@ class NotificationItem extends StatelessWidget { // item for each notification
                       note.type == "quote" ? Colors.blueGrey :
                       note.type == "retweet" ? Colors.purple :
                       note.type == "mention" ?  Colors.greenAccent : Colors.purple,
+                      size: 18,
                     ),
                   ),
                 )
@@ -75,7 +76,7 @@ class NotificationItem extends StatelessWidget { // item for each notification
             ),
           ),
           title: Text(note.description),
-          subtitle: Text(DateFormat("yyyy mm dd").format(note.creationTime)),
+          subtitle: Text(DateFormat.yMMMd('en_US').format(note.creationTime)),
           onTap: () {
             EventsController.instance.triggerEvent(EventsController.EVENT_NOTIFICATION_SEEN, {
               "id" : note.id,

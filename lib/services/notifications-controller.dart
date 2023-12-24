@@ -187,6 +187,21 @@ class NotificationsController {
 
     //Initialize the firebase
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+
+  }
+  Future<void> logout() async {
+    if(FirebaseToken == null){
+      return;
+    }
+    FirebaseToken = null;
+    await FirebaseMessaging.instance.deleteToken();
+
+  }
+  Future<void> login() async {
+    if(FirebaseToken != null){
+      return;
+    }
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     await firebaseMessaging.requestPermission();
     FirebaseToken = await firebaseMessaging.getToken();
@@ -207,7 +222,6 @@ class NotificationsController {
       if (note == null) return;
       showNotification(_counter++ , title: note.title , body: note.body , payload: event.data["notification"]);
     });
-
   }
 
   final AndroidNotificationDetails androidPlatformChannelSpecifics = const AndroidNotificationDetails(

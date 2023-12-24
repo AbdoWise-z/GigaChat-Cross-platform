@@ -611,14 +611,6 @@ class _TweetState extends State<Tweet> {
     Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Text(
-            tweetOwner.name,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black
-            )
-        ),
-
         Expanded(
           child: RichText(
             softWrap: true,
@@ -627,6 +619,13 @@ class _TweetState extends State<Tweet> {
                   style: const TextStyle(
                       color: Colors.grey, fontWeight: FontWeight.w400),
                   children: [
+                    TextSpan(
+                        text: tweetOwner.name,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white : Colors.black
+                        )
+                    ),
                     TextSpan(text: "@${tweetOwner.id}")
                   ]),
           ),

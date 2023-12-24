@@ -21,6 +21,9 @@ class StreamSocket<T> {
 }
 
 class WebSocketsProvider extends ChangeNotifier{
+  static WebSocketsProvider get instance{
+    return WebSocketsProvider();
+  }
   static WebSocketsProvider getInstance(BuildContext context){
     return Provider.of<WebSocketsProvider>(context , listen: false);
   }

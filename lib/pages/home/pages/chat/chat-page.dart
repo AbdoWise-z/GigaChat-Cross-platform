@@ -39,6 +39,8 @@ class ChatPageState extends State<ChatPage> {
   final double _loadMessagesTrigger = 300;
   bool _visiable = false;
   late final StreamSocket _chatSocket;
+  late final StreamSocket _errorSocket;
+
   bool _ready = false;
   late User _with;
   final List<ChatMessageObject> _chat = [];
@@ -55,6 +57,12 @@ class ChatPageState extends State<ChatPage> {
   bool _loadingDown = false;
 
   void _loadMessages({down = false}) async {
+    if(_chat.isEmpty){
+      _canLoadUp = false;
+      _canLoadDown = false;
+      setState(() {});
+      return;
+    }
     if (_loadingUp || _loadingDown) {
       return;
     }
@@ -198,10 +206,12 @@ class ChatPageState extends State<ChatPage> {
     );
 
     _chatSocket = WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("receive_message");
+    _errorSocket = WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("failed_to_send_message");
+
     uuid = const Uuid();
     _ready = false;
 
-    WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("failed_to_send_message").stream.listen((ev) {
+    _errorSocket.stream.listen((ev) {
       print("Error : $ev");
       String error = ev["error"];
       if (error.contains("blocked")){ //either you blocked this user or the user blocked you
@@ -238,6 +248,7 @@ class ChatPageState extends State<ChatPage> {
   void dispose(){
     super.dispose();
     _chatSocket.dispose();
+    _errorSocket.dispose();
   }
 
 
@@ -327,20 +338,30 @@ class ChatPageState extends State<ChatPage> {
       var args = ModalRoute.of(context)!.settings.arguments! as Map;
       _with = args["user"];
 
-      _chat.add(args["message"]);
-
-      //opened the chat so mark it as read
-      List<ChatObject> chats = ChatProvider.instance.getCurrentChats();
-      ChatObject myChat = chats.firstWhere((element) => element.mongoID == _with.mongoID);
-      if (myChat.lastMessage!.time == _chat[0].time) { //if this is the last message then mark this chat as read
-        Future.delayed(Duration.zero , () {
-          EventsController.instance.triggerEvent(
-              EventsController.EVENT_CHAT_MESSAGE_READ, {
-            "mongoID": _with.mongoID,
-          });
-        });
+      var msg = args["message"];
+      if(msg != null){
+        _chat.add(msg);
+      }else{
+        for(ChatObject c in ChatProvider.instance.getCurrentChats()){
+          if(c.mongoID == _with.mongoID){
+            _chat.add(c.lastMessage!);
+            break;
+          }
+        }
       }
-
+      //opened the chat so mark it as read
+      if(_chat.isNotEmpty){
+        List<ChatObject> chats = ChatProvider.instance.getCurrentChats();
+        ChatObject myChat = chats.firstWhere((element) => element.mongoID == _with.mongoID);
+        if (myChat.lastMessage!.time == _chat[0].time) { //if this is the last message then mark this chat as read
+          Future.delayed(Duration.zero , () {
+            EventsController.instance.triggerEvent(
+                EventsController.EVENT_CHAT_MESSAGE_READ, {
+              "mongoID": _with.mongoID,
+            });
+          });
+        }
+      }
       //load the messages
       _loadMessages(down: false);
     }

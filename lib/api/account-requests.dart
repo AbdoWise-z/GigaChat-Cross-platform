@@ -5,6 +5,7 @@ import "dart:math";
 import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
+import "package:gigachat/providers/web-socks-provider.dart";
 import "package:gigachat/services/events-controller.dart";
 import "package:gigachat/services/notifications-controller.dart";
 import "package:gigachat/util/contact-method.dart";
@@ -12,6 +13,9 @@ import "package:gigachat/util/contact-method.dart";
 import "api.dart";
 class Account {
   static Future<ApiResponse<User>> apiLogin(String userName, String password) async {
+
+    await NotificationsController.getInstance().login();
+
     var k = await Api.apiPost<User>(
       ApiPath.login,
       body: json.encode({
@@ -234,7 +238,8 @@ class Account {
 
 
   static Future<bool> apiLogout(User u) async {
-    //TODO: do some API request
+    await NotificationsController.getInstance().logout();
+    WebSocketsProvider.instance.destroy();
     return true;
   }
 

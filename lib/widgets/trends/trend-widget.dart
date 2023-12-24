@@ -10,7 +10,7 @@ class TrendWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: (){
           Navigator.pushNamed(
               context, SearchResultPage.pageRoute, arguments: {
@@ -18,8 +18,8 @@ class TrendWidget extends StatelessWidget {
           });
           },
       child: Container(
+        padding: const EdgeInsets.all(10),
         width: MediaQuery.of(context).size.width,
-        margin: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

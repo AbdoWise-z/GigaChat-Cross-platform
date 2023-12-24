@@ -19,7 +19,7 @@ class _ProfileNotificationNavigationState extends State<ProfileNotificationNavig
     var res = await Account.apiUserProfileWithID(Auth().getCurrentUser()!.auth!, widget.target);
     if (res.data != null){
       if (context.mounted){
-        Navigator.push(context, MaterialPageRoute(
+        Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (_) => UserProfile(username: res.data!.id, isCurrUser: false),
         ));
         print("Notification delivered");
