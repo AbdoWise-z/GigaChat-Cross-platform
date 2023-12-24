@@ -45,6 +45,7 @@ class EventsController {
     _handlers[event] = handlers;
   }
 
+  //global
   static const String EVENT_LOGIN                    = "login";
   static const String EVENT_LOGINOUT                 = "logout";
   static const String EVENT_USER_BLOCK               = "user-block";
@@ -54,9 +55,15 @@ class EventsController {
   static const String EVENT_USER_UNFOLLOW            = "user-unfollow";
   static const String EVENT_USER_MUTE                = "user-mute";
   static const String EVENT_USER_UNMUTE              = "user-unmute";
+
+  //chat
   static const String EVENT_CHAT_MESSAGE             = "chat-message";
   static const String EVENT_CHAT_MESSAGE_READ        = "chat-message-read";
   static const String EVENT_CHAT_READ_COUNT_CHANGED  = "chat-read-count-changed";
+
+  //notifications
+  static const String EVENT_NOTIFICATION_SEEN            = "note-seen";
+  static const String EVENT_NOTIFICATIONS_CHANGED        = "note-changed";
 
   void triggerEvent(String event , Map<String,dynamic> data){
     List<HandlerStructure>? handlers = _handlers[event];

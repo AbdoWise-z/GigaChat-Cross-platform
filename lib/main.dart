@@ -78,7 +78,7 @@ class _GigaChatState extends State<GigaChat> {
           return Consumer<Auth>(
             builder: (___ , auth , ____) {
               return MaterialApp(
-                key: appNavigator,
+                navigatorKey: appNavigator,
                 theme: theme.getTheme,
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,

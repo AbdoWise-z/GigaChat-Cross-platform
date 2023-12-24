@@ -96,6 +96,7 @@ class ApiPath{
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath userProfileWithID       = const ApiPath._("/api/user/profileById/%s");
   static ApiPath userFollowers           = const ApiPath._("/api/user/profile/%s/followers");
   static ApiPath userFollowings          = const ApiPath._("/api/user/profile/%s/followings");
   static ApiPath userBlockList           = const ApiPath._("/api/user/blockList");

@@ -12,10 +12,11 @@ class StreamSocket<T> {
   void Function(T) get addResponse => _s.sink.add;
 
   Stream<T> get stream => _s.stream;
+  StreamController<T> get streamController => _s;
+
 
   void dispose(){
     _s.close();
-
   }
 }
 
@@ -82,7 +83,12 @@ class WebSocketsProvider extends ChangeNotifier{
 
   StreamSocket getStream<T>(String event){
     StreamSocket s = StreamSocket<T>();
-    _socket.on(event, (data) => s.addResponse(data));
+    _socket.on(event, (data) {
+      if (s.streamController.isClosed){
+        return;
+      }
+      s.addResponse(data);
+    });
     return s;
   }
 

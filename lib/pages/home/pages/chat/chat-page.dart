@@ -82,6 +82,11 @@ class ChatPageState extends State<ChatPage> {
       if (res.isEmpty){
         _canLoadDown = false;
       }
+
+      if (!context.mounted){
+        return;
+      }
+
       setState(() {
         _loadingDown = false;
         //_controller.retainOffset();
@@ -101,6 +106,10 @@ class ChatPageState extends State<ChatPage> {
 
       if (res.isEmpty){
         _canLoadUp = false;
+      }
+
+      if (!context.mounted){
+        return;
       }
 
       setState(() {
@@ -217,14 +226,21 @@ class ChatPageState extends State<ChatPage> {
         ChatMessageObject obj = ChatMessageObject();
         obj.fromMap(data);
         _handleNewMessage(obj);
-        EventsController.instance.triggerEvent(EventsController.EVENT_CHAT_MESSAGE_READ, {
-          "mongoID" : _with.mongoID,
+        EventsController.instance.triggerEvent(
+            EventsController.EVENT_CHAT_MESSAGE_READ, {
+          "mongoID": _with.mongoID,
         });
       }
     });
-
-
   }
+
+  @override
+  void dispose(){
+    super.dispose();
+    _chatSocket.dispose();
+  }
+
+
 
   Future<bool> sendMessage(ChatMessageObject m) async {
     User current = Auth.getInstance(context).getCurrentUser()!;
@@ -317,9 +333,11 @@ class ChatPageState extends State<ChatPage> {
       List<ChatObject> chats = ChatProvider.instance.getCurrentChats();
       ChatObject myChat = chats.firstWhere((element) => element.mongoID == _with.mongoID);
       if (myChat.lastMessage!.time == _chat[0].time) { //if this is the last message then mark this chat as read
-        EventsController.instance.triggerEvent(
-            EventsController.EVENT_CHAT_MESSAGE_READ, {
-          "mongoID": _with.mongoID,
+        Future.delayed(Duration.zero , () {
+          EventsController.instance.triggerEvent(
+              EventsController.EVENT_CHAT_MESSAGE_READ, {
+            "mongoID": _with.mongoID,
+          });
         });
       }
 
