@@ -15,9 +15,11 @@ class ChatListItem extends StatelessWidget {
     if (delta.inDays > 1){
       return DateFormat("dd MMM").format(object.time!);
     }
-
     if (delta.inHours == 0){
-      return "${delta.inMinutes}m";
+      if (delta.inMinutes < 5){
+        return "just now";
+      }
+      return "${delta.inMinutes} m";
     }
     return "${delta.inHours}h";
   }
@@ -32,12 +34,42 @@ class ChatListItem extends StatelessWidget {
       leading: Container(
         width: 60,
         height: 60,
-        margin: EdgeInsets.all(8),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
+        margin: const EdgeInsets.all(8),
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
         ),
-        child: Image.network(object.profileImage,fit: BoxFit.cover,),
+        child: Stack(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.network(object.profileImage,fit: BoxFit.cover,),
+            ),
+            Visibility(
+              visible: !object.lastMessage!.seen,
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue,
+                    border: Border.all(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      width: 4,
+                    ),
+                  ),
+
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       title: Text(
         object.nickname,
@@ -46,12 +78,33 @@ class ChatListItem extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      subtitle: Text(
-        object.lastMessage,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+      subtitle: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Visibility(
+            visible: object.lastMessage!.self,
+            child: const Text(
+              "You : ",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          Expanded(
+            child: Text(
+              object.lastMessage!.text ?? "[Sent Media]",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+              softWrap: false,
+              overflow: TextOverflow.fade,
+            ),
+          ),
+        ],
       ),
       trailing: Padding(
         padding: const EdgeInsets.only(right: 20.0),

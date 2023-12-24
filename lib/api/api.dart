@@ -116,13 +116,16 @@ class ApiPath{
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
   static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
   static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
+  static ApiPath chatMessagesBefore      = const ApiPath._("/api/user/chat/messagesBeforeCertainTime/%s");
+  static ApiPath chatMessagesAfter       = const ApiPath._("/api/user/chat/messagesAfterCertainTime/%s");
   static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
   static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
   static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
   static ApiPath tweetOwnerId            = const ApiPath._("/api/tweets/tweetOwner/%s");
   static ApiPath getAllTrends            = const ApiPath._("/api/trends/all");
-
-}
+  static ApiPath notifications           = const ApiPath._("/api/user/notifications");
+  static ApiPath notificationsCount      = const ApiPath._("/api/user/notifications/unseenCount");
+  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");}
 
 class Api {
 

@@ -17,7 +17,9 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/chat-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
@@ -47,55 +49,71 @@ class ChatPageState extends State<ChatPage> {
   double _editorHeight = 0;
   final RetainableScrollController _controller = RetainableScrollController();
 
-  bool _loading = false;
-  bool _loadingMore = false;
-  bool _canLoadMore = true;
+  bool _canLoadUp = true;
+  bool _canLoadDown = true;
+  bool _loadingUp = false;
+  bool _loadingDown = false;
 
-  int page = 1;
-
-  void _loadMessages({more = false}) async {
-    if (_loading || _loadingMore) {
+  void _loadMessages({down = false}) async {
+    if (_loadingUp || _loadingDown) {
       return;
     }
-    if (more){
-      if (!_canLoadMore){
+    if (down){
+      if (!_canLoadDown){
         return;
       }
-      _loadingMore = true;
+      _loadingDown = true;
     }else{
-      _loading = true;
+      if (!_canLoadUp){
+        return;
+      }
+      _loadingUp = true;
     }
+
+
     setState(() {});
 
-    var res = await Chat.apiGetChatMessages(Auth.getInstance(context).getCurrentUser()!.auth!, _with.mongoID!, page, 25); //load the last 25 messages
-    if (res.data == null){ /* failed to load */
-      if (context.mounted) {
-        Toast.showToast(context, "Failed to load messages");
+    if (down){
+      var res = await ChatProvider.instance.getMessagesAfter(
+        Auth.getInstance(context).getCurrentUser()!.auth!,
+        _with.mongoID!,
+        _chat.last.time!,
+      );
+      if (res.isEmpty){
+        _canLoadDown = false;
       }
-    }else{
-      _chat.insertAll(0, res.data!);
-      page++;
-      if (res.data!.isEmpty){ //no more messages
-        _canLoadMore = false;
-      }
-    }
-
-
-    setState(() {
-      if (_loading){
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _controller.jumpTo(_controller.position.maxScrollExtent);
-        });
-        _loading = false;
-      }else{
-        _loadingMore = false;
-        _controller.retainOffset();
-        if (_controller.offset - _loadMessagesTrigger <= 0){
-          _loadMessages(more: true);
+      setState(() {
+        _loadingDown = false;
+        //_controller.retainOffset();
+        _chat.addAll(res);
+        if (_canLoadUp && _controller.offset - _loadMessagesTrigger <= 0){
+          Future.delayed(Duration.zero , () {
+            _loadMessages(down: false);
+          });
         }
-      }
-    });
+      });
+    } else {
+      var res = await ChatProvider.instance.getMessagesBefore(
+        Auth.getInstance(context).getCurrentUser()!.auth!,
+        _with.mongoID!,
+        _chat.first.time!,
+      );
 
+      if (res.isEmpty){
+        _canLoadUp = false;
+      }
+
+      setState(() {
+        _loadingUp = false;
+        _controller.retainOffset();
+        _chat.insertAll(0 , res);
+        if (_canLoadDown && _controller.position.maxScrollExtent - _controller.offset <= _loadMessagesTrigger){
+          Future.delayed(Duration.zero , () {
+            _loadMessages(down: true);
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -104,8 +122,13 @@ class ChatPageState extends State<ChatPage> {
     _controller.addListener(() {
       //message load
       if (_controller.offset - _loadMessagesTrigger <= 0){
-        _loadMessages(more: true);
+        _loadMessages(down: false);
       }
+
+      if (_controller.position.maxScrollExtent - _controller.offset <= _loadMessagesTrigger){
+        _loadMessages(down: true);
+      }
+
       //down button trigger
       if (_controller.position.maxScrollExtent - _controller.offset > _sideButtonTrigger){
         if (!_visiable){
@@ -121,6 +144,50 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     });
+
+    EventsController.instance.addEventHandler(
+        EventsController.EVENT_USER_BLOCK,
+        HandlerStructure(id: "chat-page",
+          handler: (data) {
+            if (_with.id == data["username"]){
+              _with.isBlocked = true;
+            }
+          },
+        )
+    );
+
+    EventsController.instance.addEventHandler(
+        EventsController.EVENT_USER_FOLLOW,
+        HandlerStructure(id: "chat-page",
+          handler: (data) {
+            if (_with.id == data["username"]){
+              _with.isFollowed = true;
+            }
+          },
+        )
+    );
+    EventsController.instance.addEventHandler(
+        EventsController.EVENT_USER_UNFOLLOW,
+        HandlerStructure(id: "chat-page",
+          handler: (data) {
+            if (_with.id == data["username"]){
+              _with.isFollowed = false;
+            }
+          },
+        )
+    );
+
+    EventsController.instance.addEventHandler(
+        EventsController.EVENT_USER_UNBLOCK,
+        HandlerStructure(id: "chat-page",
+          handler: (data) {
+            if (_with.id == data["username"]){
+              _with.isBlocked = false;
+            }
+          },
+        )
+    );
+
     _chatSocket = WebSocketsProvider.getInstance(context).getStream<Map<String,dynamic>>("receive_message");
     uuid = const Uuid();
     _ready = false;
@@ -130,6 +197,12 @@ class ChatPageState extends State<ChatPage> {
       String error = ev["error"];
       if (error.contains("blocked")){ //either you blocked this user or the user blocked you
         String uuid = ev["id"];
+        EventsController.instance.triggerEvent(
+          EventsController.EVENT_USER_BLOCK_ME,
+          {
+            "username": _with.id,
+          },
+        );
         _chat.removeWhere((element) => element.uuid == uuid); //remove that message
         setState(() {
           _with.isBlocked = true;
@@ -140,12 +213,17 @@ class ChatPageState extends State<ChatPage> {
     _chatSocket.stream.listen((event) {
       var data = event;
       if (data["chat_ID"] == _with.mongoID) {
-        print("received a message : $data");
+        print("chat-page : $data");
         ChatMessageObject obj = ChatMessageObject();
         obj.fromMap(data);
         _handleNewMessage(obj);
+        EventsController.instance.triggerEvent(EventsController.EVENT_CHAT_MESSAGE_READ, {
+          "mongoID" : _with.mongoID,
+        });
       }
     });
+
+
   }
 
   Future<bool> sendMessage(ChatMessageObject m) async {
@@ -233,8 +311,20 @@ class ChatPageState extends State<ChatPage> {
       var args = ModalRoute.of(context)!.settings.arguments! as Map;
       _with = args["user"];
 
+      _chat.add(args["message"]);
+
+      //opened the chat so mark it as read
+      List<ChatObject> chats = ChatProvider.instance.getCurrentChats();
+      ChatObject myChat = chats.firstWhere((element) => element.mongoID == _with.mongoID);
+      if (myChat.lastMessage!.time == _chat[0].time) { //if this is the last message then mark this chat as read
+        EventsController.instance.triggerEvent(
+            EventsController.EVENT_CHAT_MESSAGE_READ, {
+          "mongoID": _with.mongoID,
+        });
+      }
+
       //load the messages
-      _loadMessages();
+      _loadMessages(down: false);
     }
 
     if (_with.isBlocked!){
@@ -408,7 +498,7 @@ class ChatPageState extends State<ChatPage> {
 
                                 //Header
                                 Visibility(
-                                  visible: _loadingMore,
+                                  visible: _loadingUp,
                                   child: const Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -421,7 +511,7 @@ class ChatPageState extends State<ChatPage> {
                                   ),
                                 ),
                                 Visibility(
-                                  visible: !_canLoadMore,
+                                  visible: !_canLoadUp,
                                   child: Column(
                                     children: [
                                       Container(
@@ -466,11 +556,24 @@ class ChatPageState extends State<ChatPage> {
                                     ],
                                   ),
                                 ),
-
                                 //Messages area
                                 ChatColumn(
                                   key: chatList,
                                   chat: _chat,
+                                ),
+
+                                Visibility(
+                                  visible: _loadingDown,
+                                  child: const Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: SizedBox(width: 25,height: 25,child: CircularProgressIndicator(),),
+                                      )
+                                    ],
+                                  ),
                                 ),
 
                                 //Input padding
@@ -549,7 +652,7 @@ class ChatPageState extends State<ChatPage> {
                         });
                       },
                       onOpen: () {
-                        Future.delayed(const Duration(milliseconds: 400) , () {
+                        Future.delayed(const Duration(milliseconds: 600) , () {
                           _controller.animateTo(_controller.position.maxScrollExtent, duration: Duration(milliseconds: max(50 * ((_controller.position.maxScrollExtent - _controller.offset) / 50.0).round(),0) + 1), curve: Curves.fastOutSlowIn);
                         });
                       },
@@ -558,10 +661,6 @@ class ChatPageState extends State<ChatPage> {
                 )
               ],
             ),
-          ),
-          Visibility(
-            visible: _loading,
-            child: const LoadingPage(),
           ),
         ],
       ),

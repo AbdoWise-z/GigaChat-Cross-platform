@@ -5,6 +5,7 @@ import "dart:math";
 import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
+import "package:gigachat/services/events-controller.dart";
 import "package:gigachat/util/contact-method.dart";
 
 import "api.dart";
@@ -40,6 +41,7 @@ class Account {
       u.numOfLikes  = res["data"]["user"]["numOfLikes"];
       u.mongoID     = res["data"]["user"]["_id"];
       k.data = u;
+
     }
     return k;
   }
@@ -410,6 +412,9 @@ class Account {
       var k = await Api.apiPost<bool>(endPoint,headers: headers);
       print(k.code);
       k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      if (k.data!){
+        EventsController.instance.triggerEvent(EventsController.EVENT_USER_FOLLOW, {"username" : username});
+      }
       return k;
   }
   static Future<ApiResponse<bool>> unfollowUser(String token, String username) async
@@ -419,6 +424,9 @@ class Account {
       print(token);
       var k = await Api.apiPost<bool>(endPoint,headers: headers);
       k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      if (k.data!){
+        EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNFOLLOW, {"username" : username});
+      }
       return k;
   }
 
@@ -429,6 +437,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_MUTE, {"username" : username});
+    }
     return k;
   }
 
@@ -439,6 +450,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNMUTE, {"username" : username});
+    }
     return k;
   }
 
@@ -449,6 +463,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_BLOCK, {"username" : username});
+    }
     return k;
   }
 
@@ -458,7 +475,10 @@ class Account {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
-    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    k.data = k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNBLOCK, {"username" : username});
+    }
     return k;
   }
 
