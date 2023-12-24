@@ -28,7 +28,7 @@ class TriggerNotification{
     if (data.runtimeType == String){ //fk firebase ig
       data = jsonDecode(data);
     }
-    return TriggerNotification("firebase", payload: data, actionID: 'firebase', input: null);
+    return TriggerNotification(msg.messageId ?? "no-id", payload: data, actionID: 'firebase', input: null);
   }
 
   static TriggerNotification fromLocal(NotificationResponse res){
@@ -104,9 +104,11 @@ class NotificationsController {
     NavigatorState? state = appNavigator.currentState;
 
     //print("Dispatching Note: ${note.payload}" );
-
-    LocalSettings.instance.setValue<String>(name: "last_note_id", val: note.id);
-    LocalSettings.instance.apply();
+    if (note.actionID != 'local') {
+      LocalSettings.instance.setValue<String>(
+          name: "last_note_id", val: note.id);
+      LocalSettings.instance.apply();
+    }
 
 
     if (state != null){
@@ -146,8 +148,13 @@ class NotificationsController {
   static Future<TriggerNotification?> getLaunchNotification() async {
     RemoteMessage? msg = await FirebaseMessaging.instance.getInitialMessage();
     if (msg != null){
-      return TriggerNotification.fromFirebase(msg);
+      TriggerNotification note = TriggerNotification.fromFirebase(msg);
+      String? id = LocalSettings.instance.getValue<String>(name: "last_note_id", def: null);
+      if (id != note.id){
+        return note;
+      }
     }
+
     NotificationAppLaunchDetails? l = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
     if (l != null && l.didNotificationLaunchApp){
       TriggerNotification note = TriggerNotification.fromLocal(l.notificationResponse!);
