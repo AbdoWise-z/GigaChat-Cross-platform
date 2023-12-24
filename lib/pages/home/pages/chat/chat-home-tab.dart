@@ -77,7 +77,7 @@ class ChatHomeTab with HomePageTab {
 
   void _init() async {
     ChatProvider.instance.init();
-    EventsController.instance.addEventHandler(EventsController.EVENT_CHAT_MESSAGE,
+    EventsController.instance.addEventHandler(EventsController.EVENT_CHAT_READ_COUNT_CHANGED,
       HandlerStructure(
         id: "ChatHomeTab",
         handler: (data) {

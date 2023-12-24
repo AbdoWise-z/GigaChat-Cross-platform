@@ -110,6 +110,7 @@ class ChatProvider extends ChangeNotifier{
             for (ChatObject k in _chats){
               if (k.mongoID == data["mongoID"]){
                 k.lastMessage!.seen = true;
+                EventsController.instance.triggerEvent(EventsController.EVENT_CHAT_READ_COUNT_CHANGED , {});
                 notifyListeners();
                 break;
               }
@@ -136,6 +137,8 @@ class ChatProvider extends ChangeNotifier{
             "id" : id,
             "message" : obj,
           });
+
+          EventsController.instance.triggerEvent(EventsController.EVENT_CHAT_READ_COUNT_CHANGED , {});
           // List<ChatMessageObject>? _msg = _messages[k.mongoID];
           // if (_msg != null){
           //   _msg.add(obj);
@@ -170,6 +173,7 @@ class ChatProvider extends ChangeNotifier{
     if (k.data != null){
       _chats.clear();
       _chats.addAll(k.data!);
+      EventsController.instance.triggerEvent(EventsController.EVENT_CHAT_READ_COUNT_CHANGED , {});
       // _messages.clear();
       // for (ChatObject chat in _chats){
       //   _messages.addAll({

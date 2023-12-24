@@ -81,8 +81,6 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   void initState() {
-    print("chat init state");
-
     super.initState();
   }
 
@@ -172,13 +170,9 @@ class _ChatListPageState extends State<ChatListPage> {
                     //_createDialog(e);
                   },
                   press: () async {
-                    var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                       "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked),
                       "message" : e.lastMessage,
-                    }) as Map;
-                    setState(() {
-                      User u = result["user"];
-                      e.blocked = u.isBlocked!;
                     });
                   },
                 )).toList(),
@@ -208,13 +202,9 @@ class _ChatListPageState extends State<ChatListPage> {
                     //_createDialog(e);
                   },
                   press: () async {
-                    var result = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                       "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked),
                       "message" : e.lastMessage,
-                    }) as Map;
-                    setState(() {
-                      User u = result["user"];
-                      e.blocked = u.isBlocked!;
                     });
                   },
                 )).toList(),

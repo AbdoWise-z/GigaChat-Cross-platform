@@ -29,7 +29,12 @@ class EventsController {
   void addEventHandler(String event , HandlerStructure handler){
     List<HandlerStructure>? handlers = _handlers[event];
     handlers ??= [];
-    handlers.add(handler);
+    int index = handlers.indexWhere((element) => element.id == handler.id);
+    if (index != -1){
+      handlers[index] = handler;
+    }else {
+      handlers.add(handler);
+    }
     _handlers[event] = handlers;
   }
 
@@ -40,17 +45,18 @@ class EventsController {
     _handlers[event] = handlers;
   }
 
-  static const String EVENT_LOGIN              = "login";
-  static const String EVENT_LOGINOUT           = "logout";
-  static const String EVENT_USER_BLOCK         = "user-block";
-  static const String EVENT_USER_BLOCK_ME      = "user-block-me";
-  static const String EVENT_USER_UNBLOCK       = "user-unblock";
-  static const String EVENT_USER_FOLLOW        = "user-follow";
-  static const String EVENT_USER_UNFOLLOW      = "user-unfollow";
-  static const String EVENT_USER_MUTE          = "user-mute";
-  static const String EVENT_USER_UNMUTE        = "user-unmute";
-  static const String EVENT_CHAT_MESSAGE       = "chat-message";
-  static const String EVENT_CHAT_MESSAGE_READ  = "chat-message-read";
+  static const String EVENT_LOGIN                    = "login";
+  static const String EVENT_LOGINOUT                 = "logout";
+  static const String EVENT_USER_BLOCK               = "user-block";
+  static const String EVENT_USER_BLOCK_ME            = "user-block-me";
+  static const String EVENT_USER_UNBLOCK             = "user-unblock";
+  static const String EVENT_USER_FOLLOW              = "user-follow";
+  static const String EVENT_USER_UNFOLLOW            = "user-unfollow";
+  static const String EVENT_USER_MUTE                = "user-mute";
+  static const String EVENT_USER_UNMUTE              = "user-unmute";
+  static const String EVENT_CHAT_MESSAGE             = "chat-message";
+  static const String EVENT_CHAT_MESSAGE_READ        = "chat-message-read";
+  static const String EVENT_CHAT_READ_COUNT_CHANGED  = "chat-read-count-changed";
 
   void triggerEvent(String event , Map<String,dynamic> data){
     List<HandlerStructure>? handlers = _handlers[event];

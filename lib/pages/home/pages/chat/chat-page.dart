@@ -222,6 +222,8 @@ class ChatPageState extends State<ChatPage> {
         });
       }
     });
+
+
   }
 
   Future<bool> sendMessage(ChatMessageObject m) async {
@@ -310,6 +312,16 @@ class ChatPageState extends State<ChatPage> {
       _with = args["user"];
 
       _chat.add(args["message"]);
+
+      //opened the chat so mark it as read
+      List<ChatObject> chats = ChatProvider.instance.getCurrentChats();
+      ChatObject myChat = chats.firstWhere((element) => element.mongoID == _with.mongoID);
+      if (myChat.lastMessage!.time == _chat[0].time) { //if this is the last message then mark this chat as read
+        EventsController.instance.triggerEvent(
+            EventsController.EVENT_CHAT_MESSAGE_READ, {
+          "mongoID": _with.mongoID,
+        });
+      }
 
       //load the messages
       _loadMessages(down: false);
