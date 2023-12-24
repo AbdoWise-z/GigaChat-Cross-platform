@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class PushNotificationPage extends StatelessWidget {
+  const PushNotificationPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Push Notifications'),
+        title: const Text('Push Notifications'),
       ),
-      body: Column(
+      body: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -24,7 +26,7 @@ class PushNotificationPage extends StatelessWidget {
                 ),
                 SizedBox(height: 8.0),
                 Text(
-                  'To get notifications from X, you’ll need to allow them in your browser settings first.',
+                  'To get notifications from Gigachat, you’ll need to allow them in your app settings first.',
                   style: TextStyle(fontSize: 16.0),
                 ),
               ],

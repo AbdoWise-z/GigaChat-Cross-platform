@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/confirm-email.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -19,8 +20,9 @@ class ForgetPassword extends StatefulWidget {
   static const String pageRoute = "/forget-password";
 
   String? username;
+  bool isLogged;
 
-  ForgetPassword({super.key, this.username});
+  ForgetPassword({super.key, this.username, required this.isLogged});
 
   @override
   State<ForgetPassword> createState() => _ForgetPasswordState();
@@ -64,7 +66,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     }else{
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email)));
+          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email,isLogged: widget.isLogged,)));
     }
   }
 
@@ -79,9 +81,10 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            widget.isLogged? Navigator.pop(context) :
+              Navigator.popUntil(context, ModalRoute.withName('/'));
           },
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
         ),
       ),
       body: Padding(

@@ -29,10 +29,8 @@ import '../../widgets/feed-component/feed-controller.dart';
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
-  static const profileFeedPosts = 'profileFeedPosts';
-  static const profileFeedReplies = 'profileFeedReplies';
-  static const profileFeedLikes = 'profileFeedLikes';
-  static const profileFeedMadia = 'profileFeedMadia';
+  static const profileFeedPosts = 'profileFeedPosts/';
+  static const profileFeedLikes = 'profileFeedLikes/';
 
   const UserProfile({Key? key, required this.username, required this.isCurrUser}) : super(key: key);
 
@@ -53,6 +51,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late String bio;
   late String website;
   String location = "Cairo, Egypt";  //its not a feature so its constant forever, looks cool tho
+                                     //yeah I can confirm it looks cool
   late DateTime birthDate;
   late DateTime joinedDate;
   late int following;
@@ -65,6 +64,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late bool? isWantedUserMuted;
   late bool? isWantedUserFollowed;
   late bool? isCurrUser;
+  late bool? isFollowingMe;
 
 
   //page details
@@ -72,11 +72,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   bool loading = true;
 
   late ScrollController scrollController;
-  late FeedController feedController;
+  late FeedController postsFeedController;
+  late FeedController likesFeedController;
+
   late TabController tabController;
 
   int prevTabIndex = 0;
-  List<bool> isLoaded = [true,false,false,false];
+  List<bool> isLoaded = [true,false];
 
   double avatarRadius = 35;
   double showNamePosition = 162;
@@ -90,7 +92,10 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     setState(() {
       loading = true;
     });
+
     Auth auth = Auth.getInstance(context);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+
     var res = widget.isCurrUser? await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!) :
         await Account.apiUserProfile(auth.getCurrentUser()!.auth!, widget.username);
     User u = res.data!;
@@ -113,28 +118,61 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     numOfPosts = u.numOfPosts;
     numOfLikes = u.numOfLikes;
     mongoID    = u.mongoID!;
+    isFollowingMe = u.isFollowingMe;
 
 
     scrollController = ScrollController();
     scrollController.addListener(() async {
-      if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
-      {
-        await feedController.fetchFeedData(username: widget.username);
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent
+          && (widget.isCurrUser
+          || (isCurrUser != null && isCurrUser!)
+          || ((isWantedUserBlocked != null && !isWantedUserBlocked!) && (isCurrUserBlocked != null && !isCurrUserBlocked!)))) {
+        if(prevTabIndex == 0) {
+           setState(() {
+             postsFeedController.fetchingMoreData = true;
+           });
+          await postsFeedController.fetchFeedData(username: widget.username);
+          setState(() {
+            postsFeedController.fetchingMoreData = false;
+          });
+        }
+        if(prevTabIndex == 1) {
+          setState(() {
+            likesFeedController.fetchingMoreData = true;
+          });
+          await likesFeedController.fetchFeedData(username: widget.username);
+          setState(() {
+            likesFeedController.fetchingMoreData = false;
+          });
+        }
         setState(() {});
       }
     });
 
     if(!context.mounted) return;
 
-    FeedProvider feedProvider = FeedProvider.getInstance(context);
-    feedController = feedProvider.getFeedControllerById(
+    postsFeedController = feedProvider.getFeedControllerById(
         context: context,
         id: UserProfile.profileFeedPosts + widget.username,
         providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+        clearData: false,
+    );
+    postsFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    postsFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+
+    likesFeedController = feedProvider.getFeedControllerById(
+        context: context,
+        id: UserProfile.profileFeedLikes + widget.username,
+        providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
         clearData: false
     );
+    likesFeedController.isInProfile = username == auth.getCurrentUser()!.id;
+    likesFeedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
 
-    feedController.setUserToken(Auth.getInstance(context).getCurrentUser()!.auth);
+    postsFeedController.resetFeed();
+    postsFeedController.updateFeeds();
+    likesFeedController.resetFeed();
+    likesFeedController.updateFeeds();
 
     setState(() {
       loading = false;
@@ -142,11 +180,12 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   }
 
   void updateUserFeeds(){
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
     if(context.mounted) {
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedPosts);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedLikes);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedMadia);
-      FeedProvider.getInstance(context).updateProfileFeed(context, UserProfile.profileFeedReplies);
+      if(username != auth.getCurrentUser()!.id){
+        feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: username == auth.getCurrentUser()!.id);
+        feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: username == auth.getCurrentUser()!.id);
+      }
     }
   }
 
@@ -164,24 +203,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         }
         isLoaded[1] = true;
      }
-      if(index == 2 && !isLoaded[2]){
-        if(scrollController.position.pixels > 335 && bio == ""){
-          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        else if(scrollController.position.pixels > 410 && bio != ""){
-          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        isLoaded[2] = true;
-      }
-      if(index == 3 && !isLoaded[3]){
-        if(scrollController.position.pixels > 335 && bio == ""){
-          scrollController.animateTo(335, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        else if(scrollController.position.pixels > 410 && bio != ""){
-          scrollController.animateTo(410, duration: Duration(milliseconds: durationMS), curve: Curves.easeInOut);
-        }
-        isLoaded[3] = true;
-      }
     }
   }
 
@@ -205,6 +226,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
         birthDate = res["birthDate"];
         bannerImageUrl = res["bannerImageUrl"];
         avatarImageUrl = res["avatarImageUrl"];
+        getData();
+        scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeIn
+        );
+        scroll.value = 0;
       });
     }
   }
@@ -222,6 +250,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     if(res != null){
       setState(() {
         avatarImageUrl = res;
+        getData();
+        scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeIn
+        );
+        scroll.value = 0;
       });
     }
   }
@@ -329,13 +364,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                         TextButton(
                           onPressed: () async {
                             await auth.block(
-                                widget.username,
+                              widget.username,
+                              isWantedUserFollowed!,
+                              isFollowingMe!,
                               success: (res){
                                 setState(() {
                                   updateUserFeeds();
                                   isWantedUserBlocked = true;
+                                  followers = isWantedUserFollowed!? followers - 1 : followers;
                                   isWantedUserFollowed = false;
-                                  followers--;
                                   if(context.mounted){
                                     Navigator.pop(context);
                                     Toast.showToast(context, "You blocked @${widget.username}.");
@@ -433,8 +470,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   @override
   void initState()  {
     auth = Auth.getInstance(context);
-
-    tabController = TabController(length: 4, vsync: this);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+    tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if(!tabController.indexIsChanging){
         int index = tabController.index;
@@ -445,8 +482,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     getData();
     super.initState();
   }
-
-  //TODO: get likes, media, replies
 
   @override
   Widget build(BuildContext context) {
@@ -491,12 +526,15 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                       fontSize: 23,
                                       color: Colors.white
                                   ),
+                                  maxLines: 1,
                                 ),
                                 Visibility(
                                   visible: widget.isCurrUser
                                       || (isCurrUser != null && isCurrUser!)
                                       || isCurrUserBlocked != null && !isCurrUserBlocked!,
-                                  child: Text(prevTabIndex == 3? "$numOfLikes Likes" : "$numOfPosts Posts",
+                                  child: Text(prevTabIndex == 1?
+                                  "${widget.isCurrUser? auth.getCurrentUser()!.numOfLikes : numOfLikes} Likes" :
+                                  "${widget.isCurrUser? auth.getCurrentUser()!.numOfPosts : numOfPosts} Posts",
                                     style: const TextStyle(
                                       color: Colors.white,
                                     ),
@@ -647,6 +685,13 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                           birthDate = res["birthDate"];
                                           bannerImageUrl = res["bannerImageUrl"];
                                           avatarImageUrl = res["avatarImageUrl"];
+                                          getData();
+                                          scrollController.animateTo(
+                                              0,
+                                              duration: const Duration(milliseconds: 500),
+                                              curve: Curves.easeIn
+                                          );
+                                          scroll.value = 0;
                                         });
                                       }
                                     }else if(widget.isCurrUser || (isCurrUser != null && isCurrUser!)){
@@ -687,16 +732,27 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   isWantedUserFollowed : isWantedUserFollowed,
                                   isWantedUserBlocked : isWantedUserBlocked,
                                   onTapEditProfile: onEditProfileClick,
-                                  onTapDM: (){
-                                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                  onTapDM: () async {
+                                    var res = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
                                       "user" : User(
                                           id: username ,
                                           name: name ,
                                           iconLink: avatarImageUrl,
                                           mongoID: mongoID,
                                           isFollowed: isWantedUserFollowed,
-                                          isBlocked: false
+                                          isBlocked: false,
+                                        isFollowingMe: isFollowingMe,
                                       )
+                                    }) as Map;
+                                    setState(() {
+                                      User u = res["user"];
+                                      isWantedUserBlocked = u.isBlocked;
+                                      scrollController.animateTo(
+                                          0,
+                                          duration: const Duration(milliseconds: 500),
+                                          curve: Curves.easeIn
+                                      );
+                                      scroll.value = 0;
                                     });
                                   },
                                   onTapFollow: followUser,
@@ -730,6 +786,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold
                               ),
+                              maxLines: 2,
                             ),
                             MainText(text: "@${widget.username}", color:Colors.grey ,),
                             bio == "" || (isCurrUserBlocked != null && isCurrUserBlocked!)?
@@ -891,34 +948,16 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                       removeController: true,
                       providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: postsFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,
                     ),
                     BetterFeed(
                       removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
+                      providerFunction: ProviderFunction.PROFILE_PAGE_LIKES,
                       providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
-                      userId: widget.username,
-                      userName: name,
-                      removeRefreshIndicator: true,
-                    ),
-                    BetterFeed(
-                      removeController: true,
-                      providerFunction: ProviderFunction.PROFILE_PAGE_TWEETS,
-                      providerResultType: ProviderResultType.TWEET_RESULT,
-                      feedController: feedController,
+                      feedController: likesFeedController,
                       userId: widget.username,
                       userName: name,
                       removeRefreshIndicator: true,

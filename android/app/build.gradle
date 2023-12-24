@@ -2,6 +2,8 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
+
 }
 
 def localProperties = new Properties()
@@ -47,12 +49,14 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         //minSdkVersion flutter.minSdkVersion
-        minSdkVersion 22
+        minSdkVersion 19
+        minSdkVersion 19
         //targetSdkVersion flutter.targetSdkVersion
         //fixme: target sdk 34
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     signingConfigs{
@@ -77,4 +81,10 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+    implementation("com.google.firebase:firebase-messaging")
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+}

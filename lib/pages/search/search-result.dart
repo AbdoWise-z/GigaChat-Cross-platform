@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
@@ -23,8 +22,16 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   void initState() {
-    latestFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_TWEETS);
-    userFeedController = FeedController(context, providerFunction: ProviderFunction.SEARCH_USERS);
+    latestFeedController = FeedController(
+        context,
+        id: SearchResultPage.tweetSearchFeed,
+        providerFunction: ProviderFunction.SEARCH_TWEETS
+    );
+    userFeedController = FeedController(
+        context,
+        id: SearchResultPage.userSearchFeed,
+        providerFunction: ProviderFunction.SEARCH_USERS
+    );
 
     super.initState();
   }
@@ -94,6 +101,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                 keyword: keyword,
                 removeController: false,
                 removeRefreshIndicator: false,
+                filterBlockedUsers: true,
             ),
           ],
         ),

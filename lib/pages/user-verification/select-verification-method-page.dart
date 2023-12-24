@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/user-verification/verification-code-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/contact-method.dart';
@@ -48,7 +49,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
 
     Auth auth = Auth.getInstance(context);
 
-    auth.requestVerificationMethod(
+    auth.forgotPassword(
       m ,
       success: (res) {
         setState(() {
@@ -56,6 +57,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
             context,
             MaterialPageRoute(
               builder: (context) => VerificationCodePage(
+                isLogged: widget.isLogged,
                 isRegister: false,
                 isVerify: false,
                 method: m,
@@ -83,7 +85,9 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            widget.isLogged? Navigator.pop(context) : Navigator.popUntil(context, ModalRoute.withName('/'));
+            widget.isLogged? Navigator.pop(context) :
+            Navigator.popUntil(context, ModalRoute.withName('/')
+            );
           },
           icon: widget.isLogged? const Icon(Icons.arrow_back): const Icon(Icons.close),
         ),

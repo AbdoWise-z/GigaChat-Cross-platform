@@ -5,16 +5,23 @@ import "dart:math";
 import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
 import "package:gigachat/base.dart";
+import "package:gigachat/providers/web-socks-provider.dart";
+import "package:gigachat/services/events-controller.dart";
+import "package:gigachat/services/notifications-controller.dart";
 import "package:gigachat/util/contact-method.dart";
 
 import "api.dart";
 class Account {
   static Future<ApiResponse<User>> apiLogin(String userName, String password) async {
+
+    await NotificationsController.getInstance().login();
+
     var k = await Api.apiPost<User>(
       ApiPath.login,
       body: json.encode({
         "query": userName,
         "password": password,
+        "push_token": NotificationsController.FirebaseToken,
       }),
       headers: Api.JSON_TYPE_HEADER,
     );
@@ -22,23 +29,25 @@ class Account {
     if (k.code == ApiResponse.CODE_SUCCESS) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
-
       u.active      = true; //TODO: change this later
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
       u.email       = res["data"]["user"]["email"];
-      //u.bio         = res["data"]["user"]["bio"];
+      u.bio         = res["data"]["user"]["bio"] ?? "";
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      u.bannerLink  = res["data"]["user"]["bannerImage"] ?? "";
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
       u.followers   = res["data"]["user"]["followers_num"];
       u.following   = res["data"]["user"]["followings_num"];
-
+      u.numOfPosts  = res["data"]["user"]["numOfPosts"];
+      u.numOfLikes  = res["data"]["user"]["numOfLikes"];
+      u.mongoID     = res["data"]["user"]["_id"];
       k.data = u;
+
     }
     return k;
   }
@@ -62,6 +71,33 @@ class Account {
       }),
       headers: Api.JSON_TYPE_HEADER,
     );
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    print(k.code);
+    return k;
+  }
+
+  static  Future<ApiResponse<bool>> apiForgotPassword(ContactMethod method) async {
+    var k = await Api.apiPost<bool>(
+      ApiPath.forgotPassword,
+      body: json.encode({
+        "query" : method.data,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    print(k.code);
+    return k;
+  }
+
+  static  Future<ApiResponse<bool>> apiCheckForgotPasswordCode(String code) async {
+    var k = await Api.apiPost<bool>(
+      ApiPath.checkForgotPasswordCode,
+      body: json.encode({
+        "passwordResetToken" : code,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    print(k.code);
     k.data = k.code == ApiResponse.CODE_SUCCESS;
     return k;
   }
@@ -103,6 +139,21 @@ class Account {
     }
     return k;
   }
+
+  static Future<ApiResponse<bool>> apiResetPassword(String password, String code) async {
+    var k = await Api.apiPatch<bool>(
+      ApiPath.resetPassword,
+      body: json.encode({
+        "password": password,
+        "passwordResetToken" : code,
+      }),
+      headers: Api.JSON_TYPE_HEADER,
+    );
+    print(k.code);
+    k.data = k.code == ApiResponse.CODE_SUCCESS;
+    return k;
+  }
+
 
 
   static Future<ApiResponse<bool>> apiIsEmailValid(String email) async {
@@ -187,7 +238,8 @@ class Account {
 
 
   static Future<bool> apiLogout(User u) async {
-    //TODO: do some API request
+    await NotificationsController.getInstance().logout();
+    WebSocketsProvider.instance.destroy();
     return true;
   }
 
@@ -226,6 +278,45 @@ class Account {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
       ApiPath.userProfile.format([username]),
+      headers: headers,
+    );
+    User u = User();
+    if(k.code == ApiResponse.CODE_SUCCESS){
+      var res = json.decode(k.responseBody!);
+      print(res);
+      u.id                    = res["user"]["username"];
+      u.name                  = res["user"]["nickname"];
+      u.bio                   = res["user"]["bio"] ?? "";
+      u.iconLink              = res["user"]["profile_image"];
+      u.bannerLink            = res["user"]["banner_image"] ?? "";
+      //u.location            = res["user"]["location"];  //const cuz its not a feature
+      //u.website             = res["user"]["website"];   //const cuz its not a feature
+      u.birthDate             = DateTime.parse(res["user"]["birth_date"]);
+      u.joinedDate            = DateTime.parse(res["user"]["joined_date"]);
+      u.followers             = res["user"]["followers_num"];
+      u.following             = res["user"]["followings_num"];
+      u.isFollowed            = res["user"]["is_wanted_user_followed"];
+      u.isWantedUserMuted     = res["user"]["is_wanted_user_muted"];
+      u.isWantedUserBlocked   = res["user"]["is_wanted_user_blocked"];
+      u.isCurrUser            = res["user"]["is_curr_user"];
+      u.isCurrUserBlocked     = res["user"]["is_curr_user_blocked"];
+      u.numOfPosts            = res["user"]["num_of_posts"];
+      u.numOfLikes            = res["user"]["num_of_likes"];
+      u.mongoID               = res["user"]["_id"];
+      u.isFollowingMe         = res["user"]["isFollowingMe"];
+    }else{
+      u.birthDate   = DateTime.now();
+      u.joinedDate  = DateTime.now();
+
+    }
+    k.data = u;
+    return k;
+  }
+
+  static Future<ApiResponse<User>> apiUserProfileWithID(String token,String id) async{
+    Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
+    var k = await Api.apiGet<User>(
+      ApiPath.userProfileWithID.format([id]),
       headers: headers,
     );
     User u = User();
@@ -366,6 +457,9 @@ class Account {
       var k = await Api.apiPost<bool>(endPoint,headers: headers);
       print(k.code);
       k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      if (k.data!){
+        EventsController.instance.triggerEvent(EventsController.EVENT_USER_FOLLOW, {"username" : username});
+      }
       return k;
   }
   static Future<ApiResponse<bool>> unfollowUser(String token, String username) async
@@ -375,6 +469,9 @@ class Account {
       print(token);
       var k = await Api.apiPost<bool>(endPoint,headers: headers);
       k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+      if (k.data!){
+        EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNFOLLOW, {"username" : username});
+      }
       return k;
   }
 
@@ -385,6 +482,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_MUTE, {"username" : username});
+    }
     return k;
   }
 
@@ -395,6 +495,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNMUTE, {"username" : username});
+    }
     return k;
   }
 
@@ -405,6 +508,9 @@ class Account {
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
     k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_BLOCK, {"username" : username});
+    }
     return k;
   }
 
@@ -414,7 +520,10 @@ class Account {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(endPoint,headers: headers);
     print(k.code);
-    k.data =  k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    k.data = k.code == ApiResponse.CODE_SUCCESS_NO_BODY;
+    if (k.data!){
+      EventsController.instance.triggerEvent(EventsController.EVENT_USER_UNBLOCK, {"username" : username});
+    }
     return k;
   }
 
@@ -518,6 +627,7 @@ class Account {
         iconLink: e["profile_image"],
         bio: e["bio"] ?? "",
         isWantedUserMuted: e["isMuted"],
+        isWantedUserBlocked: true,
       )).toList();
 
       k.data = users;
@@ -532,8 +642,8 @@ class Account {
         ApiPath.userMutedList,
         headers: headers,
         params: {
-          "page" : page,
-          "count" : count,
+          "page" : page.toString(),
+          "count" : count.toString(),
         }
     );
     print(k.code);
@@ -547,6 +657,7 @@ class Account {
         iconLink: e["profile_image"],
         bio: e["bio"] ?? "",
         isWantedUserBlocked: e["isBlocked"],
+        isWantedUserMuted: true,
       )).toList();
 
       k.data = users;

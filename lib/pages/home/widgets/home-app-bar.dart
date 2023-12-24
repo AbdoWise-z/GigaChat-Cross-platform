@@ -40,8 +40,7 @@ class HomeAppBar extends StatelessWidget {
       pinned: pinned,
       floating: true,
       snap: true,
-      // TODO: make this sized box again just to see the avatar
-      leading: Container(
+      leading: SizedBox(
         width: 40,
         height: 40,
 

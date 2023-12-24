@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/search-requests.dart';
+import 'package:gigachat/api/trend-requests.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
@@ -10,17 +10,20 @@ import 'package:gigachat/providers/feed-provider.dart';
 
 class FeedController {
 
+  String id;
   FeedProvider? feedProvider;
   String? token;
   List<dynamic>? _feedData;
   List<String>? _feedKeys;
 
   bool loading = true;
+  bool fetchingMoreData = false;
   ProviderFunction providerFunction;
   int lastFetchedPage = 0;
+  bool? isInProfile;
 
 
-  FeedController(BuildContext context, {this.token, required this.providerFunction}) {
+  FeedController(BuildContext context, {required this.id, this.token, required this.providerFunction,this.isInProfile}) {
     _feedData = [];
     _feedKeys = [];
     loading = true;
@@ -42,8 +45,9 @@ class FeedController {
         _feedData!.add(value);
       }
     });
-    if (noRefresh)
+    if (noRefresh) {
       return;
+    }
     updateFeeds();
   }
 
@@ -69,6 +73,9 @@ class FeedController {
   void deleteTweet(String tweetID){
     if (_feedData == null) return;
     int idx = _feedKeys!.indexOf(tweetID);
+    if (idx == -1) {
+      return;
+    }
     _feedData!.removeAt(idx);
     _feedKeys!.removeAt(idx);
     updateFeeds();
@@ -76,6 +83,18 @@ class FeedController {
 
   void updateFeeds(){
     feedProvider!.updateFeeds();
+  }
+
+  void deleteUserTweets(String username){
+    List<TweetData> targetTweets = _feedData!.cast<TweetData>()
+        .where((tweetData) => tweetData.tweetOwner.id == username).toList();
+    List<String> targetIds = _feedData!.cast<TweetData>()
+        .map((tweetData) => tweetData.id).toList();
+    _feedData!.removeWhere((tweetData) => targetTweets.contains(tweetData));
+    _feedKeys!.removeWhere((tweetId) => targetIds.contains(tweetId));
+    if (_feedData!.isEmpty){
+      resetFeed();
+    }
   }
 
   List getCurrentData () {
@@ -152,24 +171,43 @@ class FeedController {
 
 
       case ProviderFunction.SEARCH_USERS:
-        response = await SearchRequests.searchUsersByKeywordMapped(
-            keyword!,
-            token!,
-            nextPage.toString(),
-            DEFAULT_PAGE_COUNT.toString()
-        );
+
+        if (keyword!.split(" ").length == 1 && keyword[0] == '#'){
+            response = {};
+        }
+        else{
+          response = await SearchRequests.searchUsersByKeywordMapped(
+              keyword,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+
+
         break;
 
 
       case ProviderFunction.SEARCH_TWEETS:
-        response = await SearchRequests.searchTweetsByKeywordMapped(
-            keyword!,
-            token!,
-            nextPage.toString(),
-            DEFAULT_PAGE_COUNT.toString()
-        );
-        break;
 
+        if (keyword!.split(" ").length == 1 && keyword[0] == '#'){
+          String trend = keyword.substring(1);
+          response = await SearchRequests.searchTweetsByTrendsMapped(
+              trend,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+        else {
+          response = await SearchRequests.searchTweetsByKeywordMapped(
+              keyword,
+              token!,
+              nextPage.toString(),
+              DEFAULT_PAGE_COUNT.toString()
+          );
+        }
+        break;
 
       case ProviderFunction.GET_USER_FOLLOWERS:
         List<User> users = (
@@ -236,6 +274,27 @@ class FeedController {
             DEFAULT_PAGE_COUNT.toString()
         );
         response = mapUserListIntoMap(users);
+        break;
+
+      case ProviderFunction.PROFILE_PAGE_LIKES:
+        if (username == null) return;
+        response = await Tweets.getProfilePageLikes(
+            token!,
+            username,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
+        );
+        break;
+
+      case ProviderFunction.HOME_PAGE_MENTIONS:
+        response = await Tweets.getMentionTweets(
+            token!,
+            DEFAULT_PAGE_COUNT.toString(),
+            nextPage.toString()
+        );
+        break;
+      case ProviderFunction.GET_TRENDS:
+        response = await TrendRequests.getAllTrends(token!, nextPage.toString(), DEFAULT_PAGE_COUNT.toString());
         break;
 
       default:

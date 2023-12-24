@@ -3,18 +3,20 @@ import 'PushNotificationPage.dart';
 import 'EmailNotificationPage.dart';
 
 class PreferenceSettingsPage extends StatelessWidget {
+  const PreferenceSettingsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Preference Settings'),
+        title: const Text('Preference Settings'),
       ),
       body: Column(
         children: [
           ListTile(
-            leading: Icon(Icons.notification_add),
-            title: Text('Push Notifications'),
-            trailing: Icon(Icons.arrow_forward),
+            leading: const Icon(Icons.notification_add),
+            title: const Text('Push Notifications'),
+            trailing: const Icon(Icons.arrow_forward),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -24,9 +26,9 @@ class PreferenceSettingsPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.email),
-            title: Text('Email Notifications'),
-            trailing: Icon(Icons.arrow_forward),
+            leading: const Icon(Icons.email),
+            title: const Text('Email Notifications'),
+            trailing: const Icon(Icons.arrow_forward),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(

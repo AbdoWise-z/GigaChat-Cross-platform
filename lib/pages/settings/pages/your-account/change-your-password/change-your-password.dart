@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/providers/theme-provider.dart';
@@ -11,7 +12,6 @@ import '../../../../../util/Toast.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({Key? key}) : super(key: key);
-
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
@@ -180,17 +180,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 onTap: (){
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) =>
-                          VerificationMethodPage(
-                              methods: [
-                            ContactMethod(
-                                method: ContactMethodType.EMAIL,
-                                data: Auth.getInstance(context).getCurrentUser()!.email,
-                                title: Auth.getInstance(context).getCurrentUser()!.email,
-                                disc: ""
-                            ),
-                          ],
-                            isLogged: true,
-                        ),
+                          ForgetPassword(isLogged: true, username: Auth.getInstance(context).getCurrentUser()!.id,)
                       )
                   );
                 },

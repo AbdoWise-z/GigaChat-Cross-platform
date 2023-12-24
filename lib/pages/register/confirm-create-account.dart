@@ -41,6 +41,7 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
             builder: (context) => VerificationCodePage(
               isRegister: true ,
               isVerify: false,
+              isLogged: false,
               method: res.data!,
             ),
           ),

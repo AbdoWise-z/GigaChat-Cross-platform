@@ -70,6 +70,9 @@ class ApiPath{
   static ApiPath confirmEmail            = const ApiPath._("/api/user/confirmEmail");
   static ApiPath verifyEmail             = const ApiPath._("/api/user/verifyEmail");
   static ApiPath resendConfirmEmail      = const ApiPath._("/api/user/resendConfirmEmail");
+  static ApiPath forgotPassword          = const ApiPath._("/api/user/forgotpassword");
+  static ApiPath resetPassword           = const ApiPath._("/api/user/resetpassword");
+  static ApiPath checkForgotPasswordCode = const ApiPath._("api/user/checkPasswordResetToken");
   static ApiPath assignPassword          = const ApiPath._("/api/user/AssignPassword");
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
   static ApiPath updatePassword          = const ApiPath._("/api/user/updatePassword");
@@ -97,22 +100,34 @@ class ApiPath{
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath userProfileWithID       = const ApiPath._("/api/user/profileById/%s");
   static ApiPath userFollowers           = const ApiPath._("/api/user/profile/%s/followers");
   static ApiPath userFollowings          = const ApiPath._("/api/user/profile/%s/followings");
   static ApiPath userBlockList           = const ApiPath._("/api/user/blockList");
   static ApiPath userMutedList           = const ApiPath._("/api/user/mutedList");
-
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
+  static ApiPath userProfileReplies      = const ApiPath._("/api/user/profile/%s/tweetsWithReplies");
+  static ApiPath userProfileLikes        = const ApiPath._("/api/profile/%s/likes");
+  static ApiPath mentions                = const ApiPath._("/api/homepage/mention");
+
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
   static ApiPath searchUsers             = const ApiPath._("/api/user/search");
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
-  static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
+  static ApiPath searchTags              = const ApiPath._("/api/trends/search");
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
   static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
   static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
-  static ApiPath getTweet             = const ApiPath._("/api/tweets/%s");
-}
+  static ApiPath chatMessagesBefore      = const ApiPath._("/api/user/chat/messagesBeforeCertainTime/%s");
+  static ApiPath chatMessagesAfter       = const ApiPath._("/api/user/chat/messagesAfterCertainTime/%s");
+  static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
+  static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
+  static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
+  static ApiPath tweetOwnerId            = const ApiPath._("/api/tweets/tweetOwner/%s");
+  static ApiPath getAllTrends            = const ApiPath._("/api/trends/all");
+  static ApiPath notifications           = const ApiPath._("/api/user/notifications");
+  static ApiPath notificationsCount      = const ApiPath._("/api/user/notifications/unseenCount");
+  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");}
 
 class Api {
 

@@ -1,5 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
+import 'package:gigachat/firebase_options.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/Search/search.dart';
@@ -21,37 +23,37 @@ import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/change-email.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/verify-password.dart';
+import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/settings/settings-main-page.dart';
 import 'package:gigachat/pages/setup-profile/choose-username.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/chat-provider.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
+import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
-import 'package:gigachat/services/NotificationsController.dart';
+import 'package:gigachat/services/notifications-controller.dart';
 import 'package:provider/provider.dart';
 import 'widgets/tweet-widget/full-screen-tweet.dart';
 
 GigaChat? application;
+final GlobalKey<NavigatorState> appNavigator = GlobalKey();
 
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocalSettings locals = LocalSettings();
   await locals.init();
   await NotificationsController().init();
-
-  //NotificationsController.getInstance().showNotification(123 , title: "test" , body: "pls work" , payload: "data");
-
   application = GigaChat(locals: locals,);
   runApp(application!);
 }
 
 class GigaChat extends StatefulWidget {
-  LocalSettings locals;
-  String? initialRoute;
-  GigaChat({super.key,this.initialRoute , required this.locals});
+  final LocalSettings locals;
+  final String? initialRoute;
+  const GigaChat({super.key,this.initialRoute , required this.locals});
 
   @override
   State<GigaChat> createState() => _GigaChatState();
@@ -69,6 +71,8 @@ class _GigaChatState extends State<GigaChat> {
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
         ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
         ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
+        ChangeNotifierProvider<NotificationsProvider>(create: (context) => NotificationsProvider()),
+        ChangeNotifierProvider<ChatProvider>(create: (context) => ChatProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (_ , theme , __) {
@@ -76,17 +80,17 @@ class _GigaChatState extends State<GigaChat> {
           return Consumer<Auth>(
             builder: (___ , auth , ____) {
               return MaterialApp(
+                navigatorKey: appNavigator,
                 theme: theme.getTheme,
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  Home.pageRoute : (context) => const Home(),
+                  Home.pageRoute : (context) => Home(key: homeKey,),
                   ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),
                   UsernameLoginPage.pageRoute: (context) => const UsernameLoginPage(),
 
-                  ForgetPassword.pageRoute : (context) => ForgetPassword(),
                   CreateAccount.pageRoute : (context) => const CreateAccount(),
                   LoadingPage.pageRoute : (context) => const LoadingPage(),
                   CreatePassword.pageRoute : (context) => const CreatePassword(),
@@ -95,7 +99,7 @@ class _GigaChatState extends State<GigaChat> {
                   PickProfilePicture.pageRoute : (context) => const PickProfilePicture(),
                   ConfirmCreateAccount.pageRoute : (context) => const ConfirmCreateAccount(),
                   ViewPostPage.pageRoute : (context) => ViewPostPage(),
-                  UserListViewPage.pageRoute : (context) => UserListViewPage(),
+                  UserListViewPage.pageRoute : (context) => const UserListViewPage(),
                   CreatePostPage.pageRoute : (context) => const CreatePostPage(),
                   SearchPage.pageRoute : (context) => const SearchPage(),
                   SearchResultPage.pageRoute : (context) => const SearchResultPage(),
@@ -104,6 +108,7 @@ class _GigaChatState extends State<GigaChat> {
                   ChangeEmailPage.pageRoute : (context) => const ChangeEmailPage(),
                   FullScreenImage.pageRoute : (context) => const FullScreenImage(),
                   AssignBirthDate.pageRoute : (context) => const AssignBirthDate(),
+                  AccountSettings.pageRoute : (context) => const AccountSettings(),
                 },
               );
             }

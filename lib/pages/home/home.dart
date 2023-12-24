@@ -8,31 +8,42 @@ import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/pages/notification/notifications.dart';
+import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';
 import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
+import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/services/notifications-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:permission_handler/permission_handler.dart';
 
+GlobalKey<HomeState> homeKey = GlobalKey();
 
 class Home extends StatefulWidget {
   static const String pageRoute = "/home";
   static const String feedID = "HomeFeed";
+  static const String mentionsFeedID = "MentionsFeed";
   const Home({super.key});
+
 
 
   @override
   State<Home> createState() => HomeState();
 
-
+  static GlobalKey<NestedScrollViewState>? getScrollGlobalKey(BuildContext context){
+    HomeState? state = context.findAncestorStateOfType<HomeState>();
+    if (state == null){
+      return null;
+    }
+    return state.nestedScrollViewKey;
+  }
 }
 
+
 class HomeState extends State<Home> with TickerProviderStateMixin {
-  TabController? _controller;
+  static HomeState? ActiveHomeState;
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
@@ -42,20 +53,34 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   late final List<HomePageTab> _pages = [
     FeedHomeTab(),
     Explore(),
-    ChatHomeTab(),
-    Notifications(),
+    NotificationsHomeTab(),
     ChatHomeTab(),
   ];
+  late final List<TabController?> _controller = [
+    null,
+    null,
+    null,
+    null,
+  ];
+
+  void _triggerNotification() async{
+    TriggerNotification? t = await NotificationsController.getLaunchNotification();
+    if (t != null){
+      if (context.mounted) {
+        NotificationsController.dispatchNotification(t, context);
+      }
+    }
+  }
+
 
   void update(void Function() callback){
     setState(callback);
   }
 
   void setPage(int p){
-    _controller = null;
     AppBarTabs? tabs = _pages[p].getTabs(context);
     if (tabs != null && tabs.tabs.isNotEmpty){
-      _controller = TabController(
+      _controller[p] = TabController(
         initialIndex: _pages[p].getInitialTab(context),
         length: tabs.tabs.length,
         vsync: this,
@@ -65,11 +90,26 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     setState(() {
       //the controller is ready .. lesgo
       _currentPage = p;
+      nestedScrollViewKey = GlobalKey();
     });
   }
 
   @override
   void initState() {
+    super.initState();
+
+    for (int i = 0;i < _pages.length;i++){
+      _pages[i].init(context);
+      AppBarTabs? tabs = _pages[i].getTabs(context);
+      if (tabs != null && tabs.tabs.isNotEmpty){
+        _controller[i] = TabController(
+          initialIndex: _pages[i].getInitialTab(context),
+          length: tabs.tabs.length,
+          vsync: this,
+        );
+      }
+    }
+
     // MOA Was Here
     followingFeedController = FeedProvider.getInstance(context).
     getFeedControllerById(
@@ -78,9 +118,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
         clearData: false
     );
+    // MoA left here
 
-    //test();
-    super.initState();
     setPage(0);
     _scrollController.addListener(() {
       if (_scrollController.position.atEdge && _scrollController.offset > 0){
@@ -96,43 +135,55 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         }
       }
     });
+
+    _triggerNotification();
   }
+
+  //I use this key to refresh the NestedScrollView
+  //to prevent SliverAppBar problems
+  GlobalKey<NestedScrollViewState> nestedScrollViewKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
+
+    Future.delayed(Duration.zero , () {
+      if (!Auth.getInstance(context).isLoggedIn){
+        Navigator.popUntil(context, (route) => false);
+        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+      }
+    });
+
     if (value.getCurrentUser() != null) {
       followingFeedController.setUserToken(value.getCurrentUser()!.auth);
     }
-    //print("update");
     return SafeArea(
       child: Scaffold(
         drawerDragStartBehavior: DragStartBehavior.start,
         drawer: const NavDrawer(),
         body: NestedScrollView(
+          key: nestedScrollViewKey,
           controller: _scrollController,
-          headerSliverBuilder: (_ , __) => [
-            HomeAppBar(
-              pinned: _pages[_currentPage].isAppBarPinned(context),
-              userImage: isLoggedIn ? value.getCurrentUser()!.iconLink : null,
-              title: _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
-              searchBar: _pages[_currentPage].getSearchBar(context),
-              actions: _pages[_currentPage].getActions(context),
-              controller: _controller,
-              tabs: _pages[_currentPage].getTabs(context),
-            ),
-
-          ], body: _controller != null ? Column(
-            children: [
-              Expanded(
-                child: TabBarView(
-                  controller: _controller,
-                  children: _pages[_currentPage].getTabsWidgets(context,feedController: followingFeedController)!,
-                ),
+          floatHeaderSlivers: true,
+          headerSliverBuilder: (_ , __ ) {
+            return [
+              HomeAppBar(
+                pinned: _pages[_currentPage].isAppBarPinned(context),
+                userImage: isLoggedIn ? value.getCurrentUser()!.iconLink : null,
+                title: _pages[_currentPage].getTitle(context), /* title (if given a value it will show it instead of the search) */
+                searchBar: _pages[_currentPage].getSearchBar(context),
+                actions: _pages[_currentPage].getActions(context),
+                controller: _controller[_currentPage],
+                tabs: _pages[_currentPage].getTabs(context),
               ),
-            ],
+            ];
+          },
+          body: _controller[_currentPage] != null ? TabBarView(
+            controller: _controller[_currentPage],
+            children: _pages[_currentPage].getTabsWidgets(context,feedController: followingFeedController)!,
           ) : _pages[_currentPage].getPage(context)!,
+
         ),
         floatingActionButton: _hidBottomControls && !_pages[_currentPage].isBottomNavPinned(context) ? null : _pages[_currentPage].getFloatingActionButton(context),
         bottomNavigationBar: AnimatedContainer(
@@ -143,13 +194,16 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
             child: Row(
               children: [
 
+                const Expanded(child: SizedBox()),
+
+
                 BottomBarItem(
                   icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
                   click: () => setPage(0),
                   notify: _pages[0].getNotificationsCount(context),
                 ),
 
-                const Expanded(child: SizedBox()),
+                const Expanded(flex: 2,child: SizedBox(),),
 
                 BottomBarItem(
                   icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
@@ -178,29 +232,23 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
                   notify: _pages[1].getNotificationsCount(context),
                 ),
 
-                const Expanded(child: SizedBox()),
+                const Expanded(flex: 2,child: SizedBox(),),
 
                 BottomBarItem(
-                  icon: _currentPage == 2 ? Icons.people : Icons.people_outline,
+                  icon: _currentPage == 2 ? Icons.notifications : Icons.notifications_none_outlined,
                   click: () => setPage(2),
                   notify: _pages[2].getNotificationsCount(context),
                 ),
 
-                const Expanded(child: SizedBox()),
+                const Expanded(flex: 2,child: SizedBox(),),
 
                 BottomBarItem(
-                  icon: _currentPage == 3 ? Icons.notifications : Icons.notifications_none_outlined,
+                  icon: _currentPage == 3 ? Icons.messenger : Icons.messenger_outline,
                   click: () => setPage(3),
                   notify: _pages[3].getNotificationsCount(context),
                 ),
 
                 const Expanded(child: SizedBox()),
-
-                BottomBarItem(
-                  icon: _currentPage == 4 ? Icons.messenger : Icons.messenger_outline,
-                  click: () => setPage(4),
-                  notify: _pages[4].getNotificationsCount(context),
-                ),
               ],
             ),
           ),

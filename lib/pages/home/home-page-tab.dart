@@ -31,11 +31,16 @@ mixin HomePageTab {
     return null;
   }
   int getNotificationsCount(BuildContext context){
-    return 1;
+    return 0;
   }
 
-  void setHomeState(BuildContext context , void Function() callback){
-    var home = context.findAncestorStateOfType<HomeState>();
-    home!.update(callback);
+  void setHomeState(void Function() callback){
+    Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
+      var home = homeKey.currentState;
+      home!.update(callback);
+    });
+
   }
+
+  void init(BuildContext context) {}
 }

@@ -289,6 +289,7 @@ class _EditProfileState extends State<EditProfile> {
                           onTap: (){
                             setState(() {});
                           },
+                          maxLength: 50,
                         ),
                         const SizedBox(height: 15,),
                         Text("Bio",style: TextStyle(color: Colors.grey[700]),),
@@ -313,6 +314,7 @@ class _EditProfileState extends State<EditProfile> {
                         const SizedBox(height: 15,),
                         Text("Website",style: TextStyle(color: Colors.grey[700]),),
                         TextFormField(
+                          readOnly: true,
                           controller: inputWebsite,
                           onTap: (){
                             setState(() {});
@@ -381,7 +383,7 @@ class _EditProfileState extends State<EditProfile> {
             height: 100,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
-              initialDateTime: DateTime.now(),
+              initialDateTime: nonFormattedDate,
               maximumDate: DateTime.now(),
               onDateTimeChanged: (input){
                 setState(() {

@@ -1,34 +1,33 @@
 
 import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/providers/auth.dart';
 
 import '../base.dart';
 
 class ChatObject {
-  String lastMessage;
-  bool lastMessageSeen;
-  String lastMessageSender;
+  ChatMessageObject? lastMessage;
   final String username;
   final String nickname;
   final String profileImage;
   final String mongoID;
   bool blocked;
   bool followed;
+  bool isFollowingMe;
 
   bool pinned;
   DateTime? time;
 
   ChatObject({
-    this.lastMessage = "this is a last message",
-    this.lastMessageSeen = false,
+    this.lastMessage,
     this.blocked = false,
     this.followed = false,
-    this.lastMessageSender = "",
     this.username = "Postman",
     this.nickname = "Postman",
     this.mongoID  = "",
     this.profileImage = USER_DEFAULT_PROFILE,
     this.pinned = false,
     this.time,
+    this.isFollowingMe = false,
   }) {
     time = time ?? DateTime.now();
   }
@@ -89,7 +88,7 @@ class ChatMessageObject {
     id   = map["id"] ?? "";
     replyTo = null;
     text = map["description"];
-    self = map["mine"]; //map["from"] == userID;
+    self = map["mine"] ?? map["sender"] == Auth().getCurrentUser()!.id; //map["from"] == userID;
     media = map["media"] != null && map["media"]["link"] != null ? MediaObject(link: map["media"]["link"], type: map["media"]["type"] == "video" ? MediaType.VIDEO : MediaType.IMAGE): null;
     time = map["sendTime"] != null ? DateTime.tryParse(map["sendTime"]) : DateTime.now();
     seen = map["seen"];

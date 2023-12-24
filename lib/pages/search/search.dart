@@ -9,8 +9,6 @@ import 'package:gigachat/providers/auth.dart';
 
 const REQUEST_COOLDOWN = Duration(milliseconds: 500);
 
-
-
 class SearchPage extends StatefulWidget
 {
   static const String pageRoute = "/search";
@@ -130,12 +128,12 @@ class _SearchPageState extends State<SearchPage> {
                 keyword = tag;
                 reWriteTimer();
               }, onPressed: () { search(tag); },
-            )).toList(),
+            )),
             searchedTags!.isNotEmpty ? const Padding(
               padding: EdgeInsets.all(8.0),
               child: Divider(thickness: 2),
             ) : const SizedBox.shrink(),
-            ...searchedUsers!.map((User user) => UserResult(user: user)).toList()
+            ...searchedUsers!.map((User user) => UserResult(user: user, disableFollowButton: true)).toList()
           ]
         ),
       ),

@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
+import 'local-settings-provider.dart';
+
 class Auth extends ChangeNotifier{
+  static late FeedProvider feedProvider;
   static Auth getInstance(BuildContext context){
+    feedProvider = FeedProvider.getInstance(context);
     return Provider.of<Auth>(context , listen: false);
   }
 
@@ -29,7 +34,7 @@ class Auth extends ChangeNotifier{
       _currentUser = res.data;
       WebSocketsProvider prov = WebSocketsProvider();
       print("Auth : ${_currentUser!.auth!}");
-      if ( await prov.init(_currentUser!.auth! )){
+      if (await prov.init(_currentUser!.auth! )){
         if (success != null) success(res);
       }else{
         _currentUser = null;
@@ -45,14 +50,26 @@ class Auth extends ChangeNotifier{
     return _currentUser;
   }
 
+  bool _loggingOut = false;
   logout() async {
     if (_currentUser == null) {
       return;
     }
+
+    if (_loggingOut){
+      return;
+    }
+    _loggingOut = true;
+
     bool ok = await Account.apiLogout(_currentUser!);
     if (ok){
       _currentUser = null;
+      var settings = LocalSettings.instance;
+      settings.setValue<bool>(name: "login", val: false);
+      await settings.apply();
     }
+
+    _loggingOut = false;
     notifyListeners();
   }
 
@@ -77,6 +94,24 @@ class Auth extends ChangeNotifier{
     }
   }
 
+  Future<void> checkForgotPasswordCode(String code , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiCheckForgotPasswordCode(code);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
+  Future<void> forgotPassword(ContactMethod method , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiForgotPassword(method);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
   Future<void> verifyMethod(ContactMethod method , String code ,String? token,bool isVerify, { void Function(ApiResponse<dynamic>)? success , void Function(ApiResponse<dynamic>)? error}) async {
     var res = await Account.apiVerifyMethod(method , code, isVerify,token);
     if (res.data != null){
@@ -90,6 +125,16 @@ class Auth extends ChangeNotifier{
       if (error != null) error(res);
     }
   }
+
+  Future<void> resetPassword(String password ,String code ,{ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+    var res = await Account.apiResetPassword(password , code);
+    if (res.data!){
+      if (success != null) success(res);
+    }else{
+      if (error != null) error(res);
+    }
+  }
+
 
   Future<void> isValidEmail(String email , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiIsEmailValid(email);
@@ -157,7 +202,9 @@ class Auth extends ChangeNotifier{
 
   Future<void> verifyUserPassword(String password , { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiVerifyPassword(_currentUser!.auth! , password);
+    print(password);
     if (res.data!){
+
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
@@ -238,10 +285,16 @@ class Auth extends ChangeNotifier{
     return;
   }
 
-  Future<void> block(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
+  Future<void> block(String username, bool isFollowed,bool isFollowingMe, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.blockUser(_currentUser!.auth! ,username);
     if (res.data!){
-      _currentUser!.following--;
+      refreshFeeds(deleteFeeds: true);
+      if(isFollowed) {
+        _currentUser!.following--;
+      }
+      if(isFollowingMe){
+        _currentUser!.followers--;
+      }
       notifyListeners();
       if (success != null) success(res);
     }else{
@@ -252,6 +305,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> unblock(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unblockUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -262,6 +316,7 @@ class Auth extends ChangeNotifier{
 
   Future<void> mute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.muteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
@@ -272,12 +327,19 @@ class Auth extends ChangeNotifier{
 
   Future<void> unmute(String username, { void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.unmuteUser(_currentUser!.auth! ,username);
+    refreshFeeds();
     if (res.data!){
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
     }
     return;
+  }
+
+  void refreshFeeds({bool deleteFeeds = false}){
+    if (deleteFeeds)
+      feedProvider.resetAllFeeds();
+    feedProvider.updateFeeds();
   }
 
   Future<void> deleteUserBanner({ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {

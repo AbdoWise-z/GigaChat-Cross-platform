@@ -9,6 +9,7 @@ import 'package:gigachat/widgets/text-widgets/main-text.dart';
 class AccountSettings extends StatefulWidget {
   const AccountSettings({Key? key}) : super(key: key);
 
+  static const pageRoute = '/account-settings';
   @override
   State<AccountSettings> createState() => _AccountSettingsState();
 }
