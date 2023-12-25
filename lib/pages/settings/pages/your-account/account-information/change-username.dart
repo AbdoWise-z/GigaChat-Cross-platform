@@ -38,8 +38,7 @@ class _ChangeUsernamePageState extends State<ChangeUsernamePage> {
           print(res.responseBody);
           loading = false;
           Toast.showToast(context, "Username changed successfully");
-          Navigator.popUntil(context, (route) => false);
-          Navigator.pushNamed(context, Home.pageRoute);
+          Navigator.popUntil(context, ModalRoute.withName(Home.pageRoute));
         });
       },
       error: (res) {

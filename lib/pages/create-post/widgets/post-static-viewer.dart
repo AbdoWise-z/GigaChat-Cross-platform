@@ -97,22 +97,29 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                   width: width - 40 - 8 * 2,
                   child: Row(
                     children: [
-                      Text(
-                        user.name,
-                        softWrap: true,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          user.name,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
 
-                      Text(
-                        " ${user.id}",
-                        softWrap: true,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0 , right: 8.0),
+                        child: Text(
+                          "${user.id}",
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey
+                          ),
                         ),
                       ),
                     ],

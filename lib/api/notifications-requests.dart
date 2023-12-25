@@ -24,7 +24,7 @@ class Notifications {
           description: k["description"],
           type: k["type"],
           creationTime: DateTime.tryParse(k["creation_time"])!,
-          img: k["notifierProfileImage"],
+          img: k["notifierProfileImage"] ?? "",
           seen: k["seen"],
           targetID: k["destination"] ?? "no target",
         ));

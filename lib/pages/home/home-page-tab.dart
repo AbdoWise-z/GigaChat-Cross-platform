@@ -35,6 +35,10 @@ mixin HomePageTab {
   }
 
   void setHomeState(void Function() callback){
+    // if (homeKey.currentState == null){
+    //   print("Bad call to home setState");
+    // }
+
     Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
       var home = homeKey.currentState;
       home!.update(callback);

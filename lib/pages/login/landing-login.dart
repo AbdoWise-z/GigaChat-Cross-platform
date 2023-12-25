@@ -55,7 +55,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
           await authProvider.google(
             acc.displayName!,
             acc.email,
-            acc.photoUrl,
+            null,
             acc.id,
             accessToken!,
             null,
@@ -84,15 +84,20 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
     var settings = LocalSettings.getInstance(context);
     var authProvider = Auth.getInstance(context);
 
-    bool googleIsSigned = await googleSignIn.isSignedIn();
-    if(googleIsSigned){
-      signInWithGoogle();
-    }
-
     if (!settings.getValue<bool>(name: "login", def: false)!){
       setState(() {
         _loading = false;
       });
+      return;
+    }
+
+    bool googleIsSigned = await googleSignIn.isSignedIn();
+    print("signed in : ${googleIsSigned}");
+    if (googleIsSigned){
+      setState(() {
+        _loading = false;
+      });
+      signInWithGoogle();
       return;
     }
 

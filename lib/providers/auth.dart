@@ -5,7 +5,9 @@ import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/util/contact-method.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
@@ -35,6 +37,12 @@ class Auth extends ChangeNotifier{
       WebSocketsProvider prov = WebSocketsProvider();
       print("Auth : ${_currentUser!.auth!}");
       if (await prov.init(_currentUser!.auth! )){
+        var settings = LocalSettings.instance;
+        settings.setValue<String>(name: "username", val: username);
+        settings.setValue<String>(name: "password", val: password);
+        settings.setValue<bool>(name: "login", val: true);
+        await settings.apply();
+
         if (success != null) success(res);
       }else{
         _currentUser = null;
@@ -43,7 +51,40 @@ class Auth extends ChangeNotifier{
     }else{
       if (error != null) error(res);
     }
+  }
 
+  Future<void> google(
+      String name,
+      String email,
+      String? avatarUrl,
+      String id,
+      String accessToken,
+      String? dob,
+      {
+        void Function(ApiResponse<User>)? success,
+        void Function(ApiResponse<User>)? error,
+      }) async {
+
+    var res = await Account.apiGoogle(name , email, avatarUrl, id, accessToken, dob);
+    print(res.code);
+    if (res.data != null){
+      _currentUser = res.data;
+      WebSocketsProvider prov = WebSocketsProvider();
+      print("Auth : ${_currentUser!.auth!}");
+      if ( await prov.init(_currentUser!.auth! )){
+        var settings = LocalSettings.instance;
+        settings.setValue<String>(name: "username", val: "google boi");
+        settings.setValue<String>(name: "password", val: "google boi");
+        settings.setValue<bool>(name: "login", val: true);
+        await settings.apply();
+        if (success != null) success(res);
+      }else{
+        _currentUser = null;
+        if (error != null) error(res);
+      }
+    }else{
+      if (error != null) error(res);
+    }
   }
 
   User? getCurrentUser(){
@@ -62,14 +103,21 @@ class Auth extends ChangeNotifier{
     _loggingOut = true;
 
     bool ok = await Account.apiLogout(_currentUser!);
+
     if (ok){
       _currentUser = null;
       var settings = LocalSettings.instance;
       settings.setValue<bool>(name: "login", val: false);
       await settings.apply();
+
+      GoogleSignIn signIn = GoogleSignIn();
+      if (await signIn.isSignedIn()){
+        await signIn.signOut();
+      }
     }
 
     _loggingOut = false;
+    EventsController.instance.triggerEvent(EventsController.EVENT_LOGOUT, {});
     notifyListeners();
   }
 
@@ -129,6 +177,7 @@ class Auth extends ChangeNotifier{
   Future<void> resetPassword(String password ,String code ,{ void Function(ApiResponse<bool>)? success , void Function(ApiResponse<bool>)? error}) async {
     var res = await Account.apiResetPassword(password , code);
     if (res.data!){
+      await logout();
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
@@ -194,6 +243,7 @@ class Auth extends ChangeNotifier{
       //update the new username
       _currentUser!.id = name;
       if (success != null) success(res);
+      notifyListeners();
     }else{
       if (error != null) error(res);
     }
@@ -204,7 +254,6 @@ class Auth extends ChangeNotifier{
     var res = await Account.apiVerifyPassword(_currentUser!.auth! , password);
     print(password);
     if (res.data!){
-
       if (success != null) success(res);
     }else{
       if (error != null) error(res);
@@ -353,25 +402,7 @@ class Auth extends ChangeNotifier{
     return;
   }
 
-  Future<void> google(String name, String email, String? avatarUrl,String id,String accessToken , String? dob,
-      { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {
-    var res = await Account.apiGoogle(name , email, avatarUrl, id, accessToken, dob);
-    print(res.code);
-    if (res.data != null){
-      _currentUser = res.data;
-      WebSocketsProvider prov = WebSocketsProvider();
-      print("Auth : ${_currentUser!.auth!}");
-      if ( await prov.init(_currentUser!.auth! )){
-        if (success != null) success(res);
-      }else{
-        _currentUser = null;
-        if (error != null) error(res);
-      }
-    }else{
-      if (error != null) error(res);
-    }
 
-  }
 
 
 }

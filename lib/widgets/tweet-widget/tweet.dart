@@ -26,7 +26,7 @@ import 'package:provider/provider.dart';
 
 // tested successfully
 
-List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode){
+List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode , currentID){
   final RegExp regex = RegExp(r'\B[@#]\w*');
   List<TextSpan> spans = [];
   inputText.splitMapJoin(
@@ -37,10 +37,15 @@ List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDar
             recognizer: TapGestureRecognizer()
               ..onTap = () {
                 if (context != null) {
-                  Navigator.pushNamed(
-                      context, SearchResultPage.pageRoute, arguments: {
-                    "keyword": match.group(0)
-                  });
+                  if (match.group(0)!.startsWith("@")){
+                    String user = match.group(0)!.substring(1);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfile(username: user, isCurrUser: currentID == user)));
+                  }else {
+                    Navigator.pushNamed(
+                        context, SearchResultPage.pageRoute, arguments: {
+                      "keyword": match.group(0)
+                    });
+                  }
                 }
               },
             text: match.group(0),
@@ -340,7 +345,7 @@ class _TweetState extends State<Tweet> {
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: MAX_LINES_TO_SHOW,
                                   text: TextSpan(
-                                      children: textToRichText(context, widget.tweetData.description,isDarkMode),
+                                      children: textToRichText(context, widget.tweetData.description,isDarkMode , currentUser.id),
                                       style: TextStyle(
                                           color: isDarkMode ? Colors.white : Colors.black
                                       )

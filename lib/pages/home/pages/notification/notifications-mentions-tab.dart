@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
@@ -23,6 +24,18 @@ class _NotificationsMentionsTabState extends State<NotificationsMentionsTab> {
         providerFunction: ProviderFunction.HOME_PAGE_MENTIONS,
         clearData: false
     );
+
+    EventsController.instance.addEventHandler(
+        EventsController.EVENT_NOTIFICATION_MENTIONED,
+        HandlerStructure(
+            id: "NotificationsMentionsTab",
+            handler: (map) {
+              mentionsFeedController.resetFeed();
+              mentionsFeedController.updateFeeds();
+            },
+        )
+    );
+
     super.initState();
   }
   @override

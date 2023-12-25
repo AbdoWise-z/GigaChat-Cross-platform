@@ -13,7 +13,6 @@ import "package:gigachat/util/contact-method.dart";
 import "api.dart";
 class Account {
   static Future<ApiResponse<User>> apiLogin(String userName, String password) async {
-
     await NotificationsController.getInstance().login();
 
     var k = await Api.apiPost<User>(
@@ -307,7 +306,7 @@ class Account {
     }else{
       u.birthDate   = DateTime.now();
       u.joinedDate  = DateTime.now();
-
+      u.mongoID = "NOT FOUND";
     }
     k.data = u;
     return k;
@@ -666,6 +665,8 @@ class Account {
   }
 
   static Future<ApiResponse<User>> apiGoogle(String name, String email, String? avatarUrl, String id, String accessToken, String? dob) async {
+    await NotificationsController.getInstance().login();
+
     var k = await Api.apiPost<User>(
       ApiPath.google,
       body: json.encode({
@@ -674,7 +675,8 @@ class Account {
         "name" : name,
         "id": id,
         "profileImage" : avatarUrl,
-        "birthDate" : dob
+        "birthDate" : dob,
+        "push_token" : NotificationsController.FirebaseToken,
       }),
       headers: Api.JSON_TYPE_HEADER,
     );

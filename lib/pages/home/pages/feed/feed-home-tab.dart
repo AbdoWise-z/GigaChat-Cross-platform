@@ -38,7 +38,7 @@ class FeedHomeTab with HomePageTab {
 
   @override
   AppBarTabs? getTabs(BuildContext context) {
-    return AppBarTabs(tabs: ["For you" , "Following"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
+    return AppBarTabs(tabs: ["Following"], indicatorSize: TabBarIndicatorSize.label, tabAlignment: TabAlignment.center);
   }
 
   @override
@@ -53,13 +53,6 @@ class FeedHomeTab with HomePageTab {
               clearData: false
           );
       return [
-        BetterFeed(
-                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
-                providerResultType: ProviderResultType.TWEET_RESULT,
-                feedController: feedController ?? homeFeedController,
-                removeController: false,
-                removeRefreshIndicator: false,
-        ),
        BetterFeed(
                   providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
                   providerResultType: ProviderResultType.TWEET_RESULT,

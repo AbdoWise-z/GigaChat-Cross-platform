@@ -52,22 +52,12 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       widget.code,
       success: (res){
         if(widget.isLogged){  //logout
-          var settings = LocalSettings.getInstance(context);
-          settings.setValue<bool>(name: "login", val: false);
-          settings.apply();
-          Navigator.popUntil(context, (route) => false);
-          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+
         }else{  //login
           auth.login(
             widget.email,
             newPassword,
               success: (res) {
-                var settings = LocalSettings.getInstance(context);
-                settings.setValue<String>(name: "username", val: widget.email);
-                settings.setValue<String>(name: "password", val: newPassword);
-                settings.setValue<bool>(name: "login", val: true);
-                settings.apply();
-
                 Navigator.popUntil(context, (r) => false);
                 Navigator.pushNamed(context, Home.pageRoute);
               },

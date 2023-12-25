@@ -25,6 +25,8 @@ import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+String? currentOpenChat;
+
 class ChatPage extends StatefulWidget {
   static const String pageRoute = "/chat";
 
@@ -249,6 +251,7 @@ class ChatPageState extends State<ChatPage> {
     super.dispose();
     _chatSocket.dispose();
     _errorSocket.dispose();
+    currentOpenChat = null;
   }
 
 
@@ -337,6 +340,7 @@ class ChatPageState extends State<ChatPage> {
       _ready = true;
       var args = ModalRoute.of(context)!.settings.arguments! as Map;
       _with = args["user"];
+      currentOpenChat = _with.mongoID;
 
       var msg = args["message"];
       if(msg != null){
@@ -498,13 +502,17 @@ class ChatPageState extends State<ChatPage> {
                           );
                         });
                       },
-                      child: Text(
-                        _with.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).textTheme.bodyLarge!.color,
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _with.name,
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).textTheme.bodyLarge!.color,
+                          ),
                         ),
                       ),
                     ),

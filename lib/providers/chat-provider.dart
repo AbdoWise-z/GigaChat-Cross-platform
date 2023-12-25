@@ -31,7 +31,6 @@ class ChatProvider extends ChangeNotifier{
   void init() async {
     _chats = [];
     //_messages = {};
-
     EventsController.instance.addEventHandler(
         EventsController.EVENT_USER_BLOCK,
         HandlerStructure(id: HANDLER_NAME,

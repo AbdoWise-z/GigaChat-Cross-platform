@@ -6,6 +6,7 @@ import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.da
 import 'package:gigachat/pages/home/pages/notification/widgets/notification-item.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/notifications-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:provider/provider.dart';
 
 class NotificationsAllTab extends StatefulWidget {
@@ -54,6 +55,19 @@ class _NotificationsAllTabState extends State<NotificationsAllTab> {
         }
       });
     });
+
+    EventsController.instance.addEventHandler(
+      EventsController.EVENT_NOTIFICATION_RECEIVED,
+      HandlerStructure(
+        id: "NotificationsAllTab",
+        handler: (m) {
+          if (Auth().getCurrentUser() != null) {
+            NotificationsProvider().reloadAll(Auth().getCurrentUser()!.auth!);
+          }
+        },
+      ),
+    );
+
   }
   @override
   Widget build(BuildContext context) {

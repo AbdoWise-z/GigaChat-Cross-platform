@@ -70,6 +70,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   //page details
   late Auth auth;
   bool loading = true;
+  bool exists = true;
 
   late ScrollController scrollController;
   late FeedController postsFeedController;
@@ -98,7 +99,11 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
     var res = widget.isCurrUser? await Account.apiCurrUserProfile(auth.getCurrentUser()!.auth!) :
         await Account.apiUserProfile(auth.getCurrentUser()!.auth!, widget.username);
+
     User u = res.data!;
+    if (u.mongoID == "NOT FOUND"){
+      exists = false;
+    }
 
     name = u.name;
     username = u.id;
@@ -106,8 +111,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     bannerImageUrl = u.bannerLink;
     birthDate = u.birthDate!;
     joinedDate = u.joinedDate!;
-    following =  u.following;
-    followers =  u.followers;
+    following = u.following;
+    followers = u.followers;
     bio = u.bio;
     website = u.website;
     isCurrUserBlocked = u.isCurrUserBlocked;
@@ -117,7 +122,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
     isCurrUser = u.isCurrUser;
     numOfPosts = u.numOfPosts;
     numOfLikes = u.numOfLikes;
-    mongoID    = u.mongoID!;
+    mongoID = u.mongoID!;
     isFollowingMe = u.isFollowingMe;
 
 
@@ -485,8 +490,32 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    if (!exists){
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "This user was deleted",
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 45,),
+              ElevatedButton(onPressed: () {
+                Navigator.pop(context);
+              }, child: Text("Return"))
+            ],
+          ),
+        ),
+      );
+    }
 
-    return loading? const BlockingLoadingPage():
+    return loading ? const BlockingLoadingPage():
     Scaffold(
       extendBodyBehindAppBar: true,
       body: NotificationListener<ScrollUpdateNotification>(

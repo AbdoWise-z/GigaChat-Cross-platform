@@ -2,16 +2,16 @@ import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gigachat/api/notification-class.dart';
-import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/firebase_options.dart';
 import 'package:gigachat/main.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/services/notifications-navigation-pages/post-notification-navigation.dart';
 import 'package:gigachat/services/notifications-navigation-pages/profile-notification-navigation.dart';
 
@@ -64,6 +64,13 @@ class NotificationsController {
 
   static NotificationsController getInstance(){
     return NotificationsController();
+  }
+
+  static void _DoDispatchNotificationChat(String target) async {
+    if (appNavigator.currentState != null){
+      print("dispatching chat notification : ${target}");
+      appNavigator.currentState!.push(MaterialPageRoute(builder: (context) => ProfileNotificationNavigation(target: target,chat: true,)));
+    }
   }
 
   static void _DoDispatchNotificationFollow(String target) async {
@@ -135,6 +142,9 @@ class NotificationsController {
         case "mention":
           _DoDispatchNotificationMention(note.payload["destination"]);
           break;
+        case "message":
+          _DoDispatchNotificationChat(note.payload["destination"]);
+          break;
       }
     } else {
       print("State was null");
@@ -170,7 +180,7 @@ class NotificationsController {
   static String? FirebaseToken;
   static int _counter = 1;
   Future<void> init() async {
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher');
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_notifications');
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: null,
@@ -196,8 +206,8 @@ class NotificationsController {
     }
     FirebaseToken = null;
     await FirebaseMessaging.instance.deleteToken();
-
   }
+
   Future<void> login() async {
     if(FirebaseToken != null){
       return;
@@ -220,6 +230,12 @@ class NotificationsController {
       print("Firebase Message : ${event.notification}");
       final RemoteNotification? note = event.notification;
       if (note == null) return;
+      var map = jsonDecode(event.data["notification"]);
+      if (map["type"] == "message"){
+        if (map["destination"] == currentOpenChat){
+          return;
+        }
+      }
       showNotification(_counter++ , title: note.title , body: note.body , payload: event.data["notification"]);
     });
   }
@@ -230,6 +246,7 @@ class NotificationsController {
     channelDescription: "this is the gigachat app notification channel",  //Required for Android 8.0 or after
     importance: Importance.defaultImportance,
     priority: Priority.defaultPriority,
+    color: Colors.black,
   );
 
   late final NotificationDetails platformChannelSpecifics;
@@ -238,6 +255,18 @@ class NotificationsController {
       int id,
       {String? title, String? body, String? payload}
       ) async {
+
+    EventsController.instance.triggerEvent(
+        EventsController.EVENT_NOTIFICATION_RECEIVED, {});
+
+    if (payload != null) {
+      var note = jsonDecode(payload);
+      if (note["type"] == "mention") {
+        EventsController.instance.triggerEvent(
+            EventsController.EVENT_NOTIFICATION_MENTIONED, {});
+      }
+    }
+
     await flutterLocalNotificationsPlugin.show(
         id,
         title,
@@ -265,6 +294,11 @@ class NotificationsController {
   @pragma('vm:entry-point')
   static Future<void> _backgroundMessage(RemoteMessage message) async {
     print("background message : $message");
+    EventsController.instance.triggerEvent(EventsController.EVENT_NOTIFICATION_RECEIVED, {});
+    var note = jsonDecode(message.data["notification"]);
+    if (note["type"] == "mention"){
+      EventsController.instance.triggerEvent(EventsController.EVENT_NOTIFICATION_MENTIONED, {});
+    }
     // firebase should already create the notification ..
     // await NotificationsController().init();
     // RemoteNotification note = message.notification!;

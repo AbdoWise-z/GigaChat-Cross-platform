@@ -45,12 +45,6 @@ class _CreatePasswordState extends State<CreatePassword> {
                 print(res.code);
                 print(res.responseBody);
 
-                var settings = LocalSettings.getInstance(context);
-                settings.setValue<String>(name: "username", val: auth.getCurrentUser()!.email);
-                settings.setValue<String>(name: "password", val: newPassword);
-                settings.setValue<bool>(name: "login", val: true);
-                settings.apply();
-
                 _loading = false;
                 Navigator.pushReplacementNamed(context, PickProfilePicture.pageRoute);
               });

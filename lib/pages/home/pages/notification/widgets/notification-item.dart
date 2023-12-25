@@ -59,7 +59,7 @@ class NotificationItem extends StatelessWidget { // item for each notification
                       note.type == "reply" ? FontAwesomeIcons.solidComment :
                       note.type == "quote" ? FontAwesomeIcons.quoteLeft :
                       note.type == "retweet" ? FontAwesomeIcons.retweet :
-                      note.type == "mention" ? FontAwesomeIcons.solidBell : FontAwesomeIcons.question,
+                      note.type == "mention" ? FontAwesomeIcons.solidBell : FontAwesomeIcons.solidCommentDots,
 
                       color:
                       note.type == "follow" ?  Colors.yellow :
@@ -67,7 +67,7 @@ class NotificationItem extends StatelessWidget { // item for each notification
                       note.type == "reply" ?  Colors.blue :
                       note.type == "quote" ? Colors.blueGrey :
                       note.type == "retweet" ? Colors.purple :
-                      note.type == "mention" ?  Colors.greenAccent : Colors.purple,
+                      note.type == "mention" ?  Colors.pink : Colors.green,
                       size: 18,
                     ),
                   ),

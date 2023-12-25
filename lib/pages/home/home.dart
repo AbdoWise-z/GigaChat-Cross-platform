@@ -16,6 +16,7 @@ import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/services/notifications-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
@@ -136,6 +137,14 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
       }
     });
 
+    EventsController.instance.addEventHandler(EventsController.EVENT_LOGOUT, HandlerStructure(id: "home", handler: (map) {
+      if (!Auth.getInstance(context).isLoggedIn){
+        Navigator.popUntil(context, (route) => false);
+        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
+        FeedProvider.getInstance(context).resetAllFeeds();
+      }
+    }));
+
     _triggerNotification();
   }
 
@@ -148,12 +157,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
 
-    Future.delayed(Duration.zero , () {
-      if (!Auth.getInstance(context).isLoggedIn){
-        Navigator.popUntil(context, (route) => false);
-        Navigator.pushNamed(context, LandingLoginPage.pageRoute);
-      }
-    });
+
 
     if (value.getCurrentUser() != null) {
       followingFeedController.setUserToken(value.getCurrentUser()!.auth);

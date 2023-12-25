@@ -64,6 +64,10 @@ class ChatHomeTab with HomePageTab {
   int _seenCount = -1;
 
   void _update() async {
+    if (Auth().getCurrentUser() == null) {
+      //idk why
+      return;
+    }
     List<ChatObject> obj = await ChatProvider.instance.getChats(Auth().getCurrentUser()!.auth!);
     int count = 0;
     for (ChatObject o in obj){

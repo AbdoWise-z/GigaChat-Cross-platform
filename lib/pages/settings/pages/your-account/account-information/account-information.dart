@@ -105,14 +105,7 @@ class _AccountInformationState extends State<AccountInformation> {
                                     ),
                                     TextButton(
                                       onPressed: () async {
-                                        var settings = LocalSettings.getInstance(context);
-                                        settings.setValue<bool>(name: "login", val: false);
-                                        settings.apply();
-                                        await GoogleSignIn().signOut();
-                                        if(context.mounted) {
-                                          Navigator.popUntil(context, (route) => false);
-                                          Navigator.pushNamed(context, LandingLoginPage.pageRoute);
-                                        }
+                                        await Auth.getInstance(context).logout();
                                       },
                                       child: Text("Log out",
                                         style: TextStyle(
