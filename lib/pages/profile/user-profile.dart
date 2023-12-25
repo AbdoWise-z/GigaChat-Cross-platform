@@ -70,7 +70,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   //page details
   late Auth auth;
   bool loading = true;
-  bool exists = true;
 
   late ScrollController scrollController;
   late FeedController postsFeedController;
@@ -102,7 +101,8 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
     User u = res.data!;
     if (u.mongoID == "NOT FOUND"){
-      exists = false;
+      Toast.showToast(context, "User not found");
+      Navigator.pop(context);
     }
 
     name = u.name;
@@ -490,31 +490,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    if (!exists){
-      return Scaffold(
-        appBar: AppBar(),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "This user was deleted",
-                softWrap: true,
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 45,),
-              ElevatedButton(onPressed: () {
-                Navigator.pop(context);
-              }, child: Text("Return"))
-            ],
-          ),
-        ),
-      );
-    }
-
     return loading ? const BlockingLoadingPage():
     Scaffold(
       extendBodyBehindAppBar: true,

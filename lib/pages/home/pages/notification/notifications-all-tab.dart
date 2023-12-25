@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';
 import 'package:gigachat/pages/home/pages/notification/widgets/notification-item.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -79,7 +80,11 @@ class _NotificationsAllTabState extends State<NotificationsAllTab> {
           },
           child: SingleChildScrollView(
             child: Column(
-              children: [
+              children: NotificationsProvider().getCurrentNotifications().isEmpty? [
+                SizedBox(height: 100,),
+                NothingYet(),
+              ] :
+              [
                 ...NotificationsProvider().getCurrentNotifications().map((e) => NotificationItem(note: e)),
                 Visibility(
                   visible: _loading,
