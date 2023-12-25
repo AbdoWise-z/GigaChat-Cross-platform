@@ -179,63 +179,70 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         ),
         showDefault: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageTitle(title: "We sent you a code"),
-            const SizedBox(height: 15),
-            PageDescription(description: widget.isRegister ? "Enter it below to verify ${widget.method.data}." : CODE_VERIFICATION_DESCRIPTION),
-            const SizedBox(height: 20),
-            TextDataFormField(
-                keyboardType: widget.isRegister? TextInputType.number : TextInputType.text,
-                label: "Enter your code",
-                onChange: (value) {
-                  setState(() {
-                    code = value;
-                    valid = value.isNotEmpty;
-                  });
-                }),
-            const SizedBox(height: 25,),
-
-            Row(
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: resendEmailIsEnabled && !_resendLoading ? () => _requestCode(widget.method) : null,
-                  child: Text(
-                    resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",
-                    style: TextStyle(
-                        color: resendEmailIsEnabled && !_resendLoading ? Colors.blue : Colors.grey
+                const PageTitle(title: "We sent you a code"),
+                const SizedBox(height: 15),
+                PageDescription(description: widget.isRegister ? "Enter it below to verify ${widget.method.data}." : CODE_VERIFICATION_DESCRIPTION),
+                const SizedBox(height: 20),
+                TextDataFormField(
+                    keyboardType: widget.isRegister? TextInputType.number : TextInputType.text,
+                    label: "Enter your code",
+                    onChange: (value) {
+                      setState(() {
+                        code = value;
+                        valid = value.isNotEmpty;
+                      });
+                    }),
+                const SizedBox(height: 25,),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: resendEmailIsEnabled && !_resendLoading ? () => _requestCode(widget.method) : null,
+                      child: Text(
+                        resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",
+                        style: TextStyle(
+                            color: resendEmailIsEnabled && !_resendLoading ? Colors.blue : Colors.grey
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 20,),
-                Visibility(
-                  visible: _resendLoading,
-                  child: const SizedBox(
-                    width: 10,
-                    height: 10,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+                    const SizedBox(width: 20,),
+                    Visibility(
+                      visible: _resendLoading,
+                      child: const SizedBox(
+                        width: 10,
+                        height: 10,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const Expanded(child: SizedBox()),
+                AuthFooter(
+                  rightButtonLabel: "Next",
+                  disableRightButton: !valid,
+                  onRightButtonPressed: () => _verifyCode(widget.method , code),
+
+                  leftButtonLabel: "Back",
+                  onLeftButtonPressed: (){
+                    Navigator.pop(context);
+                  },
+                  showLeftButton: !widget.isRegister,
+                )
               ],
             ),
-            const Expanded(child: SizedBox()),
-            AuthFooter(
-              rightButtonLabel: "Next",
-              disableRightButton: !valid,
-              onRightButtonPressed: () => _verifyCode(widget.method , code),
-
-              leftButtonLabel: "Back",
-              onLeftButtonPressed: (){
-                Navigator.pop(context);
-              },
-              showLeftButton: !widget.isRegister,
-            )
-          ],
+          ),
         ),
       ),
     );

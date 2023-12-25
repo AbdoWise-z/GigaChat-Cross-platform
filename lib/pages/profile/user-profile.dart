@@ -2,6 +2,8 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/AppNavigator.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
@@ -17,6 +19,7 @@ import 'package:gigachat/pages/profile/widgets/tab-bar.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -444,7 +447,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   updateUserFeeds();
                                   if(context.mounted){
                                     Navigator.pop(context);
-                                    Toast.showToast(context, "You unblocked @${widget.username}.");
+                                      Toast.showToast(context, "You unblocked @${widget.username}.");
                                   }
                                 });
                               },
@@ -474,6 +477,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
 
   @override
   void initState()  {
+    Globals.profileStack.add(widget.username);
     auth = Auth.getInstance(context);
     FeedProvider feedProvider = FeedProvider.getInstance(context);
     tabController = TabController(length: 2, vsync: this);
@@ -484,8 +488,120 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       }
     });
 
+    EventsController.instance.addEventHandler(EventsController.EVENT_USER_BLOCK,
+      HandlerStructure(
+        id: "profile-${widget.username}",
+        handler: (m){
+          if (m["username"] == widget.username) {
+            setState(() {
+              isWantedUserBlocked = true;
+              scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn
+              );
+              scroll.value = 0;
+            });
+          }
+        },
+      ),
+    );
+
+    EventsController.instance.addEventHandler(EventsController.EVENT_USER_BLOCK_ME,
+      HandlerStructure(
+        id: "profile-${widget.username}",
+        handler: (m){
+          if (m["username"] == widget.username) {
+            setState(() {
+              isWantedUserBlocked = true;
+              scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn
+              );
+              scroll.value = 0;
+            });
+          }
+        },
+      ),
+    );
+
+    EventsController.instance.addEventHandler(EventsController.EVENT_USER_UNBLOCK,
+      HandlerStructure(
+        id: "profile-${widget.username}",
+        handler: (m){
+          if (m["username"] == widget.username) {
+            setState(() {
+              isWantedUserBlocked = false;
+              scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn
+              );
+              scroll.value = 0;
+            });
+          }
+        },
+      ),
+    );
+
+    EventsController.instance.addEventHandler(EventsController.EVENT_USER_FOLLOW,
+      HandlerStructure(
+        id: "profile-${widget.username}",
+        handler: (m){
+          if (m["username"] == widget.username) {
+            setState(() {
+              isWantedUserFollowed = true;
+              scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn
+              );
+              scroll.value = 0;
+            });
+          }
+        },
+      ),
+    );
+
+    EventsController.instance.addEventHandler(EventsController.EVENT_USER_UNFOLLOW,
+      HandlerStructure(
+        id: "profile-${widget.username}",
+        handler: (m){
+          if (m["username"] == widget.username) {
+            setState(() {
+              isWantedUserFollowed = false;
+              scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn
+              );
+              scroll.value = 0;
+            });
+          }
+        },
+      ),
+    );
+
     getData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (Globals.profileStack.isNotEmpty) {
+      Globals.profileStack.removeLast();
+    }else{
+      print("Error: Profile stack was empty");
+    }
+
+    EventsController.instance.removeEventHandler(EventsController.EVENT_USER_UNFOLLOW, "profile-${widget.username}");
+    EventsController.instance.removeEventHandler(EventsController.EVENT_USER_FOLLOW, "profile-${widget.username}");
+    EventsController.instance.removeEventHandler(EventsController.EVENT_USER_BLOCK, "profile-${widget.username}");
+    EventsController.instance.removeEventHandler(EventsController.EVENT_USER_BLOCK_ME, "profile-${widget.username}");
+    EventsController.instance.removeEventHandler(EventsController.EVENT_USER_UNBLOCK, "profile-${widget.username}");
+
+    super.dispose();
   }
 
   @override
@@ -737,27 +853,20 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                   isWantedUserBlocked : isWantedUserBlocked,
                                   onTapEditProfile: onEditProfileClick,
                                   onTapDM: () async {
-                                    var res = await Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                                    NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.HOME, NavigatorDirection.CHAT);
+
+                                    nav.pushNamed(ChatPage.pageRoute , arguments: {
                                       "user" : User(
-                                          id: username ,
-                                          name: name ,
-                                          iconLink: avatarImageUrl,
-                                          mongoID: mongoID,
-                                          isFollowed: isWantedUserFollowed,
-                                          isBlocked: false,
+                                        id: username ,
+                                        name: name ,
+                                        iconLink: avatarImageUrl,
+                                        mongoID: mongoID,
+                                        isFollowed: isWantedUserFollowed,
+                                        isBlocked: false,
                                         isFollowingMe: isFollowingMe,
                                       )
-                                    }) as Map;
-                                    setState(() {
-                                      User u = res["user"];
-                                      isWantedUserBlocked = u.isBlocked;
-                                      scrollController.animateTo(
-                                          0,
-                                          duration: const Duration(milliseconds: 500),
-                                          curve: Curves.easeIn
-                                      );
-                                      scroll.value = 0;
                                     });
+
                                   },
                                   onTapFollow: followUser,
                                   onTapUnfollow: unfollowUser,

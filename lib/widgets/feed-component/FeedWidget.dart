@@ -9,6 +9,7 @@ import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
+import 'package:gigachat/pages/home/pages/internal-home-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
@@ -203,11 +204,11 @@ class _BetterFeedState extends State<BetterFeed> {
     timer = Timer(const Duration(seconds: 1), () { });
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (Home.getScrollGlobalKey(context) == null){
+      if (InternalHomePage.getScrollGlobalKey(context) == null){
         _scrollController = ScrollController();
       }
       else{
-        _scrollController = Home.getScrollGlobalKey(context)!.currentState!.innerController;
+        _scrollController = InternalHomePage.getScrollGlobalKey(context)!.currentState!.innerController;
       }
       _scrollController!.addListener(() async {
         if (_scrollController!.position.pixels == _scrollController!.position.maxScrollExtent)

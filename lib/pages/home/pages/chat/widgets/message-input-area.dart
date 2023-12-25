@@ -89,8 +89,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _media != null ? Container(
-          width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
-          height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
+          width: 85 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+          height: 85 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
           alignment: Alignment.topRight,
           margin: const EdgeInsets.only(bottom: 5,right: 5),
           decoration: BoxDecoration(
@@ -108,10 +108,10 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                   _media!.path,
                   fit: BoxFit.fill,
                 ) :SizedBox(
-                  width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
-                  height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
+                  width: 110 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+                  height: 110 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
                   child: LocalVideoPlayer(
-                    file: _media!.path.path,
+                    path: _media!.path.path,
                   ),
                 ),
               ),

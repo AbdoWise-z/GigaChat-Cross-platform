@@ -44,51 +44,58 @@ class _UsernamePageState extends State<UsernameLoginPage> {
           icon: const Icon(Icons.close),
         ),
       ),
-      body: Column(
-        children: [
-          // Page Title
-          Padding(
-            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-            child: Column(
-              children: [
-                const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
-                // Empty Space
-                const SizedBox(height: 20),
-                // Username Input Field
-                TextDataFormField(
-                    key: const Key(UsernameLoginPage.inputFieldKey),
-                    onChange: (editedUsername) {
-                      setState(() {
-                        username = editedUsername;
-                        isValid = username.isNotEmpty;
-                      });
-                    }),
-              ],
-            ),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
           ),
-          // Empty Space
-          const Expanded(child: SizedBox()),
-          // Page Footer
-          AuthFooter(
-            rightButtonKey: const Key(UsernameLoginPage.nextButtonKey),
+          child: Column(
+            children: [
+              // Page Title
+              Padding(
+                padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+                child: Column(
+                  children: [
+                    const PageTitle(title: LOGIN_PAGE_DESCRIPTION),
+                    // Empty Space
+                    const SizedBox(height: 20),
+                    // Username Input Field
+                    TextDataFormField(
+                        key: const Key(UsernameLoginPage.inputFieldKey),
+                        onChange: (editedUsername) {
+                          setState(() {
+                            username = editedUsername;
+                            isValid = username.isNotEmpty;
+                          });
+                        }),
+                  ],
+                ),
+              ),
+              // Empty Space
+              const Expanded(child: SizedBox()),
+              // Page Footer
+              AuthFooter(
+                rightButtonKey: const Key(UsernameLoginPage.nextButtonKey),
 
-            rightButtonLabel: "Next",
-            disableRightButton: !isValid,
-            onRightButtonPressed: (){
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PasswordLoginPage(username: username)));
-            },
+                rightButtonLabel: "Next",
+                disableRightButton: !isValid,
+                onRightButtonPressed: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PasswordLoginPage(username: username)));
+                },
 
-            leftButtonLabel: "Forget password?",
-            onLeftButtonPressed: (){
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ForgetPassword(username: "", isLogged: false,)));
-            },
-            showLeftButton: true,
-          )
-        ],
+                leftButtonLabel: "Forget password?",
+                onLeftButtonPressed: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgetPassword(username: "", isLogged: false,)));
+                },
+                showLeftButton: true,
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

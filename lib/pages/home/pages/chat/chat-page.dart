@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/AppNavigator.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/chat-requests.dart';
@@ -24,8 +26,6 @@ import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-
-String? currentOpenChat;
 
 class ChatPage extends StatefulWidget {
   static const String pageRoute = "/chat";
@@ -251,7 +251,7 @@ class ChatPageState extends State<ChatPage> {
     super.dispose();
     _chatSocket.dispose();
     _errorSocket.dispose();
-    currentOpenChat = null;
+    Globals.currentActiveChat = null;
   }
 
 
@@ -340,7 +340,7 @@ class ChatPageState extends State<ChatPage> {
       _ready = true;
       var args = ModalRoute.of(context)!.settings.arguments! as Map;
       _with = args["user"];
-      currentOpenChat = _with.mongoID;
+      Globals.currentActiveChat = _with.mongoID;
 
       var msg = args["message"];
       if(msg != null){
@@ -387,8 +387,11 @@ class ChatPageState extends State<ChatPage> {
                 children: [
 
                   IconButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (c) => UserProfile(username: _with.id, isCurrUser: false)));
+                    onPressed: () async {
+                      NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.CHAT, NavigatorDirection.HOME);
+                      if (Globals.profileStack.isEmpty || Globals.profileStack.last != _with.id){
+                        nav.push(MaterialPageRoute(builder: (c) => UserProfile(username: _with.id, isCurrUser: false)));
+                      }
                     },
                     icon: Container(
                       width: 40,

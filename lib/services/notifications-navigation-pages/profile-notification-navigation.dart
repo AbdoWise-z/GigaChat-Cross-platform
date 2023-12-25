@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
@@ -18,6 +19,12 @@ class ProfileNotificationNavigation extends StatefulWidget {
 
 class _ProfileNotificationNavigationState extends State<ProfileNotificationNavigation> {
   void _load() async {
+    if (Globals.isLoadingChat){
+      Navigator.pop(context);
+    }
+    if (widget.chat){
+      Globals.isLoadingChat = true;
+    }
     var res = await Account.apiUserProfileWithID(Auth().getCurrentUser()!.auth!, widget.target);
     if (res.data != null){
       if (context.mounted){
@@ -27,9 +34,9 @@ class _ProfileNotificationNavigationState extends State<ProfileNotificationNavig
                 UserProfile(username: res.data!.id, isCurrUser: false),
           ));
         } else {
-          if (currentOpenChat != widget.target){
-            Navigator.pop(context); //pop this page
-            if (currentOpenChat != null){
+          Navigator.pop(context); //pop this page
+          if (Globals.currentActiveChat != widget.target){
+            if (Globals.currentActiveChat != null){
               Navigator.pop(context); //pop the chat page
             }
             Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
@@ -41,6 +48,9 @@ class _ProfileNotificationNavigationState extends State<ProfileNotificationNavig
       }
     }else{
       print("Failed to trigger notification with ID : ${widget.target}");
+    }
+    if (widget.chat){
+      Globals.isLoadingChat = false;
     }
   }
 

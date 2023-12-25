@@ -382,7 +382,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       controller: _scrollController,
                       child: Column(
                         children: [
-
                           (_replyTweet != null) ?
                           PostStaticViewer(
                             key: _PostKey,

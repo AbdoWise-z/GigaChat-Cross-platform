@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/home.dart';
@@ -77,12 +79,13 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
   }
 
   void _tryAutoLogin() async {
+    var settings = LocalSettings.getInstance(context);
+    var authProvider = Auth.getInstance(context);
+    if (authProvider.isLoggedIn) return;
+
     setState(() {
       _loading = true;
     });
-
-    var settings = LocalSettings.getInstance(context);
-    var authProvider = Auth.getInstance(context);
 
     if (!settings.getValue<bool>(name: "login", def: false)!){
       setState(() {
@@ -91,7 +94,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
       return;
     }
 
-    bool googleIsSigned = await googleSignIn.isSignedIn();
+    bool googleIsSigned = Platform.isAndroid ? await googleSignIn.isSignedIn() : false;
     print("signed in : ${googleIsSigned}");
     if (googleIsSigned){
       setState(() {
@@ -134,91 +137,100 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
 
     return Scaffold(
       appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(35,35,35,100),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 150,),
-              const Text(
-                "Welcome back! Log in to see the the latest.",
-                style: TextStyle(
-                    fontSize: 31,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-
-              const SizedBox(height: 50,),
-
-              ElevatedButton(
-                onPressed: signInWithGoogle,
-                style: ElevatedButton.styleFrom(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    )
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                        width: 25,
-                        height: 25,
-                        child: Image.asset('assets/google-logo-icon.png')
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(35,35,35,100),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 150,),
+                  const Text(
+                    "Welcome back! Log in to see the the latest.",
+                    style: TextStyle(
+                        fontSize: 31,
+                        fontWeight: FontWeight.bold
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 8),
+                  ),
+
+                  const SizedBox(height: 50,),
+
+                  ElevatedButton(
+                    onPressed: Platform.isAndroid ? signInWithGoogle : () {
+                      Toast.showToast(context, "Windows version doesn't support google login ..");
+                    },
+                    style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        )
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: Image.asset('assets/google-logo-icon.png')
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10,horizontal: 8),
+                          child: Text(
+                            "Continue with Google",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text("or"),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  ElevatedButton(
+                    onPressed: (){
+                      Navigator.pushNamed(context, UsernameLoginPage.pageRoute);
+                    },
+
+                    style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        )
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
                       child: Text(
-                        "Continue with Google",
+                        "Log in",
                         style: TextStyle(
                           fontSize: 16,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              const Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Text("or"),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: Colors.blueGrey,
-                    ),
-                  ),
+                  )
                 ],
               ),
-
-              ElevatedButton(
-                onPressed: (){
-                  Navigator.pushNamed(context, UsernameLoginPage.pageRoute);
-                },
-
-                style: ElevatedButton.styleFrom(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    )
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    "Log in",
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              )
-            ],
+            ),
           ),
         ),
       ),

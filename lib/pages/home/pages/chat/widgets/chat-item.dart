@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/pages/create-post/widgets/post-media-view.dart';
+import 'package:gigachat/widgets/chat-video-player.dart';
 import 'package:gigachat/widgets/swipe-to.dart';
 import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
@@ -98,22 +101,13 @@ class ChatMessageContent extends StatelessWidget {
     }
 
     if (object.media!.type == MediaType.VIDEO){
-      return Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: VideoPlayerWidget(
-          videoUrl: object.media!.link,
-          tag: object.media!.link,
-          showControllers: true,
-          autoPlay: true,
-        ),
+      return ChatVideoPlayer(
+        url: object.media!.link,
+        maxWidth: Globals.ChatScreenWidth * 0.85 - 16,
       );
     }else{
       return Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+        constraints: BoxConstraints(maxWidth: Globals.ChatScreenWidth * 0.85 - 16),
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
@@ -241,13 +235,14 @@ class ChatMessageContent extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 width: double.infinity,
-                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+                constraints: BoxConstraints(maxWidth: Globals.ChatScreenWidth * 0.85),
                 alignment: messageObject.self ? Alignment.centerRight : Alignment.centerLeft,
                 child: Column(
                   crossAxisAlignment: messageObject.self ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
                     Material(
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      clipBehavior: Clip.antiAlias,
                       child: InkWell(
                         borderRadius: const BorderRadius.all(Radius.circular(20)),
                         onLongPress: onImageLongPress,

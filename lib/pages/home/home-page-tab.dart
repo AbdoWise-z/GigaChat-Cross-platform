@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
@@ -40,11 +41,13 @@ mixin HomePageTab {
     // }
 
     Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
-      var home = homeKey.currentState;
+      var home = Globals.homeKey.currentState;
       home!.update(callback);
     });
 
   }
 
   void init(BuildContext context) {}
+
+  void reload(BuildContext context) {}
 }

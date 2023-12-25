@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/create-post/widgets/post-media-view.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 
 class PostEditor extends StatefulWidget {
   bool active;
@@ -62,7 +62,9 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     node.addListener(() {
-      widget.onFocus(node.hasFocus);
+      if (Platform.isAndroid) { //on windows its really bad ..
+        widget.onFocus(node.hasFocus);
+      }
     });
 
     controller.addListener(widget.onTextChanged);
@@ -85,11 +87,13 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Auth auth = Auth.getInstance(context);
 
-    double ihm = MediaQuery.of(context).size.width - 40 - 8 * 2;
-    double iVm = MediaQuery.of(context).size.width - 40 - 8 * 2;
+    double ihm = Globals.HomeScreenWidth - 40 - 8 * 2;
+    double iVm = Globals.HomeScreenWidth - 40 - 8 * 2;
     if (widget.maxImageHeight == 1 || media.length > 1){
       ihm = ihm / 2;
     }
+
+    int index = 0;
 
     return AnimatedOpacity(
       opacity: widget.active || !widget.muteable ? 1 : 0.8,
@@ -182,14 +186,13 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
                       child: Column(
                         children: [
                           Row(
-                            //https://i.imgur.com/9XSC9YB.jpeg
-                            //https://i.imgur.com/U5yuuf0.png
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(width: 40 + 8,height: 1,),
                               ...
                               media.map((e){
+                                int i = index++;
                                 return Container(
                                   alignment: Alignment.centerLeft,
                                   constraints: BoxConstraints(maxWidth: e.type == AssetType.image ? ihm : iVm),
@@ -225,7 +228,8 @@ class PostEditorState extends State<PostEditor> with TickerProviderStateMixin {
                                           child: IconButton(
                                             onPressed: () {
                                               setState(() {
-                                                media.remove(e);
+                                                print("removing : $i");
+                                                media.removeAt(i);
                                               });
                                             } ,
                                             splashRadius: 15,

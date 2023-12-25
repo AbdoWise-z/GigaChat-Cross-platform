@@ -91,64 +91,71 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     );
     return Stack(
       children: [
-        Scaffold(
-          appBar: AuthAppBar(
-            context,
-            leadingIcon: IconButton(
-              onPressed: () {
-                widget.isLogged? Navigator.pop(context) :
-                  Navigator.popUntil(context, ModalRoute.withName('/'));
-              },
-              icon: const Icon(Icons.close),
+        Center(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: 600,
             ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const PageTitle(title: "Choose a new password"),
-                  const SizedBox(height: 20),
-                  const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
-                  const SizedBox(height: 20),
-                  Form(key: formKey, child: Column(children: [
-                    PasswordFormField(
-                      onChanged: (value) {
-                        setState(() {
-                          newPassword = value;
-                        });
-                      },
-                      label: "Enter a new password",
-                    ),
-                    const SizedBox(height: 20),
-                    PasswordFormField(
-                      onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                      validator: (value){
-                        return value == newPassword ? null : "passwords is not identical";
-                      },
-                      label: "Confirm password",
-                    ),
-                  ],)
-                  ),
-                  const SizedBox(height: 100,)
-                ],
+            child: Scaffold(
+              appBar: AuthAppBar(
+                context,
+                leadingIcon: IconButton(
+                  onPressed: () {
+                    widget.isLogged? Navigator.pop(context) :
+                      Navigator.popUntil(context, ModalRoute.withName('/'));
+                  },
+                  icon: const Icon(Icons.close),
+                ),
               ),
+              body: Padding(
+                padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const PageTitle(title: "Choose a new password"),
+                      const SizedBox(height: 20),
+                      const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
+                      const SizedBox(height: 20),
+                      Form(key: formKey, child: Column(children: [
+                        PasswordFormField(
+                          onChanged: (value) {
+                            setState(() {
+                              newPassword = value;
+                            });
+                          },
+                          label: "Enter a new password",
+                        ),
+                        const SizedBox(height: 20),
+                        PasswordFormField(
+                          onChanged: (value) {
+                            setState(() {
+                              confirmPassword = value;
+                            });
+                          },
+                          validator: (value){
+                            return value == newPassword ? null : "passwords is not identical";
+                          },
+                          label: "Confirm password",
+                        ),
+                      ],)
+                      ),
+                      const SizedBox(height: 100,)
+                    ],
+                  ),
+                ),
+              ),
+              bottomSheet: AuthFooter(
+                rightButtonLabel: "Change password",
+                disableRightButton: !isValidForm,
+                onRightButtonPressed: () => _createPassword(newPassword),
+
+                leftButtonLabel: "",
+                onLeftButtonPressed: (){},
+                showLeftButton: false,
+              )
             ),
           ),
-          bottomSheet: AuthFooter(
-            rightButtonLabel: "Change password",
-            disableRightButton: !isValidForm,
-            onRightButtonPressed: () => _createPassword(newPassword),
-
-            leftButtonLabel: "",
-            onLeftButtonPressed: (){},
-            showLeftButton: false,
-          )
         ),
         Visibility(
           visible: _loading,

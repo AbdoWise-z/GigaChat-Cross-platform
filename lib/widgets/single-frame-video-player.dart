@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 class SingleFrameVideoPlayer extends StatefulWidget {
   final String tag;
@@ -11,32 +12,28 @@ class SingleFrameVideoPlayer extends StatefulWidget {
 }
 
 class _SingleFrameVideoPlayerState extends State<SingleFrameVideoPlayer> {
-  late VideoPlayerController _controller;
-  late bool loading;
+  late VideoController _controller;
+  late Player _player;
+
+  void _init() async {
+    await _controller.waitUntilFirstFrameRendered;
+    _player.pause();
+  }
+
   @override
   void initState() {
-    loading = true;
     super.initState();
-    _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl))
-      ..initialize().then((_) {
-        _controller.seekTo(Duration.zero);
-        _controller.pause();
-        try
-        {
-          setState(() {
-            loading = false;
-          });
-        }catch(e){
-          print("Handled Exception $e");
-        }
-      });
+    _player = Player();
+    _controller = VideoController(_player);
+    _player.open(Media(widget.videoUrl) , play: true);
+    _player.setVolume(0);
+    _init();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
+    _player.dispose();
   }
 
   @override
@@ -44,16 +41,28 @@ class _SingleFrameVideoPlayerState extends State<SingleFrameVideoPlayer> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        VideoPlayer(_controller),
-        loading ? const SizedBox(
-          width: 15,
-          height: 15,
-          child: CircularProgressIndicator(),
-        ) :
-        const Center(
-          child: Icon(
-          Icons.play_circle,
-          color: Colors.blue,size: 50,),
+        Video(
+          controller: _controller,
+          controls: (w) => SizedBox(),
+        ),
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.play_circle_fill,
+                color: Colors.blue,
+                size: 38,
+              ),
+            ),
+          ),
         )
       ],
     );

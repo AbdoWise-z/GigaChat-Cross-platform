@@ -6,8 +6,11 @@ import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+import 'notifications-home-tab.dart';
+
 class NotificationsMentionsTab extends StatefulWidget {
-  const NotificationsMentionsTab({Key? key}) : super(key: key);
+  final NotificationsHomeTab notifications;
+  const NotificationsMentionsTab({Key? key, required this.notifications}) : super(key: key);
 
   @override
   State<NotificationsMentionsTab> createState() => _NotificationsMentionsTabState();
@@ -37,7 +40,21 @@ class _NotificationsMentionsTabState extends State<NotificationsMentionsTab> {
     );
 
     super.initState();
+
+    widget.notifications.onReload.add(reload);
   }
+
+  void reload(){
+    mentionsFeedController.resetFeed();
+    mentionsFeedController.updateFeeds();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.notifications.onReload.remove(reload);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BetterFeed(

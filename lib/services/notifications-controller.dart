@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:gigachat/AppNavigator.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/firebase_options.dart';
 import 'package:gigachat/main.dart';
@@ -67,16 +70,17 @@ class NotificationsController {
   }
 
   static void _DoDispatchNotificationChat(String target) async {
-    if (appNavigator.currentState != null){
-      print("dispatching chat notification : ${target}");
-      appNavigator.currentState!.push(MaterialPageRoute(builder: (context) => ProfileNotificationNavigation(target: target,chat: true,)));
+    if (target != Globals.currentActiveChat) {
+      NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.HOME, NavigatorDirection.CHAT);
+      nav.push(MaterialPageRoute(
+          builder: (context) =>
+              ProfileNotificationNavigation(target: target, chat: true,)));
     }
   }
 
   static void _DoDispatchNotificationFollow(String target) async {
-    if (appNavigator.currentState != null){
-      appNavigator.currentState!.push(MaterialPageRoute(builder: (context) => ProfileNotificationNavigation(target: target,)));
-    }
+    NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.HOME, NavigatorDirection.HOME);
+    nav.push(MaterialPageRoute(builder: (context) => ProfileNotificationNavigation(target: target,)));
   }
 
   static void _DoDispatchNotificationLike(String target) async {
@@ -100,15 +104,12 @@ class NotificationsController {
   }
 
   static void _DoDispatchTypePost(String target) async {
-    if (appNavigator.currentState != null){
-      appNavigator.currentState!.push(MaterialPageRoute(builder: (context) => PostNotificationNavigation(target: target,)));
-    }else{
-      print("app navigator was null");
-    }
+    NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.HOME, NavigatorDirection.HOME);
+    nav.push(MaterialPageRoute(builder: (context) => PostNotificationNavigation(target: target,)));
   }
 
   static void _DoDispatchNotification(TriggerNotification note) {
-    NavigatorState? state = appNavigator.currentState;
+    NavigatorState? state = Globals.appNavigator.currentState;
 
     //print("Dispatching Note: ${note.payload}" );
     if (note.actionID != 'local') {
@@ -156,11 +157,16 @@ class NotificationsController {
   }
 
   static Future<TriggerNotification?> getLaunchNotification() async {
+    if (Platform.isWindows){
+      return null;
+    }
+
     RemoteMessage? msg = await FirebaseMessaging.instance.getInitialMessage();
-    if (msg != null){
+    if (msg != null) {
       TriggerNotification note = TriggerNotification.fromFirebase(msg);
-      String? id = LocalSettings.instance.getValue<String>(name: "last_note_id", def: null);
-      if (id != note.id){
+      String? id = LocalSettings.instance.getValue<String>(
+          name: "last_note_id", def: null);
+      if (id != note.id) {
         return note;
       }
     }
@@ -180,6 +186,11 @@ class NotificationsController {
   static String? FirebaseToken;
   static int _counter = 1;
   Future<void> init() async {
+
+    if (Platform.isWindows){
+      return;
+    }
+
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_notifications');
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
@@ -195,9 +206,8 @@ class NotificationsController {
 
     platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    //Initialize the firebase
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
   }
   Future<void> logout() async {
@@ -212,6 +222,12 @@ class NotificationsController {
     if(FirebaseToken != null){
       return;
     }
+
+    if (!Platform.isAndroid){
+      print("Firebase is disabled on windows");
+      return;
+    }
+
     final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     await firebaseMessaging.requestPermission();
     FirebaseToken = await firebaseMessaging.getToken();
@@ -220,7 +236,7 @@ class NotificationsController {
     //this will handle the messages when the app is background
     FirebaseMessaging.onBackgroundMessage(_backgroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      print("firebase: ${event.data} , app : $application");
+      print("firebase: ${event.data}");
       TriggerNotification note = TriggerNotification.fromFirebase(event);
       _DoDispatchNotification(note);
     });
@@ -232,7 +248,7 @@ class NotificationsController {
       if (note == null) return;
       var map = jsonDecode(event.data["notification"]);
       if (map["type"] == "message"){
-        if (map["destination"] == currentOpenChat){
+        if (map["destination"] == Globals.currentActiveChat){
           return;
         }
       }
@@ -285,7 +301,7 @@ class NotificationsController {
 
   @pragma("vm-entry-point")
   static void _backgroundNotification(NotificationResponse res){
-    print("background: ${res.payload} , app : $application");
+    print("background: ${res.payload}");
     //this runs on the background without the app
     //nothing to do here
     //AppTriggerNotification = TriggerNotification(payload: res.payload == null || res.payload!.isEmpty ? {} : jsonDecode(res.payload!), actionID: res.actionId, input: res.input);

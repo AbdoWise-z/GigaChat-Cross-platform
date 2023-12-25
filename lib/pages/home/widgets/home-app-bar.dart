@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
 
@@ -31,8 +32,9 @@ class HomeAppBar extends StatelessWidget {
   final List<AppBarAction> actions;
   final TabController? controller;
   final AppBarTabs? tabs;
+  final bool disableProfileIcon;
 
-  const HomeAppBar({super.key, required this.pinned, this.userImage, this.title, this.searchBar, required this.actions, this.controller, this.tabs});
+  const HomeAppBar({super.key, required this.pinned, this.userImage, this.title, this.searchBar, required this.actions, this.controller, this.tabs , this.disableProfileIcon = false });
 
   @override
   Widget build(BuildContext context) {
@@ -40,31 +42,34 @@ class HomeAppBar extends StatelessWidget {
       pinned: pinned,
       floating: true,
       snap: true,
-      leading: SizedBox(
-        width: 40,
-        height: 40,
+      leading: Visibility(
+        visible: !Globals.isWideVersion && disableProfileIcon == false,
+        child: SizedBox(
+          width: 40,
+          height: 40,
 
-        child: IconButton(
-          onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: userImage == null ? const Icon(
-              Icons.person_outline_outlined
-          ) : Padding(
-            padding: const EdgeInsets.all(3.0),
-            child: Container(
-              width: 34,
-              height: 34,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      userImage!,
+          child: IconButton(
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: userImage == null ? const Icon(
+                Icons.person_outline_outlined
+            ) : Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Container(
+                width: 34,
+                height: 34,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        userImage!,
+                      ),
+                      fit: BoxFit.cover,
                     ),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  border: Border.all(
-                    width: 0,
-                  ),
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    border: Border.all(
+                      width: 0,
+                    ),
+                ),
               ),
             ),
           ),

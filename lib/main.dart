@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/firebase_options.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
@@ -35,25 +39,32 @@ import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/services/notifications-controller.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'widgets/tweet-widget/full-screen-tweet.dart';
-
-GigaChat? application;
-final GlobalKey<NavigatorState> appNavigator = GlobalKey();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocalSettings locals = LocalSettings();
   await locals.init();
   await NotificationsController().init();
-  application = GigaChat(locals: locals,);
-  runApp(application!);
+  MediaKit.ensureInitialized();
+
+  if (Platform.isWindows) {
+    WindowManager windowManager = WindowManager.instance;
+    await windowManager.ensureInitialized();
+    windowManager.setMinimumSize(const Size(400, 800));
+    //windowManager.setMaximumSize(const Size(1200, 600));
+  }
+
+  Globals.application = GigaChat();
+  runApp(Globals.application);
 }
 
 class GigaChat extends StatefulWidget {
-  final LocalSettings locals;
   final String? initialRoute;
-  const GigaChat({super.key,this.initialRoute , required this.locals});
+  const GigaChat({super.key,this.initialRoute});
 
   @override
   State<GigaChat> createState() => _GigaChatState();
@@ -70,7 +81,7 @@ class _GigaChatState extends State<GigaChat> {
         ChangeNotifierProvider<Auth>(create: (context) => Auth()),
         ChangeNotifierProvider<ThemeProvider>(create: (context) => ThemeProvider()),
         ChangeNotifierProvider<FeedProvider>(create: (context) => FeedProvider()),
-        ChangeNotifierProvider<LocalSettings>(create: (context) => widget.locals),
+        ChangeNotifierProvider<LocalSettings>(create: (context) => LocalSettings()),
         ChangeNotifierProvider<NotificationsProvider>(create: (context) => NotificationsProvider()),
         ChangeNotifierProvider<ChatProvider>(create: (context) => ChatProvider()),
       ],
@@ -80,12 +91,15 @@ class _GigaChatState extends State<GigaChat> {
           return Consumer<Auth>(
             builder: (___ , auth , ____) {
               return MaterialApp(
-                navigatorKey: appNavigator,
+                scrollBehavior: const MaterialScrollBehavior().copyWith(
+                  dragDevices: {PointerDeviceKind.mouse , PointerDeviceKind.touch},
+                ),
+                navigatorKey: Globals.appNavigator,
                 theme: theme.getTheme,
                 title: "GigaChat",
                 initialRoute: widget.initialRoute ?? LandingLoginPage.pageRoute,
                 routes: {
-                  Home.pageRoute : (context) => Home(key: homeKey,),
+                  Home.pageRoute : (context) => Home(),
                   ChatPage.pageRoute : (context) => const ChatPage(),
 
                   LandingLoginPage.pageRoute : (context) => const LandingLoginPage(),

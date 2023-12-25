@@ -110,9 +110,11 @@ class Auth extends ChangeNotifier{
       settings.setValue<bool>(name: "login", val: false);
       await settings.apply();
 
-      GoogleSignIn signIn = GoogleSignIn();
-      if (await signIn.isSignedIn()){
-        await signIn.signOut();
+      if (Platform.isAndroid) {
+        GoogleSignIn signIn = GoogleSignIn();
+        if (await signIn.isSignedIn()) {
+          await signIn.signOut();
+        }
       }
     }
 

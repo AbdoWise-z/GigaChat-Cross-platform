@@ -1,7 +1,9 @@
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:media_kit_video/media_kit_video_controls/media_kit_video_controls.dart'
+  as media_kit_video_controls;
 
 class VideoPlayerWidget extends StatefulWidget {
   final String tag;
@@ -22,54 +24,27 @@ class VideoPlayerWidget extends StatefulWidget {
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  late FlickManager _manager;
-  late bool loading;
+  late VideoController _controller;
+  late Player _player = Player();
 
   @override
   void initState() {
     super.initState();
-    loading = true;
-    _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl))
-      ..initialize().then((_) {
-        _controller.seekTo(Duration.zero);
-
-        widget.autoPlay ? _controller.play() : _controller.pause();
-
-        loading = false;
-        try
-        {
-          setState(() {});
-        }catch(e){
-          print("Handled Exception $e");
-        }
-      });
-    _manager = FlickManager(videoPlayerController: _controller);
-
+    _controller = VideoController(_player);
+    _player.open(Media(widget.videoUrl) , play: widget.autoPlay);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _manager.dispose();
-    //_controller.dispose();
+    _player.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-        onVisibilityChanged: (info){
-          info.visibleFraction * 100 > 80 ? _controller.play() : _controller.pause();
-        },
-        key: Key(widget.tag),
-        child: FlickVideoPlayer(
-          flickManager: _manager,
-          flickVideoWithControls: widget.showControllers ? const FlickVideoWithControls(
-            videoFit: BoxFit.fitWidth,
-            controls: FlickPortraitControls(),
-          ) : const SizedBox.shrink(),
-        ),
+    return Video(
+      controller: _controller,
+      controls: widget.showControllers ? media_kit_video_controls.AdaptiveVideoControls : (w) => const SizedBox.shrink(),
     );
   }
 }

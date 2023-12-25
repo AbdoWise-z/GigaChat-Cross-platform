@@ -82,79 +82,86 @@ class _LoginPasswordPageState extends State<PasswordLoginPage> {
           icon: const Icon(Icons.close),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // page Title
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const PageTitle(title: "Enter your password"),
-
-                // empty space
-                const SizedBox(height: 30),
-
-                // username input field - disabled -
-                Row(
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // page Title
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey, width: 0.5),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(4)),
+                    const PageTitle(title: "Enter your password"),
+
+                    // empty space
+                    const SizedBox(height: 30),
+
+                    // username input field - disabled -
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 15),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey, width: 0.5),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(4)),
+                            ),
+                            child: Text(
+                              widget.username,
+                            ),
+                          ),
                         ),
-                        child: Text(
-                          widget.username,
-                        ),
-                      ),
+                      ],
+                    ),
+
+                    // empty space
+                    const SizedBox(height: 20),
+
+                    // password field
+                    PasswordFormField(
+                      passwordKey: PasswordLoginPage.passwordFieldKey,
+                      hideBorder: true,
+                      onChanged: (value) {
+                        setState(() {
+                          logInPressed = false;
+                          password = value;
+                          isValid = value.isNotEmpty;
+                        });
+                      },
+                      validator: (value){
+                        return value == null || value.isEmpty ? "" : null;
+                      },
+                      label: "Password",
                     ),
                   ],
                 ),
+              ),
+              const Expanded(child: SizedBox()),
 
-                // empty space
-                const SizedBox(height: 20),
+              AuthFooter(
+                rightButtonKey: const Key(PasswordLoginPage.loginButtonKey),
+                rightButtonLabel: "Log in",
+                disableRightButton: !isValid,
+                onRightButtonPressed: _doLogin,
 
-                // password field
-                PasswordFormField(
-                  passwordKey: PasswordLoginPage.passwordFieldKey,
-                  hideBorder: true,
-                  onChanged: (value) {
-                    setState(() {
-                      logInPressed = false;
-                      password = value;
-                      isValid = value.isNotEmpty;
-                    });
+                leftButtonLabel: "Forget password?",
+                onLeftButtonPressed: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,isLogged: false,)));
                   },
-                  validator: (value){
-                    return value == null || value.isEmpty ? "" : null;
-                  },
-                  label: "Password",
-                ),
-              ],
-            ),
+                showLeftButton: true,
+              )
+            ],
           ),
-          const Expanded(child: SizedBox()),
-
-          AuthFooter(
-            rightButtonKey: const Key(PasswordLoginPage.loginButtonKey),
-            rightButtonLabel: "Log in",
-            disableRightButton: !isValid,
-            onRightButtonPressed: _doLogin,
-
-            leftButtonLabel: "Forget password?",
-            onLeftButtonPressed: (){
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ForgetPassword(username: widget.username,isLogged: false,)));
-              },
-            showLeftButton: true,
-          )
-        ],
+        ),
       ),
     );
   }

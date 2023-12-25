@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
+import 'package:gigachat/pages/home/pages/internal-home-page.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';
 import 'package:gigachat/pages/home/pages/notification/widgets/notification-item.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -24,6 +25,10 @@ class _NotificationsAllTabState extends State<NotificationsAllTab> {
       _loading = true;
     });
     await NotificationsProvider().getAllNotifications(Auth().getCurrentUser()!.auth!);
+    if (!context.mounted){
+      return;
+    }
+
     setState(() {
       _loading = false;
     });
@@ -45,11 +50,17 @@ class _NotificationsAllTabState extends State<NotificationsAllTab> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    widget.notifications.onReload.remove(reload);
+  }
+
+  @override
   void initState() {
     super.initState();
     _loadNotes();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ScrollController controller = Home.getScrollGlobalKey(context)!.currentState!.innerController;
+      ScrollController controller = InternalHomePage.getScrollGlobalKey(context)!.currentState!.innerController;
       controller.addListener(() {
         if (controller.position.maxScrollExtent - controller.offset < 100){
           _loadMore();
@@ -69,7 +80,13 @@ class _NotificationsAllTabState extends State<NotificationsAllTab> {
       ),
     );
 
+    widget.notifications.onReload.add(reload);
   }
+
+  void reload(){
+    NotificationsProvider().reloadAll(Auth().getCurrentUser()!.auth!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<NotificationsProvider>(

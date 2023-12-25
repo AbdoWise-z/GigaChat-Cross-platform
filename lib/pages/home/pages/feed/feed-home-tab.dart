@@ -190,4 +190,19 @@ class FeedHomeTab with HomePageTab {
       ],
     );
   }
+
+  @override
+  void reload(BuildContext context) {
+    super.reload(context);
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
+    FeedController homeFeedController =
+    feedProvider.getFeedControllerById(
+        context: context,
+        id: Home.feedID,
+        providerFunction: ProviderFunction.NONE,
+        clearData: false
+    );
+    homeFeedController.resetFeed();
+    homeFeedController.updateFeeds();
+  }
 }

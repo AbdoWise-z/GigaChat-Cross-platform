@@ -87,36 +87,43 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           icon: const Icon(Icons.close),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageTitle(title: "Find your GIGACHAT account"),
-            const SizedBox(height: 10),
-            const PageDescription(description: FORGET_PASSWORD_DESCRIPTION),
-            const SizedBox(height: 20),
-            TextDataFormField(
-                onChange: (value) {
-                  setState(() {
-                    email = value;
-                    valid = value.isNotEmpty;
-                  });
-                },
-                value: email
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PageTitle(title: "Find your GIGACHAT account"),
+                const SizedBox(height: 10),
+                const PageDescription(description: FORGET_PASSWORD_DESCRIPTION),
+                const SizedBox(height: 20),
+                TextDataFormField(
+                    onChange: (value) {
+                      setState(() {
+                        email = value;
+                        valid = value.isNotEmpty;
+                      });
+                    },
+                    value: email
+                ),
+                const Expanded(child: SizedBox()),
+
+                AuthFooter(
+                  rightButtonLabel: "Next",
+                  disableRightButton: !valid,
+                  onRightButtonPressed: _getContactMethods,
+
+                  leftButtonLabel: "",
+                  onLeftButtonPressed: (){},
+                  showLeftButton: false,
+                )
+              ],
             ),
-            const Expanded(child: SizedBox()),
-
-            AuthFooter(
-              rightButtonLabel: "Next",
-              disableRightButton: !valid,
-              onRightButtonPressed: _getContactMethods,
-
-              leftButtonLabel: "",
-              onLeftButtonPressed: (){},
-              showLeftButton: false,
-            )
-          ],
+          ),
         ),
       ),
     );

@@ -47,7 +47,7 @@ class NotificationsHomeTab with HomePageTab {
   List<Widget>? getTabsWidgets(BuildContext context,{FeedController? feedController}) {
     return <Widget>[
       NotificationsAllTab(notifications: this,),
-      const NotificationsMentionsTab(),
+      NotificationsMentionsTab(notifications: this,),
     ];
   }
 
@@ -85,6 +85,16 @@ class NotificationsHomeTab with HomePageTab {
         },
       ),
     );
+  }
+
+  List<void Function()> onReload = [];
+
+  @override
+  void reload(BuildContext context) {
+    super.reload(context);
+    for (void Function() f in onReload){
+      f();
+    }
   }
 
 }

@@ -75,36 +75,43 @@ class _CreatePasswordState extends State<CreatePassword> {
       children: [
         Scaffold(
           appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
-          body: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "You'll need a password",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          body: Center(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: 600,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "You'll need a password",
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      "Make sure it's 8 characters or more.",
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    PasswordFormField(
+                      passwordKey: passwordKey,
+                      onChanged: (String input) async {
+                        inputPassword = input;
+                        await Future.delayed(
+                            const Duration(milliseconds: 50)); //wait for validator
+                        setState(() {});
+                      },
+                      label: 'Password',
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  "Make sure it's 8 characters or more.",
-                  style: TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                PasswordFormField(
-                  passwordKey: passwordKey,
-                  onChanged: (String input) async {
-                    inputPassword = input;
-                    await Future.delayed(
-                        const Duration(milliseconds: 50)); //wait for validator
-                    setState(() {});
-                  },
-                  label: 'Password',
-                ),
-              ],
+              ),
             ),
           ),
           bottomSheet: AuthFooter(
