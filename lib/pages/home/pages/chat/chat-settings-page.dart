@@ -107,7 +107,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
                 });
               },
               title: Text("Send read receipts" , style: TextStyle(fontWeight: FontWeight.w500),),
-              subtitle: Text("Let people you're messaging with know when you've seen their messages. Read receipts are not shown on message requests."),
+              subtitle: MainText(text: "Let people you're messaging with know when you've seen "
+                  "their messages. Read receipts are not shown on message requests.", color: Colors.blueGrey,),
             ),
           ],
         ),
