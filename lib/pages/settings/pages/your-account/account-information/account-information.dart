@@ -3,11 +3,7 @@ import 'package:gigachat/pages/settings/pages/your-account/account-information/c
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
-import '../../../../../providers/local-settings-provider.dart';
 import '../../../../../providers/theme-provider.dart';
-import '../../../../login/landing-login.dart';
 
 class AccountInformation extends StatefulWidget {
   const AccountInformation({Key? key}) : super(key: key);

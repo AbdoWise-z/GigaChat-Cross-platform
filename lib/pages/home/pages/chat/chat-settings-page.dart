@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
-import 'package:gigachat/providers/auth.dart';
 
 import '../../../../widgets/text-widgets/main-text.dart';
 
@@ -18,7 +17,6 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Auth.getInstance(context);
     return Scaffold(
       appBar: AppBar(
         title: const SettingsAppBarTitle(text: "Messages Settings"),

@@ -1,10 +1,8 @@
 
 import "dart:convert";
 import "dart:io";
-import "dart:math";
 import "package:gigachat/api/media-requests.dart";
 import "package:gigachat/api/user-class.dart";
-import "package:gigachat/base.dart";
 import "package:gigachat/providers/web-socks-provider.dart";
 import "package:gigachat/services/events-controller.dart";
 import "package:gigachat/services/notifications-controller.dart";
@@ -28,7 +26,7 @@ class Account {
     if (k.code == ApiResponse.CODE_SUCCESS) {
       User u = User();
       var res = jsonDecode(k.responseBody!);
-      u.active      = true; //TODO: change this later
+      u.active      = true;
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
@@ -117,7 +115,7 @@ class Account {
       var res = jsonDecode(k.responseBody!);
       print(res);
 
-      u.active      = true; //TODO: change this later
+      u.active      = true;
       u.auth        = res["token"];
       u.id          = res["data"]["suggestedUsername"];
       //u.name        = res["data"]["user"]["nickname"];
@@ -685,20 +683,23 @@ class Account {
       User u = User();
       var res = jsonDecode(k.responseBody!);
       print(res);
-      u.active      = true; //TODO: change this later
+      u.active      = true;
       u.auth        = res["token"];
       u.id          = res["data"]["user"]["username"];
       u.name        = res["data"]["user"]["nickname"];
       u.email       = res["data"]["user"]["email"];
-      //u.bio         = res["data"]["user"]["bio"];
+      u.bio         = res["data"]["user"]["bio"] ?? "";
       u.iconLink    = res["data"]["user"]["profileImage"] ?? u.iconLink;
-      //u.bannerLink  = res["data"]["user"]["banner_image"];
+      u.bannerLink  = res["data"]["user"]["bannerImage"] ?? "";
       //u.location    = res["data"]["user"]["location"];
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
       u.followers   = res["data"]["user"]["followers_num"];
       u.following   = res["data"]["user"]["followings_num"];
+      u.numOfPosts  = res["data"]["user"]["numOfPosts"];
+      u.numOfLikes  = res["data"]["user"]["numOfLikes"];
+      u.mongoID     = res["data"]["user"]["_id"];
 
       k.data = u;
     }

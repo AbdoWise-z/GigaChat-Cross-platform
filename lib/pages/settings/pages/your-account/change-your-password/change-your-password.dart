@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
-import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-validations.dart';
-import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 
 import '../../../../../providers/auth.dart';

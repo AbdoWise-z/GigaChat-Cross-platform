@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
-import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-all-tab.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-mentions-tab.dart';
 import 'package:gigachat/pages/home/pages/notification/subPages/notificationSetting.dart';
@@ -11,7 +8,6 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsHomeTab with HomePageTab {
   @override

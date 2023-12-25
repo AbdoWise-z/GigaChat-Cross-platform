@@ -1,11 +1,7 @@
-import 'dart:io';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 class ChatVideoPlayer extends StatefulWidget {
   final String url;

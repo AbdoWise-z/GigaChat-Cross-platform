@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart';
 
 class StreamSocket<T> {

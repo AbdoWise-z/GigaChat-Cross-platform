@@ -10,9 +10,6 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
-import '../../providers/local-settings-provider.dart';
-import '../login/landing-login.dart';
-
 
 const String NEW_PASSWORD_DESCRIPTION =
     "Make sure your new password is 8 characters or more. Try including numbers, letters, and punctuation marks for a strong password\n\nYou'll be logged out of all active $APP_NAME sessions after your password is changed.";

@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
-import 'package:gigachat/main.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-list-page.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-search-page.dart';

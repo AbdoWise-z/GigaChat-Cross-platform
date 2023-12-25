@@ -9,7 +9,6 @@ import "package:gigachat/api/user-class.dart";
 
 class Tweets {
 
-  //fixme: don't cache everything into the last list
 
   static Future<ApiResponse<String>> apiSendTweet(String token , IntermediateTweetData tweet) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -50,7 +49,6 @@ class Tweets {
 
 
   static List<TweetData> loadCache() {
-    // TODO: load cache here later
     return [
       getDefaultTweet("1",MediaType.IMAGE),
       getDefaultTweet("2",MediaType.IMAGE),
@@ -410,7 +408,6 @@ class Tweets {
           ),
           isLiked: tweet["isLiked"],
           isRetweeted: tweet["isRetweeted"],
-          // TODO: check this later
           isFollowingMe: tweet["isFollowingMe"] ?? false,
           media: tweet["media"].map((media){
             return MediaData(
@@ -462,7 +459,6 @@ class Tweets {
       return mappedIdTweets;
     }
     else{
-      //TODO: load cached tweets
       return {};
     }
   }

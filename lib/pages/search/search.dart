@@ -55,7 +55,6 @@ class _SearchPageState extends State<SearchPage> {
     if (data == null || data.isEmpty) {
       return;
     }
-    //TODO : pass the data later
     Navigator.pushNamed(context, SearchResultPage.pageRoute,arguments: {"keyword":data});
   }
 

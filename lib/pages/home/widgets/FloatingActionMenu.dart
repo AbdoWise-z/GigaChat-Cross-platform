@@ -97,7 +97,7 @@ class _FabMenuScreen extends StatefulWidget {
   final double titleDx;
   final double titleDy;
 
-  const _FabMenuScreen({super.key, required this.items, required this.tappedIcon, required this.onTab, required this.leadingGap, required this.menuGap, required this.menuDx, required this.title, required this.titleDx, required this.titleDy});
+  const _FabMenuScreen({required this.items, required this.tappedIcon, required this.onTab, required this.leadingGap, required this.menuGap, required this.menuDx, required this.title, required this.titleDx, required this.titleDy});
 
   @override
   State<_FabMenuScreen> createState() => _FabMenuScreenState();

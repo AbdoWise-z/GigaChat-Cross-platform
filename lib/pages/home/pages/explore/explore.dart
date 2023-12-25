@@ -140,7 +140,7 @@ class Trending extends StatelessWidget {
           ),
         ),
       ),
-    );;
+    );
   }
 }
 

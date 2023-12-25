@@ -11,6 +11,6 @@ class BlockingLoadingPage extends StatelessWidget {
       onWillPop: () async {
         return false;
       },
-    );;
+    );
   }
 }

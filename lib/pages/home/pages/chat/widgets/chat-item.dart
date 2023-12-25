@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/media-class.dart';
-import 'package:gigachat/pages/create-post/widgets/post-media-view.dart';
 import 'package:gigachat/widgets/chat-video-player.dart';
 import 'package:gigachat/widgets/swipe-to.dart';
-import 'package:gigachat/widgets/video-player.dart';
 import 'package:intl/intl.dart';
 
 class ChatItem extends StatelessWidget {

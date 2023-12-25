@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -13,15 +12,10 @@ import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/create-post/widgets/hint-dialog.dart';
 import 'package:gigachat/pages/create-post/widgets/post-editor.dart';
 import 'package:gigachat/pages/create-post/widgets/post-static-viewer.dart';
-import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
-import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
-import 'dart:math';
-
 import 'package:photo_manager/photo_manager.dart';
 
 class CreatePostPage extends StatefulWidget {

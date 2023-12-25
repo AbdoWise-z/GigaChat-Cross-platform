@@ -8,7 +8,6 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 
 class ViewPostPage extends StatefulWidget {
   static const String pageRoute = "/post/view";

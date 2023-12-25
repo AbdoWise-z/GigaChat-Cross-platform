@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:provider/provider.dart';
 
 class AppBarAction {
   final void Function() onClick;

@@ -56,11 +56,13 @@ class _UserResultState extends State<UserResult> {
     return TextButton(
       onPressed: (){
         print("Profile page prints ${widget.user.name}");
-        Navigator.push(context,
-          MaterialPageRoute(
-              builder: (context) => UserProfile(username: widget.user.id, isCurrUser: false)
-          ),
-        );
+        if(widget.user.id != Auth.getInstance(context).getCurrentUser()!.id){
+          Navigator.push(context,
+            MaterialPageRoute(
+                builder: (context) => UserProfile(username: widget.user.id, isCurrUser: false)
+            ),
+          );
+        }
       },
       style: TextButton.styleFrom(
           foregroundColor: isDarkMode ? Colors.white: Colors.black,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:media_kit_video/media_kit_video_controls/media_kit_video_controls.dart'
   as media_kit_video_controls;
 
@@ -43,6 +42,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Video(
+      fit: BoxFit.fitWidth,
       controller: _controller,
       controls: widget.showControllers ? media_kit_video_controls.AdaptiveVideoControls : (w) => const SizedBox.shrink(),
     );

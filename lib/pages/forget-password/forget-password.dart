@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/confirm-email.dart';
-import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -11,7 +10,6 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 import '../user-verification/select-verification-method-page.dart';
-
 
 const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
     "username associated with your account to change the password.";

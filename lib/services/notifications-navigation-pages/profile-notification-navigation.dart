@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
-import 'package:gigachat/pages/posts/view-post.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 

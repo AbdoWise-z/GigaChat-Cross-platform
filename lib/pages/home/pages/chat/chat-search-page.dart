@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/api/chat-requests.dart';
 import 'package:gigachat/api/user-class.dart';
-import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/providers/auth.dart';
 

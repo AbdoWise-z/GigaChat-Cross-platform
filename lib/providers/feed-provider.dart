@@ -4,8 +4,6 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:provider/provider.dart';
 
-import '../pages/profile/user-profile.dart';
-
 
 enum FeedControllerAccess{
   HOME_PAGE_FEED,

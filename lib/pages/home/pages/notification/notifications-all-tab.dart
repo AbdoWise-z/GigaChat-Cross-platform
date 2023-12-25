@@ -1,7 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/notification-class.dart';
-import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/internal-home-page.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';

@@ -1,13 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
-import 'package:gigachat/pages/forget-password/forget-password.dart';
-import 'package:gigachat/pages/home/home.dart';
-import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/settings/pages/your-account/account-information/change-email.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';

@@ -23,7 +23,7 @@ class SearchRequests{
       List<String>? tagList = [];
       List<dynamic> res = jsonDecode(response.responseBody!)["results"];
       tagList = res.map((result) => result["title"]).toList().cast<String>();
-      return tagList ?? [];
+      return tagList;
     }
     else
     {
@@ -160,7 +160,6 @@ class SearchRequests{
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null) {
-      List tweetList = jsonDecode(response.responseBody!)["results"];
       return Tweets.decodeTweetList(token, response, {
         "data" : ["results"],
         "base" : null,

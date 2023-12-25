@@ -13,7 +13,6 @@ List<TweetActionButton> initActionButtons({
   required onLikeButtonClicked,
 })
 {
-  String? userToken = Auth.getInstance(context).getCurrentUser()!.auth;
 
   return [
     TweetActionButton(

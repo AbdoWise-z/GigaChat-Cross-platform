@@ -27,7 +27,6 @@ class Auth extends ChangeNotifier{
     return _instance!;
   }
 
-  //TODO: change back to null
   User? _currentUser;
 
   Future<void> login(String username , String password , { void Function(ApiResponse<User>)? success , void Function(ApiResponse<User>)? error}) async {

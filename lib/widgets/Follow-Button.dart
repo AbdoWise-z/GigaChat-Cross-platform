@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/providers/auth.dart';
@@ -63,8 +62,6 @@ class _FollowButtonState extends State<FollowButton> {
         ))
         : TextButton(
         onPressed: () async {
-          // TODO: we should send a request for the server and try to follow
-          // that user but for now i will assume it has successeded
           await Auth.getInstance(context).follow(
             widget.username,
             success: (res){

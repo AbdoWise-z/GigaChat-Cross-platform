@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';

@@ -7,7 +7,6 @@ import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Search/unit-widgets/search-widgets.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
-import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/internal-home-page.dart';
 import 'package:gigachat/providers/auth.dart';

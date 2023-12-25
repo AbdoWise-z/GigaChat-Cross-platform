@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
-import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 

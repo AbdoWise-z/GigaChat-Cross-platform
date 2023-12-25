@@ -4,7 +4,6 @@ import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/change-password.dart';
 import 'package:gigachat/pages/register/create-password.dart';
-import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/util/contact-method.dart';

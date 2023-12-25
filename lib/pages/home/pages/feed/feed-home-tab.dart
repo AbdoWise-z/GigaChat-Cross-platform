@@ -12,7 +12,6 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:provider/provider.dart';
 
 class FeedHomeTab with HomePageTab {
 

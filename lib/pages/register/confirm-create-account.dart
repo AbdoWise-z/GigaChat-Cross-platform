@@ -5,7 +5,6 @@ import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
-import 'package:gigachat/util/contact-method.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../user-verification/verification-code-page.dart';
@@ -59,11 +58,6 @@ class _ConfirmCreateAccountState extends State<ConfirmCreateAccount> {
   }
 
   late final Toast toast;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

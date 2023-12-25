@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/api/api.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/landing-register.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
@@ -197,7 +193,6 @@ class _NavDrawerState extends State<NavDrawer> {
                                   children: [
                                     ListTile(
                                       onTap: () async {
-                                        //TODO : handle on click
                                         await Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -333,7 +328,6 @@ class _NavDrawerState extends State<NavDrawer> {
                             children: [
                               ListTile(
                                 onTap: () async {
-                                  //TODO : sub-menu action 1
                                   await Navigator.pushNamed(context, '/settings');
                                 },
                                 horizontalTitleGap: 15,

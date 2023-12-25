@@ -22,7 +22,6 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../../api/user-class.dart';
 import '../../base.dart';
 import '../../util/Toast.dart';
@@ -479,7 +478,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   void initState()  {
     Globals.profileStack.add(widget.username);
     auth = Auth.getInstance(context);
-    FeedProvider feedProvider = FeedProvider.getInstance(context);
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if(!tabController.indexIsChanging){
@@ -959,7 +957,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                     const Icon(CupertinoIcons.link, size: 15,color: Colors.grey,),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                                      child: MainText(text: website, color: Colors.grey,), //TODO: change later (detect urls)
+                                      child: MainText(text: website, color: Colors.grey,),
                                     ),
                                   ],
                                 )

@@ -1,24 +1,16 @@
 import 'dart:io';
 import 'dart:ui';
-
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
-import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/firebase_options.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
 import 'package:gigachat/pages/Search/search.dart';
 import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/pages/home/home.dart';
-import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
-import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 import 'package:gigachat/pages/login/sub-pages/username-page.dart';
-import 'package:gigachat/pages/profile/profile-image-view.dart';
-import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/pages/register/assign-birth-date.dart';
 import 'package:gigachat/pages/register/confirm-create-account.dart';
 import 'package:gigachat/pages/register/create-account.dart';

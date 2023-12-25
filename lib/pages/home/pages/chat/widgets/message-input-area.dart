@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
@@ -204,7 +203,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
                         var selected = await Gallery.selectFromGallery(
                           context ,
-                          selected: m == null ? [] : [m!.path],
+                          selected: m == null ? [] : [m.path],
                           canSkip: true,
                           selectMax: 1,
                         );

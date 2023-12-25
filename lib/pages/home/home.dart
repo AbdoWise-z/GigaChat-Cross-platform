@@ -1,27 +1,18 @@
-import 'dart:io';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/AppNavigator.dart';
 import 'package:gigachat/Globals.dart';
-import 'package:gigachat/api/account-requests.dart';
-import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-home-tab.dart';
 import 'package:gigachat/pages/home/pages/explore/explore.dart';
 import 'package:gigachat/pages/home/pages/feed/feed-home-tab.dart';
-import 'package:gigachat/pages/home/pages/internal-home-page.dart';
 import 'package:gigachat/pages/home/pages/notification/notifications-home-tab.dart';
-import 'package:gigachat/pages/home/pages/search/search-home-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
-import 'package:gigachat/pages/home/widgets/nav-drawer.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
-import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/services/notifications-controller.dart';
-import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 
 class Home extends StatefulWidget {

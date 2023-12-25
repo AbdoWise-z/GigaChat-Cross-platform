@@ -1,5 +1,4 @@
 import 'package:gigachat/api/media-class.dart';
-import 'package:gigachat/api/media-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 
 enum TweetType {

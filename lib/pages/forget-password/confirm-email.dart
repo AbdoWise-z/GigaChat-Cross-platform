@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
-import 'package:gigachat/pages/forget-password/forget-password.dart';
-import 'package:gigachat/pages/settings/pages/your-account/account-settings.dart';
 import 'package:gigachat/pages/user-verification/select-verification-method-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/services/input-validations.dart';
@@ -82,33 +80,40 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
           icon: const Icon(Icons.close),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const PageTitle(title: "Confirm your email"),
-          const SizedBox(height: 15),
-          const PageDescription(description: CONFIRM_EMAIL_PAGE_DESCRIPTION),
-          const SizedBox(height: 20),
-          TextDataFormField(
-            onChange: (value) {
-              setState(() {
-                email = value;
-                isValidEmail = email.isNotEmpty &&
-                    InputValidations.isValidEmail(email) == null;
-              });
-            },
-            label: "Email",
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600
           ),
-          const Expanded(child: SizedBox()),
-          AuthFooter(
-            rightButtonLabel: "Next",
-            disableRightButton: !isValidEmail,
-            onRightButtonPressed: _getContactMethods,
-            leftButtonLabel: "",
-            onLeftButtonPressed: () {},
-            showLeftButton: false,
-          )
-        ]),
+          child: Padding(
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const PageTitle(title: "Confirm your email"),
+              const SizedBox(height: 15),
+              const PageDescription(description: CONFIRM_EMAIL_PAGE_DESCRIPTION),
+              const SizedBox(height: 20),
+              TextDataFormField(
+                onChange: (value) {
+                  setState(() {
+                    email = value;
+                    isValidEmail = email.isNotEmpty &&
+                        InputValidations.isValidEmail(email) == null;
+                  });
+                },
+                label: "Email",
+              ),
+              const Expanded(child: SizedBox()),
+              AuthFooter(
+                rightButtonLabel: "Next",
+                disableRightButton: !isValidEmail,
+                onRightButtonPressed: _getContactMethods,
+                leftButtonLabel: "",
+                onLeftButtonPressed: () {},
+                showLeftButton: false,
+              )
+            ]),
+          ),
+        ),
       ),
     );
   }

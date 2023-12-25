@@ -4,7 +4,6 @@ import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/widgets/single-frame-video-player.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
-import 'package:gigachat/widgets/video-player.dart';
 import 'full-screen-tweet.dart';
 
 

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
-import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
@@ -36,7 +35,6 @@ class _FullScreenImageState extends State<FullScreenImage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     upperValueNotifier = ValueNotifier(0.0);
   }
@@ -60,7 +58,6 @@ class _FullScreenImageState extends State<FullScreenImage> {
       MediaData image = entry.value;
 
       Widget photoView = image.mediaType == MediaType.VIDEO ?
-          // TODO: handle the video later
       VideoPlayerWidget(
         videoUrl: image.mediaUrl,
         autoPlay: true,
@@ -74,12 +71,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
               showDragHandle: true,
               context: context,
               builder: (context) => buildSheet(context, [
-                ["Post Photo", Icons.add_circle_outline, () {
-                  // TODO: send the image to the add new post page and navigate
-
-                }],
                 ["Save Photo", Icons.download, () {
-                  // TODO: save the image to the device
                   _saveImage(image.mediaUrl);
                 }]
               ]));

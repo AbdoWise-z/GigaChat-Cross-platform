@@ -1,9 +1,9 @@
 //all of the API classes will be defined here
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
 import 'package:sprintf/sprintf.dart';
@@ -49,7 +49,7 @@ class ApiResponse<T> {
 class ApiPath{
   final String _path;
   Uri url({Map<String,dynamic>? params}) {
-    return Uri.http(API_LINK , _path , params);
+    return Uri.https(API_LINK , _path , params);
   }
   static ApiPath fromString(String str){
     return ApiPath._(str);

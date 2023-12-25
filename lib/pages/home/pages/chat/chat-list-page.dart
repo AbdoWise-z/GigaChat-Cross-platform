@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
-import 'package:gigachat/api/chat-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/chat-provider.dart';
-import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:provider/provider.dart';
 
 class ChatListPage extends StatefulWidget {

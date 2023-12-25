@@ -1,28 +1,21 @@
-import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:gigachat/AppNavigator.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/api.dart';
 import 'package:gigachat/api/chat-class.dart';
-import 'package:gigachat/api/chat-requests.dart';
 import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/media-requests.dart';
-import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-info-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-item.dart';
-import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/message-input-area.dart';
-import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/profile/profile-image-view.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/chat-provider.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
-import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -293,7 +286,7 @@ class ChatPageState extends State<ChatPage> {
           _chat.add(m);
         }else{
           _chat[index].state = ChatMessageObject.STATE_SENT;
-          _chat[index].time = m.time; //TODO: fix server time ?
+          _chat[index].time = m.time; // fix server time ?
         }
       }
     }else{
