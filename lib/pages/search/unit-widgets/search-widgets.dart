@@ -108,7 +108,7 @@ class _UserResultState extends State<UserResult> {
               Visibility(
                 visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id && !widget.disableFollowButton,
                 child: SizedBox(
-                  width: 90,
+                  width: 100,
                   height: 30,
                   child: (widget.user.isWantedUserBlocked != null && widget.user.isWantedUserBlocked!)?
                   ElevatedButton(

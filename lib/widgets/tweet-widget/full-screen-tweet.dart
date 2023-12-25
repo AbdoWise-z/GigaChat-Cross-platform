@@ -171,7 +171,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
                           ),
                           const Expanded(child: SizedBox()),
                           SizedBox(
-                            width: 80,
+                            width: 100,
                             height: 30,
                             child: Visibility(
                               visible: tweetData.tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,

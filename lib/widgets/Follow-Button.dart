@@ -57,6 +57,7 @@ class _FollowButtonState extends State<FollowButton> {
         ),
         child: const Text(
           "Unfollow",
+          softWrap: false,
           style: TextStyle(
               fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
         ))

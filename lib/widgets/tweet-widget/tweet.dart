@@ -673,7 +673,7 @@ class _TweetState extends State<Tweet> {
           visible: isSinglePostView,
           child: SizedBox(
               height: 20,
-              width: 80,
+              width: 100,
               child: Visibility(
                 visible: tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
                 child: FollowButton(
