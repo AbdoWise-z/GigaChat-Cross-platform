@@ -24,6 +24,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace "app.gigachad.gigachat"
     //compileSdkVersion flutter.compileSdkVersion
@@ -59,20 +65,18 @@ android {
         multiDexEnabled true
     }
 
-    signingConfigs{
-        debug{
-            keyAlias 'androidDebugKey'
-            keyPassword '123456'
-            storeFile file('plswork.jks')
-            storePassword '123456'
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
         }
     }
 
     buildTypes {
-        debug {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+        release {
+            signingConfig signingConfigs.release
         }
     }
 }

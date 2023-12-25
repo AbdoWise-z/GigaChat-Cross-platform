@@ -80,6 +80,12 @@ dev_dependencies:
     sdk: flutter
 
   flutter_launcher_icons : ^0.13.1
+  msix:
+
+msix_config:
+  display_name: GigaChat
+  publisher_display_name: TEAM#1
+
 
 flutter_launcher_icons:
   android: "ic_launcher"
