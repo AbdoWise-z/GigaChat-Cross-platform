@@ -1,9 +1,9 @@
 //all of the API classes will be defined here
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 
 import 'package:gigachat/base.dart';
 import 'package:sprintf/sprintf.dart';
@@ -49,7 +49,7 @@ class ApiResponse<T> {
 class ApiPath{
   final String _path;
   Uri url({Map<String,dynamic>? params}) {
-    return Uri.http(API_LINK , _path , params);
+    return Uri.https(API_LINK , _path , params);
   }
   static ApiPath fromString(String str){
     return ApiPath._(str);
@@ -68,34 +68,66 @@ class ApiPath{
   static ApiPath signUp                  = const ApiPath._("/api/user/signup");
   static ApiPath checkBirthDate          = const ApiPath._("/api/user/checkBirthDate");
   static ApiPath confirmEmail            = const ApiPath._("/api/user/confirmEmail");
+  static ApiPath verifyEmail             = const ApiPath._("/api/user/verifyEmail");
   static ApiPath resendConfirmEmail      = const ApiPath._("/api/user/resendConfirmEmail");
+  static ApiPath forgotPassword          = const ApiPath._("/api/user/forgotpassword");
+  static ApiPath resetPassword           = const ApiPath._("/api/user/resetpassword");
+  static ApiPath checkForgotPasswordCode = const ApiPath._("api/user/checkPasswordResetToken");
   static ApiPath assignPassword          = const ApiPath._("/api/user/AssignPassword");
   static ApiPath assignUsername          = const ApiPath._("/api/user/AssignUsername");
+  static ApiPath updatePassword          = const ApiPath._("/api/user/updatePassword");
+  static ApiPath verifyPassword          = const ApiPath._("/api/user/confirmPassword");
+  static ApiPath updateUsername          = const ApiPath._("/api/user/updateUsername");
+  static ApiPath updateEmail             = const ApiPath._("/api/user/updateEmail");
   static ApiPath login                   = const ApiPath._("/api/user/login");
+  static ApiPath google                   = const ApiPath._("/api/user/googleAuth");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
   static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
   static ApiPath unfollowUser            = const ApiPath._("/api/user/%s/unfollow");
+  static ApiPath muteUser                = const ApiPath._("/api/user/%s/mute");
+  static ApiPath unmuteUser              = const ApiPath._("/api/user/%s/unmute");
+  static ApiPath blockUser               = const ApiPath._("/api/user/%s/block");
+  static ApiPath unblockUser             = const ApiPath._("/api/user/%s/unblock");
   static ApiPath createTweet             = const ApiPath._("/api/tweets/");
   static ApiPath likeTweet               = const ApiPath._("/api/tweets/like");
   static ApiPath unlikeTweet             = const ApiPath._("/api/tweets/unlike");
   static ApiPath tweetLikers             = const ApiPath._("/api/tweets/likers");
   static ApiPath comments                = const ApiPath._("/api/tweets/replies/%s");
   static ApiPath retweet                 = const ApiPath._("/api/tweets/retweet");
-  static ApiPath unretweet                 = const ApiPath._("/api/tweets/unretweet");
+  static ApiPath unretweet               = const ApiPath._("/api/tweets/unretweet");
   static ApiPath media                   = const ApiPath._("/api/media");
   static ApiPath updateUserInfo          = const ApiPath._("/api/user/profile");
   static ApiPath currUserProfile         = const ApiPath._("/api/user/profile");
   static ApiPath userProfile             = const ApiPath._("/api/user/profile/%s");
+  static ApiPath userProfileWithID       = const ApiPath._("/api/user/profileById/%s");
+  static ApiPath userFollowers           = const ApiPath._("/api/user/profile/%s/followers");
+  static ApiPath userFollowings          = const ApiPath._("/api/user/profile/%s/followings");
+  static ApiPath userBlockList           = const ApiPath._("/api/user/blockList");
+  static ApiPath userMutedList           = const ApiPath._("/api/user/mutedList");
   static ApiPath banner                  = const ApiPath._("/api/user/profile/banner");
   static ApiPath userProfileTweets       = const ApiPath._("/api/profile/%s/tweets");
-  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
+  static ApiPath userProfileReplies      = const ApiPath._("/api/user/profile/%s/tweetsWithReplies");
+  static ApiPath userProfileLikes        = const ApiPath._("/api/profile/%s/likes");
+  static ApiPath mentions                = const ApiPath._("/api/homepage/mention");
 
+  static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
   static ApiPath searchUsers             = const ApiPath._("/api/user/search");
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
-  static ApiPath searchTags              = const ApiPath._("/api/tags/search/%s");
+  static ApiPath searchTags              = const ApiPath._("/api/trends/search");
   static ApiPath deleteTweet             = const ApiPath._("/api/tweets/%s");
-}
+  static ApiPath chatAll                 = const ApiPath._("/api/user/chat/all");
+  static ApiPath chatMessages            = const ApiPath._("/api/user/chat/%s");
+  static ApiPath chatMessagesBefore      = const ApiPath._("/api/user/chat/messagesBeforeCertainTime/%s");
+  static ApiPath chatMessagesAfter       = const ApiPath._("/api/user/chat/messagesAfterCertainTime/%s");
+  static ApiPath getTweet                = const ApiPath._("/api/tweets/%s");
+  static ApiPath chatSearch              = const ApiPath._("/api/user/chat/search");
+  static ApiPath searchTrends            = const ApiPath._("/api/trends/%s");
+  static ApiPath tweetOwnerId            = const ApiPath._("/api/tweets/tweetOwner/%s");
+  static ApiPath getAllTrends            = const ApiPath._("/api/trends/all");
+  static ApiPath notifications           = const ApiPath._("/api/user/notifications");
+  static ApiPath notificationsCount      = const ApiPath._("/api/user/notifications/unseenCount");
+  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");}
 
 class Api {
 
@@ -194,7 +226,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPostNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPostFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPostFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
   static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
@@ -288,7 +320,7 @@ class Api {
     if (files == null){ //not an upload request
       return _apiPatchNoFilesImpl<T>(path.url(params: params) , headers , body , encoding!);
     }
-    return _apiPatchFilesImpl<T>(path.url() , headers , body , files , encoding!);
+    return _apiPatchFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
 

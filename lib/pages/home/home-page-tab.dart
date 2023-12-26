@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
@@ -31,11 +31,24 @@ mixin HomePageTab {
     return null;
   }
   int getNotificationsCount(BuildContext context){
-    return 1;
+    return 0;
   }
 
-  void setHomeState(BuildContext context , void Function() callback){
-    var home = context.findAncestorStateOfType<HomeState>();
-    home!.update(callback);
+  void setHomeState(void Function() callback){
+    // if (homeKey.currentState == null){
+    //   print("Bad call to home setState");
+    // }
+
+    Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
+      var home = Globals.homeKey.currentState;
+      if (home != null) {
+        home.update(callback);
+      }
+    });
+
   }
+
+  void init(BuildContext context) {}
+
+  void reload(BuildContext context) {}
 }

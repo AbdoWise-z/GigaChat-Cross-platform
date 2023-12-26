@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
+import 'package:gigachat/util/Toast.dart';
+import 'package:gigachat/widgets/Follow-Button.dart';
 
 class SearchKeyword extends StatelessWidget {
   final String tag;
@@ -25,7 +28,7 @@ class SearchKeyword extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text("#$tag", style: const TextStyle(fontSize: 17)),
+              Text("$tag", style: const TextStyle(fontSize: 17)),
               const Expanded(child: SizedBox()),
               GestureDetector(
                 onTap: onIconClick,
@@ -37,58 +40,129 @@ class SearchKeyword extends StatelessWidget {
   }
 }
 
-class UserResult extends StatelessWidget {
+class UserResult extends StatefulWidget {
   final User user;
-  const UserResult({super.key,required this.user});
+  final bool disableFollowButton;
+  const UserResult({super.key,required this.user, required this.disableFollowButton});
 
+  @override
+  State<UserResult> createState() => _UserResultState();
+}
+
+class _UserResultState extends State<UserResult> {
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = ThemeProvider.getInstance(context).isDark();
     return TextButton(
       onPressed: (){
-        print("Profile page prints ${user.name}");
-        Navigator.push(context,
-          MaterialPageRoute(
-              builder: (context) => UserProfile(username: user.id, isCurrUser: false)
-          ),
-        );
+        print("Profile page prints ${widget.user.name}");
+        if(widget.user.id != Auth.getInstance(context).getCurrentUser()!.id){
+          Navigator.push(context,
+            MaterialPageRoute(
+                builder: (context) => UserProfile(username: widget.user.id, isCurrUser: false)
+            ),
+          );
+        }
       },
       style: TextButton.styleFrom(
           foregroundColor: isDarkMode ? Colors.white: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(user.iconLink),
-          ),
-          const SizedBox(width: 10,),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                user.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black,
-                    fontSize: 16
+              CircleAvatar(backgroundImage: NetworkImage(widget.user.iconLink)),
+              const SizedBox(width: 10,),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.user.name, overflow: TextOverflow.ellipsis,),
+                    Text("@${widget.user.id}",style: const TextStyle(color: Colors.grey),overflow: TextOverflow.ellipsis,)
+                  ],
                 ),
               ),
-              Text(user.id,
-                style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    color: isDarkMode ? Colors.grey : Colors.grey[850]
+              const Expanded(child: SizedBox()),
+              Visibility(
+                visible: (widget.user.isWantedUserMuted != null && widget.user.isWantedUserMuted!),
+                child: IconButton(
+                    onPressed: () async {
+                      await Auth.getInstance(context).unmute(
+                        widget.user.id,
+                        success: (res){
+                          setState(() {
+                            widget.user.isWantedUserMuted = false;
+                          });
+                        },
+                        error: (res){
+                          Toast.showToast(context, "Action failed, please try again");
+                        }
+                      );
+                    }, icon: const Icon(Icons.volume_off_sharp,color: Colors.red,)
                 ),
               ),
+              Visibility(
+                visible: Auth.getInstance(context).getCurrentUser()!.id != widget.user.id && !widget.disableFollowButton,
+                child: SizedBox(
+                  width: 100,
+                  height: 30,
+                  child: (widget.user.isWantedUserBlocked != null && widget.user.isWantedUserBlocked!)?
+                  ElevatedButton(
+                    onPressed: () async{
+                      await Auth.getInstance(context).unblock(
+                          widget.user.id,
+                        success: (res){
+                           setState(() {
+                             widget.user.isWantedUserBlocked = false;
+                           });
+                        },
+                        error: (res){
+                          Toast.showToast(context, "Action failed, please try again");
+                        }
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(15.0), // Set the border radius
+                      ),
+                    ),
+                    child: const Text("Blocked"),
+                  ):
+                  FollowButton(
+                      isFollowed: widget.user.isFollowed!,
+                      callBack: (isFollowed){widget.user.isFollowed = isFollowed;},
+                      username: widget.user.id
+                  ),
+                ),
+              )
             ],
           ),
-          const Expanded(child: SizedBox()),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(width: 50,),
+              Expanded(
+                child: Text(
+                  widget.user.bio,
+                  style: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            ],
+          )
         ],
-      ),
+      )
     );
   }
 }

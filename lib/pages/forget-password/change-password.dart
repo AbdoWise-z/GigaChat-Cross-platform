@@ -15,8 +15,11 @@ const String NEW_PASSWORD_DESCRIPTION =
     "Make sure your new password is 8 characters or more. Try including numbers, letters, and punctuation marks for a strong password\n\nYou'll be logged out of all active $APP_NAME sessions after your password is changed.";
 
 class NewPasswordPage extends StatefulWidget {
-  const NewPasswordPage({super.key});
+  NewPasswordPage({super.key, required this.code, required this.email, required this.isLogged});
 
+  String email;
+  String code;
+  bool isLogged;
   @override
   State<NewPasswordPage> createState() => _NewPasswordPageState();
 }
@@ -40,23 +43,40 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     });
 
     Auth auth = Auth.getInstance(context);
-    if (auth.getCurrentUser() == null){
-      throw "This should never happen ...";
-    }
 
-    //TODO: fix this
-    // if (!await auth.createNewUserPassword(auth.getCurrentUser()! , newPassword , () {
-    //   setState(() {
-    //     _loading = false;
-    //     Navigator.popUntil(context, (route) => false);
-    //     Navigator.pushNamed(context, Home.pageRoute);
-    //   });
-    // })) {
-    //   setState(() {
-    //     _loading = false;
-    //     Toast.showToast(context, "API Error ..");
-    //   });
-    // }
+    auth.resetPassword(
+      newPassword,
+      widget.code,
+      success: (res){
+        if(widget.isLogged){  //logout
+
+        }else{  //login
+          auth.login(
+            widget.email,
+            newPassword,
+              success: (res) {
+                Navigator.popUntil(context, (r) => false);
+                Navigator.pushNamed(context, Home.pageRoute);
+              },
+              error: (res){
+                Toast.showToast(context,"Failed to login",width: 20);
+                Navigator.popUntil(context, (r) => false);
+                setState(() {
+                  _loading = false;
+                });
+              }
+          );
+        }
+      },
+      error: (res){
+        Toast.showToast(context, "API error");
+      }
+    );
+
+    setState(() {
+      _loading = false;
+    });
+
   }
 
   @override
@@ -68,61 +88,71 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     );
     return Stack(
       children: [
-        Scaffold(
-          appBar: AuthAppBar(
-            context,
-            leadingIcon: IconButton(
-              onPressed: () {
-                Navigator.popUntil(context, ModalRoute.withName('/'));
-              },
-              icon: const Icon(Icons.close),
+        Center(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: 600,
             ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const PageTitle(title: "Choose a new password"),
-                  const SizedBox(height: 20),
-                  const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
-                  const SizedBox(height: 20),
-                  Form(key: formKey, child: Column(children: [
-                    PasswordFormField(
-                      onChanged: (value) {
-                        setState(() {
-                          newPassword = value;
-                        });
-                      },
-                      label: "Enter a new password",
-                    ),
-                    const SizedBox(height: 20),
-                    PasswordFormField(
-                      onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                      validator: (value){
-                        return value == newPassword ? null : "passwords is not identical";
-                      },
-                      label: "Confirm password",
-                    ),
-                  ],))
-                ],
+            child: Scaffold(
+              appBar: AuthAppBar(
+                context,
+                leadingIcon: IconButton(
+                  onPressed: () {
+                    widget.isLogged? Navigator.pop(context) :
+                      Navigator.popUntil(context, ModalRoute.withName('/'));
+                  },
+                  icon: const Icon(Icons.close),
+                ),
               ),
+              body: Padding(
+                padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const PageTitle(title: "Choose a new password"),
+                      const SizedBox(height: 20),
+                      const PageDescription(description: NEW_PASSWORD_DESCRIPTION),
+                      const SizedBox(height: 20),
+                      Form(key: formKey, child: Column(children: [
+                        PasswordFormField(
+                          onChanged: (value) {
+                            setState(() {
+                              newPassword = value;
+                            });
+                          },
+                          label: "Enter a new password",
+                        ),
+                        const SizedBox(height: 20),
+                        PasswordFormField(
+                          onChanged: (value) {
+                            setState(() {
+                              confirmPassword = value;
+                            });
+                          },
+                          validator: (value){
+                            return value == newPassword ? null : "passwords is not identical";
+                          },
+                          label: "Confirm password",
+                        ),
+                      ],)
+                      ),
+                      const SizedBox(height: 100,)
+                    ],
+                  ),
+                ),
+              ),
+              bottomSheet: AuthFooter(
+                rightButtonLabel: "Change password",
+                disableRightButton: !isValidForm,
+                onRightButtonPressed: () => _createPassword(newPassword),
+
+                leftButtonLabel: "",
+                onLeftButtonPressed: (){},
+                showLeftButton: false,
+              )
             ),
           ),
-          bottomSheet: AuthFooter(
-            rightButtonLabel: "Change password",
-            disableRightButton: !isValidForm,
-            onRightButtonPressed: () => _createPassword(newPassword),
-
-            leftButtonLabel: "",
-            onLeftButtonPressed: (){},
-            showLeftButton: false,
-          )
         ),
         Visibility(
           visible: _loading,

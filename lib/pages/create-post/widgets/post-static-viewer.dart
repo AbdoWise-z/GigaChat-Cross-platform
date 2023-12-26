@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/widgets/single-frame-video-player.dart';
 
 class PostStaticViewer extends StatefulWidget {
   final TweetData tweet;
@@ -21,24 +24,27 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
     super.initState();
   }
 
-  Widget _getImageWidget(){
+  Widget _getMediaWidget(){
     if (widget.tweet.media == null) {
       return const SizedBox.shrink();
     }
-    
+
+    double width = Globals.HomeWideScreenWidth;
+
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Container(
-        width: 80,
-        height: 80,
+        width: width / 3,
+        height: width / 3,
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: Colors.blue,
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.network(
-          widget.tweet.media!,
+        child: widget.tweet.media![0].mediaType == MediaType.IMAGE ? Image.network(
+          widget.tweet.media![0].mediaUrl,
           fit: BoxFit.cover,
-        ),
+        ) : SingleFrameVideoPlayer(tag: "none", videoUrl: widget.tweet.media![0].mediaUrl) ,
       ),
     );
   }
@@ -46,7 +52,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
   @override
   Widget build(BuildContext context) {
     User user = widget.tweet.tweetOwner;
-    double width = MediaQuery.of(context).size.width;
+    double width = Globals.HomeWideScreenWidth;
 
     return IntrinsicHeight(
       child: Row(
@@ -88,7 +94,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
 
           //Content
           Padding(
-            padding: EdgeInsets.only(top: 4 , left: 0),
+            padding: const EdgeInsets.only(top: 4 , left: 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,22 +103,29 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                   width: width - 40 - 8 * 2,
                   child: Row(
                     children: [
-                      Text(
-                        user.name,
-                        softWrap: true,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          user.name,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
 
-                      Text(
-                        " ${user.id}",
-                        softWrap: true,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0 , right: 8.0),
+                        child: Text(
+                          "${user.id}",
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey
+                          ),
                         ),
                       ),
                     ],
@@ -133,7 +146,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                           ),
                         ),
                       ),
-                      _getImageWidget(),
+                      _getMediaWidget(),
                     ],
                   ),
                 ),
@@ -143,7 +156,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                   width: width - 40 - 8 * 2,
                   child: Row(
                     children: [
-                      Text(
+                      const Text(
                         "Replying to ",
                         softWrap: true,
                         style: TextStyle(
@@ -154,9 +167,9 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                       ),
 
                       Text(
-                        "${user.id}",
+                        user.id,
                         softWrap: true,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
                             color: Colors.blue

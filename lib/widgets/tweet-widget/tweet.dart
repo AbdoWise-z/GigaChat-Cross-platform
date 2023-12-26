@@ -1,34 +1,53 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
-import 'package:gigachat/pages/create-post/create-post-page.dart';
+import 'package:gigachat/pages/home/home.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
+import 'package:gigachat/pages/search/search-result.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-formatting.dart';
 import 'package:gigachat/api/tweet-data.dart';
-import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
-import 'package:gigachat/widgets/feed-component/tweetActionButton.dart';
-import 'package:gigachat/widgets/video-player.dart';
+import 'package:gigachat/widgets/feed-component/feed-controller.dart';
+import 'package:gigachat/widgets/tweet-widget/common-widgets.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet-controller.dart';
+import 'package:gigachat/widgets/tweet-widget/tweet-media.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // tested successfully
-List<TextSpan> textToRichText(String inputText,bool isDarkMode){
-  final RegExp regex = RegExp(r'\B#\w*');
+
+List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode , currentID){
+  final RegExp regex = RegExp(r'\B[@#]\w*');
   List<TextSpan> spans = [];
   inputText.splitMapJoin(
     regex,
     onMatch: (Match match) {
       spans.add(
           TextSpan(
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                if (context != null) {
+                  if (match.group(0)!.startsWith("@")){
+                    String user = match.group(0)!.substring(1);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfile(username: user, isCurrUser: currentID == user)));
+                  }else {
+                    Navigator.pushNamed(
+                        context, SearchResultPage.pageRoute, arguments: {
+                      "keyword": match.group(0)
+                    });
+                  }
+                }
+              },
             text: match.group(0),
             style: const TextStyle(
                 color: Colors.blue
@@ -49,437 +68,425 @@ List<TextSpan> textToRichText(String inputText,bool isDarkMode){
 }
 
 
-class Tweet extends StatelessWidget {
+class Tweet extends StatefulWidget {
 
   final User tweetOwner;
   final TweetData tweetData;
-  late List<Widget> actionButtons;
   final bool isRetweet;
   final bool isSinglePostView;
+  final bool cancelSameUserNavigation;
   final void Function(String) callBackToDelete;
+  final void Function() onCommentButtonClicked;
+  final FeedController? parentFeed;
+  final bool? deleteOnUndoRetweet;
+  final bool? showVerticalDivider;
 
-  Tweet({
-      super.key,
-      required this.tweetOwner,
-      required this.tweetData,
-      required this.isRetweet,
-      required this.isSinglePostView,
-      required this.callBackToDelete
+  const Tweet({
+    super.key,
+    required this.tweetOwner,
+    required this.tweetData,
+    required this.isRetweet,
+    required this.isSinglePostView,
+    required this.callBackToDelete,
+    required this.onCommentButtonClicked,
+    required this.parentFeed,
+    required this.cancelSameUserNavigation,
+    this.deleteOnUndoRetweet,
+    this.showVerticalDivider = false,
   });
 
+  @override
+  State<Tweet> createState() => _TweetState();
+}
+
+class _TweetState extends State<Tweet> {
+  late List<Widget> actionButtons;
 
   // Controllers for the tweet class
-  Future<bool> toggleLikeTweet(BuildContext context,String? token,String tweetId) async {
-    if (token == null) {
-      Navigator.popUntil(context, (route) => route.isFirst);
-      return false;
-    }
-    
-    bool isLikingTweet = !tweetData.isLiked;
-    try {
-      bool success = isLikingTweet ?
-      await Tweets.likeTweetById(token, tweetId) :
-      await Tweets.unlikeTweetById(token, tweetId);
 
-      if (success) {
-        tweetData.isLiked = isLikingTweet;
-        tweetData.likesNum += tweetData.isLiked ? 1 : -1;
-      }
-      return success;
+  void updateState(){
+    if (widget.parentFeed == null) {
+      setState(() {});
     }
-    catch(e){
-      Toast.showToast(context, e.toString());
-      return false;
+    else {
+      if (kDebugMode) {
+        print("here");
+      }
+      widget.parentFeed!.updateFeeds();
     }
   }
 
-  Future<bool> toggleRetweetTweet(String? token,String tweetId) async {
-    if (token == null){
-      return false;
+  void navigateToUserProfile({required String currentUserId,required String tweetOwnerId}){
+    // if it's the same user don't navigate to the profile from the tweet
+    if (tweetOwnerId == currentUserId && widget.cancelSameUserNavigation){
+      return;
     }
 
-    bool isRetweeting = !tweetData.isRetweeted;
-    bool success = isRetweeting ? await Tweets.retweetTweetById(token, tweetId) : await Tweets.unretweetTweetById(token, tweetId);
-    // TODO: call the interface here and send the tweet id to retweet it
-    if (success)
-    {
-      tweetData.isRetweeted = isRetweeting;
-      tweetData.repostsNum += tweetData.isRetweeted ? 1 : -1;
-    }
-    return success;
-  }
-
-  // ui part
-  @override
-  Widget build(BuildContext context) {
-    initActionButtons(context, tweetData, isSinglePostView);
-
-    return Consumer<ThemeProvider>(
-      builder: (_,__,___) {
-        bool isDarkMode = ThemeProvider.getInstance(context).isDark();
-        String currentUserName = Auth.getInstance(context).getCurrentUser()!.name;
-        return TextButton(
-          style: TextButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.zero
-          ),
-          onPressed: isSinglePostView ? () {}
-              : () {
-                  Navigator.pushNamed(context, ViewPostPage.pageRoute, arguments: {
-                    "tweetData": tweetData,
-                    "tweetOwner": tweetOwner
-                  });
-                },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                // =================== user avatar ===================
-                Visibility(
-                  visible: !isSinglePostView,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Visibility(
-                          visible: tweetData.type == "retweet" && tweetData.reTweeter != null,
-                          child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
-                      const SizedBox(height: 10),
-                      CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 20,
-                          // TODO: handle the errors later
-                          backgroundImage: NetworkImage(tweetOwner.iconLink),
-                      ),
-                    ],
-                  ),
-                ),
-
-
-                // =================== some padding ===================
-                const SizedBox(width: 10),
-
-                //  =================== Tweet Body ===================
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      Visibility(
-                        visible: tweetData.type == "retweet" && !isSinglePostView,
-                          child: tweetData.reTweeter == null ? Container() :
-                          Text("${currentUserName == tweetData.reTweeter!.name ? "You" : tweetData.reTweeter!.name } reposted",style: TextStyle(color: Colors.grey),)),
-                      // =================== post owner data ===================
-                      tweetUserInfo(
-                          context,
-                          tweetData.id,
-                          tweetOwner,
-                          tweetData.creationTime,
-                          isSinglePostView,
-                          isDarkMode
-                      ),
-
-                      // =================== extra space for single post view ===================
-                      Visibility(
-                          visible: isSinglePostView,
-                          child: const SizedBox(height: 5)
-                      ),
-
-                      // =================== post content ===================
-                    RichText(
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: MAX_LINES_TO_SHOW,
-                        text: TextSpan(
-                            children: textToRichText(tweetData.description,isDarkMode),
-                            style: TextStyle(
-                                color: isDarkMode ? Colors.white : Colors.black
-                            )
-                        )
-                    ),
-
-
-                      // =================== media display here ===================
-                      // TODO: add video player and retweet
-                      Visibility(
-                        visible: (tweetData.media != null),
-                        child: tweetData.media == null ? const SizedBox() :
-                        TextButton(
-                            onPressed: () {/* TODO: open full screen image*/},
-                            onLongPress: () {
-                            showModalBottomSheet(
-                              showDragHandle: true,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20))),
-                              context: context,
-                              builder: (context) => buildSheet(context, [
-                                ["Post Photo", Icons.add_circle_outline, () {
-                                    // TODO: send the image to the add new post page and navigate
-                                }],
-                                ["Save Photo", Icons.download, () {
-                                    // TODO: save the image to the device
-                                }]
-                              ]),
-                            );
-                          },
-                            style: TextButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                padding: EdgeInsets.zero,
-                            ),
-                            child: Container(
-                                margin: const EdgeInsets.fromLTRB(0, 10, 0, 5),
-                                width: double.infinity,
-                                constraints: const BoxConstraints(maxHeight: 400),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0,),
-                                ),
-                                child: tweetData.mediaType == MediaType.VIDEO ?
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child:VideoPlayerWidget(
-                                      videoUrl: tweetData.media!,
-
-                                  )
-                                ) :
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child: Image.network(
-                                    tweetData.media!,fit:BoxFit.fill,
-                                    loadingBuilder: (context,child,loadingProgress){
-                                      return loadingProgress == null ? child :
-                                      Container(
-                                        color: Colors.transparent,
-                                        child: const Center(child: CircularProgressIndicator()),
-                                      );
-                                    },
-                                    errorBuilder: (_,exception, stack){
-                                      return Container(
-                                        color: Colors.transparent,
-                                        child: const Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.warning_amber,color:Colors.red),
-                                              Text("something went wrong",style: TextStyle(color: Colors.red),)
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                )),
-                        ),
-
-                      ),
-                      // =================== first row of single post view ===================
-                      Visibility(
-                          visible: isSinglePostView,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: RichText(
-                                  text: TextSpan(
-                                      text: DateFormat("hh:mm a . d MMMM yy . ").format(tweetData.creationTime),
-                                      style: const TextStyle(color: Colors.grey),
-                                      children: [
-                                        TextSpan(
-                                            text: NumberFormat.compact().format(tweetData.viewsNum),
-                                            style: TextStyle(
-                                                color: isDarkMode ? Colors.white : Colors.black,
-                                                fontWeight: FontWeight.bold
-                                            )
-                                        ),
-                                        const TextSpan(text: " Views")
-                                      ]
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                      ),
-
-                      // =================== divider one ===================
-                      Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 1)),
-
-                      // =================== second row of single post view ===================
-                      Visibility(
-                          visible: isSinglePostView,
-                          child: Row(
-                            children: [
-                              TextButton(
-                                  onPressed: (){
-                                    Navigator.pushNamed(context, UserListViewPage.pageRoute,
-                                      arguments: {
-                                        "pageTitle": "Reposted By",
-                                        "tweetID" : tweetData.id,
-                                        "providerType" : UserListViewFunction.GET_TWEET_REPOSTERS
-                                    });
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding:const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
-                                    backgroundColor: Colors.transparent,
-                                    foregroundColor: Colors.grey
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "${tweetData.repostsNum} ",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: isDarkMode ? Colors.white : Colors.black
-                                        )
-                                      ),
-                                      const Text(" Reposts"),
-                                    ],
-                                  )
-                              ),
-
-                              TextButton(
-                                  onPressed: (){
-                                    Navigator.pushNamed(context, UserListViewPage.pageRoute,
-                                        arguments: {
-                                          "pageTitle": "Liked By",
-                                          "tweetID" : tweetData.id,
-                                          "providerType" : UserListViewFunction.GET_TWEET_LIKERS
-                                        });
-                                  },
-                                  style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: Colors.grey
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                          "${tweetData.likesNum} ",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: isDarkMode ? Colors.white : Colors.black
-                                          )
-                                      ),
-                                      const Text(" Likes"),
-                                    ],
-                                  )
-                              ),
-
-                            ],
-                          )),
-
-                      // =================== divider two ===================
-                      Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 1)),
-
-
-                      // =================== action buttons row ===================
-                      Container(
-                        padding: EdgeInsets.zero,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: actionButtons
-                                .map((actionBtn) => actionBtn)
-                                .toList()),
-                      ),
-
-                      // =================== divider three ===================
-                      Visibility(visible: isSinglePostView, child: const Divider(thickness: 2,height: 10)),
-
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        );
-      }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => UserProfile(
+          username: tweetOwnerId,
+          isCurrUser: false
+      )),
     );
   }
 
 
+  // ui part
+  @override
+  Widget build(BuildContext context) {
 
-  void initActionButtons(BuildContext context, TweetData tweetData, bool singlePostView) {
-    String? userToken = Auth.getInstance(context).getCurrentUser()!.auth;
+    User currentUser = Auth.getInstance(context).getCurrentUser()!;
+    FeedProvider feedProvider = FeedProvider.getInstance(context);
 
-    actionButtons = [
-      TweetActionButton(
-        icon: FontAwesomeIcons.comment,
-        count: singlePostView ? null : tweetData.repliesNum,
+    int rowCount = widget.tweetOwner.name.length + widget.tweetOwner.id.length +
+        InputFormatting.calculateDateSincePost(widget.tweetData.creationTime).length;
 
-        isLikeButton: false,
-        isLiked: false,
-
-        isRetweet: false,
-        isRetweeted: false,
-
-        onPressed: () async {
-          dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
-            "reply" : tweetData,
-          });
-          if(retArguments["success"] != null && retArguments["success"] == true){
-            tweetData.repliesNum += 1;
+    actionButtons = initActionButtons(
+        context: context,
+        tweetData: widget.tweetData,
+        singlePostView: widget.isSinglePostView,
+        onCommentButtonClicked: () async {
+          await commentTweet(context, widget.tweetData,widget.parentFeed);
+          if(context.mounted && widget.parentFeed != null) {
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
           }
-          print("tweet prints ${tweetData.repliesNum}");
-          return tweetData.repliesNum;
         },
-      ),
-      TweetActionButton(
-        icon: FontAwesomeIcons.retweet,
-        count: singlePostView ? null : tweetData.repostsNum,
-
-        isLikeButton: false,
-        isLiked: tweetData.isRetweeted,
-
-        isRetweet: true,
-        isRetweeted: tweetData.isRetweeted,
-
-        onPressed: () async {
-          return await toggleRetweetTweet(userToken,tweetData.id);
+        onRetweetButtonClicked: () async {
+          bool isRetweeting = !widget.tweetData.isRetweeted;
+          bool success =  await toggleRetweetTweet(currentUser.auth,widget.tweetData);
+          if (!isRetweeting){
+            if (widget.parentFeed != null && (widget.deleteOnUndoRetweet ?? false)) {
+              widget.parentFeed?.deleteTweet(widget.tweetData.id);
+            }
+            if(success && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfPosts--;
+            }
+            updateState();
+          }
+          else{
+            if(success && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfPosts++;
+            }
+            updateState();
+          }
+          if(context.mounted && success) {
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+          }
+          return success;
+        },
+        onLikeButtonClicked: () async{
+          bool isLiked = widget.tweetData.isLiked;
+          bool success =  await toggleLikeTweet(context,currentUser.auth,widget.tweetData);
+          if (success){
+            if(isLiked && context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfLikes--;
+            }else if (context.mounted){
+              Auth.getInstance(context).getCurrentUser()!.numOfLikes++;
+            }
+            updateState();
+          }
+          if(context.mounted) {
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts,isCurrProfile: widget.parentFeed!.isInProfile);
+            feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes,isCurrProfile: widget.parentFeed!.isInProfile);
+          }
+          return success;
         }
-      ),
-      TweetActionButton(
-        icon: FontAwesomeIcons.heart,
-        count: singlePostView ? null : tweetData.likesNum,
+    );
 
-        isLikeButton: true,
-        isLiked: tweetData.isLiked,
+    return Consumer<ThemeProvider>(
+        builder: (_,__,___) {
+          bool isDarkMode = ThemeProvider.getInstance(context).isDark();
+          User currentUser = Auth.getInstance(context).getCurrentUser()!;
+          return TextButton(
+            style: TextButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.zero
+            ),
+            onPressed: widget.isSinglePostView ? () {}
+                : () async {
+              await Navigator.pushNamed(context, ViewPostPage.pageRoute, arguments: {
+                "tweetData": widget.tweetData,
+                "tweetOwner": widget.tweetOwner,
+                "cancelNavigationToUser" : widget.cancelSameUserNavigation
+              });
+              if (context.mounted) {
+                setState(() {});
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+              child: Table(
+                  columnWidths: {
+                    0 : FixedColumnWidth(!widget.isSinglePostView ? 40 : 0),
+                    1 : FixedColumnWidth(!widget.isSinglePostView ? 5 : 0),
+                    2 : const FlexColumnWidth(),
+                  },
+                  children: [
+                    TableRow(
+                      children: [
+                        // =================== user avatar ===================
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.fill,
+                          child: Visibility(
+                            visible: !widget.isSinglePostView,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Visibility(
+                                    visible: widget.tweetData.type == "retweet" && widget.tweetData.reTweeter != null,
+                                    child: const Icon(FontAwesomeIcons.retweet,size: 15,color: Colors.grey)),
+                                const SizedBox(height: 5),
+                                GestureDetector(
+                                  onTap: () => navigateToUserProfile(
+                                      currentUserId: currentUser.id,
+                                      tweetOwnerId: widget.tweetOwner.id
+                                  ),
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                    backgroundImage: NetworkImage(widget.tweetOwner.iconLink),
+                                  ),
+                                ),
 
-        isRetweet: false,
-        isRetweeted: tweetData.isRetweeted,
+                                const SizedBox(height: 5),
 
-        onPressed: (){
-          return toggleLikeTweet(context,userToken,tweetData.id);
+                                Visibility(
+                                  visible: widget.showVerticalDivider!,
+                                  child: const Expanded(
+                                    child: VerticalDivider(
+                                      width: 40,
+                                      thickness: 2,
+                                      color: Colors.blueGrey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // =================== some padding ===================
+                        Visibility(
+                            visible: !widget.isSinglePostView,
+                            child: const SizedBox(width: 5)
+                        ),
+
+                        //  =================== Tweet Body ===================
+                        Container(
+                          width: double.infinity,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Visibility(
+                                  visible: widget.tweetData.type == "retweet" && !widget.isSinglePostView,
+                                  child: widget.tweetData.reTweeter == null ? Container() :
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(currentUser.name == widget.tweetData.reTweeter!.name ?
+                                        "You" :
+                                        widget.tweetData.reTweeter!.name ,style: const TextStyle(color: Colors.grey),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const Text(" reposted", style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  )
+                              ),
+                              // =================== post owner data ===================
+                              tweetUserInfo(
+                                  context,
+                                  widget.tweetData.id,
+                                  widget.tweetOwner,
+                                  widget.tweetData.creationTime,
+                                  widget.isSinglePostView,
+                                  isDarkMode,
+                                  rowCount
+                              ),
+
+                              // =================== extra space for single post view ===================
+                              Visibility(
+                                  visible: widget.isSinglePostView,
+                                  child: const SizedBox(height: 5)
+                              ),
+
+                              // Replying To If it's there
+                              Visibility(
+                                  visible: widget.tweetData.replyingUserId != null,
+                                  child: widget.tweetData.replyingUserId == null ? const SizedBox() : Row(
+                                    children: [
+                                      const Text("Replying to ",style: TextStyle(color: Colors.grey),),
+                                      GestureDetector(
+                                          onTap: (){
+                                            navigateToUserProfile(
+                                                currentUserId: currentUser.id,
+                                                tweetOwnerId: widget.tweetData.replyingUserId!
+                                            );
+                                          },
+                                          child: Text(
+                                            "@${widget.tweetData.replyingUserId!}",
+                                            style: const TextStyle(color: Colors.blue),
+                                          )
+                                      )
+                                    ],
+                                  )
+                              ),
+
+                              Visibility(visible: widget.tweetData.replyingUserId != null,child: const SizedBox(height: 5,)),
+
+                              // =================== post content ===================
+                              RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: MAX_LINES_TO_SHOW,
+                                  text: TextSpan(
+                                      children: textToRichText(context, widget.tweetData.description,isDarkMode , currentUser.id),
+                                      style: TextStyle(
+                                          color: isDarkMode ? Colors.white : Colors.black
+                                      )
+                                  )
+                              ),
+
+                              // =================== media display here ===================
+                              Visibility(
+                                visible: (widget.tweetData.media != null),
+                                child: widget.tweetData.media == null ? const SizedBox() :
+                                TweetMedia(
+                                  tweetData: widget.tweetData,
+                                  parentFeed: widget.parentFeed,
+                                ),
+
+                              ),
+                              // =================== first row of single post view ===================
+                              Visibility(
+                                  visible: widget.isSinglePostView,
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: RichText(
+                                          text: TextSpan(
+                                              text: DateFormat("hh:mm a . d MMMM yy . ").format(widget.tweetData.creationTime),
+                                              style: const TextStyle(color: Colors.grey),
+                                              children: [
+                                                TextSpan(
+                                                    text: NumberFormat.compact().format(widget.tweetData.viewsNum),
+                                                    style: TextStyle(
+                                                        color: isDarkMode ? Colors.white : Colors.black,
+                                                        fontWeight: FontWeight.bold
+                                                    )
+                                                ),
+                                                const TextSpan(text: " Views")
+                                              ]
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                              ),
+
+                              // =================== divider one ===================
+                              Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
+
+                              // =================== second row of single post view ===================
+                              Visibility(
+                                  visible: widget.isSinglePostView,
+                                  child: Row(
+                                    children: [
+                                      TextButton(
+                                          onPressed: (){
+                                            Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                                arguments: {
+                                                  "pageTitle": "Retweeted By",
+                                                  "tweetID" : widget.tweetData.id,
+                                                  "userID" : null,
+                                                  "providerFunction" : ProviderFunction.GET_TWEET_REPOSTERS
+                                                });
+                                          },
+                                          style: TextButton.styleFrom(
+                                              padding:const EdgeInsets.symmetric(horizontal: 4,vertical: 8),
+                                              backgroundColor: Colors.transparent,
+                                              foregroundColor: Colors.grey
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                  "${widget.tweetData.repostsNum} ",
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      color: isDarkMode ? Colors.white : Colors.black
+                                                  )
+                                              ),
+                                              const Text(" Reposts"),
+                                            ],
+                                          )
+                                      ),
+
+                                      TextButton(
+                                          onPressed: (){
+                                            Navigator.pushNamed(context, UserListViewPage.pageRoute,
+                                                arguments: {
+                                                  "pageTitle": "Liked By",
+                                                  "tweetID" : widget.tweetData.id,
+                                                  "userID" : null,
+                                                  "providerFunction" : ProviderFunction.GET_TWEET_LIKERS
+                                                });
+                                          },
+                                          style: TextButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4,vertical: 15),
+                                              backgroundColor: Colors.transparent,
+                                              foregroundColor: Colors.grey
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                  "${widget.tweetData.likesNum} ",
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      color: isDarkMode ? Colors.white : Colors.black
+                                                  )
+                                              ),
+                                              const Text(" Likes"),
+                                            ],
+                                          )
+                                      ),
+
+                                    ],
+                                  )),
+
+                              // =================== divider two ===================
+                              Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 1)),
+
+
+                              // =================== action buttons row ===================
+                              Container(
+                                padding: EdgeInsets.zero,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: actionButtons
+                                        .map((actionBtn) => actionBtn)
+                                        .toList()),
+                              ),
+
+                              // =================== divider three ===================
+                              Visibility(visible: widget.isSinglePostView, child: const Divider(thickness: 2,height: 10)),
+
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ]
+              ),
+            ),
+          );
         }
-      ),
-      TweetActionButton(
-        icon: Icons.bar_chart,
-        count: singlePostView ? null : tweetData.viewsNum,
-
-        isLikeButton: false,
-        isLiked: false,
-
-        isRetweet: false,
-        isRetweeted: tweetData.isRetweeted,
-
-        onPressed: (){}
-      ),
-      TweetActionButton(
-        icon: Icons.share_outlined,
-        count: null,
-
-        isLikeButton: false,
-        isLiked: false,
-
-        isRetweet: false,
-        isRetweeted: tweetData.isRetweeted,
-
-        onPressed: () {}
-      ),
-    ];
+    );
   }
 
   Widget tweetUserInfo(
@@ -488,11 +495,13 @@ class Tweet extends StatelessWidget {
       User tweetOwner,
       DateTime tweetDate,
       bool isSinglePostView,
-      bool isDarkMode
+      bool isDarkMode,
+      int countRow
       )
   {
+    User? currentUser = Auth.getInstance(context).getCurrentUser();
     List<List> dotsBottomSheetData = [
-          // ===============================================================
+      // ===============================================================
       ["Not interested in ${tweetOwner.name}", Icons.cancel_outlined, () {
 
       }], // ===============================================================
@@ -500,113 +509,176 @@ class Tweet extends StatelessWidget {
 
       }], // ===============================================================
       [],
-      ["Follow @${tweetOwner.id}", Icons.person_add_alt_1_outlined, () {
-          // TODO: call the api to follow the post owner
+      [
+        tweetOwner.isFollowed ?? false ? "Unfollow @${tweetOwner.id}" : "Follow @${tweetOwner.id}",
+        Icons.person_add_alt_1_outlined, () {
+        if(currentUser != null){
+          tweetOwner.isFollowed! ?
+          Auth.getInstance(context).unfollow(tweetOwner.id,success: (followed){
+            widget.tweetData.tweetOwner.isFollowed = false;
+            FeedController homeFeed = FeedProvider.getInstance(context).getFeedControllerById(
+                context: context,
+                id: Home.feedID,
+                providerFunction: ProviderFunction.HOME_PAGE_TWEETS,
+                clearData: false
+            );
+            homeFeed.deleteUserTweets(tweetOwner.id);
+            homeFeed.updateFeeds();
+            // updateState();
+          }) :
+          Auth.getInstance(context).follow(tweetOwner.id,success: (followed){
+            widget.tweetData.tweetOwner.isFollowed = true;
+            updateState();
+          });
+        }
       }], // ===============================================================
-      ["Mute @${tweetOwner.id}", Icons.volume_off, () {
-          // TODO: call the api to mute the post owner
+      ["${tweetOwner.isWantedUserMuted! ? "Unmute" : "Mute"} @${tweetOwner.id}", Icons.volume_off, () async {
+        if (!tweetOwner.isWantedUserMuted!){
+          await Auth.getInstance(context).mute(tweetOwner.id,success: (res){
+            tweetOwner.isWantedUserMuted = true;
+            updateState();
+          });
+        }
+        else
+        {
+          await Auth.getInstance(context).unmute(tweetOwner.id,success: (res){
+            tweetOwner.isWantedUserMuted = false;
+            updateState();
+          });
+        }
+
       }], // ===============================================================
-      ["Block @${tweetOwner.id}", Icons.block, () {
-          // TODO: call the api to block the post owner
+      ["Block @${tweetOwner.id}", Icons.block, () async{
+        await Auth.getInstance(context).block(tweetOwner.id,tweetOwner.isFollowed!, widget.tweetData.isFollowingMe);
+        widget.parentFeed!.deleteUserTweets(tweetOwner.id);
+        updateState();
       }], // ===============================================================
     ];
-    if (Auth.getInstance(context).getCurrentUser() != null){
-      String? currentUserToken = Auth.getInstance(context).getCurrentUser()!.auth;
-      String currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
+    if (currentUser != null){
+      String? currentUserToken = currentUser.auth;
+      String currentUserId = currentUser.id;
       if (tweetOwner.id == currentUserId){
         dotsBottomSheetData = [
           ["Delete post",Icons.delete,() async {
-              bool success = await Tweets.deleteTweetById(currentUserToken!,tweetId);
-              if (success){
-                callBackToDelete(tweetId);
+            bool success = await Tweets.deleteTweetById(currentUserToken!,tweetId);
+            if (success){
+              if (widget.parentFeed == null ){
+                context.mounted ? Navigator.pop(context) : "";
               }
+              else {
+                if (widget.parentFeed != null){
+                  widget.parentFeed!.deleteUserTweets(tweetOwner.id);
+                  widget.parentFeed!.updateFeeds();
+                }
+                if (context.mounted) {
+                  Auth.getInstance(context).getCurrentUser()!.numOfPosts--;
+                }
+              }
+              updateState();
+            }
           }]
         ];
       }
     }
+    final currentUserId = Auth.getInstance(context).getCurrentUser()!.id;
+    String formattedDate = InputFormatting.calculateDateSincePost(tweetDate);
+
+    final normalNameAndIdRow = RichText(
+      softWrap: true,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+          style: const TextStyle(
+              color: Colors.grey, fontWeight: FontWeight.w400),
+          children: [
+            TextSpan(
+                text: tweetOwner.name,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black
+                )
+            ),
+            TextSpan(text: "@${tweetOwner.id}"),
+            TextSpan(text: " . ${formattedDate == "just now" ? "now" : formattedDate}",
+                style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400)
+            ),
+          ]),
+    );
+
+
 
     final upperRowNameField = isSinglePostView ?
     Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 20,
-            backgroundImage: NetworkImage(tweetOwner.iconLink)
+        GestureDetector(
+          onTap: () => navigateToUserProfile(
+              currentUserId: currentUserId,
+              tweetOwnerId: tweetOwner.id
+          ),
+          child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 20,
+              backgroundImage: NetworkImage(tweetOwner.iconLink)
+          ),
         ),
         const SizedBox(
           width: 10,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(tweetOwner.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black
-                )
-            ),
-            Text(
-                "@${tweetOwner.id}",
-                style: const TextStyle(
-                    color: Colors.grey, fontWeight: FontWeight.w400
-                )
-            )
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  tweetOwner.name,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? Colors.white : Colors.black
+                  ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                  "@${tweetOwner.id}",
+                  style: const TextStyle(
+                      color: Colors.grey, fontWeight: FontWeight.w400
+                  ),
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
+          ),
         ),
       ],
     ) :
     Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-            tweetOwner.name,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black
-            )
-        ),
-        RichText(
-            text: TextSpan(
-                style: const TextStyle(
-                    color: Colors.grey, fontWeight: FontWeight.w400),
-                children: [
-              TextSpan(text: "@${tweetOwner.id}"),
-              TextSpan(
-                  text:
-                      " . ${InputFormatting.calculateDateSincePost(tweetDate)}")
-            ])),
+        countRow > 25 ?
+        Expanded(
+            child: normalNameAndIdRow
+        ) : normalNameAndIdRow,
       ],
     );
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-
-        GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserProfile(
-                    username: tweetOwner.id,
-                    isCurrUser: false
-                )),
-              );
-            },
-            child: upperRowNameField
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: upperRowNameField,
+          ),
         ),
-
-        const Expanded(child: SizedBox()),
 
         Visibility(
           visible: isSinglePostView,
           child: SizedBox(
               height: 20,
-              width: 80,
-              // TODO: must be changed to whatever the current user state with this post owner
+              width: 100,
               child: Visibility(
                 visible: tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
                 child: FollowButton(
                     isFollowed: tweetOwner.isFollowed ?? false,
-                    callBack: (bool followed) {},
+                    callBack: (bool followed) {tweetOwner.isFollowed = followed;},
                     username: tweetOwner.id
                 ),
               )

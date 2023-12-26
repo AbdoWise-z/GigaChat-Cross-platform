@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/pages/loading-page.dart';
@@ -18,18 +19,51 @@ class Gallery{
         List<File> selected = const []
       }) async {
 
-    List<TypedEntity> paths =
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => _GalleryWidget(
-          canSkip: canSkip,
-          selectMax: selectMax,
-          cameraEnabled: cameraEnabled,
-          selected: selected,
+    List<TypedEntity> paths = [];
+    if (Platform.isAndroid) {
+      paths =
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              _GalleryWidget(
+                canSkip: canSkip,
+                selectMax: selectMax,
+                cameraEnabled: cameraEnabled,
+                selected: selected,
+              ),
         ),
-      ),
-    );
+      );
+    } else {
+      for (var i in selected){
+        paths.add(
+            TypedEntity(
+              path: i,
+              type: i.path.endsWith(".mp4") || i.path.endsWith(".m4a") ? AssetType.video : AssetType.image,
+            )
+        );
+      }
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        dialogTitle: "Select file to add",
+        type: FileType.media,
+        allowedExtensions: [".mp4", ".jpg" , ".jpeg" , ".png" , ".gif" , ".m4a"],
+        lockParentWindow: true,
+        allowMultiple: true,
+      );
+      if (result != null){
+        for (var i in result.paths){
+          paths.add(
+              TypedEntity(
+                  path: File(i!),
+                  type: i.endsWith(".mp4") || i.endsWith(".m4a") ? AssetType.video : AssetType.image,
+              )
+          );
+          if (paths.length == selectMax){
+            break;
+          }
+        }
+      }
+    }
 
     return paths;
   }

@@ -1,5 +1,8 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/AppNavigator.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
@@ -45,14 +48,14 @@ class _EditProfileState extends State<EditProfile> {
   bool failed = false;
   bool bannerChanged = false;
   bool avatarChanged = false;
+  bool bannerDeleted = false;
 
   void editImage(bool isProfileAvatar){
     File selectedImage;
-    Auth auth = Auth.getInstance(context);
     showMenu(
       context: context,
       position: const RelativeRect.fromLTRB(55, 325, 55, 325),
-      items: [
+      items: isProfileAvatar || newBannerImageUrl == "" ? <PopupMenuEntry>[
         PopupMenuItem(
           child: const Text("Take photo"),
           onTap: () async {
@@ -77,7 +80,42 @@ class _EditProfileState extends State<EditProfile> {
             },
             child: const Text("Choose existing photo              ")
         ),
+      ] : <PopupMenuEntry>[
+        PopupMenuItem(
+          child: const Text("Take photo"),
+          onTap: () async {
+            selectedImage = await getImageFromCamera(!isProfileAvatar);
+            if(selectedImage.path.isNotEmpty){
+              setState(() {
+                bannerChanged = true;
+                selectedBanner = selectedImage;
+              });
+            }
+          },
+        ),
+        PopupMenuItem(
+            onTap: () async {
+              selectedImage = await getImageFromGallery(!isProfileAvatar);
+              if(selectedImage.path.isNotEmpty){
+                setState(() {
+                  bannerChanged = true;
+                  selectedBanner = selectedImage;
+                });
+              }
+            },
+            child: const Text("Choose existing photo              ")
+        ),
+        PopupMenuItem(
+          onTap: () {
+            setState(() {
+              newBannerImageUrl = "";
+              bannerDeleted = true;
+            });
+          },
+          child: Text("Remove header"),
+        )
       ],
+
     );
 }
 
@@ -137,8 +175,18 @@ class _EditProfileState extends State<EditProfile> {
         }
       );
     }
+    if(bannerDeleted){
+      await auth.deleteUserBanner(
+        success: (res){
+          newBannerImageUrl = "";
+        },
+        error: (res){
+          failed = true;
+        }
+      );
+    }
     if(context.mounted){
-      Navigator.pop(context); //to pop the alert dialog
+      Globals.appNavigator.currentState!.pop();
       if(failed) {
         Toast.showToast(context, "Failed to update profile");
       }
@@ -212,12 +260,12 @@ class _EditProfileState extends State<EditProfile> {
                           width: double.infinity,
                           child: bannerChanged? Image.file(
                             selectedBanner,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ) :
                           newBannerImageUrl == ""? null :
                           Image.network(
                             newBannerImageUrl,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -243,6 +291,7 @@ class _EditProfileState extends State<EditProfile> {
                           onTap: (){
                             setState(() {});
                           },
+                          maxLength: 50,
                         ),
                         const SizedBox(height: 15,),
                         Text("Bio",style: TextStyle(color: Colors.grey[700]),),
@@ -267,6 +316,7 @@ class _EditProfileState extends State<EditProfile> {
                         const SizedBox(height: 15,),
                         Text("Website",style: TextStyle(color: Colors.grey[700]),),
                         TextFormField(
+                          readOnly: true,
                           controller: inputWebsite,
                           onTap: (){
                             setState(() {});
@@ -335,7 +385,7 @@ class _EditProfileState extends State<EditProfile> {
             height: 100,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
-              initialDateTime: DateTime.now(),
+              initialDateTime: nonFormattedDate,
               maximumDate: DateTime.now(),
               onDateTimeChanged: (input){
                 setState(() {

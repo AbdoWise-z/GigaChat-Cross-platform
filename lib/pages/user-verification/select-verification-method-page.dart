@@ -18,8 +18,9 @@ const String CONFIRMATION_METHOD_DESCRIPTION =
 class VerificationMethodPage extends StatefulWidget {
   String pageRoute = "/test";
   List<ContactMethod> methods;
+  bool isLogged;
 
-  VerificationMethodPage({super.key, required this.methods});
+  VerificationMethodPage({super.key, required this.methods, required this.isLogged});
 
   @override
   State<VerificationMethodPage> createState() => _VerificationMethodPageState();
@@ -47,7 +48,7 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
 
     Auth auth = Auth.getInstance(context);
 
-    auth.requestVerificationMethod(
+    auth.forgotPassword(
       m ,
       success: (res) {
         setState(() {
@@ -55,7 +56,9 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
             context,
             MaterialPageRoute(
               builder: (context) => VerificationCodePage(
+                isLogged: widget.isLogged,
                 isRegister: false,
+                isVerify: false,
                 method: m,
               ),
             ),
@@ -81,45 +84,52 @@ class _VerificationMethodPageState extends State<VerificationMethodPage> {
         context,
         leadingIcon: IconButton(
           onPressed: () {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
+            widget.isLogged? Navigator.pop(context) :
+            Navigator.popUntil(context, ModalRoute.withName('/')
+            );
           },
-          icon: const Icon(Icons.close),
+          icon: widget.isLogged? const Icon(Icons.arrow_back): const Icon(Icons.close),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const PageTitle(title: CONFIRMATION_METHOD_TITLE),
-              const SizedBox(height: 20),
-              const PageDescription(
-                  description: CONFIRMATION_METHOD_DESCRIPTION),
-              const SizedBox(height: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: methods
-                    .map((method) => RadioListTile(
-                          title: Text(method.title,
-                              style: contactTextStyle()),
-                          subtitle: Text(method.disc,
-                              style: contactTextStyle()),
-                          toggleable: false,
-                          activeColor: Colors.blue,
-                          contentPadding: const EdgeInsets.all(0),
-                          groupValue: selectedMethod,
-                          value: method,
-                          controlAffinity: ListTileControlAffinity.trailing,
-                          onChanged: (change) {
-                            setState(() {
-                              selectedMethod = change;
-                            });
-                          },
-                        ))
-                    .toList(),
-              ),
-            ],
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PageTitle(title: CONFIRMATION_METHOD_TITLE),
+                const SizedBox(height: 20),
+                const PageDescription(
+                    description: CONFIRMATION_METHOD_DESCRIPTION),
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: methods
+                      .map((method) => RadioListTile(
+                            title: Text(method.title,
+                                style: contactTextStyle()),
+                            subtitle: Text(method.disc,
+                                style: contactTextStyle()),
+                            toggleable: false,
+                            activeColor: Colors.blue,
+                            contentPadding: const EdgeInsets.all(0),
+                            groupValue: selectedMethod,
+                            value: method,
+                            controlAffinity: ListTileControlAffinity.trailing,
+                            onChanged: (change) {
+                              setState(() {
+                                selectedMethod = change;
+                              });
+                            },
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

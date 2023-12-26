@@ -21,14 +21,24 @@ class IntermediateTweetData{
   });
 }
 
+class MediaData{
+  static int tagNumber = 0;
+  MediaType mediaType;
+  String mediaUrl;
+  String? tag;
+  MediaData({required this.mediaType, required this.mediaUrl}){
+    tag = "Media $mediaUrl $tagNumber";
+    tagNumber++;
+  }
+}
+
 class TweetData
 {
   final String id;
-  final String referredTweetId;
+  final String? referredTweetId;
   final String description;
 
-  final MediaType mediaType;
-  final String? media;
+  List<MediaData>? media;
   final List<MediaObject> mediaL;
 
   int viewsNum;
@@ -43,9 +53,12 @@ class TweetData
   final User tweetOwner;
 
   bool isLiked;
-
+  bool isFollowingMe;
   bool isRetweeted;
   User? reTweeter;
+
+  TweetData? replyTweet;
+  String? replyingUserId;
 
   TweetData({
     required this.id,
@@ -62,7 +75,11 @@ class TweetData
     required this.isLiked,
     this.reTweeter,
     required this.isRetweeted,
-    required this.mediaType,
     required this.media,
-  });
+    required this.isFollowingMe,
+    this.replyTweet,
+    this.replyingUserId
+  }){
+    if (media != null && media!.isEmpty) media = null;
+  }
 }

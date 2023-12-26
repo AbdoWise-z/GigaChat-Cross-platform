@@ -79,52 +79,59 @@ class _ChooseUsernameState extends State<ChooseUsername> {
             showDefault: false,
           ),
           body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                   SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("What should we call you?",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                          ),
+            child: Center(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: 600,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                       SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("What should we call you?",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                              ),
+                            ),
+                            const SizedBox(height: 10,),
+                            const Text("Your @username is unique. You can always change it later.",
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 15,),
+                            TextFormField(
+                              key: usernameFieldKey,
+                              controller: inputUsername,
+                              autofocus: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator: InputValidations.isValidUsername,
+                              onChanged: (String input) async {
+                                await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
+                                setState(() {});
+                              },
+                              decoration: InputDecoration(
+                                labelText: "Username",
+                                errorMaxLines: 2,
+                                border: const OutlineInputBorder(),
+                                suffixIcon: inputUsername.text.isEmpty ? null : (usernameFieldKey.currentState == null || usernameFieldKey.currentState!.isValid) ?
+                                const Icon(Icons.check_circle_sharp, color: CupertinoColors.systemGreen,) :
+                                const Icon(Icons.error,color: Colors.red,),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10,),
-                        const Text("Your @username is unique. You can always change it later.",
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 15,),
-                        TextFormField(
-                          key: usernameFieldKey,
-                          controller: inputUsername,
-                          autofocus: true,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: InputValidations.isValidUsername,
-                          onChanged: (String input) async {
-                            await Future.delayed(const Duration(milliseconds: 50));  //wait for validator
-                            setState(() {});
-                          },
-                          decoration: InputDecoration(
-                            labelText: "Username",
-                            errorMaxLines: 2,
-                            border: const OutlineInputBorder(),
-                            suffixIcon: inputUsername.text.isEmpty ? null : (usernameFieldKey.currentState == null || usernameFieldKey.currentState!.isValid) ?
-                            const Icon(Icons.check_circle_sharp, color: CupertinoColors.systemGreen,) :
-                            const Icon(Icons.error,color: Colors.red,),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -17,8 +16,6 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
-import 'dart:math';
-
 import 'package:photo_manager/photo_manager.dart';
 
 class CreatePostPage extends StatefulWidget {
@@ -67,9 +64,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() {
       _loading = true;
     });
+    List<TweetData> returnList = [];
 
     for (var k in _posts){
-      if (k.currentState!.controller.text.isEmpty){
+      if (k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty){
         Toast.showToast(context, "post cannot be empty");
         setState(() {
           _loading = false;
@@ -117,10 +115,36 @@ class _CreatePostPageState extends State<CreatePostPage> {
         referredTweetId: ref,
         type: ref == null ? TweetType.TWEET : TweetType.REPLY,
       );
+
       if (!await sendTweet(
         auth.getCurrentUser()!,
         data ,
-        success: (v) => ref = v.data!,
+        success: (v) {
+          ref = v.data!;
+          auth.getCurrentUser()!.numOfPosts++;
+          TweetData tweetData = TweetData(
+              id: ref!,
+              referredTweetId: data.referredTweetId,
+              description: data.description,
+              viewsNum: 0,
+              likesNum: 0,
+              repliesNum: 0,
+              repostsNum: 0,
+              creationTime: DateTime.now(),
+              type: data.referredTweetId == null ? "tweet" : "reply",
+              tweetOwner: auth.getCurrentUser()!,
+              isLiked: false,
+              isRetweeted: false,
+              isFollowingMe: false,
+              media: data.media.isEmpty ? null :
+              data.media.map((e) => MediaData(mediaType: e.type, mediaUrl: e.link)).toList(),
+              replyingUserId: _replyTweet == null ? null : _replyTweet!.tweetOwner.id
+          );
+          returnList.add(tweetData);
+          if (_replyTweet != null) {
+            _replyTweet!.replyTweet = tweetData;
+          }
+        } ,
         error: (v) => print(v.responseBody),
       )) {
         if (ref != null && _replyTweet == null){
@@ -141,7 +165,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     //TODO: add the return result if needed
     if (!context.mounted) return;
-    if (!error) Navigator.pop(context,{"success":true});
+
+
+    if (!error) Navigator.pop(context,{"success":true, "tweets" : returnList});
     setState(() {
       _loading = false;
     });
@@ -205,7 +231,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     bool canPost = true;
     for (var k in _posts){
-      if (k.currentState != null && (k.currentState!.controller.text.isEmpty || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
+      if (k.currentState != null
+          && ((k.currentState!.controller.text.isEmpty && k.currentState!.media.isEmpty) || k.currentState!.controller.text.length > MAX_POST_LENGTH)){
         canPost = false;
         break;
       }
@@ -254,7 +281,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         Navigator.push(context, PageRouteBuilder(
                           opaque: false,
                           pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-                            return HintDialog();
+                            return const HintDialog();
                           },
                         ));
                       },
@@ -349,7 +376,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       controller: _scrollController,
                       child: Column(
                         children: [
-
                           (_replyTweet != null) ?
                           PostStaticViewer(
                             key: _PostKey,

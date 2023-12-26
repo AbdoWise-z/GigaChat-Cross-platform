@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 

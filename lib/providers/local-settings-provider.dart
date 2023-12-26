@@ -13,7 +13,16 @@ class LocalSettings extends ChangeNotifier {
 
   Map<String,dynamic> _values = {};
 
-  LocalSettings();
+  static final LocalSettings _localSettings = LocalSettings._internal();
+  LocalSettings._internal();
+
+  factory LocalSettings() {
+    return _localSettings;
+  }
+
+  static LocalSettings get instance{
+    return LocalSettings();
+}
 
   ///
   /// this function must be called before the application starts

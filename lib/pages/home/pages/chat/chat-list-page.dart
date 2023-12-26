@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
+import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-page.dart';
 import 'package:gigachat/pages/home/pages/chat/widgets/chat-list-item.dart';
+import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/chat-provider.dart';
+import 'package:provider/provider.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -11,47 +16,21 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> {
-  List<ChatObject> _chats = [];
+  final ScrollController _controller = ScrollController();
 
   bool _loading = false;
-  void _loadChats(){
+  Future<void> _loadChats() async {
     setState(() {
       _loading = true;
     });
 
-    _chats.add(
-      ChatObject(
-        lastMessage: "Come closer",
-      ),
-    );
-
-    _chats.add(
-      ChatObject(
-        lastMessage: "I dont have much time",
-      ),
-    );
-
-    _chats.add(
-      ChatObject(
-        lastMessage: "I need to tell yo...",
-      ),
-    );
-
-    _chats.add(
-      ChatObject(
-        lastMessage: ".............",
-      ),
-    );
-
-    Future.delayed(const Duration(seconds: 1));
-
+    await ChatProvider.instance.reloadChats(Auth().getCurrentUser()!.auth! , notify: false);
     setState(() {
       _loading = false;
     });
   }
 
   void _createDialog(ChatObject e){
-
     AlertDialog dialog = AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -101,93 +80,137 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   void initState() {
     super.initState();
-    _loadChats();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    List<ChatObject> pinned = [];
-    List<ChatObject> notPinned = [];
-    for (var e in _chats) {
-      if (e.pinned) {
-        pinned.add(e);
-      } else {
-        notPinned.add(e);
-      }
+    if (_loading){
+      return const LoadingPage();
     }
 
-    return StretchingOverscrollIndicator(
-      axisDirection: AxisDirection.down,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
 
-            Visibility(
-              visible: pinned.isNotEmpty,
-              child: const Padding(
-                key: ValueKey(1),
-                padding: EdgeInsets.only(
-                  left: 8,
-                  top: 20,
-                ),
-                child: Text(
-                  "Pinned conversations",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
+    return Consumer<ChatProvider>(builder: (_ , __ , ___){
+      List<ChatObject> pinned = [];
+      List<ChatObject> notPinned = [];
+      List<ChatObject> _chats = ChatProvider.instance.getCurrentChats();
+      for (var e in _chats) {
+        if (e.pinned) {
+          pinned.add(e);
+        } else {
+          notPinned.add(e);
+        }
+      }
+
+      return RefreshIndicator(
+        onRefresh: () async {
+          await _loadChats();
+        },
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            controller: _controller,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Visibility(
+                  visible: _chats.isEmpty,
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 200 , left: 20 , right: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "No messages yet",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,),
+                          ),
+                          Text(
+                            "search for users to starting messaging!",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            ...
-            pinned.map((e) => ChatListItem(
-              object: e,
-              longPress: () {
-                _createDialog(e);
-              },
-              press: () {
-                //TODO: implement the real chat
-                Navigator.pushNamed(context, "/chat");
-              },
-            )).toList()
-            ,
-
-            Visibility(
-              visible: pinned.isNotEmpty && notPinned.isNotEmpty,
-              child: const Padding(
-                key: ValueKey(1),
-                padding: EdgeInsets.only(
-                  left: 8,
-                  top: 20,
-                ),
-                child: Text(
-                  "All conversations",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
+                Visibility(
+                  visible: pinned.isNotEmpty,
+                  child: const Padding(
+                    key: ValueKey(1),
+                    padding: EdgeInsets.only(
+                      left: 8,
+                      top: 20,
+                    ),
+                    child: Text(
+                      "Pinned conversations",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            ...
-            notPinned.map((e) => ChatListItem(
-              object: e,
-              longPress: () {
-                _createDialog(e);
-              },
-              press: () {
-                //TODO: implement the real chat
-                Navigator.pushNamed(context, "/chat");
-              },
-            )).toList()
-            ,
-          ],
+                ...
+                pinned.map((e) => ChatListItem(
+                  object: e,
+                  longPress: () {
+                    //_createDialog(e);
+                  },
+                  press: () async {
+                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                      "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked),
+                      "message" : e.lastMessage,
+                    });
+                  },
+                )).toList(),
+
+                Visibility(
+                  visible: pinned.isNotEmpty && notPinned.isNotEmpty,
+                  child: const Padding(
+                    key: ValueKey(1),
+                    padding: EdgeInsets.only(
+                      left: 8,
+                      top: 20,
+                    ),
+                    child: Text(
+                      "All conversations",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                ),
+
+                ...
+                notPinned.map((e) => ChatListItem(
+                  object: e,
+                  longPress: () {
+                    //_createDialog(e);
+                  },
+                  press: () async {
+                    Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
+                      "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked),
+                      "message" : e.lastMessage,
+                    });
+                  },
+                )).toList(),
+              ],
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

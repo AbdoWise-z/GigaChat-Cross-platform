@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/chat-class.dart';
@@ -39,9 +38,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
     );
 
     _controller.addListener(() {
-      widget.onSizeChange();
-
       setState(() {
+        widget.onSizeChange();
       });
     });
 
@@ -75,8 +73,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
-
   }
 
   final GlobalKey _textFieldKey = GlobalKey();
@@ -90,8 +88,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _media != null ? Container(
-          width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
-          height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
+          width: 85 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+          height: 85 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
           alignment: Alignment.topRight,
           margin: const EdgeInsets.only(bottom: 5,right: 5),
           decoration: BoxDecoration(
@@ -109,10 +107,10 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                   _media!.path,
                   fit: BoxFit.fill,
                 ) :SizedBox(
-                  width: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
-                  height: 80 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
+                  width: 110 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value, //these numbers are totally based on my taste
+                  height: 110 * (_media!.type == AssetType.video ? 3 : 1) + 30.0 * _appear.value,
                   child: LocalVideoPlayer(
-                    file: _media!.path.path,
+                    path: _media!.path.path,
                   ),
                 ),
               ),
@@ -205,7 +203,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
                         var selected = await Gallery.selectFromGallery(
                           context ,
-                          selected: m == null ? [] : [m!.path],
+                          selected: m == null ? [] : [m.path],
                           canSkip: true,
                           selectMax: 1,
                         );
@@ -240,7 +238,7 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
 
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 300),
-                      opacity: _textEditingController.text.isNotEmpty ? 1 : 0,
+                      opacity: _textEditingController.text.isNotEmpty || _media != null ? 1 : 0,
                       child: SizedBox(
                         width: 35,
                         height: 35,
@@ -252,8 +250,8 @@ class _MessageInputAreaState extends State<MessageInputArea> with SingleTickerPr
                             onPressed: () async {
                               widget.onMessage(
                                 ChatMessageObject(
-                                  id: "none",
-                                  text: _textEditingController.text,
+                                  uuid: "none",
+                                  text: _textEditingController.text.isEmpty ? null : _textEditingController.text,
                                   media: _media == null ? null : MediaObject(link: _media!.path.path, type: _media!.type == AssetType.image ? MediaType.IMAGE : MediaType.VIDEO),
                                   self: true,
                                   time: DateTime.now(),

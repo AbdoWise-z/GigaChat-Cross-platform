@@ -22,7 +22,7 @@ class FollowButton extends StatelessWidget {
         "Follow",
         style: TextStyle(
           color: textColor,
-        ),//TODO: change later
+        ),
       ),
     );
   }

@@ -15,7 +15,7 @@ void main(){
     // executing testing
     await tester.pumpWidget(
         MaterialApp(
-            home: GigaChat(initialRoute: UsernameLoginPage.pageRoute , locals: LocalSettings(),)
+            home: GigaChat(initialRoute: UsernameLoginPage.pageRoute)
         )
     );
 

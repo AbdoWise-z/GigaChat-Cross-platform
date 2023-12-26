@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/providers/auth.dart';
-import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -45,12 +44,6 @@ class _CreatePasswordState extends State<CreatePassword> {
                 print(res.code);
                 print(res.responseBody);
 
-                var settings = LocalSettings.getInstance(context);
-                settings.setValue<String>(name: "username", val: auth.getCurrentUser()!.email);
-                settings.setValue<String>(name: "password", val: newPassword);
-                settings.setValue<bool>(name: "login", val: true);
-                settings.apply();
-
                 _loading = false;
                 Navigator.pushReplacementNamed(context, PickProfilePicture.pageRoute);
               });
@@ -81,36 +74,43 @@ class _CreatePasswordState extends State<CreatePassword> {
       children: [
         Scaffold(
           appBar: AuthAppBar(context, leadingIcon: null, showDefault: false),
-          body: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "You'll need a password",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          body: Center(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: 600,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "You'll need a password",
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      "Make sure it's 8 characters or more.",
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    PasswordFormField(
+                      passwordKey: passwordKey,
+                      onChanged: (String input) async {
+                        inputPassword = input;
+                        await Future.delayed(
+                            const Duration(milliseconds: 50)); //wait for validator
+                        setState(() {});
+                      },
+                      label: 'Password',
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  "Make sure it's 8 characters or more.",
-                  style: TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                PasswordFormField(
-                  passwordKey: passwordKey,
-                  onChanged: (String input) async {
-                    inputPassword = input;
-                    await Future.delayed(
-                        const Duration(milliseconds: 50)); //wait for validator
-                    setState(() {});
-                  },
-                  label: 'Password',
-                ),
-              ],
+              ),
             ),
           ),
           bottomSheet: AuthFooter(

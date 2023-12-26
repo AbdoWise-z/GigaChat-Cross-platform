@@ -13,16 +13,20 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 
+import '../home/home.dart';
+
 const String CODE_VERIFICATION_DESCRIPTION =
     "Check your email to get your confirmation"
-    " code. if you need to request a new code, go back and reselect confirmation";
+    " code.";
 
 class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
   bool isRegister;
+  bool isVerify;
+  bool isLogged;
   ContactMethod method;
-  VerificationCodePage({super.key, required this.isRegister , required this.method});
+  VerificationCodePage({super.key, required this.isRegister , required this.method,required this.isVerify, required this.isLogged});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
@@ -67,7 +71,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
 
     Auth auth = Auth.getInstance(context);
 
-    auth.requestVerificationMethod(
+    widget.isRegister || widget.isVerify?  auth.requestVerificationMethod(
       m ,
       success: (res) {
         setState(() {
@@ -77,6 +81,21 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         });
       },
       error: (res) {
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = true;
+        });
+      },
+    ) : auth.forgotPassword(
+      m,
+      success: (res){
+        setState(() {
+          _resendLoading = false;
+          resendEmailIsEnabled = false;
+          enableResendEmail();
+        });
+      },
+      error: (res){
         setState(() {
           _resendLoading = false;
           resendEmailIsEnabled = true;
@@ -95,15 +114,18 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
 
     Auth auth = Auth.getInstance(context);
 
-    await auth.verifyMethod(
+    widget.isRegister || widget.isVerify? await auth.verifyMethod(
       m,
       code,
-
+      auth.getCurrentUser() != null? auth.getCurrentUser()!.auth : null,
+      widget.isVerify,
       success: (res) {
-        if (widget.isRegister){
+        if(widget.isVerify && widget.isRegister){
+          Navigator.popUntil(context, (route) => false);
+          Navigator.pushNamed(context, Home.pageRoute);
+        }
+        else if (widget.isRegister){
           Navigator.pushReplacementNamed(context, CreatePassword.pageRoute);
-        }else{
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewPasswordPage()));
         }
       },
       error: (res) {
@@ -113,6 +135,24 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           Toast.showToast(context, "Wrong code");
         }
       },
+    ) :
+    auth.checkForgotPasswordCode(
+      code,
+      success: (res){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) =>
+                NewPasswordPage(code: code, email: widget.method.data!,isLogged: widget.isLogged,)
+            )
+        );
+      },
+      error: (res){
+        print(res.code);
+        print(res.responseBody);
+        if (res.code == ApiResponse.CODE_BAD_REQUEST){
+          Toast.showToast(context, "Wrong code");
+        }
+      }
     );
 
     setState(() {
@@ -131,69 +171,77 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
         context,
         leadingIcon: widget.isRegister ? null: IconButton(
           onPressed: () {
+            widget.isLogged? Navigator.pop(context) :
             Navigator.popUntil(context, ModalRoute.withName('/'));
           },
           icon: const Icon(Icons.close),
         ),
         showDefault: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageTitle(title: "We sent you a code"),
-            const SizedBox(height: 15),
-            PageDescription(description: widget.isRegister ? "Enter it below to verify ${widget.method.data}." : CODE_VERIFICATION_DESCRIPTION),
-            const SizedBox(height: 20),
-            TextDataFormField(
-                keyboardType: widget.isRegister? TextInputType.number : TextInputType.text,
-                label: "Enter your code",
-                onChange: (value) {
-                  setState(() {
-                    code = value;
-                    valid = value.isNotEmpty;
-                  });
-                }),
-            const SizedBox(height: 25,),
-
-            Row(
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: resendEmailIsEnabled && !_resendLoading ? () => _requestCode(widget.method) : null,
-                  child: Text(
-                    resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",
-                    style: TextStyle(
-                        color: resendEmailIsEnabled && !_resendLoading ? Colors.blue : Colors.grey
+                const PageTitle(title: "We sent you a code"),
+                const SizedBox(height: 15),
+                PageDescription(description: widget.isRegister ? "Enter it below to verify ${widget.method.data}." : CODE_VERIFICATION_DESCRIPTION),
+                const SizedBox(height: 20),
+                TextDataFormField(
+                    keyboardType: widget.isRegister? TextInputType.number : TextInputType.text,
+                    label: "Enter your code",
+                    onChange: (value) {
+                      setState(() {
+                        code = value;
+                        valid = value.isNotEmpty;
+                      });
+                    }),
+                const SizedBox(height: 25,),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: resendEmailIsEnabled && !_resendLoading ? () => _requestCode(widget.method) : null,
+                      child: Text(
+                        resendEmailIsEnabled? "Resend email?": "Resend email after ($counter)sec",
+                        style: TextStyle(
+                            color: resendEmailIsEnabled && !_resendLoading ? Colors.blue : Colors.grey
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 20,),
-                Visibility(
-                  visible: _resendLoading,
-                  child: const SizedBox(
-                    width: 10,
-                    height: 10,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+                    const SizedBox(width: 20,),
+                    Visibility(
+                      visible: _resendLoading,
+                      child: const SizedBox(
+                        width: 10,
+                        height: 10,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const Expanded(child: SizedBox()),
+                AuthFooter(
+                  rightButtonLabel: "Next",
+                  disableRightButton: !valid,
+                  onRightButtonPressed: () => _verifyCode(widget.method , code),
+
+                  leftButtonLabel: "Back",
+                  onLeftButtonPressed: (){
+                    Navigator.pop(context);
+                  },
+                  showLeftButton: !widget.isRegister,
+                )
               ],
             ),
-            const Expanded(child: SizedBox()),
-            AuthFooter(
-              rightButtonLabel: "Next",
-              disableRightButton: !valid,
-              onRightButtonPressed: () => _verifyCode(widget.method , code),
-
-              leftButtonLabel: "Back",
-              onLeftButtonPressed: (){
-                Navigator.pop(context);
-              },
-              showLeftButton: !widget.isRegister,
-            )
-          ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 
 class GalleryGridItem extends StatefulWidget {
   final bool enabled;
@@ -22,14 +23,16 @@ class GalleryGridItem extends StatefulWidget {
 
 class _GalleryGridItemState extends State<GalleryGridItem> with SingleTickerProviderStateMixin{
   late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-  VideoPlayerController? videoPlayerController;
+  Player? player;
+  VideoController? videoPlayerController;
+
 
   Future<void> _initVideoPlayer() async {
     if (widget.entity.entity.type != AssetType.video) return;
-    videoPlayerController = VideoPlayerController.file(widget.entity.path);
-    await videoPlayerController!.initialize();
-    await videoPlayerController!.setVolume(0); //play muted
-    await videoPlayerController!.play();
+    player = Player();
+    videoPlayerController = VideoController(player!);
+    await player!.open(Media(widget.entity.path.path));
+    await player!.setVolume(0);
 
     setState(() {});
   }
@@ -37,8 +40,8 @@ class _GalleryGridItemState extends State<GalleryGridItem> with SingleTickerProv
   @override
   void dispose() {
     super.dispose();
-    if (videoPlayerController != null){
-      videoPlayerController!.dispose();
+    if (player != null){
+      player!.dispose();
     }
   }
 
@@ -84,7 +87,7 @@ class _GalleryGridItemState extends State<GalleryGridItem> with SingleTickerProv
                   ) : videoPlayerController == null ? const Padding(
                     padding: EdgeInsets.all(34.0),
                     child: CircularProgressIndicator(),
-                  ) : VideoPlayer(videoPlayerController!),
+                  ) : Video(controller: videoPlayerController!,controls: null,),
                 ),
               ),
               Visibility(

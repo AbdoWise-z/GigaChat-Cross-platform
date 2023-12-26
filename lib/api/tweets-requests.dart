@@ -9,7 +9,6 @@ import "package:gigachat/api/user-class.dart";
 
 class Tweets {
 
-  //fixme: don't cache everything into the last list
 
   static Future<ApiResponse<String>> apiSendTweet(String token , IntermediateTweetData tweet) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -50,7 +49,6 @@ class Tweets {
 
 
   static List<TweetData> loadCache() {
-    // TODO: load cache here later
     return [
       getDefaultTweet("1",MediaType.IMAGE),
       getDefaultTweet("2",MediaType.IMAGE),
@@ -68,39 +66,97 @@ class Tweets {
 
     for (var path in fullPath) {
       currentObject = currentObject[path];
-      if (path == "media")
-      {
-          currentObject = currentObject[0];
+      if(path == "media"){
+        List<MediaData> mediaList = [];
+        for (var media in currentObject){
+          MediaType mediaType = media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO;
+          mediaList.add(MediaData(mediaType: mediaType, mediaUrl: media["data"]));
+        }
+        return mediaList;
       }
     }
 
     return currentObject;
   }
 
-  static List<TweetData> decodeTweetList(
+  static TweetData? decodeTweetReply(dynamic replyObject){
+    if (replyObject.isEmpty){
+      return null;
+    }
+      return TweetData(
+          id: replyObject["id"],
+          referredTweetId: replyObject["referredTweetId"],
+          description: replyObject["description"],
+          viewsNum: replyObject["viewsNum"],
+          likesNum: replyObject["likesNum"],
+          repliesNum: replyObject["repliesNum"],
+          repostsNum: replyObject["repostsNum"],
+          creationTime: DateTime.parse(replyObject["creation_time"]),
+          type: replyObject["type"],
+          tweetOwner: User(
+            name: replyObject["tweet_owner"]["nickname"],
+            id: replyObject["tweet_owner"]["username"],
+            bio: replyObject["tweet_owner"]["nickname"],
+            iconLink: replyObject["tweet_owner"]["profile_image"],
+            following:replyObject["tweet_owner"]["following_num"],
+            followers: replyObject["tweet_owner"]["followers_num"],
+            isFollowed: replyObject["tweet_owner"]["isFollowed"],
+          ),
+          isLiked: replyObject["isLiked"],
+          isRetweeted: replyObject["isRetweeted"],
+          media: specialAccessObject(replyObject, ["media"]),
+          isFollowingMe: replyObject["tweet_owner"]["isFollowingMe"],
+      );
+  }
+
+  static Future<String?> getRepliedTweetUserId(String token, String tweetID) async {
+    ApiPath endPointPath = ApiPath.tweetOwnerId.format([tweetID]);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        endPointPath,
+        headers: headers
+    );
+    print("here responsing");
+    print(response.responseBody);
+    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
+      dynamic res = jsonDecode(response.responseBody!);
+      return res["data"]["tweet_owner"];
+    }
+    else {
+      return null;
+    }
+  }
+
+  static Future<List<TweetData>> decodeTweetList(
       String token,
       ApiResponse response,
-      Map<String,List<String>?> accessor
-      )
+      Map<String,List<String>?> accessor,
+      {
+        bool fetchReplyTweet = false
+      }) async
   {
     if (response.responseBody == null || response.responseBody!.isEmpty){
       return [];
     }
     //print(response.responseBody);
-    final List tweets = specialAccessObject(json.decode(response.responseBody!), accessor["data"]);
-    return tweets.map((tweet){
+    final List tweets =
+    accessor["data"] != null ?
+    specialAccessObject(json.decode(response.responseBody!), accessor["data"])
+    :
+    jsonDecode(response.responseBody!);
+    List<TweetData> tweetList = tweets.map((tweet) {
       List<dynamic>? tweetMedia = accessor["base"] == null ? tweet["media"] : tweet[accessor["base"]![0]]["media"];
       bool hasMedia = tweetMedia != null && tweetMedia.isNotEmpty;
-      return TweetData(
+      TweetData tweetData =  TweetData(
           id: specialAccessObject(tweet, accessor["id"]!),
-          referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!) ?? "",
+          referredTweetId: specialAccessObject(tweet, accessor["referredTweetId"]!),
           description: specialAccessObject(tweet, accessor["description"]!) ?? "",
           viewsNum: specialAccessObject(tweet, accessor["viewsNum"]) ?? 0,
-          likesNum: specialAccessObject(tweet, accessor["likesNum"]!),
+          likesNum: specialAccessObject(tweet, accessor["likesNum"]!) ?? 0,
           repliesNum: specialAccessObject(tweet, accessor["repliesNum"]!),
           repostsNum: specialAccessObject(tweet, accessor["repostsNum"]!),
           creationTime: DateTime.parse(specialAccessObject(tweet, accessor["creationTime"]!)),
-          type: specialAccessObject(tweet, accessor["type"]!),
+          type: specialAccessObject(tweet, accessor["type"]!) ?? "tweet",
 
           tweetOwner: User(
             id: specialAccessObject(tweet, accessor["tweetOwnerID"]!),
@@ -111,6 +167,8 @@ class Tweets {
             iconLink : specialAccessObject(tweet, accessor["tweetOwnerIcon"]!) ?? USER_DEFAULT_PROFILE,
             followers : specialAccessObject(tweet, accessor["tweetOwnerFollowers"]),
             following : specialAccessObject(tweet, accessor["tweetOwnerFollowing"]!),
+            isWantedUserMuted : specialAccessObject(tweet, accessor["tweetOwnerIsMuted"]) ?? false,
+            isWantedUserBlocked : specialAccessObject(tweet, accessor["tweetOwnerIsBlocked"]) ?? false,
             active : true,
           ),
 
@@ -127,12 +185,23 @@ class Tweets {
           ),
 
           isLiked: specialAccessObject(tweet, accessor["isLiked"]!),
-          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!),
-          mediaType: hasMedia ?
-          (specialAccessObject(tweet, accessor["mediaType"]!) == "jpg" ? MediaType.IMAGE : MediaType.VIDEO) : MediaType.NONE,
-          media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null
+          isRetweeted: specialAccessObject(tweet, accessor["isRetweeted"]!) ?? false,
+          isFollowingMe: specialAccessObject(tweet, accessor["isFollowingMe"]) ?? false,
+          media: hasMedia ? specialAccessObject(tweet, accessor["media"]!) : null,
+
+          replyTweet:  fetchReplyTweet ? decodeTweetReply(tweet["reply"]) : null,
       );
+      return tweetData;
     }).toList();
+    for (TweetData tweetData in tweetList){
+      if (tweetData.referredTweetId != null){
+        tweetData.replyingUserId = await getRepliedTweetUserId(token, tweetData.referredTweetId!);
+        if (tweetData.replyTweet != null){
+          tweetData.replyTweet!.replyingUserId = tweetData.tweetOwner.id;
+        }
+      }
+    }
+    return tweetList;
   }
   /// returns list of the posts that the current logged in user following their owners,
   /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
@@ -154,11 +223,13 @@ class Tweets {
 
           "tweetOwnerID": ["tweetDetails", "tweet_owner", "username"],
           "tweetOwnerName": ["tweetDetails", "tweet_owner", "nickname"],
-          "tweetOwnerIsFollowed": ["tweetDetails","isFollowed"],
+          "tweetOwnerIsFollowed": ["isFollowed"],
           "tweetOwnerBio": null,
           "tweetOwnerIcon": ["tweetDetails", "tweet_owner", "profile_image"],
           "tweetOwnerFollowers": ["tweetDetails", "tweet_owner", "followers_num"],
           "tweetOwnerFollowing": ["tweetDetails", "tweet_owner", "following_num"],
+          "tweetOwnerIsBlocked" : null,
+          "tweetOwnerIsMuted" : null,
 
           "tweetRetweeter" : ["followingUser"],
           "tweetRetweeterID": ["followingUser", "username"],
@@ -170,10 +241,10 @@ class Tweets {
           "tweetRetweeterFollowing": ["followingUser", "following_num"],
 
 
-      "isLiked": ["isLiked"],
+          "isLiked": ["isLiked"],
           "isRetweeted": ["isRtweeted"],
-          "mediaType": ["tweetDetails","media","type"],
-          "media": ["tweetDetails","media","data"],
+          "isFollowingMe" : ["isFollowingMe"],
+          "media": ["tweetDetails","media"],
         }, ApiPath.followingTweets);
   }
 
@@ -199,12 +270,78 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
-      "mediaType": ["media","type"],
-      "media": ["media","data"]
+      "isFollowingMe" : ["isFollowingMe"],
+      "media": ["media"]
     }, ApiPath.userProfileTweets.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getProfilePageLikes (String token,String userID, String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["posts"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRetweeted"],
+      "isFollowingMe" : ["isFollowingMe"],
+      "media": ["media"]
+    }, ApiPath.userProfileLikes.format([userID]));
+  }
+
+  static Future<Map<String,TweetData>> getMentionTweets (String token,String count, String page) async
+  {
+    return await fetchTweetsWithApiInterface(token, count, page, {
+      "data" : ["tweetList"],
+      "base" : null,
+      "id": ["id"],
+      "referredTweetId": ["referredTweetId"],
+      "description": ["description"],
+      "viewsNum": null,
+      "likesNum": ["likesNum"],
+      "repliesNum": ["repliesNum"],
+      "repostsNum": ["repostsNum"],
+      "creationTime": ["creation_time"],
+      "type": ["type"],
+
+      "tweetOwnerID": ["tweet_owner", "username"],
+      "tweetOwnerName": ["tweet_owner", "nickname"],
+      "tweetOwnerIsFollowed": ["tweet_owner","isFollowed"],
+      "tweetOwnerBio": null,
+      "tweetOwnerIcon": ["tweet_owner", "profile_image"],
+      "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
+      "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
+
+      "isLiked": ["isLiked"],
+      "isRetweeted": ["isRtweeted"],
+      "isFollowingMe" : ["isFollowingMe"],
+      "media": ["media"],
+    }, ApiPath.mentions);
   }
 
   static Future<Map<String, TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
@@ -229,12 +366,63 @@ class Tweets {
       "tweetOwnerIcon": ["tweet_owner", "profile_image"],
       "tweetOwnerFollowers": ["tweet_owner", "followers_num"],
       "tweetOwnerFollowing": ["tweet_owner", "following_num"],
+      "tweetOwnerIsBlocked" : null,
+      "tweetOwnerIsMuted" : null,
 
       "isLiked": ["isLiked"],
       "isRetweeted": ["isRetweeted"],
-      "mediaType": ["media","type"],
-      "media": ["media","data"]
-    }, ApiPath.comments.format([tweetID]));
+      "media": ["media"]
+    }, ApiPath.comments.format([tweetID]),fetchAdditionalReply: true);
+  }
+
+  static Future<TweetData?> getTweetById(String token, String tweetID) async {
+    ApiPath endPointPath = ApiPath.getTweet.format([tweetID]);
+    var headers = Api.getTokenWithJsonHeader("Bearer $token");
+    ApiResponse response = await Api.apiGet(
+        endPointPath,
+        headers: headers
+    );
+    print(response.responseBody);
+
+    if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
+      dynamic tweet = jsonDecode(response.responseBody!)["data"];
+      TweetData tweetData = TweetData(
+          id: tweet["id"],
+          referredTweetId: tweet["referredTweetId"],
+          description: tweet["description"],
+          viewsNum: tweet["viewsNum"] ?? 0,
+          likesNum: tweet["likesNum"] ?? 0,
+          repliesNum: tweet["repliesNum"] ?? 0,
+          repostsNum: tweet["repostsNum"] ?? 0,
+          creationTime: DateTime.parse(tweet["creation_time"]),
+          type: tweet["type"],
+          tweetOwner: User(
+            id: tweet["tweet_owner"]["username"],
+            name: tweet["tweet_owner"]["nickname"],
+            iconLink: tweet["tweet_owner"]["profile_image"],
+            isFollowed: false,
+            followers: tweet["tweet_owner"]["followers_num"],
+            following: tweet["tweet_owner"]["following_num"],
+            isWantedUserBlocked: false,
+            isWantedUserMuted: false
+          ),
+          isLiked: tweet["isLiked"],
+          isRetweeted: tweet["isRetweeted"],
+          isFollowingMe: tweet["isFollowingMe"] ?? false,
+          media: tweet["media"].map((media){
+            return MediaData(
+                mediaType: media["type"] == "jpg" ? MediaType.IMAGE : MediaType.VIDEO,
+                mediaUrl: media["data"],
+            ) ;
+          }).toList().cast<MediaData>()
+      );
+      if (tweetData.referredTweetId != null){
+        tweetData.replyingUserId = await getRepliedTweetUserId(token, tweetData.referredTweetId!);
+      }
+      return tweetData;
+    }
+
+    return null;
   }
 
   static Future<Map<String,TweetData>> fetchTweetsWithApiInterface
@@ -243,7 +431,10 @@ class Tweets {
         String count,
         String page,
         Map<String,List<String>?> accessor,
-        ApiPath endPointPath
+        ApiPath endPointPath,
+      {
+        bool fetchAdditionalReply = false
+      }
       ) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -254,32 +445,32 @@ class Tweets {
     );
 
     if (response.code == ApiResponse.CODE_SUCCESS){
-      print(token);
-      List<TweetData> responseTweets = decodeTweetList(
+      List<TweetData> responseTweets = await decodeTweetList(
         token,
         response,
-        accessor
+        accessor,
+        fetchReplyTweet : fetchAdditionalReply,
       );
       Map<String,TweetData> mappedIdTweets = {};
       for(TweetData tweet in responseTweets){
         mappedIdTweets.putIfAbsent(tweet.id, () => tweet);
       }
+
       return mappedIdTweets;
     }
     else{
-      //TODO: load cached tweets
       return {};
     }
   }
 
 
-  static Future<List<User>> getTweetLikers(String token, String tweetId,String page) async
+  static Future<List<User>> getTweetLikers(String token, String tweetId,String page, String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(
         ApiPath.tweetLikers.appendDirectory(tweetId),
         headers: headers,
-        params: {"page": page}
+        params: {"page": page, "count": count}
     );
     if (response.code == ApiResponse.CODE_SUCCESS){
       dynamic jsonResponse = json.decode(response.responseBody!);
@@ -296,13 +487,13 @@ class Tweets {
     }
     return [];
   }
-  static Future<List<User>> getTweetRetweeters(String token, String tweetId,String page) async
+  static Future<List<User>> getTweetRetweeters(String token, String tweetId,String page,String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(
         ApiPath.tweetRetweeters.format([tweetId]),
         headers: headers,
-        params: {"page": page}
+        params: {"page": page,"count": count}
     );
     if (response.code == ApiResponse.CODE_SUCCESS){
       dynamic jsonResponse = json.decode(response.responseBody!);
@@ -326,7 +517,6 @@ class Tweets {
     ApiPath endPoint = (ApiPath.likeTweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiPost(endPoint,headers: headers);
-    //print(response.code);
     switch(response.code){
       case ApiResponse.CODE_SUCCESS_NO_BODY:
         return true;
@@ -416,13 +606,10 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
         referredTweetId: '',
 
         description: "Searching for others users is not supported at the moment, will add this in the future",
-
-        mediaType: mediaType,
-        media:
-        mediaType == MediaType.VIDEO ?
+        media: [MediaData(mediaType: mediaType, mediaUrl: mediaType == MediaType.VIDEO ?
         "https://i.imgur.com/rLr8Swh.mp4"
             :
-        "https://i.imgur.com/cufIziI.gif",
+        "https://i.imgur.com/cufIziI.gif")],
         viewsNum: 10,
         likesNum: 20,
         repliesNum: 30,
@@ -431,6 +618,7 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
         type: "Masterpiece", tweetOwner: User(name: "Moa",id: "DedInside"),
 
         isLiked: false,
+        isFollowingMe: false,
         isRetweeted: false
     );
   }
@@ -443,12 +631,10 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
       "Bonjour, friends.According to the the prophecy: “The people will all be dissolved into the waters. And only the Hydro Archon will remain, weeping on her throne.” Let me take you back about 500 years ago in fontaine, where the main characters are The (previous) Hydro Archon, Dragon Neuvillette and an important person named Furina. The Hydro Archon created the Oratrice to deliver proper justice. They all lived happily until the cataclysm (I would like to make a note here that this cataclysm might be or might not be the khaenriahn one), which befelled the beloved Hydro Archon.",
 
 
-      mediaType: mediaType,
-      media:
-      mediaType == MediaType.VIDEO ?
-      "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
+      media: [MediaData(mediaType: mediaType, mediaUrl: mediaType == MediaType.VIDEO ?
+      "https://i.imgur.com/rLr8Swh.mp4"
           :
-      "https://cdn.oneesports.gg/cdn-data/2022/10/GenshinImpact_Nahida_CloseUp.webp",
+      "https://i.imgur.com/cufIziI.gif")],
       viewsNum: 10,
       likesNum: 20,
       repliesNum: 30,
@@ -457,6 +643,7 @@ TweetData getDefaultTweet(String id,MediaType mediaType){
       type: "Masterpiece", tweetOwner: User(name: "Moa",id: "DedInside"),
 
       isLiked: false,
-      isRetweeted: false
+      isRetweeted: false,
+      isFollowingMe: false,
   );
 }
