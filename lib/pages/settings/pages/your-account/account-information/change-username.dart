@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../services/input-validations.dart';
 import '../../../../../util/Toast.dart';
-import '../../../../home/home.dart';
 
 class ChangeUsernamePage extends StatefulWidget {
   const ChangeUsernamePage({Key? key}) : super(key: key);
@@ -38,7 +37,7 @@ class _ChangeUsernamePageState extends State<ChangeUsernamePage> {
           print(res.responseBody);
           loading = false;
           Toast.showToast(context, "Username changed successfully");
-          Navigator.popUntil(context, ModalRoute.withName(Home.pageRoute));
+          Navigator.popUntil(context, ModalRoute.withName("/"));
         });
       },
       error: (res) {

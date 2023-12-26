@@ -98,6 +98,10 @@ class InternalHomePageState extends State<InternalHomePage> with TickerProviderS
     bool isLoggedIn = Auth.getInstance(context).isLoggedIn;
     Auth value = Auth.getInstance(context);
 
+    if (!value.isLoggedIn){
+      return SizedBox.shrink();
+    }
+
     if (value.getCurrentUser() != null) {
       followingFeedController.setUserToken(value.getCurrentUser()!.auth);
     }

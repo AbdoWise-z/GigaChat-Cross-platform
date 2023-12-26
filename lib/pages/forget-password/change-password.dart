@@ -88,23 +88,23 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     );
     return Stack(
       children: [
-        Center(
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: 600,
+        Scaffold(
+          appBar: AuthAppBar(
+            context,
+            leadingIcon: IconButton(
+              onPressed: () {
+                widget.isLogged? Navigator.pop(context) :
+                  Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+              icon: const Icon(Icons.close),
             ),
-            child: Scaffold(
-              appBar: AuthAppBar(
-                context,
-                leadingIcon: IconButton(
-                  onPressed: () {
-                    widget.isLogged? Navigator.pop(context) :
-                      Navigator.popUntil(context, ModalRoute.withName('/'));
-                  },
-                  icon: const Icon(Icons.close),
-                ),
+          ),
+          body: Center(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: 600,
               ),
-              body: Padding(
+              child: Padding(
                 padding: const EdgeInsets.all(LOGIN_PAGE_PADDING),
                 child: SingleChildScrollView(
                   child: Column(
@@ -142,17 +142,17 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                   ),
                 ),
               ),
-              bottomSheet: AuthFooter(
-                rightButtonLabel: "Change password",
-                disableRightButton: !isValidForm,
-                onRightButtonPressed: () => _createPassword(newPassword),
-
-                leftButtonLabel: "",
-                onLeftButtonPressed: (){},
-                showLeftButton: false,
-              )
             ),
           ),
+          bottomSheet: AuthFooter(
+            rightButtonLabel: "Change password",
+            disableRightButton: !isValidForm,
+            onRightButtonPressed: () => _createPassword(newPassword),
+
+            leftButtonLabel: "",
+            onLeftButtonPressed: (){},
+            showLeftButton: false,
+          )
         ),
         Visibility(
           visible: _loading,

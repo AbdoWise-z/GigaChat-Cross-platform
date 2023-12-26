@@ -120,9 +120,11 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
         children: [
           Expanded(
             flex: 2,
-            child: Navigator(
-              key: Globals.homeNavigator,
-              onGenerateRoute: AppNavigator.onBuildHomeRoute,
+            child: ScaffoldMessenger(
+              child: Navigator(
+                key: Globals.homeNavigator,
+                onGenerateRoute: AppNavigator.onBuildHomeRoute,
+              ),
             ),
           ),
 
@@ -136,9 +138,11 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
               child: SizedBox(
                 width: 400,
                 height: double.infinity,
-                child: Navigator(
-                  key: Globals.chatNavigator,
-                  onGenerateRoute: AppNavigator.onBuildChatRoute,
+                child: ScaffoldMessenger(
+                  child: Navigator(
+                    key: Globals.chatNavigator,
+                    onGenerateRoute: AppNavigator.onBuildChatRoute,
+                  ),
                 ),
               ),
             ),
