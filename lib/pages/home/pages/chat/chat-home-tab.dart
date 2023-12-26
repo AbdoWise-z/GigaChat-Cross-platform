@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:gigachat/AppNavigator.dart';
 import 'package:gigachat/api/chat-class.dart';
 import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/pages/chat/chat-list-page.dart';
@@ -23,7 +24,9 @@ class ChatHomeTab with HomePageTab {
   List<AppBarAction> getActions(BuildContext context) {
     return [
       AppBarAction(icon: Icons.settings, onClick: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatSettingsPage()));
+        if (ChatSettingsPage.isOpen) return;
+        NavigatorState nav = AppNavigator.getNavigator(NavigatorDirection.CHAT, NavigatorDirection.HOME);
+        nav.push(MaterialPageRoute(builder: (_) => const ChatSettingsPage()));
       },),
     ];
   }

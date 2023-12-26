@@ -7,6 +7,7 @@ import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/providers/auth.dart';
+import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:gigachat/widgets/bottom-sheet.dart';
@@ -106,144 +107,148 @@ class _FullScreenImageState extends State<FullScreenImage> {
     currentPage ??= argument["index"];
     User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
-    return Scaffold(
-        backgroundColor: Colors.black,
-        body:
-        Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 100, bottom: 100),
-              child: DismissiblePage(
-                maxRadius: 0,
-                minRadius: 0,
-                isFullScreen: true,
-                direction: DismissiblePageDismissDirection.vertical,
-                dragSensitivity: 0.3,
-                maxTransformValue: 0.1,
+    return Theme(
+      data: ThemeProvider.getInstance(context).darkTheme(),
+      child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 100, bottom: 100),
+                child: DismissiblePage(
+                  maxRadius: 0,
+                  minRadius: 0,
+                  isFullScreen: true,
+                  direction: DismissiblePageDismissDirection.vertical,
+                  dragSensitivity: 0.3,
+                  maxTransformValue: 0.1,
 
-                onDragUpdate: (dragInfo){
-                  upperValueNotifier.value = dragInfo.offset.distance * 1000;
-                  setState(() {});
-                },
+                  onDragUpdate: (dragInfo){
+                    upperValueNotifier.value = dragInfo.offset.distance * 1000;
+                    setState(() {});
+                  },
 
-                onDismissed: (){
-                  Navigator.pop(context);
-                },
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                      initialPage: currentPage!,
-                      height: MediaQuery.of(context).size.height,
-                      viewportFraction: 1,
-                      enableInfiniteScroll: false,
-                      aspectRatio: MediaQuery.of(context).size.aspectRatio,
-                      onPageChanged: (int index, CarouselPageChangedReason reason){
-                        currentPage = index;
-                        setState(() {});
-                      }
+                  onDismissed: (){
+                    Navigator.pop(context);
+                  },
+                  child: CarouselSlider(
+                    options: CarouselOptions(
+                        initialPage: currentPage!,
+                        height: MediaQuery.of(context).size.height,
+                        viewportFraction: 1,
+                        enableInfiniteScroll: false,
+                        aspectRatio: MediaQuery.of(context).size.aspectRatio,
+                        onPageChanged: (int index, CarouselPageChangedReason reason){
+                          currentPage = index;
+                          setState(() {});
+                        }
+                    ),
+                    items: buildList(images),
                   ),
-                  items: buildList(images),
                 ),
               ),
-            ),
-
-
-            Transform.translate(
-              offset: Offset(0,upperValueNotifier.value * -1),
-              child: ValueListenableBuilder(
-                valueListenable:upperValueNotifier,
-                builder: (context,_,__){
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppBar(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircleAvatar(backgroundImage: NetworkImage(tweetData.tweetOwner.iconLink)),
-                          SizedBox(width: 10,),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(tweetData.tweetOwner.name),
-                              Text("@${tweetData.tweetOwner.id}",style: TextStyle(color: Colors.grey),)
-                            ],
-                          ),
-                          const Expanded(child: SizedBox()),
-                          SizedBox(
-                            width: 100,
-                            height: 30,
-                            child: Visibility(
-                              visible: tweetData.tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
-                              child: FollowButton(
-                                isFollowed: tweetData.tweetOwner.isFollowed!,
-                                callBack: (_){},
-                                username: tweetData.tweetOwner.id,
-                              ),
+              Transform.translate(
+                offset: Offset(0,upperValueNotifier.value * -1),
+                child: ValueListenableBuilder(
+                  valueListenable:upperValueNotifier,
+                  builder: (context,_,__){
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppBar(
+                          backgroundColor: Colors.black,
+                          title: SizedBox(height: 50,),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircleAvatar(backgroundImage: NetworkImage(tweetData.tweetOwner.iconLink)),
+                            SizedBox(width: 10,),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(tweetData.tweetOwner.name),
+                                Text("@${tweetData.tweetOwner.id}",style: TextStyle(color: Colors.grey),)
+                              ],
+                            ),
+                            const Expanded(child: SizedBox()),
+                            SizedBox(
+                              width: 100,
+                              height: 30,
+                              child: Visibility(
+                                visible: tweetData.tweetOwner.id != Auth.getInstance(context).getCurrentUser()!.id,
+                                child: FollowButton(
+                                  isFollowed: tweetData.tweetOwner.isFollowed!,
+                                  callBack: (_){},
+                                  username: tweetData.tweetOwner.id,
+                                ),
+                              )
                             )
-                          )
-                        ],
-                      ),
+                          ],
+                        ),
 
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
 
-            Transform.translate(
-              offset: Offset(0,upperValueNotifier.value),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Row(
-                        children: initActionButtons(
-                        context: context,
-                        tweetData: tweetData,
-                        singlePostView: false,
-                        onCommentButtonClicked: () async {
-                          return await commentTweet(context, tweetData,parentFeed);
-                        },
-                            onRetweetButtonClicked: () async {
-                              bool isRetweeting = !tweetData.isRetweeted;
-                              bool success =  await toggleRetweetTweet(currentUser.auth,tweetData);
-                              if (!isRetweeting){
-                                if(tweetData.tweetOwner.id == currentUser.id) {
-                                  parentFeed.deleteTweet(tweetData.id);
-                                  parentFeed.updateFeeds();
+              Transform.translate(
+                offset: Offset(0,upperValueNotifier.value),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                          children: initActionButtons(
+                          context: context,
+                          tweetData: tweetData,
+                          singlePostView: false,
+                          onCommentButtonClicked: () async {
+                            return await commentTweet(context, tweetData,parentFeed);
+                          },
+                              onRetweetButtonClicked: () async {
+                                bool isRetweeting = !tweetData.isRetweeted;
+                                bool success =  await toggleRetweetTweet(currentUser.auth,tweetData);
+                                if (!isRetweeting){
+                                  if(tweetData.tweetOwner.id == currentUser.id) {
+                                    parentFeed.deleteTweet(tweetData.id);
+                                    parentFeed.updateFeeds();
+                                  }
+                                  else {
+                                    parentFeed.updateFeeds();
+                                    setState(() {});
+                                  }
                                 }
-                                else {
+                                else{
+                                  parentFeed.updateFeeds();
+                                  setState(() {});();
+                                }
+                                return success;
+                              },
+                              onLikeButtonClicked: () async{
+                                bool success =  await toggleLikeTweet(context,currentUser.auth,tweetData);
+                                if (success){
                                   parentFeed.updateFeeds();
                                   setState(() {});
                                 }
+                                return success;
                               }
-                              else{
-                                parentFeed.updateFeeds();
-                                setState(() {});();
-                              }
-                              return success;
-                            },
-                            onLikeButtonClicked: () async{
-                              bool success =  await toggleLikeTweet(context,currentUser.auth,tweetData);
-                              if (success){
-                                parentFeed.updateFeeds();
-                                setState(() {});
-                              }
-                              return success;
-                            }
-                        )
-                    )
-                  ],
+                          )
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
 
 
-          ],
-        )
+            ],
+          )
 
+      ),
     );
   }
 }

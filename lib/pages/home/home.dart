@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/AppNavigator.dart';
 import 'package:gigachat/Globals.dart';
@@ -89,8 +91,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     double width  = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    Globals.isWideVersion   = width / height > 1.6;
-    Globals.isChatSeparated = width / height > 1;
+    Globals.isWideVersion   = width / height > 1.6 && !Platform.isAndroid;
+    Globals.isChatSeparated = width / height > 1 && !Platform.isAndroid;
     //print(width / height);
 
     Globals.HomeScreenWidth = width;
@@ -101,38 +103,49 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     }
 
     if (Globals.isWideVersion){
-      Globals.HomeScreenWidth -= 300;
+      Globals.HomeScreenWidth -= 302; // +2 for the Divider
     }
 
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Navigator(
-            key: Globals.homeNavigator,
-            onGenerateRoute: AppNavigator.onBuildHomeRoute,
-          ),
-        ),
-
-        VerticalDivider(width: 2,thickness: 2,),
-
-        AnimatedSize(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.decelerate,
-          child: Visibility(
-            visible: Globals.isChatSeparated,
-            child: SizedBox(
-              width: 400,
-              height: double.infinity,
-              child: Navigator(
-                key: Globals.chatNavigator,
-                onGenerateRoute: AppNavigator.onBuildChatRoute,
-              ),
+    return WillPopScope(
+      onWillPop: () async {
+        if (Globals.homeNavigator.currentState != null){
+          if (Globals.homeNavigator.currentState!.canPop()){
+            Globals.homeNavigator.currentState!.pop();
+            return false;
+          }
+        }
+        return true;
+      },
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Navigator(
+              key: Globals.homeNavigator,
+              onGenerateRoute: AppNavigator.onBuildHomeRoute,
             ),
           ),
-        )
 
-      ],
+          VerticalDivider(width: 2,thickness: 2,),
+
+          AnimatedSize(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.decelerate,
+            child: Visibility(
+              visible: Globals.isChatSeparated,
+              child: SizedBox(
+                width: 400,
+                height: double.infinity,
+                child: Navigator(
+                  key: Globals.chatNavigator,
+                  onGenerateRoute: AppNavigator.onBuildChatRoute,
+                ),
+              ),
+            ),
+          )
+
+        ],
+      ),
     );
   }
 }

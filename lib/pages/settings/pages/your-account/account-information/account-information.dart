@@ -115,7 +115,7 @@ class _AccountInformationState extends State<AccountInformation> {
                               ],
                             ),
                           ),
-                        )
+                        ),
                 );
               },
               title: const MainText(text: "Log out",color: Colors.red,size: 17,),

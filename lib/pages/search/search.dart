@@ -82,7 +82,6 @@ class _SearchPageState extends State<SearchPage> {
           autofocus: true,
           controller: textFieldController,
           onChanged: (String newKeyword) {
-            // TODO: fetch new search
             reWriteTimer();
             if (keyword!.isEmpty && newKeyword.isNotEmpty ||
                 keyword!.isNotEmpty && newKeyword.isEmpty)
@@ -103,7 +102,7 @@ class _SearchPageState extends State<SearchPage> {
               suffixIcon: Visibility(
                 visible: textFieldController.text.isNotEmpty,
                 child: GestureDetector(
-                  child: const Icon(Icons.close,color: Colors.white,),
+                  child: const Icon(Icons.close,),
                   onTap: (){
                     keyword = "";
                     textFieldController.clear();

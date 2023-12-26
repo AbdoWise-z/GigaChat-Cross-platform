@@ -4,6 +4,7 @@ import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import '../../../../widgets/text-widgets/main-text.dart';
 
 class ChatSettingsPage extends StatefulWidget {
+  static bool isOpen = false;
   const ChatSettingsPage({super.key});
 
   @override
@@ -14,6 +15,18 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
 
   int _directMessages = 0;
   bool _sendReadReceipts = true;
+
+  @override
+  void initState() {
+    ChatSettingsPage.isOpen = true;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    ChatSettingsPage.isOpen = false;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

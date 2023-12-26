@@ -152,7 +152,10 @@ class _UserResultState extends State<UserResult> {
               const SizedBox(width: 50,),
               Expanded(
                 child: Text(
-                  widget.user.bio,style: const TextStyle(color: Colors.white),
+                  widget.user.bio,
+                  style: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               )

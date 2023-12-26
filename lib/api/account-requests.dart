@@ -695,10 +695,10 @@ class Account {
       //u.website     = res["data"]["user"]["website"];
       u.birthDate   = DateTime.parse(res["data"]["user"]["birthDate"]);
       u.joinedDate  = DateTime.parse(res["data"]["user"]["joinedAt"]);
-      u.followers   = res["data"]["user"]["followers_num"];
-      u.following   = res["data"]["user"]["followings_num"];
-      u.numOfPosts  = res["data"]["user"]["numOfPosts"];
-      u.numOfLikes  = res["data"]["user"]["numOfLikes"];
+      u.followers   = res["data"]["user"]["followers_num"] ?? 0;
+      u.following   = res["data"]["user"]["followings_num"] ?? 0;
+      u.numOfPosts  = res["data"]["user"]["numOfPosts"] ?? 0;
+      u.numOfLikes  = res["data"]["user"]["numOfLikes"] ?? 0;
       u.mongoID     = res["data"]["user"]["_id"];
 
       k.data = u;

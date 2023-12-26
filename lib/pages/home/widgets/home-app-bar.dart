@@ -83,8 +83,9 @@ class HomeAppBar extends StatelessWidget {
       ) : title == null ? GestureDetector(
         onTap: searchBar!.onClick,
         child: Container(
-          constraints: const BoxConstraints.expand(height: 35),
+          constraints: const BoxConstraints.expand(height: 45),
           padding: const EdgeInsets.all(10),
+          alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
             color: ThemeProvider.getInstance(context).isDark() ? const Color.fromARGB(30, 200, 255, 235) : const Color.fromARGB(30, 100, 155, 135),
             borderRadius: const BorderRadius.all(Radius.circular(25)),
@@ -109,18 +110,26 @@ class HomeAppBar extends StatelessWidget {
       centerTitle: true,
       actions: actions.map((e) => IconButton(icon: Icon(e.icon), onPressed: e.onClick,)).toList(growable: false),
       bottom: tabs != null && controller != null ? PreferredSize(
-        preferredSize: const Size.fromHeight(50),
+        preferredSize: const Size.fromHeight(51),
         child: Container(
-          height: 50,
+          height: 51,
           color: Theme.of(context).scaffoldBackgroundColor,
-          child: TabBar(
-            indicatorWeight: 3,
-            //padding: const EdgeInsets.fromLTRB(12, 8, 12, 1), // don't edit the {8 , 1}
-            isScrollable: true,                               // why ? cuz they are magic numbers
-            controller: controller,
-            tabAlignment:  tabs!.tabAlignment,
-            indicatorSize:  tabs!.indicatorSize,
-            tabs: tabs!.tabs.map((e) => Text(e)).toList(growable: false),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                child: TabBar(
+                  indicatorWeight: 3,
+                  //padding: const EdgeInsets.fromLTRB(12, 8, 12, 1), // don't edit the {8 , 1}
+                  isScrollable: true,                               // why ? cuz they are magic numbers
+                  controller: controller,
+                  tabAlignment:  tabs!.tabAlignment,
+                  indicatorSize:  tabs!.indicatorSize,
+                  tabs: tabs!.tabs.map((e) => Text(e)).toList(growable: false),
+                ),
+              ),
+              Divider(height: 1,thickness: 0.4,color: Colors.blueGrey,),
+            ],
           ),
         ),
       ) : null ,

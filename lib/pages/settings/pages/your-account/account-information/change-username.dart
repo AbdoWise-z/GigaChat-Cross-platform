@@ -144,7 +144,7 @@ class _ChangeUsernamePageState extends State<ChangeUsernamePage> {
                           borderRadius: BorderRadius.circular(20))
                     ),
                     onPressed: isButtonDisabled? null : () => changeUsername(inputUsername.text),
-                    child: const Text("Done"),
+                    child: const Text("Done" , style: TextStyle(color: Colors.white),),
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
@@ -47,7 +48,6 @@ Future<void> main() async {
     WindowManager windowManager = WindowManager.instance;
     await windowManager.ensureInitialized();
     windowManager.setMinimumSize(const Size(400, 800));
-    //windowManager.setMaximumSize(const Size(1200, 600));
   }
 
   Globals.application = GigaChat();
@@ -67,6 +67,10 @@ class _GigaChatState extends State<GigaChat> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<WebSocketsProvider>(create: (context) => WebSocketsProvider()),

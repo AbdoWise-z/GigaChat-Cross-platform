@@ -1,4 +1,5 @@
 
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +86,6 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   double avatarRadius = 35;
   double showNamePosition = 162;
   double collapsePosition = 80;
-  EdgeInsetsGeometry avatarPadding = const EdgeInsets.fromLTRB(8, 122, 0, 0);
 
   final ValueNotifier<double> scroll = ValueNotifier<double>(0);
 
@@ -1099,6 +1099,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                             "@${widget.username} is blocked",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                               fontSize: 25,
                             ),
                           )
@@ -1113,7 +1114,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     visible: value <= collapsePosition,
                     child: ProfileAvatar(
                       avatarImageUrl: avatarImageUrl,
-                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, 122 - 0.46 * value, 0, 0),
+                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, Platform.isAndroid ? 122 : 95 - (Platform.isAndroid ? 0.46 : 0.68) * value, 0, 0),
                       avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
                       onTap: onProfileAvatarClick,
                     ),

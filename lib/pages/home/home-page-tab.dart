@@ -41,7 +41,9 @@ mixin HomePageTab {
 
     Future.delayed(Duration.zero , (){ //delay by zero to ensure a build was complete
       var home = Globals.homeKey.currentState;
-      home!.update(callback);
+      if (home != null) {
+        home.update(callback);
+      }
     });
 
   }

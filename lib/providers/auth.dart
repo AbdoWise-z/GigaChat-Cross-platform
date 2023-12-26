@@ -1,8 +1,10 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/api/account-requests.dart';
 import 'package:gigachat/api/api.dart';
+import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/providers/web-socks-provider.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
@@ -99,6 +101,8 @@ class Auth extends ChangeNotifier{
     if (_loggingOut){
       return;
     }
+    Globals.appNavigator.currentState!.push(MaterialPageRoute(builder: (_) => BlockingLoadingPage()));
+
     _loggingOut = true;
 
     bool ok = await Account.apiLogout(_currentUser!);
@@ -108,17 +112,23 @@ class Auth extends ChangeNotifier{
       var settings = LocalSettings.instance;
       settings.setValue<bool>(name: "login", val: false);
       await settings.apply();
-
       if (Platform.isAndroid) {
         GoogleSignIn signIn = GoogleSignIn();
         if (await signIn.isSignedIn()) {
           await signIn.signOut();
         }
       }
+      if (Globals.appNavigator.currentState != null) {
+        Globals.appNavigator.currentState!.pop();
+      }
+      EventsController.instance.triggerEvent(EventsController.EVENT_LOGOUT, {});
+    }else{
+      if (Globals.appNavigator.currentState != null) {
+        Globals.appNavigator.currentState!.pop();
+      }
     }
 
     _loggingOut = false;
-    EventsController.instance.triggerEvent(EventsController.EVENT_LOGOUT, {});
     notifyListeners();
   }
 

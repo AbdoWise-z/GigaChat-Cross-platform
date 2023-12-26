@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gigachat/Globals.dart';
+import 'package:gigachat/api/media-class.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
+import 'package:gigachat/widgets/single-frame-video-player.dart';
 
 class PostStaticViewer extends StatefulWidget {
   final TweetData tweet;
@@ -20,25 +23,28 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
   void initState() {
     super.initState();
   }
-  //TODO: @yuki revise this
-  Widget _getImageWidget(){
+
+  Widget _getMediaWidget(){
     if (widget.tweet.media == null) {
       return const SizedBox.shrink();
     }
-    
+
+    double width = Globals.HomeWideScreenWidth;
+
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Container(
-        width: 80,
-        height: 80,
+        width: width / 3,
+        height: width / 3,
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: Colors.blue,
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.network(
+        child: widget.tweet.media![0].mediaType == MediaType.IMAGE ? Image.network(
           widget.tweet.media![0].mediaUrl,
           fit: BoxFit.cover,
-        ),
+        ) : SingleFrameVideoPlayer(tag: "none", videoUrl: widget.tweet.media![0].mediaUrl) ,
       ),
     );
   }
@@ -46,7 +52,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
   @override
   Widget build(BuildContext context) {
     User user = widget.tweet.tweetOwner;
-    double width = MediaQuery.of(context).size.width;
+    double width = Globals.HomeWideScreenWidth;
 
     return IntrinsicHeight(
       child: Row(
@@ -140,7 +146,7 @@ class PostStaticViewerState extends State<PostStaticViewer> with TickerProviderS
                           ),
                         ),
                       ),
-                      _getImageWidget(),
+                      _getMediaWidget(),
                     ],
                   ),
                 ),

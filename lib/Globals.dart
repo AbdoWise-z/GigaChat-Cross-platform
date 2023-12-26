@@ -13,6 +13,9 @@ class Globals{
   static final GlobalKey<InternalHomePageState> homeKey = GlobalKey();
 
   static double HomeScreenWidth = 0;
+  static double get HomeWideScreenWidth {
+    return isWideVersion ? HomeScreenWidth + 300 : HomeScreenWidth;
+  }
   static double ChatScreenWidth = 0;
 
 

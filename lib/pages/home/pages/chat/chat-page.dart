@@ -657,7 +657,7 @@ class ChatPageState extends State<ChatPage> {
                   alignment: Alignment.bottomCenter,
                   child: _with.isBlocked! ? Container(
                     width: double.infinity,
-                    height: 50,
+                    height: 60,
                     color: Theme.of(context).scaffoldBackgroundColor,
                     child: const Column(
                       mainAxisAlignment: MainAxisAlignment.start,

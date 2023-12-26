@@ -1,6 +1,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gigachat/AppNavigator.dart';
+import 'package:gigachat/Globals.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
@@ -184,7 +186,7 @@ class _EditProfileState extends State<EditProfile> {
       );
     }
     if(context.mounted){
-      Navigator.pop(context); //to pop the alert dialog
+      Globals.appNavigator.currentState!.pop();
       if(failed) {
         Toast.showToast(context, "Failed to update profile");
       }
