@@ -1114,7 +1114,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                     visible: value <= collapsePosition,
                     child: ProfileAvatar(
                       avatarImageUrl: avatarImageUrl,
-                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, Platform.isAndroid ? 122 : 95 - (Platform.isAndroid ? 0.46 : 0.68) * value, 0, 0),
+                      avatarPadding: EdgeInsets.fromLTRB(8 + 0.2 * value, (Platform.isAndroid ? 122 : 95) - ((Platform.isAndroid ? 0.30 : 0.48) * value), 0, 0),
                       avatarRadius: value < collapsePosition? avatarRadius - 0.2 * value : 20,
                       onTap: onProfileAvatarClick,
                     ),

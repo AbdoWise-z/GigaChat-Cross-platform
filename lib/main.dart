@@ -67,9 +67,9 @@ class _GigaChatState extends State<GigaChat> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    // ]);
 
     return MultiProvider(
       providers: [
