@@ -120,20 +120,11 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       _loading = true;
     });
 
-    //check for permissions
-    final PermissionState ps = await PhotoManager.requestPermissionExtend();
-    if (!ps.hasAccess) {
-      await PhotoManager.openSetting();
-      if (!ps.hasAccess) {
-        setState(() {
-          _loading = false;
-        });
-        return;
-      }
-    }
 
+    //check for permissions
     if (! await Permission.manageExternalStorage.isGranted){
       var k = await Permission.manageExternalStorage.request();
+      print("manageExternalStorage: $k");
       if (k != PermissionStatus.granted){
         setState(() {
           _loading = false;
@@ -144,7 +135,19 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
 
     if (! await Permission.accessMediaLocation.isGranted){
       var k = await Permission.accessMediaLocation.request();
+      print("accessMediaLocation: $k");
       if (k != PermissionStatus.granted){
+        setState(() {
+          _loading = false;
+        });
+        return;
+      }
+    }
+
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    if (!ps.hasAccess) {
+      await PhotoManager.openSetting();
+      if (!ps.hasAccess) {
         setState(() {
           _loading = false;
         });
