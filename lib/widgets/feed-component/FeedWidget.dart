@@ -16,6 +16,20 @@ import 'package:gigachat/widgets/trends/trend-widget.dart';
 import 'package:gigachat/widgets/tweet-widget/tweet.dart';
 import 'package:provider/provider.dart';
 
+/// BetterFeed is a class that is responsible for making the pagination effect
+/// it is also responsible for displaying the fetched data into its target ui widget
+/// [removeController] : boolean to decide whether the scrollController will be created internally or will be following the parent controller
+/// [removeRefreshIndicator] : boolean to decide whether the feed should support refreshing or not
+/// [providerFunction] : selects the api endpoint function to fetch the desired data for the feed to show
+/// [providerResultType] : type of ui widget to display the given data endpoint
+/// [feedController] : controller that is responsible for fetching the data for the feed and caching it
+/// [cancelNavigationToUserProfile] : boolean to decide weather the tweet inside this feed should stop navigating to the user profile
+/// [filterBlockedUsers] : boolean to filter out the blocked users from being shown inside the feed (used in filtering search results)
+/// [userId] : optional parameter to refer to the correct user when dealing with the user-related tweets or lists
+/// [userName] : optional parameter to refer to the name of the user of the parameter [userId]
+/// [tweetID] : optional parameter to refer to the tweet the is being handled (EX: get replies for some tweet)
+/// [keyword] : optional parameter to refer to the keyword being searched
+/// [mainTweetForComments] : optional parameter to refer to the main tweet in post view page (to make the tweet looks different)
 class BetterFeed extends StatefulWidget {
   final bool removeController;
   final bool removeRefreshIndicator;
@@ -24,7 +38,6 @@ class BetterFeed extends StatefulWidget {
   final FeedController feedController;
   final bool? cancelNavigationToUserProfile;
   final bool filterBlockedUsers;
-
   final String? userId,userName, tweetID, keyword;
   final TweetData? mainTweetForComments;
 
@@ -53,6 +66,7 @@ class _BetterFeedState extends State<BetterFeed> {
   late Timer timer;
   ScrollController? _scrollController;
 
+  /// Refreshes the feed to follow any occurred updates happened
   Future<void> refreshFeed() async {
    await _feedController.fetchFeedData(
         username: widget.userId,
@@ -71,6 +85,8 @@ class _BetterFeedState extends State<BetterFeed> {
    }
   }
 
+
+  /// Navigates to add post page and recieve a tweet if it was added it adds it back to the comments feed data
   Future<void> addComment(BuildContext context,TweetData tweetData) async {
     dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
       "reply" : tweetData,
@@ -96,6 +112,14 @@ class _BetterFeedState extends State<BetterFeed> {
     }
   }
 
+  /// makes a Tweet widget from given tweet data
+  /// [tweetData] : data of the tweet to be shown
+  /// [currentUser] : currently logged in user data
+  /// [isSinglePostView] : boolean to show the tweet in special form if it was the main tweet to be shown in comments
+  /// [addVerticalDivider] : adds vertical divier below user avatar
+  /// [cancellationPosition] : if true it will stop navigating to the [currentUser] profile when pressing the avatar
+  /// [sameUser] : true if tweet owner is the same as the current user
+  /// return a Tweet Widget of the passed data
   Tweet makeTweetFromData({
     required TweetData tweetData,
     required User currentUser,
@@ -122,6 +146,7 @@ class _BetterFeedState extends State<BetterFeed> {
   }
 
 
+  /// convert data to widgets to be shown
   List<Widget>? wrapDataInWidget() {
     switch(widget.providerResultType){
       // The Result Of Searching For User
@@ -135,6 +160,7 @@ class _BetterFeedState extends State<BetterFeed> {
     }
   }
 
+  /// wraps feed controller current data into UserResult Widget
   List<Widget>? wrapDataInUserWidgets(){
     List<User> userResult = _feedController.getCurrentData().cast<User>();
     if (widget.filterBlockedUsers){
@@ -145,6 +171,7 @@ class _BetterFeedState extends State<BetterFeed> {
     }).toList();
   }
 
+  /// wraps feed controller current data into Tweet Widget
   List<Widget>? wrapDataInTweetWidgets(){
     List<TweetData> tweetResult = _feedController.getCurrentData().cast<TweetData>();
     bool addVerticalDivider = true;
@@ -189,6 +216,7 @@ class _BetterFeedState extends State<BetterFeed> {
     return resultWidgets;
   }
 
+  /// wraps feed controller current data into Trend Widgets
   List<Widget>? wrapDataInTrendWidgets(){
     List<TrendData> trendResult = _feedController.getCurrentData().cast<TrendData>();
     return trendResult.map((trendData) => TrendWidget(trendData: trendData)).toList();

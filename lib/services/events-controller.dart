@@ -1,10 +1,20 @@
+///
+/// defines a structure for an event Handler
+/// [id] should be a unique id for each handler
+/// [handler] is the function to trigger when an
+/// event happens
+///
 class HandlerStructure{
   final String id;
   final void Function (Map<String,dynamic>) handler;
 
   HandlerStructure({required this.id, required this.handler});
-
 }
+
+///
+/// This class will be responsible for triggering and delivering events
+/// all over the application, so it acts as a mediator between widgets and widgets
+/// or widgets and API functions
 class EventsController {
   static EventsController? _instance;
 
@@ -22,10 +32,12 @@ class EventsController {
 
   final Map<String,List<HandlerStructure>> _handlers = {};
 
+  /// clears all event handlers
   void clear(){
     _handlers.clear();
   }
 
+  /// and an event handler for an [event] with [HandlerStructure] [handler]
   void addEventHandler(String event , HandlerStructure handler){
     List<HandlerStructure>? handlers = _handlers[event];
     handlers ??= [];
@@ -38,6 +50,7 @@ class EventsController {
     _handlers[event] = handlers;
   }
 
+  /// removes an event handler for [event] with id [handler]
   void removeEventHandler(String event , String handler){
     List<HandlerStructure>? handlers = _handlers[event];
     if (handlers == null) return;
@@ -67,6 +80,8 @@ class EventsController {
   static const String EVENT_NOTIFICATION_RECEIVED         = "note-received";
   static const String EVENT_NOTIFICATION_MENTIONED        = "note-mentioned";
 
+  /// triggers an [event] and sends it to all handlers that accept this type of
+  /// event , while also delivering [data] to each of them
   void triggerEvent(String event , Map<String,dynamic> data){
     List<HandlerStructure>? handlers = _handlers[event];
     if (handlers == null) return;

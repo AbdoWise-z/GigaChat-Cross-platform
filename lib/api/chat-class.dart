@@ -1,9 +1,20 @@
 
 import 'package:gigachat/api/media-class.dart';
+import 'package:gigachat/pages/home/pages/chat/chat-list-page.dart';
 import 'package:gigachat/providers/auth.dart';
-
 import '../base.dart';
 
+/// this class represents an active chat in the [ChatListPage]
+/// params
+/// [lastMessage] the message that was sent in the chat
+/// [username] the username of the other user in the chat
+/// [nickname] the nickname of the other user in the chat
+/// [mongoID] the mongoID of the chat
+/// [blocked] is the user blocked ?
+/// [followed] is the user followed ?
+/// [isFollowingMe] is the user following me ?
+/// [pinned] true if the chat was pinned , otherwise false
+/// [time] the last message time
 class ChatObject {
   ChatMessageObject? lastMessage;
   final String username;
@@ -33,7 +44,19 @@ class ChatObject {
   }
 }
 
-
+/// class represents a chat message
+/// [uuid] a unique id for the message
+/// [id] the database id for this message
+/// [replyTo] the id of the message we are replying to
+/// [text] the text content of the message
+/// [media] the media content of the message
+/// [self] was this message sent by me ?
+/// [state] the current state of the message, one of :
+///   * STATE_SENDING
+///   * STATE_SENT
+///   * STATE_READ
+///   * STATE_FAILED
+/// [time] the time of the message
 class ChatMessageObject {
   static const int STATE_SENDING = 0;
   static const int STATE_SENT    = 1;

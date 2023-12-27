@@ -11,6 +11,10 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/chat-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 
+
+/// a home tab class to define how the chat page should look for the home
+/// its also responsible for tracking the number of active chats and
+/// unseen messages and updates the home notifications counter accordingly
 class ChatHomeTab with HomePageTab {
 
   final ChatListPage page = const ChatListPage();

@@ -9,8 +9,15 @@ import 'package:gigachat/widgets/gallery/widgets/ImageGridItem.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+/// providers a utility to pick media from phone Gallery for from
+/// desktop files
 class Gallery{
-
+  ///
+  /// selects files from the phone gallery or from windows local storage
+  /// [selectMax] defines the maximum files to select
+  /// [canSkip] defines if this dialog is skip able
+  /// [selected] a list of already selected files
+  ///
   static Future<List<TypedEntity>> selectFromGallery(
       BuildContext context ,
       { int selectMax = MEDIA_UPLOAD_LIMIT ,
@@ -69,6 +76,9 @@ class Gallery{
   }
 }
 
+
+/// the media pick up gallery widget
+/// it loads a gallery using the internal phone storage
 class _GalleryWidget extends StatefulWidget {
   final bool canSkip;
   final int selectMax;

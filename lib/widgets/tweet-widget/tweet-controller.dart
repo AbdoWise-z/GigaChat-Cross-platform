@@ -1,3 +1,5 @@
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/tweets-requests.dart';
@@ -11,6 +13,14 @@ import '../../base.dart';
 import '../../pages/profile/user-profile.dart';
 import '../../providers/feed-provider.dart';
 
+/// likes a tweet if it was not liked and vice versa
+/// [context] : buildContext of the parent widget
+/// [token] : currently logged in user token
+/// [tweetData] : data of the tweet that is being liked
+/// returns true if the operation succeeded,
+/// increases/decreases number of tweet likes
+/// add / remove it to the likes tweet feed in current user profile
+/// if failed will return false and show error message
 Future<bool> toggleLikeTweet(BuildContext context,String? token,TweetData tweetData) async {
   if (token == null) {
     Navigator.popUntil(context, (route) => route.isFirst);
@@ -58,7 +68,12 @@ Future<bool> toggleLikeTweet(BuildContext context,String? token,TweetData tweetD
   }
 }
 
-
+/// retweets a tweet if it was not liked and vice versa
+/// [context] : buildContext of the parent widget
+/// [token] : currently logged in user token
+/// [tweetData] : data of the tweet that is being liked
+/// returns true if the operation succeeded,
+/// increases/decreases number of tweet retweets
 Future<bool> toggleRetweetTweet(String? token,TweetData tweetData) async {
   if (token == null){
     return false;

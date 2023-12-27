@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
+/// this widget loads the first frame of the video and show it to the user
+/// hiding its controllers so that user cannot play the videos unless it was pressed
+/// and fullscreen media is opened
+/// [tag] : a unique identifier for the video
+/// [videoUrl] : url for the video to be displayed
 class SingleFrameVideoPlayer extends StatefulWidget {
   final String tag;
   final String videoUrl;

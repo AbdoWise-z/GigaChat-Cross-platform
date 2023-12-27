@@ -6,6 +6,9 @@ import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/profile/user-profile.dart';
 import 'package:gigachat/providers/auth.dart';
 
+/// this page loads a user profile for user with id [target]
+/// and sends the profile data to the [ChatPage] or [UserProfile]
+/// for navigating from the [NotificationsAllTab] to [ChatPage] or [UserProfile]
 class ProfileNotificationNavigation extends StatefulWidget {
   final String target;
   final bool chat;

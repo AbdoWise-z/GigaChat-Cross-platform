@@ -31,6 +31,9 @@ enum NavigatorDirection{
   CHAT,
 }
 
+
+/// AppNavigator manages the paths pushed an pulled from the Navigator widgets
+/// inside the application since the application uses 3 navigators at the same time
 class AppNavigator {
   static final Map<String , Widget Function(BuildContext)> routes = {
     Home.pageRoute : (context) => Home(),
@@ -59,6 +62,7 @@ class AppNavigator {
     AccountSettings.pageRoute : (context) => const AccountSettings(),
   };
 
+  /// The page build function for the home navigator
   static MaterialPageRoute onBuildHomeRoute(RouteSettings settings){
     if (settings.name == "/"){
       return MaterialPageRoute(
@@ -72,6 +76,7 @@ class AppNavigator {
     );
   }
 
+  /// The page build function for the chat navigator
   static MaterialPageRoute onBuildChatRoute(RouteSettings settings){
     if (settings.name == "/"){
 
@@ -113,6 +118,7 @@ class AppNavigator {
 
 
 
+  /// returns the correct [NavigatorState] based on the [src] and the [dst]
   static NavigatorState getNavigator(NavigatorDirection src , NavigatorDirection dst){
     switch (src){
       case NavigatorDirection.HOME:

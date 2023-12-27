@@ -7,6 +7,10 @@ import 'package:gigachat/providers/auth.dart';
 
 import 'chat-page.dart';
 
+
+/// Direct messages search page, contains a text field to try the keyword in
+/// and displays matching results with the keyword, navigates to the [ChatPage]
+/// if you select any item on the results list
 class ChatSearchPage extends StatefulWidget {
   const ChatSearchPage({super.key});
 

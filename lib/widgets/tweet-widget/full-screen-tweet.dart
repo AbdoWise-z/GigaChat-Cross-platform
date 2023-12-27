@@ -18,6 +18,13 @@ import 'package:gigachat/widgets/video-player.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photo_view/photo_view.dart';
 
+/// Page To show the tweet media as full screen image and tweet data will be in scene too
+/// it also supports carrousel to view multiple images
+/// required context arguments to navigate to the page
+/// [tweetData] : data of the tweet to be viewed
+/// [parentFeed] : feed holding this tweet
+/// [mediaList] : list of media to be shown in the page carrousel
+/// [currentPage] : the first image to view in case of multiple images
 class FullScreenImage extends StatefulWidget {
   final double initialHeight = 200;
   static const String pageRoute = "/fullImage";
@@ -40,6 +47,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
     upperValueNotifier = ValueNotifier(0.0);
   }
 
+  /// Saves the image having the given [imageUrl] to user gallery
   Future<void> _saveImage(String imageUrl) async {
     final response = await Dio().get(
         imageUrl,
@@ -53,8 +61,10 @@ class _FullScreenImageState extends State<FullScreenImage> {
     }
   }
 
-  List<Widget> buildList(List<MediaData> images){
-    List<Widget> res = images.asMap().entries.map((entry) {
+  /// converts the given list of MediaData to its correct ui widget according to its type
+  /// [mediaList] : given list of media Data
+  List<Widget> buildList(List<MediaData> mediaList){
+    List<Widget> res = mediaList.asMap().entries.map((entry) {
       int i = entry.key;
       MediaData image = entry.value;
 
@@ -95,15 +105,13 @@ class _FullScreenImageState extends State<FullScreenImage> {
   }
 
 
-
-
   @override
   Widget build(BuildContext context) {
 
     Map<String,dynamic> argument = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
     TweetData tweetData = argument["tweetData"];
     FeedController parentFeed = argument["parentFeed"];
-    List<MediaData> images = tweetData.media!;
+    List<MediaData> mediaList = tweetData.media!;
     currentPage ??= argument["index"];
     User currentUser = Auth.getInstance(context).getCurrentUser()!;
 
@@ -144,7 +152,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
                           setState(() {});
                         }
                     ),
-                    items: buildList(images),
+                    items: buildList(mediaList),
                   ),
                 ),
               ),

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// just a widget to represent a button that will be
+/// used on the Bottom Navigation Bar in the home page
+/// takes [icon] the icon of this button , [click] a
+/// click event handler and [notify] the number of notifications
+/// this page has
 class BottomBarItem extends StatelessWidget {
   final void Function() click;
   final IconData icon;

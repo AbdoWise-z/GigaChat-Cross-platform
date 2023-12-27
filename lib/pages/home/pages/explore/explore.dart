@@ -6,6 +6,9 @@ import 'package:gigachat/pages/search/search.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'package:gigachat/widgets/trends/trends-tab.dart';
 
+/// the Trends home page tab
+/// it defined how the trends page should
+/// look like for the home page
 class Explore with HomePageTab {
   @override
   List<AppBarAction> getActions(BuildContext context) {
@@ -72,6 +75,11 @@ class Explore with HomePageTab {
 
 }
 
+
+/// a trends list item, it takes 3 parameters
+/// [place] which the the location of this trend
+/// [trendString] which the text or the trending word
+/// [postsNumbers] which is the number or score this trend has
 class TrendItem extends StatelessWidget { // item for each notification
   final String place;
   final String trendString;
@@ -114,6 +122,7 @@ class TrendItem extends StatelessWidget { // item for each notification
   }
 }
 
+/// preview , not used anymore
 class Trending extends StatelessWidget {
   const Trending({super.key});
   @override
@@ -144,6 +153,9 @@ class Trending extends StatelessWidget {
   }
 }
 
+
+/// this page displays an empty message for the user
+/// when this is no content to display
 class NothingYet extends StatelessWidget {
   const NothingYet({super.key});
   @override

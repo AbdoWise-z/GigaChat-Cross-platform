@@ -2,18 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
+/// represents a single action in the home app bar
+/// takes [onClick] an event handler to trigger and
+/// [icon] the icon to display
 class AppBarAction {
   final void Function() onClick;
   final IconData icon;
   const AppBarAction({required this.icon , required this.onClick});
 }
 
+/// the search bar inside the home app bar, takes [hint] is
+/// the hint text to display and [onClick] a click event
+/// handler
 class AppBarSearch {
   final String hint;
   final void Function() onClick;
   const AppBarSearch({required this.hint , required this.onClick});
 }
 
+/// a structure to hold the app bar tabs
+/// takes a list [tabs] the title of these tabs
+/// a [indicatorSize] and [tabAlignment]
 class AppBarTabs{
   final List<String> tabs;
   final TabBarIndicatorSize? indicatorSize;
@@ -23,6 +32,17 @@ class AppBarTabs{
 
 }
 
+/// a Stateless widget to build the home app bar
+/// takes :
+/// [pinned] is the app bar pinned ?
+/// [userImage] the link to the current user profile image
+/// [title] the title of this app bar (if any)
+/// [searchBar] the search par specs
+/// [actions] a list of actions that should be included
+/// [controller] the tab bar controller is this page has tabs
+/// [tabs] the tabs to display if this page has tabs
+/// [disableProfileIcon] in wide screen we have more than one app bar
+///                      so we use this parameter to disable one of the images
 class HomeAppBar extends StatelessWidget {
   final bool pinned;
   final String? userImage;

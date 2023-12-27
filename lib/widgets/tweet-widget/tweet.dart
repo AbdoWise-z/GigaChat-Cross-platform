@@ -26,6 +26,12 @@ import 'package:provider/provider.dart';
 
 // tested successfully
 
+/// converts the given input text into RichText Widget having the words starting with # and @ colored in blue and navigates to search page
+/// with their values, and normal text will be made as a normal TextSpan
+/// [context] : current buildContext of the parent widget
+/// [inputText] : the text to be converted
+/// [isDarkMode] : if the current theme is dark
+/// [currentID] : currently logged in User ID
 List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDarkMode , currentID){
   final RegExp regex = RegExp(r'\B[@#]\w*');
   List<TextSpan> spans = [];
@@ -67,7 +73,17 @@ List<TextSpan> textToRichText(BuildContext? context, String inputText,bool isDar
 
 }
 
-
+/// UI Representation to the tweet data
+/// [tweetOwner] : owner of the given tweet data
+/// [tweetData] : data of the tweet to show
+/// [isRetweet] : is the current tweet type is retweet
+/// [isSinglePostView] : is the current post special post and its ui should change for the main tweet in view post
+/// [cancelSameUserNavigation] : stop navigation to the current user profile when clicking on the user avatar of the tweet owner
+/// [callBackToDelete] callback function on pressing delete tweet button
+/// [onCommentButtonClicked] callback function on pressing comment tweet button
+/// [parentFeed] : the feed controller of the feed holding this tweet
+/// [deleteOnUndoRetweet] : chooses whether to delete the tweet on undo retweet button pressed or not
+/// [showVerticalDivider] : show a vertical line below the user avatar
 class Tweet extends StatefulWidget {
 
   final User tweetOwner;
@@ -104,6 +120,7 @@ class _TweetState extends State<Tweet> {
 
   // Controllers for the tweet class
 
+  /// updates parent feed state if found or else updates itself
   void updateState(){
     if (widget.parentFeed == null) {
       setState(() {});
@@ -116,6 +133,10 @@ class _TweetState extends State<Tweet> {
     }
   }
 
+  /// navigates to the tweet owner id if it was not the same as the currently logged in user
+  /// or it was allowed to navigate to the same user profile
+  /// [currentUserId] username of currently logged in user
+  /// [tweetOwnerId] id of the tweet owner
   void navigateToUserProfile({required String currentUserId,required String tweetOwnerId}){
     // if it's the same user don't navigate to the profile from the tweet
     if (tweetOwnerId == currentUserId && widget.cancelSameUserNavigation){
@@ -489,6 +510,14 @@ class _TweetState extends State<Tweet> {
     );
   }
 
+  /// builds the upper row of the tweet body where the user data is located
+  /// [context] current buildContext of the parent widget
+  /// [tweetId] id of the current tweet
+  /// [tweetOwner] owner of the tweet
+  /// [tweetDate] date of the tweet
+  /// [isSinglePostView] is it special view for main post in comments page
+  /// [isDarkMode] is the current theme is dark
+  /// [countRow] number of characters of the name, username and date (to avoid overflowing)
   Widget tweetUserInfo(
       BuildContext context,
       String tweetId,

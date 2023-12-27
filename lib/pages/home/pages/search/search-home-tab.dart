@@ -4,6 +4,8 @@ import 'package:gigachat/pages/home/home-page-tab.dart';
 import 'package:gigachat/pages/home/widgets/home-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+
+/// not used
 class SearchHomeTab with HomePageTab
 {
   @override

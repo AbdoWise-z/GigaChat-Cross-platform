@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// this is a preview page, its not complete nor it integrated with the api
+/// because this is no API for it
 class MutedNotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

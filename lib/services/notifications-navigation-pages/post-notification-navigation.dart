@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweets-requests.dart';
+import 'package:gigachat/pages/home/pages/notification/notifications-all-tab.dart';
 import 'package:gigachat/pages/loading-page.dart';
 import 'package:gigachat/pages/posts/view-post.dart';
 import 'package:gigachat/providers/auth.dart';
 
+
+/// this page loads a tweet from tweet with id [target]
+/// and sends the tweet data to the [ViewPostPage]
+/// for navigating from the [NotificationsAllTab] to [ViewPostPage]
 class PostNotificationNavigation extends StatefulWidget {
   final String target;
   const PostNotificationNavigation({super.key, required this.target});

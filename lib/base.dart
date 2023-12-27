@@ -1,3 +1,7 @@
+///
+/// This file generally contains global constants used
+/// in various places inside the application
+
 
 const String API_LINK = "backend.gigachat.cloudns.org";
 const String API_WEBSOCKS_LINK = "http://51.116.199.56:5750/";

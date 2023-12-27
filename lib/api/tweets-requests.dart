@@ -7,6 +7,9 @@ import '../base.dart';
 import 'api.dart';
 import "package:gigachat/api/user-class.dart";
 
+
+/// This class is responsible for dealing with the tweets api endpoints
+/// and decode the result into tweet data class
 class Tweets {
 
 
@@ -47,7 +50,6 @@ class Tweets {
     return k;
   }
 
-
   static List<TweetData> loadCache() {
     return [
       getDefaultTweet("1",MediaType.IMAGE),
@@ -58,6 +60,12 @@ class Tweets {
     ];
   }
 
+  /// a function that follows the given path [fullPath] and navigate throw the object untill it reaches the desired location
+  /// EX: let [obj] = {data:{data1 : {data2 : 0}}} and the [fullPath] be [data,data1,data2]
+  /// Then the function will do the following => [obj] = {data1: {data2 : 0}} => [obj] = {data2 : 0} => [obj] = 0 and 0 is returned
+  /// [obj] dynamic object
+  /// [fullPath] : List of Strings specifying the required path
+  /// Note: if the path contained a media as string then a list of TweetMedia will be returned
   static specialAccessObject(dynamic obj, List<String>? fullPath){
     dynamic currentObject = obj;
     if (fullPath == null){
@@ -79,6 +87,9 @@ class Tweets {
     return currentObject;
   }
 
+  /// Responsible For Decoding The Tweet's Reply That Is Passed with the tweet as it's first reply to be shown
+  /// [replyObject] the reply object inside the tweet response
+  /// Return: TweetData object of the reply data
   static TweetData? decodeTweetReply(dynamic replyObject){
     if (replyObject.isEmpty){
       return null;
@@ -109,6 +120,9 @@ class Tweets {
       );
   }
 
+  /// This Functions handle getting replied tweet tweet owner to show it for user as (Replying to @...)
+  /// [tweetID] id of the reply tweet
+  /// [token] currently logged in user id
   static Future<String?> getRepliedTweetUserId(String token, String tweetID) async {
     ApiPath endPointPath = ApiPath.tweetOwnerId.format([tweetID]);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -116,8 +130,6 @@ class Tweets {
         endPointPath,
         headers: headers
     );
-    print("here responsing");
-    print(response.responseBody);
     if (response.code == ApiResponse.CODE_SUCCESS && response.responseBody != null){
       dynamic res = jsonDecode(response.responseBody!);
       return res["data"]["tweet_owner"];
@@ -127,6 +139,12 @@ class Tweets {
     }
   }
 
+  /// Responsible For Decoding The List Of Tweets Responded By Server
+  /// [token] currently logged in user token
+  /// [response] the response object (stringified JSON object)
+  /// [accessor] Map that maps each tweetData property to its own path
+  /// returns Future List Of Tweet Data for the responded Tweets
+  /// in case of failure, empty list is returned
   static Future<List<TweetData>> decodeTweetList(
       String token,
       ApiResponse response,
@@ -203,9 +221,14 @@ class Tweets {
     }
     return tweetList;
   }
-  /// returns list of the posts that the current logged in user following their owners,
-  /// if the request failed to fetch new posts it should load the cached tweets to achieve availability
 
+  /// returns list of the posts that the current logged in user following their owners,
+  /// if the request failed an empty list will be returned
+  /// [token] currently logged in user id
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String,TweetData>> getFollowingTweet (String token,String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
@@ -248,6 +271,13 @@ class Tweets {
         }, ApiPath.followingTweets);
   }
 
+  /// gets the profile page tweets of a certain user
+  /// [token] currently logged in user id
+  /// [userID] username of the user to show his/her profile
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String,TweetData>> getProfilePageTweets (String token,String userID, String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
@@ -280,6 +310,14 @@ class Tweets {
     }, ApiPath.userProfileTweets.format([userID]));
   }
 
+
+  /// gets certain user liked tweets
+  /// [token] currently logged in user id
+  /// [userID] username of the user to show his/her liked tweets
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String,TweetData>> getProfilePageLikes (String token,String userID, String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
@@ -312,6 +350,13 @@ class Tweets {
     }, ApiPath.userProfileLikes.format([userID]));
   }
 
+
+  /// gets tweets that the current user was mentioned in
+  /// [token] currently logged in user id
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String,TweetData>> getMentionTweets (String token,String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
@@ -344,6 +389,14 @@ class Tweets {
     }, ApiPath.mentions);
   }
 
+
+  /// get certain tweets reply list
+  /// [token] currently logged in user id
+  /// [tweetID] tweet id of the replied tweet
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String, TweetData>> getTweetReplies (String token,String tweetID, String count, String page) async
   {
     return await fetchTweetsWithApiInterface(token, count, page, {
@@ -375,6 +428,12 @@ class Tweets {
     }, ApiPath.comments.format([tweetID]),fetchAdditionalReply: true);
   }
 
+
+  /// gets a tweet by its id
+  /// [token] currently logged in user id
+  /// [tweetID] id of the tweet to be fetched
+  /// return a TweetData object with the tweet data
+  /// return null if failure happened
   static Future<TweetData?> getTweetById(String token, String tweetID) async {
     ApiPath endPointPath = ApiPath.getTweet.format([tweetID]);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -425,6 +484,17 @@ class Tweets {
     return null;
   }
 
+
+  /// general function to fetch all types of tweet lists
+  /// all this class functions uses this function to access the endpoint and fetch data
+  /// [token] currently logged in user id
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// [accessor] Map object that maps every tweet data attribute to its path in the response
+  /// [endPointPath] uri to be connected to
+  /// [fetchAdditionalReply] {optional} : fetch a reply with each tweet if found
+  /// return a mapped list of tweetId vs tweetData
+  /// if failed an empty map will be returned
   static Future<Map<String,TweetData>> fetchTweetsWithApiInterface
       (
         String token,
@@ -464,6 +534,13 @@ class Tweets {
   }
 
 
+  /// gets the users the liked a certain tweet
+  /// [token] currently logged in user id
+  /// [tweetId] id of the target tweet
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a List of users
+  /// if failed an empty list will be returned
   static Future<List<User>> getTweetLikers(String token, String tweetId,String page, String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -487,6 +564,14 @@ class Tweets {
     }
     return [];
   }
+
+  /// gets the users that retweeted a certain tweet
+  /// [token] currently logged in user id
+  /// [tweetId] id of the target tweet
+  /// [count] number of tweets to be fetched
+  /// [page] number of page to be fetched
+  /// return a List of users
+  /// if failed an empty list will be returned
   static Future<List<User>> getTweetRetweeters(String token, String tweetId,String page,String count) async
   {
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -565,6 +650,10 @@ class Tweets {
     }
   }
 
+  /// unretweet the tweet by its id
+  /// [token] currently logged in user id
+  /// [tweetId] id of the target tweet
+  /// return true if the tweet was unretweeted, false if failed
   static Future<bool> unretweetTweetById(String token,String tweetId) async {
     ApiPath endPoint = (ApiPath.unretweet).appendDirectory(tweetId);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -581,6 +670,10 @@ class Tweets {
     }
   }
 
+  /// delete a tweet by its id
+  /// [token] currently logged in user id
+  /// [tweetId] id of the target tweet
+  /// return true if the tweet was successfully deleted or false any case else
   static Future<bool> deleteTweetById(String token,String tweetId) async {
     ApiPath endPoint = ApiPath.deleteTweet.format([tweetId]);
     var headers = Api.getTokenWithJsonHeader("Bearer $token");

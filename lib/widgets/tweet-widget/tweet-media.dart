@@ -6,7 +6,9 @@ import 'package:gigachat/widgets/single-frame-video-player.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 import 'full-screen-tweet.dart';
 
-
+/// UI Representation of the tweet media widget
+/// [tweetData] data of the tweet carrying these media
+/// [parentFeed] the parent carrying the tweet
 class TweetMedia extends StatelessWidget {
   final TweetData tweetData;
   final FeedController? parentFeed;
@@ -37,7 +39,7 @@ class TweetMedia extends StatelessWidget {
               return StaggeredGridTile.count(
                 mainAxisCellCount: mainCount,
                 crossAxisCellCount: crossCount,
-                child: imageEntity(context, index),
+                child: mediaEntity(context, index),
               );
             }).toList()
         ),
@@ -45,8 +47,11 @@ class TweetMedia extends StatelessWidget {
     );
   }
 
-
-  Widget imageEntity(context, index){
+  /// returns the correct ui representation of the media data and place a hero for the images
+  /// for transitions
+  /// [context] parent widget buildContext
+  /// [index] the index of the image in the media list
+  Widget mediaEntity(context, index){
     List<MediaData> mediaList = tweetData.media!;
     MediaData imageData = mediaList[index];
     return GestureDetector(

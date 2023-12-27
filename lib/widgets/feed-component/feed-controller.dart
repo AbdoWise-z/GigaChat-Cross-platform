@@ -8,6 +8,16 @@ import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 
+/// responsible for caching and fetching the feed data and returns it to the feed if needed
+/// [id] : feed controller id
+/// [feedProvider] : reference to feed provider (internally initialized)
+/// [token] : currently logged in user token
+/// [_feedData] : cache for the current feed data
+/// [_feedKeys] : cache for the current feed keys for eliminating duplicates
+/// [loading] : state of the feed controller , true if it's fetching data for the first time
+/// [fetchingMoreData] : state of the feed controller after the first fetch, true if it's trying to fetch more data
+/// [providerFunction] : selects the function that will fetch the data from the endpoint
+/// [lastFetchedPage] : last fetched page to the controller
 class FeedController {
 
   String id;
@@ -30,14 +40,19 @@ class FeedController {
     feedProvider = FeedProvider.getInstance(context);
   }
 
+  /// Sets the token of the currently logged in user
   void setUserToken(String? userToken) {
     token = userToken;
   }
 
+  /// return the loading state of the feed controller
   bool isLoading(){
     return loading;
   }
 
+  /// place the new data at the end of the list of the current feed data
+  /// [newData] mapped dynamic object with some identifier {id: obj}
+  /// [noRefresh] : if true the feed will not refresh
   void appendToLast(Map<String, dynamic> newData,{bool noRefresh = false}) {
     newData.forEach((key, value) {
       if(! _feedKeys!.contains(key)){
@@ -51,6 +66,7 @@ class FeedController {
     updateFeeds();
   }
 
+  /// reset the feed controller data to it's initial state
   void resetFeed(){
     _feedData = [];
     _feedKeys = [];
@@ -58,6 +74,9 @@ class FeedController {
     loading = true;
   }
 
+  /// place the new data at the end of the list of the current feed data
+  /// [newData] mapped dynamic object with some identifier {id: obj}
+  /// [noRefresh] : if true the feed will not refresh
   void appendToBegin(Map<String, dynamic> newData, {bool noRefresh = false}) {
     newData.forEach((key, value) {
       if(! _feedKeys!.contains(key)){
@@ -70,6 +89,10 @@ class FeedController {
     updateFeeds();
   }
 
+  /// remove a tweet from the feed by it's id
+  /// this function can be used to remove any type of data just pass the id
+  /// [newData] mapped dynamic object with some identifier {id: obj}
+  /// [noRefresh] : if true the feed will not refresh
   void deleteTweet(String tweetID){
     if (_feedData == null) return;
     int idx = _feedKeys!.indexOf(tweetID);
@@ -81,26 +104,36 @@ class FeedController {
     updateFeeds();
   }
 
+  /// update the feed to follow the changes happened
   void updateFeeds(){
     feedProvider!.updateFeeds();
   }
 
+  /// ASSUMING THE FEED DEALS WITH TWEETS
+  /// delete a tweet of a certain user by it's username
   void deleteUserTweets(String username){
-    List<TweetData> targetTweets = _feedData!.cast<TweetData>()
-        .where((tweetData) => tweetData.tweetOwner.id == username).toList();
-    List<String> targetIds = _feedData!.cast<TweetData>()
-        .map((tweetData) => tweetData.id).toList();
-    _feedData!.removeWhere((tweetData) => targetTweets.contains(tweetData));
-    _feedKeys!.removeWhere((tweetId) => targetIds.contains(tweetId));
-    if (_feedData!.isEmpty){
-      resetFeed();
+    try{
+      List<TweetData> targetTweets = _feedData!.cast<TweetData>()
+          .where((tweetData) => tweetData.tweetOwner.id == username).toList();
+      List<String> targetIds = _feedData!.cast<TweetData>()
+          .map((tweetData) => tweetData.id).toList();
+      _feedData!.removeWhere((tweetData) => targetTweets.contains(tweetData));
+      _feedKeys!.removeWhere((tweetId) => targetIds.contains(tweetId));
+      if (_feedData!.isEmpty){
+        resetFeed();
+      }
+    } catch(e){
+      return;
     }
   }
 
+  /// return the current feed data
   List getCurrentData () {
     return _feedData!;
   }
 
+  /// converts a list of users into a map of {username, user}
+  /// [users] list of users to be converted
   Map<String,User> mapUserListIntoMap(List<User> users){
     Map<String,User> mappedUsers = {};
     for (User user in users){
@@ -109,6 +142,9 @@ class FeedController {
     return mappedUsers;
   }
 
+
+  /// this functions keep getting the replied tweet of the current tweet until it reaches the root tweet
+  /// [mainTweetForComments] the first tweet of the tree
   Future<List<TweetData>> fetchRepliesTree(mainTweetForComments) async {
     TweetData? tweetData = mainTweetForComments!;
     List<TweetData> response = [tweetData!];
@@ -121,6 +157,13 @@ class FeedController {
     return response;
   }
 
+  /// request new data from the api and add it to the current feed data
+  /// if the providerFunction is [ProviderFunction.GET_TWEET_COMMENTS] it will fetch extra data for the tweet reply tree
+  /// [toBegin] : specify whether to add data to the begin of the feed or the end
+  /// [username] : {required for apis dealing with username only} username to be passed to the api
+  /// [tweetID] : {required for apis dealing with tweetID only} tweetID to be passed to the api
+  /// [keyword] : {required for apis dealing with keyword only} keyword to be passed to the api
+  /// [mainTweet] : {required for get tweet comments feed} start of the reply tree
   Future<void> fetchFeedData({
     bool? toBegin,
     String? username,

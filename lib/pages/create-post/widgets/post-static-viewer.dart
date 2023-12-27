@@ -5,6 +5,9 @@ import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/widgets/single-frame-video-player.dart';
 
+
+/// in case of creating a reply, this is the reply preview that's shown at the top
+/// takes only one input [tweet] which is the tweet we want to create small preview for
 class PostStaticViewer extends StatefulWidget {
   final TweetData tweet;
 

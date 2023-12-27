@@ -9,6 +9,9 @@ import 'package:gigachat/providers/auth.dart';
 
 const REQUEST_COOLDOWN = Duration(milliseconds: 500);
 
+/// page to provide the searching functionality for the user
+/// searching is done when the input of the text field changes with a cool down
+/// equal to [REQUEST_COOLDOWN]
 class SearchPage extends StatefulWidget
 {
   static const String pageRoute = "/search";
@@ -27,6 +30,7 @@ class _SearchPageState extends State<SearchPage> {
   late TextEditingController textFieldController;
   late Timer timerController;
 
+  /// send request to the api endpoint to fetch tags and users to show them in search page
   void searchKeyword() async {
     if (keyword == null || keyword!.isEmpty) {
       clearList();
@@ -39,18 +43,20 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {});
   }
 
-
+  /// clear data of the page
   void clearList() {
     searchedTags = [];
     searchedUsers = [];
     setState(() {});
   }
 
+  /// reset cooldown timer
   void reWriteTimer() {
     timerController.cancel();
     timerController = Timer(REQUEST_COOLDOWN, () { searchKeyword(); });
   }
 
+  /// navigate to search results page with the [data] to be searched
   void search(String? data){
     if (data == null || data.isEmpty) {
       return;

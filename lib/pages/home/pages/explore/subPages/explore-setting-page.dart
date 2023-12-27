@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'choose-location.dart';
 
+/// this is a preview page, its not complete nor it integrated with the api
+/// because this is no API for it
 class SettingPage extends StatefulWidget {
   @override
   _SettingPageState createState() => _SettingPageState();

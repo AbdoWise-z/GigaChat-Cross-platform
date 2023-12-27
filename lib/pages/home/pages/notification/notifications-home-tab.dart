@@ -9,6 +9,7 @@ import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+/// defined how the notifications page should look like for the home page
 class NotificationsHomeTab with HomePageTab {
   @override
   List<AppBarAction> getActions(BuildContext context) {

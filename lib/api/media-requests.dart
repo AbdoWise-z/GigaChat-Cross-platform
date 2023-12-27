@@ -5,8 +5,13 @@ import 'package:gigachat/api/api.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
-
+/// this class contains all of the requests related to media
+/// including media uploading / deleting / etc ..
 class Media {
+
+  /// uploads a list of [files] to the server using user token [token]
+  /// returns a [List] of [String] if the upload was successful and will call [success]
+  /// otherwise will return null and will call [error]
   static Future<ApiResponse<List>> uploadMedia(String token , List<UploadFile> files , {void Function(ApiResponse<List>)? success , void Function(ApiResponse<List>)? error}) async {
     List<MultipartFile> fList = [];
 

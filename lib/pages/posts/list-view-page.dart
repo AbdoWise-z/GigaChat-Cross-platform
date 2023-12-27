@@ -5,6 +5,12 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+/// view list of users in a scrollable column
+/// these data must be passed in context arguments when navigating
+/// [pageTitle] : page title shown in app bar
+/// [tweetID] : id of the tweet in case of viewing likers or retweeters to cache data
+/// [userID] : id of the user in case of viewing followers or followings
+/// [providerFunction]: which api function to call and fetch data
 class UserListViewPage extends StatefulWidget {
   static const pageRoute = "/list-view";
   static const feedID = "USER_LIST_FEED/";

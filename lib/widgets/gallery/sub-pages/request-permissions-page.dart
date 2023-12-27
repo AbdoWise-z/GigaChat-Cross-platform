@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// this page is to request the all files permission form the user
+/// it only takes one input which is [onClick] an event handler
+/// when the user clicks to get the permissions
 class RequestPermissions extends StatelessWidget {
   final void Function() onClick;
   const RequestPermissions({super.key, required this.onClick});

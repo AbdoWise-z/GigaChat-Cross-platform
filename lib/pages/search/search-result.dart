@@ -6,6 +6,13 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+
+/// page to view the result of the search
+/// the result can be both users and tweets
+/// consists of two feeds, one for the result of searching for users and one for searching for the tweets
+/// if the search data consists of one tag it will be searched as trend search
+/// else will match the given keyword directly
+/// data is passed in context arguments using [keyword] key
 class SearchResultPage extends StatefulWidget {
   static const String pageRoute = "/search/result";
   static const String userSearchFeed = "userSearchFeed";

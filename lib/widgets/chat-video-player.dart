@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
+/// Video Player For The Chat Page
+/// [url] url path to the video to be shown
+/// [maxWidth] maximum container width for the player
 class ChatVideoPlayer extends StatefulWidget {
   final String url;
   final double maxWidth;

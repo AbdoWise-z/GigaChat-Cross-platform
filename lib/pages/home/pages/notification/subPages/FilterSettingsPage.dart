@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'mutedNotificationPage.dart';
 
+/// this is a preview page, its not complete nor it integrated with the api
+/// because this is no API for it
 class FilterSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

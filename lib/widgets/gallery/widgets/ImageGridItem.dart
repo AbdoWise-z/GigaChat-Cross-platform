@@ -4,6 +4,11 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+/// represents a Gallery grid item
+/// [enabled] weather this cell is clickable
+/// [entity] the media inside this cell
+/// [onTap] on click event handler
+/// [selected] is this cell selected
 class GalleryGridItem extends StatefulWidget {
   final bool enabled;
   final MediaEntity entity;

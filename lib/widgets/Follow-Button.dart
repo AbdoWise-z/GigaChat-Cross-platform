@@ -7,6 +7,13 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+/// Widget For The Follow Button in the tweet widget
+/// [isFollowed] : is the tweet owner followed by the current user or not
+/// [username] : username of the tweet owner
+/// [callBack] : call back function on pressing the button
+/// if the button was pressed it will change its state to make toggle from following to follow and vice verse
+/// it will also request feeds to update and follow the new data changed
+/// moreover it will request home feed to remove every tweet of the user if he was unfollowed
 class FollowButton extends StatefulWidget {
   bool isFollowed;
   String username;

@@ -1,4 +1,5 @@
-//all of the API classes will be defined here
+/// code is this file will provide all the utility needed to
+/// communicate with the App API through web requests
 
 import 'dart:async';
 import 'dart:convert';
@@ -8,7 +9,17 @@ import 'package:http/http.dart' as http;
 import 'package:gigachat/base.dart';
 import 'package:sprintf/sprintf.dart';
 
-
+/// represents a file that will be uploaded to the app
+/// takes [path] the path of the file inside the device
+/// [type] the type of the file generally one of:
+/// * Video
+/// * Image
+/// [subtype] the mime type of the file generally one of:
+/// * mp4
+/// * png
+/// * jpg
+/// * etc..
+///
 class UploadFile{
   final String path;
   final String? type;
@@ -17,6 +28,18 @@ class UploadFile{
   UploadFile({required this.path, this.type, this.subtype}) : assert(type == null || subtype != null , "Type and subtype must be both null or both not null");
 }
 
+/// a class that hold a generic API response the caller of this class is responsible for decoding
+/// the [responseBody] into the [data] depending on the [code] of the resposne
+/// the [code] is one of :
+/// * CODE_SUCCESS
+/// * CODE_SUCCESS_CREATED
+/// * CODE_SUCCESS_NO_BODY
+/// * CODE_BAD_REQUEST
+/// * CODE_NOT_FOUND
+/// * CODE_TIMEOUT
+/// * CODE_NO_INTERNET
+/// * CODE_NOT_AUTHORIZED
+/// * CODE_UNKNOWN
 class ApiResponse<T> {
   T? data;
   int code;
@@ -45,20 +68,32 @@ class ApiResponse<T> {
 
 }
 
-
+/// represents a string API path in the backend server
+/// takes only one parameter [_path] the path in the api
 class ApiPath{
   final String _path;
+
+  /// converts this object into its right [Uri], while encoding
+  /// the link with the [params]
   Uri url({Map<String,dynamic>? params}) {
     return Uri.https(API_LINK , _path , params);
   }
+
+  /// generates an [ApiPath] from a string
   static ApiPath fromString(String str){
     return ApiPath._(str);
   }
+
+  /// formats a the [_path] using String formatting and returns
+  /// an [ApiPath] with the new formatted string
   ApiPath format(List list){
     String str;
     str = sprintf(_path,list);
     return ApiPath._(str);
   }
+
+  /// adds a directory to this [ApiPath]
+  /// takes one input [directory] the directory to append
   ApiPath appendDirectory(String directory) => ApiPath._("$_path/$directory");
 
   const ApiPath._(String p) : _path = p;
@@ -80,7 +115,7 @@ class ApiPath{
   static ApiPath updateUsername          = const ApiPath._("/api/user/updateUsername");
   static ApiPath updateEmail             = const ApiPath._("/api/user/updateEmail");
   static ApiPath login                   = const ApiPath._("/api/user/login");
-  static ApiPath google                   = const ApiPath._("/api/user/googleAuth");
+  static ApiPath google                  = const ApiPath._("/api/user/googleAuth");
   static ApiPath profileImage            = const ApiPath._("/api/user/profile/image");
   static ApiPath followingTweets         = const ApiPath._("/api/homepage/following");
   static ApiPath followUser              = const ApiPath._("/api/user/%s/follow");
@@ -110,7 +145,6 @@ class ApiPath{
   static ApiPath userProfileReplies      = const ApiPath._("/api/user/profile/%s/tweetsWithReplies");
   static ApiPath userProfileLikes        = const ApiPath._("/api/profile/%s/likes");
   static ApiPath mentions                = const ApiPath._("/api/homepage/mention");
-
   static ApiPath tweetRetweeters         = const ApiPath._("/api/tweets/retweeters/%s");
   static ApiPath searchUsers             = const ApiPath._("/api/user/search");
   static ApiPath searchTweets            = const ApiPath._("/api/tweets/search/%s");
@@ -127,22 +161,31 @@ class ApiPath{
   static ApiPath getAllTrends            = const ApiPath._("/api/trends/all");
   static ApiPath notifications           = const ApiPath._("/api/user/notifications");
   static ApiPath notificationsCount      = const ApiPath._("/api/user/notifications/unseenCount");
-  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");}
+  static ApiPath notificationsMarkALl    = const ApiPath._("/api/user/notifications/markAllAsSeen");
 
+}
+
+
+
+/// a class that provided an abstract utility functions to deal with the backend API calls
+///
 class Api {
 
+  /// inserts an authorization header using the [token] while also adding the JSON content header
   static Map<String,String> getTokenWithJsonHeader(String token){
     return getJsonHeader({
       "authorization" : token
     });
   }
 
+  /// inserts an authorization header using the [token]
   static Map<String,String> getTokenHeader(String token){
     return {
       "authorization" : token
     };
   }
 
+  /// adds the [JSON_TYPE_HEADER] to the headers
   static Map<String,String> getJsonHeader(Map<String,String> m){
     Map<String,String> map ={};
     map.addAll(m);
@@ -150,22 +193,28 @@ class Api {
     return map;
   }
 
-
-
+  /// a header that defines a JSON content type used in API communication
   static final Map<String,String> JSON_TYPE_HEADER = {"Content-Type": "application/json"};
 
+  /// converts an error code to string
+  /// takes one input [code] the code
+  /// of the error to convert
   static String errorToString(int code){
     switch (code){
       case ApiResponse.CODE_NOT_FOUND: return "Not found";
       case ApiResponse.CODE_NO_INTERNET: return "No Internet Connection";
       case ApiResponse.CODE_TIMEOUT: return "Request Timed out";
-      case ApiResponse.CODE_UNKNOWN: return "Unknown Error happend";
+      case ApiResponse.CODE_UNKNOWN: return "Unknown Error happened";
       case ApiResponse.CODE_BAD_REQUEST: return "Bad Request";
       default: return "Error [$code]";
     }
   }
 
-
+  /// the actual implementation of the POST with no files functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [body] the body that will be used (normally a json string)
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiPostNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
     try {
       var response = await http.post(
@@ -185,6 +234,12 @@ class Api {
     }
   }
 
+  /// the actual implementation of the POST with file functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [body] the body that will be used (normally a json string)
+  /// [files] the files to upload with the request
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiPostFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
       var request = http.MultipartRequest("POST" , url);
@@ -211,6 +266,14 @@ class Api {
     }
   }
 
+  /// the API POST function interface
+  /// takes :
+  /// [path] an API path for the end point
+  /// [params] link params used in the request
+  /// [headers] headers used in the request
+  /// [body] the request body
+  /// [files] the files to upload
+  /// [encoding] the content encoding of the body
   static Future<ApiResponse<T>> apiPost<T>(
       ApiPath path ,
       {
@@ -229,6 +292,11 @@ class Api {
     return _apiPostFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
+  /// the actual implementation of the GET with no files functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [body] the body that will be used (normally a json string)
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiGetNoFilesImpl<T>(Uri url , Map<String,String>? headers) async {
     try{
       var response = await http.get(
@@ -247,6 +315,11 @@ class Api {
     }
   }
 
+  /// the API GET function interface
+  /// takes :
+  /// [path] an API path for the end point
+  /// [params] link params used in the request
+  /// [headers] headers used in the request
   static Future<ApiResponse<T>> apiGet<T>(
       ApiPath path ,
       {
@@ -260,7 +333,11 @@ class Api {
     return _apiGetNoFilesImpl<T>(path.url(params: params) , headers );
   }
 
-
+  /// the actual implementation of the PATCH with no files functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [body] the body that will be used (normally a json string)
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiPatchNoFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , Encoding encoding) async {
     try {
       var response = await http.patch(
@@ -280,6 +357,12 @@ class Api {
     }
   }
 
+  /// the actual implementation of the PATCH with file functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [body] the body that will be used (normally a json string)
+  /// [files] the files to upload with the request
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiPatchFilesImpl<T>(Uri url , Map<String,String>? headers , Object? body , List<http.MultipartFile> files , Encoding encoding) async {
     try {
       var request = http.MultipartRequest("PATCH" , url);
@@ -306,6 +389,14 @@ class Api {
     }
   }
 
+  /// the API PATCH function interface
+  /// takes :
+  /// [path] an API path for the end point
+  /// [params] link params used in the request
+  /// [headers] headers used in the request
+  /// [body] the request body
+  /// [files] the files to upload
+  /// [encoding] the content encoding of the body
   static Future<ApiResponse<T>> apiPatch<T>(
       ApiPath path ,
       {
@@ -323,8 +414,10 @@ class Api {
     return _apiPatchFilesImpl<T>(path.url(params: params) , headers , body , files , encoding!);
   }
 
-
-
+  /// the actual implementation of the DELETE with no files functionality
+  /// takes [url] the URL address of the end point
+  /// [headers] the headers that will be used in the request
+  /// [encoding] the content encoding (normally UTF8)
   static Future<ApiResponse<T>> _apiDeleteNoFilesImpl<T>(Uri url , Map<String,String>? headers , Encoding encoding) async {
     try {
       var response = await http.delete(
@@ -343,6 +436,12 @@ class Api {
     }
   }
 
+  /// the API DELETE function interface
+  /// takes :
+  /// [path] an API path for the end point
+  /// [params] link params used in the request
+  /// [headers] headers used in the request
+  /// [encoding] the content encoding of the body
   static Future<ApiResponse<T>> apiDelete<T>(
       ApiPath path ,
       {

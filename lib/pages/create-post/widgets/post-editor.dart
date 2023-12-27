@@ -8,6 +8,14 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+
+///
+/// Since creating a tweet can actually have more than one tweet, this widget is responsible
+/// for handling only one tweet editing , including :
+/// * Adding media
+/// * Adding Text
+/// * Removing media
+///
 class PostEditor extends StatefulWidget {
   bool active;
   bool multi;

@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 
+/// this class will be responsible for all of Settings / Configuration functionality
+/// it will act as a mediator between the API interfaces and Widgets of the
 class LocalSettings extends ChangeNotifier {
   static LocalSettings getInstance(BuildContext context , {bool listen = false}){
     return Provider.of<LocalSettings>(context , listen: listen);

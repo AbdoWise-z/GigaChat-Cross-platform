@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/trend-data.dart';
 import 'package:gigachat/pages/search/search-result.dart';
 
+/// UI Representation of the trend data
+/// [trendData] : data of the trend to be shown
 class TrendWidget extends StatelessWidget {
   final TrendData trendData;
   const TrendWidget({super.key, required this.trendData});

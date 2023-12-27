@@ -8,6 +8,7 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/chat-provider.dart';
 import 'package:provider/provider.dart';
 
+/// the chat list page which lists all of the current active chats for the user
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
 
