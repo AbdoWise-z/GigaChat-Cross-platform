@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/api/tweet-data.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
-import 'package:gigachat/pages/create-post/create-post-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+
+/// this page view the tweet in special view as main post , below the replies for this tweet
+/// and all reply history for the tweet if it was a reply for another tweet
+/// these arguments are required when navigating to the page
+/// [tweetOwner] : owner of the main tweet in the page
+/// [tweetData] : data of the main tweet in the page
+/// [cancelNavigationToUser] : stop navigating to user profile when pressing on the circle avatar
 class ViewPostPage extends StatefulWidget {
   static const String pageRoute = "/post/view";
   static const String feedID = "PostRepliesFeed/";
@@ -25,38 +31,10 @@ class _ViewPostPageState extends State<ViewPostPage> {
   late FeedController feedController;
   late TweetData tweetData;
 
-
-  Future<void> addComment(BuildContext context) async {
-    dynamic retArguments = await Navigator.pushNamed(context, CreatePostPage.pageRoute , arguments: {
-      "reply" : tweetData,
-    });
-
-    if(retArguments["success"] != null && retArguments["success"] == true){
-
-      List<TweetData> tweetList = retArguments["tweets"];
-      Map<String,TweetData> mappedTweets = {};
-      for (TweetData tweetData in tweetList){
-        mappedTweets.putIfAbsent(tweetData.id, () => tweetData);
-      }
-
-
-
-      feedController.appendToBegin(mappedTweets);
-      tweetData.repliesNum += 1;
-      setState(() {});
-    }
-  }
-
   @override
   void initState() {
     super.initState();
 
-  }
-
-  @override
-  void dispose() {
-    //FeedProvider.getInstance(context).removeFeedByObject(feedController);
-    super.dispose();
   }
 
   @override

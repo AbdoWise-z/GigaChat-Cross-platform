@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
+/// shows a bottom draggable sheet that contains buttons for user to interact with
+/// [context] : buildContext of the parent widget
+/// [buttons] : list of lists each list contains three elements ["button text", "button icon", "button callback"]
 void showCustomModalSheet(BuildContext context, List<List> buttons) async {
   showModalBottomSheet(
     showDragHandle: true,
@@ -12,6 +15,9 @@ void showCustomModalSheet(BuildContext context, List<List> buttons) async {
   );
 }
 
+/// makes the column inside the sheet
+/// [context] : buildContext of the parent widget
+/// [sheetData] : list of lists each list contains three elements ["button text", "button icon", "button callback"]
 Widget buildSheet(BuildContext context,List<List> sheetData,) {
   List<Widget> bottomSheetData = sheetData.map((pair) => pair.isEmpty ?
   Padding(
@@ -44,6 +50,11 @@ Widget buildSheet(BuildContext context,List<List> sheetData,) {
 }
 
 
+/// build sheet's button
+/// [context] : buildContext of the parent widget
+/// [content] : text to be written inside the button
+/// [icon]    : icon on the leftmost of the button
+/// [callbackFunction] : call back function when the button pressed
 Widget modalSheetButton(BuildContext context,String content, IconData icon, void Function()? callbackFunction)
 {
   bool isDarkMode = ThemeProvider.getInstance(context).isDark();

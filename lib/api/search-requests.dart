@@ -6,9 +6,16 @@ import 'package:gigachat/api/tweets-requests.dart';
 import 'package:gigachat/api/user-class.dart';
 import 'package:gigachat/base.dart';
 
+/// This class is responsible for dealing with the search api endpoints
+/// and decode the result into tweet data class or user class
 class SearchRequests{
-  static Future<List<String>> searchTagsByKeyword(String keyword,String token) async {
 
+  /// get all tags that matches the given keyword
+  /// [token] : currently logged in user token
+  /// [keyword] : the keyword that is being searched
+  /// returns a list of maximum of [DEFAULT_PAGE_COUNT] tags that matches the given keyword
+  /// if there is no match or error occurred an empty list will be returned
+  static Future<List<String>> searchTagsByKeyword(String keyword,String token) async {
     ApiPath path = ApiPath.searchTags;
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
     ApiResponse response = await Api.apiGet(path,headers:headers,
@@ -32,6 +39,13 @@ class SearchRequests{
   }
 
 
+  /// get all users that matches the given keyword
+  /// [token] : currently logged in user token
+  /// [keyword] : the keyword that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to fetch
+  /// returns a map of maximum of [DEFAULT_PAGE_COUNT] {username, user} where their username matches the given keyword
+  /// if there is no match or error occurred an empty map will be returned
   static Future<Map<String, User>> searchUsersByKeywordMapped
       (String keyword,String token,String page,String count) async {
     List<User> users = await searchUsersByKeyword(keyword, token, page, count);
@@ -42,6 +56,13 @@ class SearchRequests{
     return mappedUsers;
   }
 
+  /// get all users that matches the given keyword
+  /// [token] : currently logged in user token
+  /// [keyword] : the keyword that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to fetch
+  /// returns a list of maximum of [DEFAULT_PAGE_COUNT] users where their username matches the given keyword
+  /// if there is no match or error occurred an empty list will be returned
   static Future<List<User>> searchUsersByKeyword(String keyword,String token,String page,String count) async {
     ApiPath path = ApiPath.searchUsers;
     var headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -74,6 +95,14 @@ class SearchRequests{
       return [];
     }
   }
+
+  /// get all tweets that their description contains the given trend
+  /// [token] : currently logged in user token
+  /// [trend] : the trend that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to fetch
+  /// returns a map of maximum of [DEFAULT_PAGE_COUNT] {tweetId, tweet} where their description contains the given trend
+  /// if there is no match or error occurred an empty map will be returned
   static Future<Map<String,TweetData>> searchTweetsByTrendsMapped
       (String trend, String token, String page, String count) async {
     List<TweetData> tweetList = await searchTweetsByTrends(trend, token, page, count);
@@ -84,7 +113,13 @@ class SearchRequests{
     return mappedTweets;
   }
 
-
+  /// get all tweets that their description contains the given trend
+  /// [token] : currently logged in user token
+  /// [trend] : the trend that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to be fetched
+  /// returns a list of maximum of [DEFAULT_PAGE_COUNT] tweet where their description contains the given trend
+  /// if there is no match or error occurred an empty list will be returned
   static Future<List<TweetData>> searchTweetsByTrends
       (String trend, String token, String page, String count) async {
     ApiPath path = ApiPath.searchTrends.format([trend]);
@@ -138,6 +173,13 @@ class SearchRequests{
     }
   }
 
+  /// get all tweets that their description contains the given keyword
+  /// [token] : currently logged in user token
+  /// [trend] : the trend that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to fetch
+  /// returns a map of maximum of [DEFAULT_PAGE_COUNT] {tweetId, tweet} where their description contains the given keyword
+  /// if there is no match or error occurred an empty map will be returned
   static Future<Map<String,TweetData>> searchTweetsByKeywordMapped(String keyword,String token,String page,String count) async {
     List<TweetData> tweetList = await searchTweetsByKeyword(keyword, token, page, count);
     Map<String,TweetData> mappedTweets = {};
@@ -147,6 +189,13 @@ class SearchRequests{
     return mappedTweets;
   }
 
+  /// get all tweets that their description contains the given trend
+  /// [token] : currently logged in user token
+  /// [trend] : the trend that is being searched
+  /// [page] : page number to be fetched
+  /// [count] : number of users to be fetched
+  /// returns a list of maximum of [DEFAULT_PAGE_COUNT] tweet where their description contains the given trend
+  /// if there is no match or error occurred an empty list will be returned
   static Future<List<TweetData>> searchTweetsByKeyword(String keyword,String token,String page,String count) async {
     ApiPath path = ApiPath.searchUsers;
     var headers = Api.getTokenWithJsonHeader("Bearer $token");

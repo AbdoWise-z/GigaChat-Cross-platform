@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Widget that view to user that a permission is missing
+/// [onClick] call back function on pressing got it button
 class RequestPermissions extends StatelessWidget {
   final void Function() onClick;
   const RequestPermissions({super.key, required this.onClick});

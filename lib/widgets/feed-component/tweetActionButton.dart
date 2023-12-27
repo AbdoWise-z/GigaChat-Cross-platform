@@ -4,6 +4,14 @@ import 'package:gigachat/widgets/bottom-sheet.dart';
 import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
 
+/// Widget of the tweet interaction button (like, retweet, comment)
+/// [icon] : icon to be shown in the button
+/// [count] : number to be shown in the button
+/// [isLikeButton] : is the button a like button or not
+/// [isLiked] : is the parent tweet liked
+/// [isRetweet] : is this button a retweet button
+/// [isRetweeted] : is the parent tweet retweeted or not
+/// [onPressed] : call back function on pressing the button
 class TweetActionButton extends StatefulWidget {
   final IconData icon;
   int? count;

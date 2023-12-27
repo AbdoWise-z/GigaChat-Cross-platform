@@ -2,6 +2,8 @@
 
 class InputFormatting{
 
+  /// Calculates the difference between [postDate] and the current date
+  /// returns the difference time formatted as post date ex:(1h,30 min, just now, 2d)
   static String calculateDateSincePost(DateTime postDate)
   {
     DateTime now = DateTime.now();
