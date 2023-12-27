@@ -7,9 +7,14 @@ import "package:gigachat/providers/web-socks-provider.dart";
 import "package:gigachat/services/events-controller.dart";
 import "package:gigachat/services/notifications-controller.dart";
 import "package:gigachat/util/contact-method.dart";
-
 import "api.dart";
+
+/// this class is responsible for handling all the account related requests
+/// login , logout , getting the contact methods , etc ..
 class Account {
+
+  /// performs a login using [userName] and [password] and returns the logged in
+  /// user in case login was successful or null if failed
   static Future<ApiResponse<User>> apiLogin(String userName, String password) async {
     await NotificationsController.getInstance().login();
 
@@ -49,6 +54,7 @@ class Account {
     return k;
   }
 
+  /// no actual backend implementation for this one
   static Future<List<ContactMethod>?> apiGetContactMethods(String email) async {
     //TODO: do some API request
     await Future.delayed(const Duration(milliseconds: 500));
@@ -60,7 +66,9 @@ class Account {
     ];
   }
 
-  static  Future<ApiResponse<bool>> apiRequestVerificationMethod(ContactMethod method) async {
+  /// requests a verification method [method] from the server
+  /// returns true if the request we successful or false if it failed
+  static Future<ApiResponse<bool>> apiRequestVerificationMethod(ContactMethod method) async {
     var k = await Api.apiPost<bool>(
       ApiPath.resendConfirmEmail,
       body: json.encode({
@@ -73,6 +81,8 @@ class Account {
     return k;
   }
 
+  /// sends a password reset code request to the server using the [method] as
+  /// a contact method , returns true if success and false if failed
   static  Future<ApiResponse<bool>> apiForgotPassword(ContactMethod method) async {
     var k = await Api.apiPost<bool>(
       ApiPath.forgotPassword,
@@ -86,6 +96,8 @@ class Account {
     return k;
   }
 
+  /// validates the forget code entered by the user
+  /// returns true if success and false if failed or wrong code
   static  Future<ApiResponse<bool>> apiCheckForgotPasswordCode(String code) async {
     var k = await Api.apiPost<bool>(
       ApiPath.checkForgotPasswordCode,
@@ -99,6 +111,10 @@ class Account {
     return k;
   }
 
+  /// verify a [ContactMethod] [method] using a code ,
+  /// depending on [isVerify] if its true then the user is trying to
+  /// verify while he's logged in , otherwise he's logged out or
+  /// creating an account
   static Future<ApiResponse<dynamic>> apiVerifyMethod(ContactMethod method, String code, bool isVerify, String? token) async {
     Map<String,String> headers =  isVerify? Api.getTokenWithJsonHeader("Bearer $token") : Api.JSON_TYPE_HEADER;
     var k = await Api.apiPost<dynamic>(
@@ -137,6 +153,8 @@ class Account {
     return k;
   }
 
+  /// resets the password of this user with a new password [password] using [code]
+  /// returns true if success and false if failed or the [code] is invalid
   static Future<ApiResponse<bool>> apiResetPassword(String password, String code) async {
     var k = await Api.apiPatch<bool>(
       ApiPath.resetPassword,
@@ -151,8 +169,8 @@ class Account {
     return k;
   }
 
-
-
+  /// checks weather or not we can create an account using this [email]
+  /// returns true if success and false if failed or the email is already registered
   static Future<ApiResponse<bool>> apiIsEmailValid(String email) async {
     var k = await Api.apiPost<bool>(
       ApiPath.checkExistedEmail,
@@ -165,6 +183,10 @@ class Account {
     return k;
   }
 
+  /// creates a new user account using with [name] and [email]
+  /// with data of birth equal to [dob]
+  /// returns a [ContactMethod] to verify to confirm creating this account
+  /// or null if the request fails
   static Future<ApiResponse<ContactMethod>> apiRegister(String name, String email, String dob) async {
     ContactMethod method = ContactMethod(method: ContactMethodType.EMAIL,
         data: email,
@@ -184,6 +206,9 @@ class Account {
     return k;
   }
 
+  /// assigns a new password a newly created user with token [token]
+  /// and sets its password to [password]
+  /// returns true if success and false if failed
   static Future<ApiResponse<bool>> apiCreateNewPassword(String token, String password) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(
@@ -197,6 +222,8 @@ class Account {
     return k;
   }
 
+
+  /// sets a user profile image using user token [token] to the image provided in [img]
   static Future<ApiResponse<String>> apiSetProfileImage(String token, File img) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
@@ -219,7 +246,7 @@ class Account {
     return k;
   }
 
-
+  /// sets a user username using user token [token] to the username provided in [name]
   static Future<ApiResponse<bool>> apiSetUsername(String token, String name) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(
@@ -233,13 +260,16 @@ class Account {
     return k;
   }
 
-
+  /// logs the current active user out
   static Future<bool> apiLogout(User u) async {
     await NotificationsController.getInstance().logout();
     WebSocketsProvider.instance.destroy();
     return true;
   }
 
+  /// retrieves the current active user profile details using its token [token]
+  /// returns [ApiResponse] contains null data if failed otherwise it will contain
+  /// the user details
   static Future<ApiResponse<User>> apiCurrUserProfile(String token) async{
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
@@ -271,6 +301,9 @@ class Account {
     return k;
   }
 
+  /// retrieves a normal user profile using his [username]
+  /// returns [ApiResponse] contains null data if failed otherwise it will contain
+  /// the user details
   static Future<ApiResponse<User>> apiUserProfile(String token,String username) async{
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
@@ -310,6 +343,9 @@ class Account {
     return k;
   }
 
+  /// retrieves a normal user profile using his [id] the database mongo ID
+  /// returns [ApiResponse] contains null data if failed otherwise it will contain
+  /// the user details
   static Future<ApiResponse<User>> apiUserProfileWithID(String token,String id) async{
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiGet<User>(
@@ -348,8 +384,21 @@ class Account {
     return k;
   }
 
-
-  static Future<ApiResponse<bool>> apiUpdateUserInfo(String token,String name,String bio,String website, String location,DateTime birthDate) async {
+  /// updates the current active user info using the user [token]
+  /// setting the user name to [name]
+  /// and the user boi to [boi]
+  /// and the user website to [website]
+  /// abd the user location to [location]
+  /// and his birth date to [birthDate]
+  /// will return true if success and false if failed
+  static Future<ApiResponse<bool>> apiUpdateUserInfo(
+      String token,
+      String name,
+      String bio,
+      String website,
+      String location,
+      DateTime birthDate
+      ) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(
       ApiPath.updateUserInfo,
@@ -369,6 +418,9 @@ class Account {
     return k;
   }
 
+  /// set the user associated with [token] profile image's to [img]
+  /// return the link of the new profile image if success
+  /// and null if failed
   static Future<ApiResponse<String>> apiSetBannerImage(String token, File img) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     List? links = (await Media.uploadMedia(token, [UploadFile(path: img.path , type: "image" , subtype: "png")])).data;
@@ -391,12 +443,15 @@ class Account {
     return k;
   }
 
-  static Future<ApiResponse<bool>> apiChangeUsername(String token, String password) async {
+  /// set the user associated with [token] username's to [username]
+  /// return true if success
+  /// and false if failed
+  static Future<ApiResponse<bool>> apiChangeUsername(String token, String username) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<bool>(
       ApiPath.updateUsername,
       body: json.encode({
-        "newUsername": password,
+        "newUsername": username,
       }),
       headers: headers,
     );
@@ -404,6 +459,9 @@ class Account {
     return k;
   }
 
+  /// verify the user associated with [token] password
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> apiVerifyPassword(String token, String password) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPost<bool>(
@@ -417,6 +475,9 @@ class Account {
     return k;
   }
 
+  /// set the user associated with [token] email's to [email]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> apiChangeEmail(String token, String email) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPost<bool>(
@@ -430,6 +491,10 @@ class Account {
     return k;
   }
 
+  /// set the user associated with [token] password to a new password [newPassword]
+  /// [oldPassword] is used for verification
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<String>> apiChangePassword(String token, String oldPassword, String newPassword) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiPatch<String>(
@@ -447,6 +512,9 @@ class Account {
     return k;
   }
 
+  /// makes the user associated with [token] follow the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> followUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.followUser).format([username]);
@@ -459,6 +527,10 @@ class Account {
       }
       return k;
   }
+
+  /// makes the user associated with [token] unfollow the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> unfollowUser(String token, String username) async
   {
       ApiPath endPoint = (ApiPath.unfollowUser).format([username]);
@@ -472,6 +544,9 @@ class Account {
       return k;
   }
 
+  /// makes the user associated with [token] mute the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> muteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.muteUser).format([username]);
@@ -485,6 +560,9 @@ class Account {
     return k;
   }
 
+  /// makes the user associated with [token] unmute the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> unmuteUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unmuteUser).format([username]);
@@ -498,6 +576,9 @@ class Account {
     return k;
   }
 
+  /// makes the user associated with [token] block the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> blockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.blockUser).format([username]);
@@ -511,6 +592,9 @@ class Account {
     return k;
   }
 
+  /// makes the user associated with [token] unblock the user associated [username]
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> unblockUser(String token, String username) async
   {
     ApiPath endPoint = (ApiPath.unblockUser).format([username]);
@@ -524,7 +608,9 @@ class Account {
     return k;
   }
 
-
+  /// remove the user associated with [token] banner's image
+  /// return true if success
+  /// and false if failed
   static Future<ApiResponse<bool>> apiDeleteBannerImage(String token) async {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
     var k = await Api.apiDelete<bool>(
@@ -536,6 +622,9 @@ class Account {
     return k;
   }
 
+  /// returns a list of the user associated with [token] followers
+  /// return list if success
+  /// and null if failed
   static Future<ApiResponse<List<User>>> getUserFollowers(String token, String username, int page , int count) async
   {
     ApiPath endPoint = (ApiPath.userFollowers).format([username]);
@@ -572,6 +661,9 @@ class Account {
     return k;
   }
 
+  /// returns a list of the user associated with [token] following users
+  /// return list if success
+  /// and null if failed
   static Future<ApiResponse<List<User>>> getUserFollowings(String token, String username, int page , int count) async
   {
     ApiPath endPoint = (ApiPath.userFollowings).format([username]);
@@ -603,6 +695,9 @@ class Account {
     return k;
   }
 
+  /// returns a list of the user associated with [token] blocked users
+  /// return list if success
+  /// and null if failed
   static Future<ApiResponse<List<User>>> getUserBlockedList(String token, int page , int count) async
   {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -632,6 +727,9 @@ class Account {
     return k;
   }
 
+  /// returns a list of the user associated with [token] muted users
+  /// return list if success
+  /// and null if failed
   static Future<ApiResponse<List<User>>> getUserMutedList(String token, int page , int count) async
   {
     Map<String,String> headers = Api.getTokenWithJsonHeader("Bearer $token");
@@ -662,6 +760,15 @@ class Account {
     return k;
   }
 
+  /// login using google auth
+  /// if the account exists, it will just login
+  /// if it doesn't exist it will create a new account using
+  /// [name] as the person name
+  /// [avatarUrl] as the user image
+  /// [email] as the user email
+  /// [dob] as the date of birth
+  /// return the user if login was successful
+  /// otherwise returns null
   static Future<ApiResponse<User>> apiGoogle(String name, String email, String? avatarUrl, String id, String accessToken, String? dob) async {
     await NotificationsController.getInstance().login();
 
@@ -700,12 +807,8 @@ class Account {
       u.numOfPosts  = res["data"]["user"]["numOfPosts"] ?? 0;
       u.numOfLikes  = res["data"]["user"]["numOfLikes"] ?? 0;
       u.mongoID     = res["data"]["user"]["_id"];
-
       k.data = u;
     }
     return k;
   }
-
-
-
 }

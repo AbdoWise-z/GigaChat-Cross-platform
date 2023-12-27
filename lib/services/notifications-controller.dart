@@ -15,6 +15,8 @@ import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/services/notifications-navigation-pages/post-notification-navigation.dart';
 import 'package:gigachat/services/notifications-navigation-pages/profile-notification-navigation.dart';
 
+/// defines a Notification that can trigger a type of action
+/// depending on its [payload]
 class TriggerNotification{
   final Map<String,dynamic> payload;
   final String? actionID;
@@ -53,8 +55,10 @@ class TriggerNotification{
   }
 }
 
+/// this class will manager all of the notification related functionality
+/// and will communicate with the [Firebase] and dispatch LocalNotification
+/// when needed
 class NotificationsController {
-
   static final NotificationsController _notificationService = NotificationsController._internal();
   NotificationsController._internal();
 
@@ -149,10 +153,14 @@ class NotificationsController {
     }
   }
 
+  /// triggers a [TriggerNotification] [note] and moves the user to the right page
+  /// of the application to display the correct content of the notification
   static void dispatchNotification(TriggerNotification note , BuildContext context){
     _DoDispatchNotification(note);
   }
 
+  /// returns the notification that caused the application to launch
+  /// will return null if the app started normally
   static Future<TriggerNotification?> getLaunchNotification() async {
     if (Platform.isWindows){
       return null;
@@ -182,6 +190,8 @@ class NotificationsController {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static String? FirebaseToken;
   static int _counter = 1;
+
+  /// initializes the notifications controller
   Future<void> init() async {
 
     if (Platform.isWindows){
@@ -207,7 +217,14 @@ class NotificationsController {
         options: DefaultFirebaseOptions.currentPlatform);
 
   }
+
+  /// de-initializes the notification controller
   Future<void> logout() async {
+    if (!Platform.isAndroid){
+      print("Firebase is disabled on windows");
+      return;
+    }
+
     if(FirebaseToken == null){
       return;
     }
@@ -215,6 +232,8 @@ class NotificationsController {
     await FirebaseMessaging.instance.deleteToken();
   }
 
+  /// links the [NotificationsController] with the Firebase
+  /// and starts listening on incoming notifications
   Future<void> login() async {
     if(FirebaseToken != null){
       return;
@@ -264,6 +283,8 @@ class NotificationsController {
 
   late final NotificationDetails platformChannelSpecifics;
 
+  /// shows one notification with [id] and [title]
+  /// and with content [body] and payload data [payload]
   void showNotification(
       int id,
       {String? title, String? body, String? payload}

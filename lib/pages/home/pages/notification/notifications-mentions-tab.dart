@@ -8,6 +8,8 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 import 'notifications-home-tab.dart';
 
+/// displays the posts the user was mentioned on similar to how
+/// the home page feed works
 class NotificationsMentionsTab extends StatefulWidget {
   final NotificationsHomeTab notifications;
   const NotificationsMentionsTab({Key? key, required this.notifications}) : super(key: key);

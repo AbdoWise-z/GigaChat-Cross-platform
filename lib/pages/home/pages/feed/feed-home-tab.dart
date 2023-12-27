@@ -13,6 +13,9 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/widgets/feed-component/FeedWidget.dart';
 import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
+/// the feed home page tab
+/// it defined how the feed page should look like
+/// for the home page
 class FeedHomeTab with HomePageTab {
 
   @override

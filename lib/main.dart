@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gigachat/Globals.dart';
 import 'package:gigachat/pages/Posts/list-view-page.dart';
 import 'package:gigachat/pages/Posts/view-post.dart';
@@ -37,6 +36,7 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'widgets/tweet-widget/full-screen-tweet.dart';
 
+/// Application entry point
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LocalSettings locals = LocalSettings();
@@ -54,6 +54,7 @@ Future<void> main() async {
   runApp(Globals.application);
 }
 
+/// The gigachat Application Wrapper
 class GigaChat extends StatefulWidget {
   final String? initialRoute;
   const GigaChat({super.key,this.initialRoute});

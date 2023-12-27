@@ -14,6 +14,11 @@ import 'package:gigachat/widgets/feed-component/feed-controller.dart';
 
 import '../widgets/nav-drawer.dart';
 
+///
+/// This this the entire home widget of the app
+/// its responsible for displaying the various pages (feed, search, ...)
+/// and manging the state and the switching between such pages
+///
 class InternalHomePage extends StatefulWidget {
   static final String pageRoute = "/internal-home";
 
@@ -32,7 +37,12 @@ class InternalHomePage extends StatefulWidget {
 }
 
 class InternalHomePageState extends State<InternalHomePage> with TickerProviderStateMixin {
+  /// used to get the home current home state of the app
+  /// without the use of BuildContext or from outside its
+  /// tree
   static InternalHomePageState? ActiveHomeState;
+
+
   bool _hidBottomControls = false;
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
@@ -42,6 +52,9 @@ class InternalHomePageState extends State<InternalHomePage> with TickerProviderS
   //to prevent SliverAppBar problems
   GlobalKey<NestedScrollViewState> nestedScrollViewKey = GlobalKey();
 
+  /// sets the current active page of the home pages
+  /// takes only one parameter [p] which is the page
+  /// index
   void setPage(int p){
     AppBarTabs? tabs = Home.Pages[p].getTabs(context);
     if (tabs != null && tabs.tabs.isNotEmpty){
@@ -59,6 +72,7 @@ class InternalHomePageState extends State<InternalHomePage> with TickerProviderS
     });
   }
 
+  /// updates this home state
   void update(void Function() callback){
     setState(callback);
   }

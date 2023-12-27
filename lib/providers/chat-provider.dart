@@ -7,6 +7,8 @@ import 'package:gigachat/services/events-controller.dart';
 
 import 'auth.dart';
 
+/// this class will be responsible for all user Chat functionality
+/// it will act as a mediator between the API interfaces and Widgets of the
 class ChatProvider extends ChangeNotifier{
   static ChatProvider? _instance;
 
@@ -28,6 +30,10 @@ class ChatProvider extends ChangeNotifier{
   final int CHAT_PROVIDER_COUNT = 35;
   final ChatMessageObject GAB_MESSAGE = ChatMessageObject(uuid: "GAB");
 
+  /// initializes the Chat provider
+  /// resets everything and ands the
+  /// correct events handlers
+  /// also starts listening on the websocket
   void init() async {
     _chats = [];
     //_messages = {};
@@ -156,10 +162,12 @@ class ChatProvider extends ChangeNotifier{
     await reloadChats(Auth().getCurrentUser()!.auth!);
   }
 
+  /// gets the current active chats
   List<ChatObject> getCurrentChats() {
     return _chats;
   }
 
+  /// gets the active chats for a user (normally the [Auth._currentUser])
   Future<List<ChatObject>> getChats(String token) async {
     if (_chats.isNotEmpty){
       return _chats;
@@ -167,6 +175,9 @@ class ChatProvider extends ChangeNotifier{
     return reloadChats(token , notify: false);
   }
 
+  /// clears all loaded chats and reloads them from the API
+  /// returns a [List] of [ChatObject]
+  /// the list will be empty if failed
   Future<List<ChatObject>> reloadChats(String token , {notify = true}) async {
     var k = await Chat.apiGetChats(token, 1, 1000);
     if (k.data != null){
@@ -227,6 +238,8 @@ class ChatProvider extends ChangeNotifier{
     }
   }
 
+  /// gets the messages for a certain chat [id] for a user [token]
+  /// (normally the [Auth._currentUser]) before a certain [time]
   Future<List<ChatMessageObject>> getMessagesBefore(String token, String id, DateTime time) async {
     //first try to fetch them from the messages we already have
     var k = await Chat.apiGetChatMessagesBefore(token, id, 1, CHAT_PROVIDER_COUNT, time);
@@ -236,6 +249,8 @@ class ChatProvider extends ChangeNotifier{
     return [];
   }
 
+  /// gets the messages for a certain chat [id] for a user [token]
+  /// (normally the [Auth._currentUser]) after a certain [time]
   Future<List<ChatMessageObject>> getMessagesAfter(String token, String id, DateTime time) async {
     //first try to fetch them from the messages we already have
     var k = await Chat.apiGetChatMessagesAfter(token, id, 1, CHAT_PROVIDER_COUNT, time);

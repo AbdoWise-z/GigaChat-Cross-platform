@@ -1,13 +1,30 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+
+/// represents a floating action menu item
+/// takes [icon] the icon widget to display when the menu is opened
+/// normally the icon is just an [Icon] widget
+/// and [title] the title widget to display
+/// normally its a [Text] widget
 class FloatingActionMenuItem{
   final Widget icon;
   final Widget title;
   const FloatingActionMenuItem({required this.icon , required this.title });
 }
 
-
+/// this class creates a special [FloatingActionButton] that will popup a menu when it's pressed
+/// takes these parameters :
+/// [icon] the widget to display when the menu is not opened
+/// [tappedIcon] the widget to display when the menu is opened
+/// [onTab] an event handler for clicking
+/// [items] the items on this menu
+/// [menuGap] the distance between each item
+/// [menuDx] the position of the opened menu
+/// [title] the main title of this menu
+/// [titleDx] title offset in the X direction
+/// [titleDy] title offset in the Y direction
+///
 class FloatingActionMenu extends StatefulWidget {
   final Widget icon;
   final Widget tappedIcon;

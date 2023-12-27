@@ -9,6 +9,9 @@ import 'package:gigachat/providers/notifications-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:provider/provider.dart';
 
+
+/// this page displays all of the notifications for the user
+/// it takes only one parameter which the HomeTabPage for this page
 class NotificationsAllTab extends StatefulWidget {
   final NotificationsHomeTab notifications;
   const NotificationsAllTab({super.key, required this.notifications});

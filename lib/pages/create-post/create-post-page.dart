@@ -18,6 +18,12 @@ import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/gallery/gallery.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+
+///
+/// This page is responsible of creating a widget to allow the user to create a new post
+/// or to add a reply on a created post , it takes one parameter [reply] which is the Tweet to reply to
+/// if this parameter is null, then it starts creating a new tweet
+///
 class CreatePostPage extends StatefulWidget {
   static const String pageRoute = "/create-post";
   const CreatePostPage({super.key});
@@ -163,16 +169,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
       }
     }
 
-    //TODO: add the return result if needed
     if (!context.mounted) return;
-
-
     if (!error) Navigator.pop(context,{"success":true, "tweets" : returnList});
+
     setState(() {
       _loading = false;
     });
   }
-
 
 
   GlobalKey<PostEditorState>? _currentActive;

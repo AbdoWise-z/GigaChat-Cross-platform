@@ -7,6 +7,9 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:provider/provider.dart';
 import "package:gigachat/api/user-class.dart";
 
+/// the home side navigation Drawer
+/// shows a few user details and view actions for the user
+/// like opening his profile , settings , etc ...
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
 

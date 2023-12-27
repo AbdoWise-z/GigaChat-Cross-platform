@@ -5,6 +5,8 @@ import '../../../../../widgets/text-widgets/main-text.dart';
 import 'FilterSettingsPage.dart';
 import 'PreferenceSettingsPage.dart';
 
+/// this is a preview page, its not complete nor it integrated with the api
+/// because this is no API for it
 class NotificationSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

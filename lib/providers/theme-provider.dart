@@ -4,6 +4,8 @@ import 'package:gigachat/pages/home/widgets/tab-indicator.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 import 'package:provider/provider.dart';
 
+
+/// controls the entire theme of the application
 class ThemeProvider extends ChangeNotifier {
 
   static ThemeProvider getInstance(BuildContext ctx){
@@ -25,16 +27,19 @@ class ThemeProvider extends ChangeNotifier {
     init();
   }
 
+  /// initializes the theme form the local files
   void init(){
     _themeName = LocalSettings.instance.getValue(name: "theme", def: "dark")!;
     //now assign the theme based on the name ..
     _updateTheme();
   }
 
+  /// return weather the current theme is dart or not
   bool isDark(){
     return _themeName == "dark";
   }
 
+  /// returns the dark theme data
   ThemeData darkTheme(){
     return ThemeData.dark().copyWith(
       scaffoldBackgroundColor: Colors.black,
@@ -101,6 +106,7 @@ class ThemeProvider extends ChangeNotifier {
     );
   }
 
+  /// returns the light theme data
   ThemeData lightTheme(){
     return ThemeData.light().copyWith(
       scaffoldBackgroundColor: Colors.white,
@@ -169,7 +175,6 @@ class ThemeProvider extends ChangeNotifier {
   }
 
 
-
   void _updateTheme(){
     if (_themeName == "dark"){
       _theme = darkTheme();
@@ -178,6 +183,11 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
+  /// sets the theme for the entire app
+  /// with [theme]
+  /// [theme] must be one of :
+  /// * "light"
+  /// * "dark"
   void setTheme(String theme){
     _themeName = theme;
 

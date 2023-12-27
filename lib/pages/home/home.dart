@@ -16,13 +16,21 @@ import 'package:gigachat/providers/feed-provider.dart';
 import 'package:gigachat/services/events-controller.dart';
 import 'package:gigachat/services/notifications-controller.dart';
 
-
+/// This class is a wrapper around the real home class
+/// we use this wrapper to adapt to screen size changes
+/// the real home is managed by [InternalHomePage]
+/// which will be responsible for managing the various tabs / buttons
+/// in the home page
 class Home extends StatefulWidget {
   static const String pageRoute = "/home";
   static const String feedID = "HomeFeed";
   static const String mentionsFeedID = "MentionsFeed";
+
   const Home({super.key});
 
+  /// the pages inside this home widgets
+  /// static final cuz we only need one instance
+  /// of each home tab page
   static final List<HomePageTab> Pages = [
     FeedHomeTab(),
     Explore(),
@@ -30,6 +38,8 @@ class Home extends StatefulWidget {
     ChatHomeTab(),
   ];
 
+  /// controllers defined the tab controller for every page inside the home page
+  /// in case the page doesn't have tabs, we just use null
   static final List<TabController?> Controllers = [
     null,
     null,
@@ -42,9 +52,11 @@ class Home extends StatefulWidget {
 
 }
 
-
 class HomeState extends State<Home> with TickerProviderStateMixin {
 
+  /// if the app started from a notification
+  /// we try to trigger this notification to open
+  /// the app into the right page
   void _triggerNotification() async{
     TriggerNotification? t = await NotificationsController.getLaunchNotification();
     if (t != null){
@@ -54,7 +66,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     }
   }
 
-
+  /// initialized everything :)
   @override
   void initState() {
     super.initState();
@@ -83,7 +95,6 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -91,14 +102,14 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     double width  = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    Globals.isWideVersion   = width / height > 1.6 && !Platform.isAndroid;
-    Globals.isChatSeparated = width / height > 1 && !Platform.isAndroid;
+    Globals.isWideVersion   = width / height > 1.6 && height >= 800;
+    Globals.isChatSeparated = width / height > 1 && height >= 800;
     //print(width / height);
 
     Globals.HomeScreenWidth = width;
     Globals.ChatScreenWidth = width;
     if (Globals.isChatSeparated){
-      Globals.HomeScreenWidth -= 400;
+      Globals.HomeScreenWidth -= 402;
       Globals.ChatScreenWidth = 400;
     }
 
@@ -128,7 +139,10 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           ),
 
-          VerticalDivider(width: 2,thickness: 2,),
+          Visibility(
+            visible: Globals.isChatSeparated,
+            child: VerticalDivider(width: 2,thickness: 2,),
+          ),
 
           AnimatedSize(
             duration: Duration(milliseconds: 300),
@@ -147,7 +161,6 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
               ),
             ),
           )
-
         ],
       ),
     );

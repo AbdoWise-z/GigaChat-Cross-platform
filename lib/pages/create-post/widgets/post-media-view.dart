@@ -6,6 +6,11 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+/// A wrapper around the post media since it can vary depending on the media type
+/// this Widget is responsible of displaying the write type of media (video / image)
+/// takes two inputs [media] the the media to display
+/// and [width] the maximum width allowed for this media
+///
 class PostMediaView extends StatefulWidget {
   final TypedEntity media;
   final double width;

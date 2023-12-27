@@ -3,6 +3,8 @@ import 'package:gigachat/api/notification-class.dart';
 import 'package:gigachat/api/notifications-requests.dart';
 import 'package:gigachat/services/events-controller.dart';
 
+/// this class will be responsible for all user notifications functionality
+/// it will act as a mediator between the API interfaces and Widgets of the
 class NotificationsProvider extends ChangeNotifier{
   static NotificationsProvider? _instance;
 
@@ -23,6 +25,8 @@ class NotificationsProvider extends ChangeNotifier{
   int offset = 0;
   bool _canLoadMore = true;
 
+  /// initializes the provider
+  /// and start listening on the events
   void init(){
     EventsController.instance.addEventHandler(EventsController.EVENT_NOTIFICATION_SEEN,
       HandlerStructure(id: "NotificationsProvider",
@@ -39,6 +43,9 @@ class NotificationsProvider extends ChangeNotifier{
     );
   }
 
+  /// returns current notifications unseen count for a user [token]
+  /// (normally the [Auth._currentUser])
+  /// will always return something even if the request fails
   Future<int> getUnseenCount(String token) async {
     var k = await Notifications.apiGetUnseenCount(token);
     if (k.data == null){
@@ -47,6 +54,8 @@ class NotificationsProvider extends ChangeNotifier{
     return k.data!;
   }
 
+  /// reloads all notifications for a user [token]
+  /// (normally the [Auth._currentUser])
   Future<List<NotificationObject>> reloadAll(String token) async {
     _notifications.clear();
     _canLoadMore = true;
@@ -54,14 +63,19 @@ class NotificationsProvider extends ChangeNotifier{
     return await getAllNotifications(token);
   }
 
+  /// gets the current notifications
   List<NotificationObject> getCurrentNotifications(){
     return _notifications;
   }
 
+  /// returns weather this provider can load more messages or not
   bool canLoadMore(){
     return _canLoadMore;
   }
 
+  /// get all notifications for a user [token]
+  /// and marks them as seen
+  /// (normally the [Auth._currentUser])
   Future<List<NotificationObject>> getAllNotifications(String token) async {
     if (_notifications.isEmpty){ //first load
       await getNotifications(token);
@@ -70,7 +84,8 @@ class NotificationsProvider extends ChangeNotifier{
     return _notifications;
   }
 
-
+  /// get all notifications for a user [token]
+  /// (normally the [Auth._currentUser])
   Future<List<NotificationObject>> getNotifications(String token) async {
     if (!_canLoadMore){
       return [];
@@ -90,6 +105,8 @@ class NotificationsProvider extends ChangeNotifier{
     return k.data!;
   }
 
+  /// marks all notifications for a user [token] as seen
+  /// (normally the [Auth._currentUser])
   Future<void> markAllSeen(String token) async {
     await Notifications.apiMarkAll(token);
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// a custom curved tab indicator for the home tabs
 class TabIndicator extends BoxDecoration {
   final BoxPainter _painter;
 

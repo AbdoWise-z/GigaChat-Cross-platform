@@ -3,6 +3,8 @@ import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 
 import '../../../../widgets/text-widgets/main-text.dart';
 
+
+/// the settings page for the chat home tab
 class ChatSettingsPage extends StatefulWidget {
   static bool isOpen = false;
   const ChatSettingsPage({super.key});

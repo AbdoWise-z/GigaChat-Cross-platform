@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/base.dart';
 import 'package:gigachat/providers/local-settings-provider.dart';
 
+
+///
+/// A pop up dialog that is shown to the user only once when creating a post for the first time
+///
 class HintDialog extends StatefulWidget {
   const HintDialog({super.key});
 

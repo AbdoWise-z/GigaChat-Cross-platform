@@ -1,10 +1,15 @@
 import 'dart:convert';
-
 import 'package:gigachat/api/notification-class.dart';
-
 import 'api.dart';
 
+
+/// this class will contain all of the API functionality related to Notifications
 class Notifications {
+
+  /// get a list of notifications for a user associated with [token]
+  /// [page] and [count] are used for result range selecting
+  /// return a [List] of [NotificationObject] if request was successful
+  /// otherwise null
   static Future<ApiResponse<List<NotificationObject>>> apiGetNotifications(String token , int page , int count) async {
     ApiResponse<List<NotificationObject>> res = await Api.apiGet(ApiPath.notifications , params: {
       "page" : "$page",
@@ -36,6 +41,9 @@ class Notifications {
     return res;
   }
 
+  /// gets the unseen count of notifications for a user associated with [token]
+  /// return [int] if request was successful
+  /// otherwise null
   static Future<ApiResponse<int>> apiGetUnseenCount(String token) async {
     ApiResponse<int> res = await Api.apiGet(ApiPath.notificationsCount , params: {
     },
@@ -50,6 +58,8 @@ class Notifications {
     return res;
   }
 
+  /// marks all notifications as seen for the user associated with [token]
+  /// doesn't return a result
   static Future<ApiResponse<void>> apiMarkAll(String token) async {
     ApiResponse<void> res = await Api.apiPost(ApiPath.notificationsMarkALl , params: {
     },

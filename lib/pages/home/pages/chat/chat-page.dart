@@ -20,6 +20,11 @@ import 'package:gigachat/widgets/Follow-Button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+
+/// This page is responsible for displaying and managing an active chat between two users
+/// it takes two inputs , the user we are going to chat with , and a starting message
+/// this message will be used as the initial start message for this chat, in case this message
+/// was null, the page will try to use last sent message as the root message
 class ChatPage extends StatefulWidget {
   static const String pageRoute = "/chat";
 
@@ -51,6 +56,11 @@ class ChatPageState extends State<ChatPage> {
   bool _loadingUp = false;
   bool _loadingDown = false;
 
+  /// loads the chat messages
+  /// takes only one parameter [down] if true then
+  /// the page tries to load message after the last message
+  /// we have otherwise it will try to load messages before
+  /// the first message we have
   void _loadMessages({down = false}) async {
     if(_chat.isEmpty){
       _canLoadUp = false;

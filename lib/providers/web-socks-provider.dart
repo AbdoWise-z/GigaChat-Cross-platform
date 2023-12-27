@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
+/// a class that represents a stream listening
+/// on a certain event of the web socket
 class StreamSocket<T> {
   final _s = StreamController<T>();
   void Function(T) get addResponse => _s.sink.add;
@@ -19,6 +21,8 @@ class StreamSocket<T> {
   }
 }
 
+/// a provider that controls the state of the websockets in the application
+/// it acts a mediator between the widgets and the WebSocket API
 class WebSocketsProvider extends ChangeNotifier{
   static WebSocketsProvider get instance{
     return WebSocketsProvider();
@@ -35,6 +39,8 @@ class WebSocketsProvider extends ChangeNotifier{
 
   late IO.Socket _socket;
 
+  /// initialise the websocket with the user [token]
+  /// (normally the [Auth._currentUser])
   Future<bool> init(String token) async {
     // var response = await http.get(
     //   Uri.parse(API_WEBSOCKS_LINK),
@@ -71,10 +77,14 @@ class WebSocketsProvider extends ChangeNotifier{
     return connected.future;
   }
 
+  /// returns weather this user is connected or not
   bool isConnected(){
     return _socket.connected;
   }
 
+  /// stops the WebSocket connection
+  /// returns true if it disconnected
+  /// false otherwise
   bool destroy(){
     if (!_socket.connected) {
       return false;
@@ -83,6 +93,8 @@ class WebSocketsProvider extends ChangeNotifier{
     return true;
   }
 
+  /// get a stream that listen on a certain [event] from
+  /// the websocket
   StreamSocket getStream<T>(String event){
     StreamSocket s = StreamSocket<T>();
     _socket.on(event, (data) {
@@ -94,6 +106,7 @@ class WebSocketsProvider extends ChangeNotifier{
     return s;
   }
 
+  /// sends [data] to a certain [event] in the websocket
   void send(String event,[data]){
     _socket.emit(event , data);
   }

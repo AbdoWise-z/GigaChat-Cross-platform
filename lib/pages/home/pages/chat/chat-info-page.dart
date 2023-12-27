@@ -7,6 +7,10 @@ import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:intl/intl.dart';
 
+
+/// the chat info page, just displayed the user info
+/// and allows the user to do few actions like blocking
+/// that user for example
 class ChatInfoPage extends StatefulWidget {
   final User _with;
   const ChatInfoPage( this._with , {super.key});
