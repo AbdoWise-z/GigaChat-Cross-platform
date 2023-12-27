@@ -47,6 +47,7 @@ class _SingleFrameVideoPlayerState extends State<SingleFrameVideoPlayer> {
       alignment: Alignment.center,
       children: [
         Video(
+          fit: BoxFit.cover,
           controller: _controller,
           controls: (w) => SizedBox(),
         ),
