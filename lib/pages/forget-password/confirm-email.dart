@@ -14,11 +14,11 @@ import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 const String CONFIRM_EMAIL_PAGE_DESCRIPTION =
     "Verify your identity by entering the email address associated with your $APP_NAME account.";
 
+/// This is where the user enters his email to confirm it before resetting password
 class ConfirmEmailPage extends StatefulWidget {
-  final String username;
   bool isLogged;
 
-  ConfirmEmailPage({super.key, required this.username,required this.isLogged});
+  ConfirmEmailPage({super.key,required this.isLogged});
 
   @override
   State<ConfirmEmailPage> createState() => _ConfirmEmailPageState();
@@ -27,6 +27,7 @@ class ConfirmEmailPage extends StatefulWidget {
 class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
   late String email;
   late bool isValidEmail;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
     isValidEmail = false;
   }
 
-  bool _loading = false;
+  /// passes the email entered to the next page
   void _getContactMethods() async {
     setState(() {
       _loading = true;

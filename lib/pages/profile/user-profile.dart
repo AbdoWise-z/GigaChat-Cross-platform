@@ -29,6 +29,8 @@ import '../../util/Toast.dart';
 import '../../widgets/feed-component/FeedWidget.dart';
 import '../../widgets/feed-component/feed-controller.dart';
 
+/// This is the profile page of the currently logged in user or any user on the app
+/// [isCurrUser] indicates whether its the currently logged in user or not
 class UserProfile extends StatefulWidget {
   final String username;
   final bool isCurrUser;
@@ -55,12 +57,14 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late String website;
   String location = "Cairo, Egypt";  //its not a feature so its constant forever, looks cool tho
                                      //yeah I can confirm it looks cool
+                                     //ofc it is
   late DateTime birthDate;
   late DateTime joinedDate;
   late int following;
   late int followers;
   late int numOfPosts;
   late int numOfLikes;
+
   //only wanted user details
   late bool? isCurrUserBlocked;
   late bool? isWantedUserBlocked;
@@ -69,27 +73,21 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
   late bool? isCurrUser;
   late bool? isFollowingMe;
 
-
   //page details
   late Auth auth;
   bool loading = true;
-
   late ScrollController scrollController;
   late FeedController postsFeedController;
   late FeedController likesFeedController;
-
   late TabController tabController;
-
   int prevTabIndex = 0;
   List<bool> isLoaded = [true,false];
-
   double avatarRadius = 35;
   double showNamePosition = 162;
   double collapsePosition = 80;
-
   final ValueNotifier<double> scroll = ValueNotifier<double>(0);
 
-  //get user data
+  //gets user data
   void getData() async {
     setState(() {
       loading = true;
@@ -185,6 +183,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
       loading = false;
     });
   }
+
 
   void updateUserFeeds(){
     FeedProvider feedProvider = FeedProvider.getInstance(context);
@@ -860,7 +859,7 @@ class _UserProfileState extends State<UserProfile> with TickerProviderStateMixin
                                         iconLink: avatarImageUrl,
                                         mongoID: mongoID,
                                         isFollowed: isWantedUserFollowed,
-                                        isBlocked: false,
+                                        isWantedUserBlocked: false,
                                         isFollowingMe: isFollowingMe,
                                       )
                                     });

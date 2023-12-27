@@ -4,6 +4,7 @@ import 'package:gigachat/pages/profile/widgets/follow-button.dart';
 import '../../../providers/theme-provider.dart';
 import 'avatar.dart';
 
+/// This widget handles what buttons to show and in what case
 class ProfileInteract extends StatelessWidget {
   const ProfileInteract({Key? key,required this.isCurrUser, this.onTapDM,
     required this.onTapEditProfile,required this.onTapFollow,

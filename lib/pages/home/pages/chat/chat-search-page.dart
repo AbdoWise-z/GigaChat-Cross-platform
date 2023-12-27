@@ -113,7 +113,7 @@ class _ChatSearchPageState extends State<ChatSearchPage> {
                 },
                 press: () async {
                   Navigator.pushNamed(context, ChatPage.pageRoute , arguments: {
-                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isBlocked: e.blocked),
+                    "user" : User(id: e.username , name: e.nickname , iconLink: e.profileImage, mongoID: e.mongoID, isFollowed: e.followed, isWantedUserBlocked: e.blocked),
                     "message" : e.lastMessage,
                   });
                 },

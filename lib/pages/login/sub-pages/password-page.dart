@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/forget-password/forget-password.dart';
 import 'package:gigachat/pages/home/home.dart';
+import 'package:gigachat/pages/login/sub-pages/username-page.dart';
 import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
@@ -9,6 +10,7 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
+/// This is where the user enters password after [UsernameLoginPage]
 class PasswordLoginPage extends StatefulWidget {
   static const String pageRoute = "/login/password";
   static final passwordFieldKey = GlobalKey<FormFieldState>();

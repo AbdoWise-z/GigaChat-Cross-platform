@@ -7,11 +7,11 @@ import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/util/contact-method.dart';
 import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
-
 import '../../../../../util/Toast.dart';
 import '../../../../../widgets/text-widgets/main-text.dart';
 import '../../../../../widgets/text-widgets/page-title.dart';
 
+/// This is where user enters the new email he wants to link the account to
 class ChangeEmailPage extends StatefulWidget {
   const ChangeEmailPage({Key? key}) : super(key: key);
   static const pageRoute = '/change-email';

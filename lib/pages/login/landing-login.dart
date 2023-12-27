@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gigachat/pages/blocking-loading-page.dart';
 import 'package:gigachat/pages/home/home.dart';
@@ -13,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 
+/// This is the first page of the app when logged out
 class LandingLoginPage extends StatefulWidget {
   const LandingLoginPage({Key? key}) : super(key: key);
   static const pageRoute = '/';
@@ -38,7 +38,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
       var temp = await acc.authentication;
       String? accessToken = temp.accessToken;
       print("accessToken: $accessToken");
-      await authProvider.isValidEmail(
+      await authProvider.isValidEmail( //shouldn't do that but yeah -- backend stuff
         acc.email,
         success: (res){  // email doesn't exist --> register with google --> need birthDate first
           Navigator.pushReplacementNamed(
@@ -115,7 +115,7 @@ class _LandingLoginPageState extends State<LandingLoginPage> {
         Navigator.pushNamed(context, Home.pageRoute);
       },
       error: (res){
-        Toast.showToast(context,"Password changed",width: 20);
+        Toast.showToast(context,"Password changed or Internet error",width: 20);
         setState(() {
           _loading = false;
         });

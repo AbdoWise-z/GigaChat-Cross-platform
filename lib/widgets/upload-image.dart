@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gigachat/pages/setup-profile/setup-profile-picture.dart';
 import 'package:gigachat/services/upload-image/upload-camera-image.dart';
 import 'package:gigachat/services/upload-image/upload-local-image.dart';
 
@@ -58,6 +59,7 @@ class IntermittentCurvedContainer extends CustomPainter {
   }
 }
 
+/// Fancy widget used in [PickProfilePicture] page
 class UploadImage extends StatefulWidget {
 
   //callback function to notify the page that an image has been picked

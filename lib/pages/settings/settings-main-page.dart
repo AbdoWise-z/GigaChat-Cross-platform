@@ -104,7 +104,7 @@ class _MainSettingsState extends State<MainSettings> {
               description: settingsTitles[titles.NOTIFICATIONS.index].description,
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationSettingsPage()));
-              },  //TODO: navigate to notifications settings
+              },
             ),
             SettingsTile(
               icon: Icons.lock_outline,

@@ -4,10 +4,10 @@ import 'package:gigachat/pages/settings/widgets/app-bar-title.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/services/input-validations.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
-
 import '../../../../../providers/auth.dart';
 import '../../../../../util/Toast.dart';
 
+/// This is where user can change his old password to a new one
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({Key? key}) : super(key: key);
   @override

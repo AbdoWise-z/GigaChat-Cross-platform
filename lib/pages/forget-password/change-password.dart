@@ -14,6 +14,8 @@ import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 const String NEW_PASSWORD_DESCRIPTION =
     "Make sure your new password is 8 characters or more. Try including numbers, letters, and punctuation marks for a strong password\n\nYou'll be logged out of all active $APP_NAME sessions after your password is changed.";
 
+
+/// This is where the user change resets password after forgetting it
 class NewPasswordPage extends StatefulWidget {
   NewPasswordPage({super.key, required this.code, required this.email, required this.isLogged});
 
@@ -28,6 +30,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   late String newPassword;
   late String confirmPassword;
   final formKey = GlobalKey<FormState>();
+  bool _loading = false;
 
   @override
   void initState() {
@@ -36,7 +39,9 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     confirmPassword = "";
   }
 
-  bool _loading = false;
+  /// changes the user's password on success and
+  /// * logs the user in if logged out
+  /// * logs the user out if logged in
   void _createPassword(String newPassword) async {
     setState(() {
       _loading = true;
@@ -48,12 +53,10 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       newPassword,
       widget.code,
       success: (res){
-        if(widget.isLogged){  //logout
-
-        }else{  //login
+        if(!widget.isLogged){  //login
           auth.login(
-            widget.email,
-            newPassword,
+              widget.email,
+              newPassword,
               success: (res) {
                 Navigator.popUntil(context, (r) => false);
                 Navigator.pushNamed(context, Home.pageRoute);

@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../services/input-validations.dart';
 import '../../../../../util/Toast.dart';
 
+/// This is where the user can change username
 class ChangeUsernamePage extends StatefulWidget {
   const ChangeUsernamePage({Key? key}) : super(key: key);
 

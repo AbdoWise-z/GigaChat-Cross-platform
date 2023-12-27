@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
+/// Bottom sheet for authentication pages
+/// Have 2 buttons
+///     * left button (usually for returning back)
+///     * right button (usually for navigating to next page)
 class AuthFooter extends StatelessWidget {
   bool disableRightButton;
   bool? showLeftButton;

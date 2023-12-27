@@ -12,6 +12,7 @@ import '../home/home.dart';
 import '../login/landing-login.dart';
 
 
+/// This is the landing page to register an account in the app
 class LandingRegisterPage extends StatefulWidget {
   const LandingRegisterPage({Key? key}) : super(key: key);
   static const pageRoute = '/landing-register';
@@ -27,6 +28,7 @@ class _LandingRegisterPageState extends State<LandingRegisterPage> {
     scopes: ['email'],
   );
 
+  // if user already exists sign in
   void signInWithGoogle() async {
     var authProvider = Auth.getInstance(context);
     var acc = await googleSignIn.signIn();

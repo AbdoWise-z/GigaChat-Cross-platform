@@ -7,6 +7,7 @@ import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/username-input-field.dart';
 import 'package:gigachat/pages/login/sub-pages/password-page.dart';
 
+///This where the user enters username or email to log in
 class UsernameLoginPage extends StatefulWidget {
   static const String pageRoute = "/login/username";
   static const String inputFieldKey = "username-page-input-field";

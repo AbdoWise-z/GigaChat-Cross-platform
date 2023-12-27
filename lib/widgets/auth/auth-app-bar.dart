@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
+/// App bar for authentication pages
 PreferredSizeWidget AuthAppBar(BuildContext context,{
   required IconButton? leadingIcon,
   bool? showDefault

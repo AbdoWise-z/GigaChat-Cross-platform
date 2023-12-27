@@ -15,6 +15,7 @@ const String CONFIRMATION_METHOD_DESCRIPTION =
     "Before you can change your password,"
     " we need to make sure it's really you \n \nStart by choosing where to send a confirmation code";
 
+///This is where the user choose the verification method (what email to send the verification code to)
 class VerificationMethodPage extends StatefulWidget {
   String pageRoute = "/test";
   List<ContactMethod> methods;
@@ -29,22 +30,19 @@ class VerificationMethodPage extends StatefulWidget {
 class _VerificationMethodPageState extends State<VerificationMethodPage> {
   late List<ContactMethod> methods;
   ContactMethod? selectedMethod;
+  bool _loading = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     methods = widget.methods;
     selectedMethod = methods[0];
   }
 
-  bool _loading = false;
   void _requestVerify(ContactMethod m) async {
     setState(() {
       _loading = true;
     });
-
-    //TODO: complete this !!!
 
     Auth auth = Auth.getInstance(context);
 

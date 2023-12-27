@@ -11,6 +11,7 @@ import 'dart:io';
 import '../../services/upload-image/upload-camera-image.dart';
 import '../../services/upload-image/upload-local-image.dart';
 
+/// This is where user can edit his information, profile image and banner
 class EditProfile extends StatefulWidget {
   const EditProfile({Key? key,
     required this.avatarImageUrl, required this.bannerImageUrl,
@@ -128,7 +129,7 @@ class _EditProfileState extends State<EditProfile> {
     if(DateTime.now().difference(nonFormattedDate).inDays < 18 * 365){
       Toast.showToast(context, "Failed to update profile");
       return;
-    }
+    }  // checks whether the date is legal or not
     showDialog(
         context: context,
         barrierDismissible: false,

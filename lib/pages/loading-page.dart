@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+/// This is the main loading page of the Gigachat app
 class LoadingPage extends StatelessWidget {
   const LoadingPage({Key? key}) : super(key: key);
 

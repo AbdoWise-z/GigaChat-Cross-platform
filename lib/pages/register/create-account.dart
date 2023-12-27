@@ -15,6 +15,8 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+/// This is the first page when user registers an account
+/// All fields are required
 class CreateAccount extends StatefulWidget {
   const CreateAccount({Key? key}) : super(key: key);
   static const pageRoute = "/create-account";

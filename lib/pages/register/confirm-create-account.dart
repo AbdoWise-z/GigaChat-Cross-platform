@@ -6,8 +6,9 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:gigachat/util/Toast.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../user-verification/verification-code-page.dart';
+
+/// This is where user confirms his register information
 class ConfirmCreateAccount extends StatefulWidget {
   const ConfirmCreateAccount({Key? key}) : super(key: key);
   static const pageRoute = '/confirm-create-account';

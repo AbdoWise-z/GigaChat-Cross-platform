@@ -11,6 +11,7 @@ import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:gigachat/widgets/text-widgets/page-title.dart';
 import 'package:gigachat/widgets/auth/input-fields/password-input-field.dart';
 
+/// Asks the user to enter his password before changing email in [ChangeEmailPage]
 class VerifyPasswordPage extends StatefulWidget {
   static const String pageRoute = "/verify-password";
 

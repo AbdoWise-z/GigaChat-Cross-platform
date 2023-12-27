@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// Main text style for the app
 class MainText extends StatelessWidget {
   const MainText({Key? key, required this.text, this.size = 15, this.color, this.bold}) : super(key: key);
   final String text;

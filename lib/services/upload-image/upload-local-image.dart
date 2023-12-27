@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+/// Used to get an image from the gallery of the user
+
 final picker = ImagePicker();
 
 Future getImageFromGallery(bool isBannerImage) async {

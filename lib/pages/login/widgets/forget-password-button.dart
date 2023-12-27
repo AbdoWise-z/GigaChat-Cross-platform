@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gigachat/pages/login/landing-login.dart';
 import 'package:gigachat/providers/theme-provider.dart';
 
+/// Widgets for buttons in the bottom sheet of authentication pages
+
+
 ButtonStyle leftButtonStyle()
 {
   return OutlinedButton.styleFrom(

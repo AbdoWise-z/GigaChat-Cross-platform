@@ -162,7 +162,7 @@ class ChatPageState extends State<ChatPage> {
         HandlerStructure(id: "chat-page",
           handler: (data) {
             if (_with.id == data["username"]){
-              _with.isBlocked = true;
+              _with.isWantedUserBlocked = true;
             }
           },
         )
@@ -194,7 +194,7 @@ class ChatPageState extends State<ChatPage> {
         HandlerStructure(id: "chat-page",
           handler: (data) {
             if (_with.id == data["username"]){
-              _with.isBlocked = false;
+              _with.isWantedUserBlocked = false;
             }
           },
         )
@@ -219,7 +219,7 @@ class ChatPageState extends State<ChatPage> {
         );
         _chat.removeWhere((element) => element.uuid == uuid); //remove that message
         setState(() {
-          _with.isBlocked = true;
+          _with.isWantedUserBlocked = true;
         });
       }
     });
@@ -363,7 +363,7 @@ class ChatPageState extends State<ChatPage> {
       _loadMessages(down: false);
     }
 
-    if (_with.isBlocked!){
+    if (_with.isWantedUserBlocked!){
       _editorHeight = 50;
     }
 
@@ -480,7 +480,7 @@ class ChatPageState extends State<ChatPage> {
                                       ),
                                     ),
                                     trailing: Visibility(
-                                      visible: !_with.isBlocked!,
+                                      visible: !_with.isWantedUserBlocked!,
                                       child: FollowButton(
                                         isFollowed: _with.isFollowed!,
                                         callBack: (b) {
@@ -655,7 +655,7 @@ class ChatPageState extends State<ChatPage> {
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: _with.isBlocked! ? Container(
+                  child: _with.isWantedUserBlocked! ? Container(
                     width: double.infinity,
                     height: 60,
                     color: Theme.of(context).scaffoldBackgroundColor,

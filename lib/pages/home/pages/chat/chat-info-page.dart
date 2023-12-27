@@ -64,7 +64,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                       await auth.unblock(
                           widget._with.id,
                           success: (res){
-                            widget._with.isBlocked = false;
+                            widget._with.isWantedUserBlocked = false;
                             setState(() {
                               if(context.mounted){
                                 Navigator.pop(context);
@@ -134,7 +134,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                           widget._with.isFollowingMe!,
                           success: (res){
                             setState(() {
-                              widget._with.isBlocked = true;
+                              widget._with.isWantedUserBlocked = true;
                               if(context.mounted) {
                                 feedProvider.updateProfileFeed(context, UserProfile.profileFeedPosts);
                                 feedProvider.updateProfileFeed(context, UserProfile.profileFeedLikes);
@@ -345,7 +345,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                       children: [
                         ListTile(
                           title: Text(
-                            widget._with.isBlocked! ? "Unblock User" :  "Block User",
+                            widget._with.isWantedUserBlocked! ? "Unblock User" :  "Block User",
                             style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.w600,
@@ -353,7 +353,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                             ),
                           ),
                           onTap: () {
-                            if (widget._with.isBlocked!){
+                            if (widget._with.isWantedUserBlocked!){
                               _unblockUser();
                             }else{
                               _blockUser();

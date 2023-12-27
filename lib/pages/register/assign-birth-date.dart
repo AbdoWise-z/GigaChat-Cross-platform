@@ -8,9 +8,9 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
-
 import '../home/home.dart';
 
+/// This is where user enters his birth date when registering with google account
 class AssignBirthDate extends StatefulWidget {
   static const pageRoute = '/assign-birth-date';
   const AssignBirthDate({Key? key}) : super(key: key);

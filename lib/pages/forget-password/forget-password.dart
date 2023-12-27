@@ -14,6 +14,8 @@ import '../user-verification/select-verification-method-page.dart';
 const String FORGET_PASSWORD_DESCRIPTION = "Enter the email, phone number, or "
     "username associated with your account to change the password.";
 
+/// This is the first page when trying to reset password
+/// It can be accessed while logged in or out
 class ForgetPassword extends StatefulWidget {
   static const String pageRoute = "/forget-password";
 
@@ -29,6 +31,7 @@ class ForgetPassword extends StatefulWidget {
 class _ForgetPasswordState extends State<ForgetPassword> {
   late String email;
   late bool valid;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -37,7 +40,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     valid = email.isNotEmpty;
   }
 
-  bool _loading = false;
+  /// passes the email entered to the next page
   void _getContactMethods() async {
     if (InputValidations.isValidEmail(email) == null) {
       setState(() {
@@ -64,7 +67,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     }else{
       Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ConfirmEmailPage(username: email,isLogged: widget.isLogged,)));
+          MaterialPageRoute(builder: (context) => ConfirmEmailPage(isLogged: widget.isLogged,)));
     }
   }
 

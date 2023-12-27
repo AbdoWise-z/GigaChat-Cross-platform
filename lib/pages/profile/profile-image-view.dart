@@ -7,6 +7,8 @@ import 'package:gigachat/services/upload-image/upload-camera-image.dart';
 import 'package:gigachat/services/upload-image/upload-local-image.dart';
 import 'dart:io';
 
+/// This is the page where users can see theirs and others profile image & banner
+/// Currently logged in user can edit his profile image & banner
 class ProfileImageView extends StatelessWidget {
   final bool isProfileAvatar;
   final String imageUrl;

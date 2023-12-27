@@ -19,6 +19,8 @@ const String CODE_VERIFICATION_DESCRIPTION =
     "Check your email to get your confirmation"
     " code.";
 
+/// This where the user enters the verification code
+/// whether when resetting password or register or changing email
 class VerificationCodePage extends StatefulWidget {
   static String pageRoute = "/verification/code";
 
@@ -46,6 +48,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     enableResendEmail();
   }
 
+  /// Counter for 60 sec
   void enableResendEmail() async {
     for(int i = 60; i >= 1; i--){
       if (!context.mounted){
@@ -62,6 +65,8 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
   }
 
   bool _resendLoading = false;
+
+  /// Called when the user asks to resend the code
   void _requestCode(ContactMethod m) async {
     setState(() {
       _resendLoading = true;
@@ -105,6 +110,8 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
   }
 
   bool _loading = false;
+
+  /// Sends a request to check whether the code is right or not
   void _verifyCode(ContactMethod m , String code) async {
     if (code.isEmpty) return;
 

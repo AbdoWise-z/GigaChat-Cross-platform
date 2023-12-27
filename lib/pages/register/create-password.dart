@@ -7,7 +7,7 @@ import 'package:gigachat/widgets/auth/auth-app-bar.dart';
 import 'package:gigachat/widgets/auth/auth-footer.dart';
 import '../blocking-loading-page.dart';
 
-
+/// This is where user enters his password while registering
 class CreatePassword extends StatefulWidget {
   const CreatePassword({Key? key}) : super(key: key);
 

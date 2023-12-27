@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Used to get an image from the mobile camera of the user
 final picker = ImagePicker();
 
 Future getImageFromCamera(bool isBannerImage) async {

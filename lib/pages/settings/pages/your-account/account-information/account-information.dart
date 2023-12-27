@@ -5,6 +5,7 @@ import 'package:gigachat/providers/auth.dart';
 import 'package:gigachat/widgets/text-widgets/main-text.dart';
 import '../../../../../providers/theme-provider.dart';
 
+/// Shows the information of user like username, email
 class AccountInformation extends StatefulWidget {
   const AccountInformation({Key? key}) : super(key: key);
 

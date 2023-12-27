@@ -9,6 +9,7 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 import 'package:gigachat/widgets/upload-image.dart';
 import 'dart:io';
 
+/// This where user can set a profile image for the first time after registering
 class PickProfilePicture extends StatefulWidget {
   const PickProfilePicture({Key? key}) : super(key: key);
 

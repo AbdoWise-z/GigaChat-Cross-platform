@@ -9,6 +9,7 @@ import 'package:gigachat/widgets/auth/auth-footer.dart';
 
 import '../../providers/auth.dart';
 
+/// This where user can set username for the first time after registering
 class ChooseUsername extends StatefulWidget {
   const ChooseUsername({Key? key}) : super(key: key);
 
