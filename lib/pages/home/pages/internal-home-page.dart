@@ -187,87 +187,89 @@ class InternalHomePageState extends State<InternalHomePage> with TickerProviderS
               bottomNavigationBar: AnimatedContainer(
                 height: Platform.isWindows == false && _hidBottomControls && !Home.Pages[_currentPage].isBottomNavPinned(context) ? 0 : 51,
                 duration: const Duration(milliseconds: 100),
-                child: Column(
-                  children: [
-                    Divider(height: 1, thickness: 0.4, color: Colors.blueGrey,),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
-                      child: Row(
-                        children: [
-                          const Expanded(child: SizedBox()),
-                          BottomBarItem(
-                            icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
-                            click: () {
-                              if (_currentPage == 0){
-                                Home.Pages[0].reload(context);
-                              }else{
-                                setPage(0);
-                              }
-                            },
-                            notify: Home.Pages[0].getNotificationsCount(context),
-                          ),
-                          const Expanded(flex: 2,child: SizedBox(),),
-                          BottomBarItem(
-                            icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
-                            click: () {
-                              if (_currentPage == 1) {
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) {
-                                      return const SearchPage();
-                                    },
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      var tween = Tween(begin: 0.0, end: 1.0);
-                                      var fadeAnimation = tween.animate(animation);
-                                      return FadeTransition(
-                                        opacity: fadeAnimation,
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else {
-                                setPage(1);
-                              }
-                            },
-                            notify: Home.Pages[1].getNotificationsCount(context),
-                          ),
-                          const Expanded(flex: 2,child: SizedBox(),),
-                          BottomBarItem(
-                            icon: _currentPage == 2 ? Icons.notifications : Icons.notifications_none_outlined,
-                            click: () {
-                              if (_currentPage == 2){
-                                Home.Pages[2].reload(context);
-                              }else{
-                                setPage(2);
-                              }
-                            },
-                            notify: Home.Pages[2].getNotificationsCount(context),
-                          ),
-                          Visibility(
-                            visible: !Globals.isChatSeparated,
-                            child: const Expanded(flex: 2,child: SizedBox(),),
-                          ),
-                          Visibility(
-                            visible: !Globals.isChatSeparated,
-                            child: BottomBarItem(
-                              icon: _currentPage == 3 ? Icons.messenger : Icons.messenger_outline,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Divider(height: 1, thickness: 0.4, color: Colors.blueGrey,),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 0 , horizontal: 16),
+                        child: Row(
+                          children: [
+                            const Expanded(child: SizedBox()),
+                            BottomBarItem(
+                              icon: _currentPage == 0 ? Icons.home : Icons.home_outlined,
                               click: () {
-                                if (_currentPage == 3){
-                                  Home.Pages[3].reload(context);
+                                if (_currentPage == 0){
+                                  Home.Pages[0].reload(context);
                                 }else{
-                                  setPage(3);
+                                  setPage(0);
                                 }
                               },
-                              notify: Home.Pages[3].getNotificationsCount(context),
+                              notify: Home.Pages[0].getNotificationsCount(context),
                             ),
-                          ),
-                          const Expanded(child: SizedBox()),
-                        ],
+                            const Expanded(flex: 2,child: SizedBox(),),
+                            BottomBarItem(
+                              icon: _currentPage == 1 ? Icons.saved_search_sharp : Icons.search_outlined,
+                              click: () {
+                                if (_currentPage == 1) {
+                                  Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) {
+                                        return const SearchPage();
+                                      },
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                        var tween = Tween(begin: 0.0, end: 1.0);
+                                        var fadeAnimation = tween.animate(animation);
+                                        return FadeTransition(
+                                          opacity: fadeAnimation,
+                                          child: child,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  setPage(1);
+                                }
+                              },
+                              notify: Home.Pages[1].getNotificationsCount(context),
+                            ),
+                            const Expanded(flex: 2,child: SizedBox(),),
+                            BottomBarItem(
+                              icon: _currentPage == 2 ? Icons.notifications : Icons.notifications_none_outlined,
+                              click: () {
+                                if (_currentPage == 2){
+                                  Home.Pages[2].reload(context);
+                                }else{
+                                  setPage(2);
+                                }
+                              },
+                              notify: Home.Pages[2].getNotificationsCount(context),
+                            ),
+                            Visibility(
+                              visible: !Globals.isChatSeparated,
+                              child: const Expanded(flex: 2,child: SizedBox(),),
+                            ),
+                            Visibility(
+                              visible: !Globals.isChatSeparated,
+                              child: BottomBarItem(
+                                icon: _currentPage == 3 ? Icons.messenger : Icons.messenger_outline,
+                                click: () {
+                                  if (_currentPage == 3){
+                                    Home.Pages[3].reload(context);
+                                  }else{
+                                    setPage(3);
+                                  }
+                                },
+                                notify: Home.Pages[3].getNotificationsCount(context),
+                              ),
+                            ),
+                            const Expanded(child: SizedBox()),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
