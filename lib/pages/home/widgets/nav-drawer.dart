@@ -83,83 +83,100 @@ class _NavDrawerState extends State<NavDrawer> {
         ],
       );
     } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Container(
-                  width: 40,
-                  height: 40,
+      return InkWell(
+        splashFactory: NoSplash.splashFactory,
+        splashColor: Colors.transparent,
+        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        onTap: () async {
+          await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      UserProfile(username: Auth.getInstance(context).getCurrentUser()!.id, isCurrUser: true)
+              )
+          );
+          setState(() {
+
+          });
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(user.iconLink),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: const BorderRadius.all(Radius.circular(50)),
+                        border: Border.all(
+                          width: 0,
+                        )
+                    ),
+                  ),
+                ),
+                const Expanded(child: SizedBox()),
+                Container(
+                  height: 20,
+                  width: 20,
                   decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(user.iconLink),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: const BorderRadius.all(Radius.circular(50)),
-                      border: Border.all(
-                        width: 0,
-                      )
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      width: 2,
+                      color: ThemeProvider.getInstance(context).isDark() ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  child: IconButton(onPressed: () {
+                    //TODO : handle account menu
+                  },
+                    icon: const Icon(
+                      Icons.more_vert,
+                      size: 16,
+                    ),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
                   ),
                 ),
-              ),
-              const Expanded(child: SizedBox()),
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    width: 2,
-                    color: ThemeProvider.getInstance(context).isDark() ? Colors.white : Colors.black,
-                  ),
-                ),
-                child: IconButton(onPressed: () {
-                  //TODO : handle account menu
-                },
-                  icon: const Icon(
-                    Icons.more_vert,
-                    size: 16,
-                  ),
-                  padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5,),
-          Text(
-            user.name,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+              ],
             ),
-          ),
-          Text(
-              "@${user.id}",
-              style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-          ),
-          const SizedBox(height: 15,),
-          Row(
-            children: [
-              Text(
-                "${user.following} ",
+            const SizedBox(height: 5,),
+            Text(
+              user.name,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
               ),
-              Text(
-                  "Following  ",
-                  style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-              ),
-              Text(
-                "${user.followers} ",
-              ),
-              Text(
-                  "Followers",
-                  style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
-              ),
-            ],
-          ),
-        ],
+            ),
+            Text(
+                "@${user.id}",
+                style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
+            ),
+            const SizedBox(height: 15,),
+            Row(
+              children: [
+                Text(
+                  "${user.following} ",
+                ),
+                Text(
+                    "Following  ",
+                    style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
+                ),
+                Text(
+                  "${user.followers} ",
+                ),
+                Text(
+                    "Followers",
+                    style: ThemeProvider.getInstance(context).getTheme.textTheme.displaySmall
+                ),
+              ],
+            ),
+          ],
+        ),
       );
     }
   }

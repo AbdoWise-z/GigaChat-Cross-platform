@@ -144,16 +144,16 @@ class _GalleryWidgetState extends State<_GalleryWidget> {
       }
     }
 
-    final PermissionState ps = await PhotoManager.requestPermissionExtend();
-    if (!ps.hasAccess) {
-      await PhotoManager.openSetting();
-      if (!ps.hasAccess) {
-        setState(() {
-          _loading = false;
-        });
-        return;
-      }
-    }
+    // final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    // if (!ps.hasAccess) {
+    //   await PhotoManager.openSetting();
+    //   if (!ps.hasAccess) {
+    //     setState(() {
+    //       _loading = false;
+    //     });
+    //     return;
+    //   }
+    // }
 
     _paths = await PhotoManager.getAssetPathList();
     //print("paths: $_paths");

@@ -16,7 +16,7 @@ Future getImageFromGallery(bool isBannerImage) async {
 
     CroppedFile? croppedFile;
 
-    if(isBannerImage){
+    if(isBannerImage && Platform.isAndroid){
         croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedImage.path,
         aspectRatio: const CropAspectRatio(ratioX: 5.0, ratioY: 2.0),

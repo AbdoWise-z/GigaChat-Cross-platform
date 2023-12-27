@@ -102,8 +102,8 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     double width  = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    Globals.isWideVersion   = width / height > 1.6 && height >= 800;
-    Globals.isChatSeparated = width / height > 1 && height >= 800;
+    Globals.isWideVersion   = width / height > 1.6 && Platform.isWindows;
+    Globals.isChatSeparated = width / height > 1 && Platform.isWindows;
     //print(width / height);
 
     Globals.HomeScreenWidth = width;
