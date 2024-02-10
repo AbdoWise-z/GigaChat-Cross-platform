@@ -103,7 +103,7 @@ we implemented most of the core features of tweetter while also changing some of
 ### Authentication and Registration
 * Loging & Register using the mobile or the Disktop version
 * Email confirmation and password reset mechanisms
-* we also integrated third-party sign-in options , Ex: Google-sign-in (Android Only)
+* We also integrated third-party sign-in options , Ex: Google-sign-in (Android Only)
 * Functionalities for updating usernames, passwords, and email addresses
 
 ### User Profiles
@@ -115,7 +115,7 @@ we implemented most of the core features of tweetter while also changing some of
 * Creating, deleting, liking & viewing tweets
 * Adding & removing replies to tweets
 * Responsivly loading tweets into the application feed (dont mention the word "feed" in front of [Mohammed](https://github.com/MoAdelEzz) or he's gonna murder you ..)
-* viewing lists of various tweet informations, Ex: likers list ...  
+* Viewing lists of various tweet informations, Ex: likers list ...  
 
 ### Timeline & Trends
 * Personalized home timelines showcasing tweets from followed users
@@ -150,7 +150,7 @@ This project is developed in flutter, you will be required to insall flutter fro
 
 ### IDE
 
-This isn't really any mandatory IDE for flutter, in our case we used [Android Studio](https://developer.android.com/studio) to develop the app, but other ides
+There isn't really any mandatory IDE for flutter, in our case we used [Android Studio](https://developer.android.com/studio) to develop the app, but other ides
 like [VS Code](https://code.visualstudio.com/) can also be used
 
 ### Setting Up Server
