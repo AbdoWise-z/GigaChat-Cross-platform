@@ -235,7 +235,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 
 ## Special Thanks to
-* Our backend team for making our lifes a living hell (I'm never forgetting that notification issue).
+* Our backend team for making our lives a living hell (I'm never forgetting that notification issue).
 * [Mohammed Adel Mohammed](https://www.linkedin.com/in/mohammed-adel-mohammed-ezz-eldin-115609245/) and [Osama Saleh Farag](https://github.com/Elkapeer) for 
 managing to survive this hell of a project, good jop guys.
 * [Ahmed Mohammed Omar](https://github.com/A-OMAR-1234) you fox you.
