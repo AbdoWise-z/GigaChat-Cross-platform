@@ -243,19 +243,19 @@ managing to survive this hell of a project, good jop guys.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/CMP25-SWE-TEAM1/Cross-platform.svg?style=for-the-badge
 [contributors-url]: https://github.com/CMP25-SWE-TEAM1/Cross-platform/graphs/contributors
 
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/CMP25-SWE-TEAM1/Cross-platform.svg?style=for-the-badge
 [forks-url]: https://github.com/CMP25-SWE-TEAM1/Cross-platform/network/members
 
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/CMP25-SWE-TEAM1/Cross-platform.svg?style=for-the-badge
 [stars-url]: https://github.com/CMP25-SWE-TEAM1/Cross-platform/stargazers
 
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/CMP25-SWE-TEAM1/Cross-platform.svg?style=for-the-badge
 [issues-url]: https://github.com/CMP25-SWE-TEAM1/Cross-platform/issues
 
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/CMP25-SWE-TEAM1/Cross-platform.svg?style=for-the-badge
 [license-url]: https://github.com/CMP25-SWE-TEAM1/Cross-platform/blob/master/LICENSE.txt
 
 [flutter-shield]: https://img.shields.io/badge/-flutter-blue?logo=flutter&logoColor=f5f5f5
